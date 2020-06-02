@@ -1,2 +1,1 @@
-local FOLDER,name = ...
-print(FOLDER,name,...)
+

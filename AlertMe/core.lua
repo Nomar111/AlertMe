@@ -1,5 +1,6 @@
-local addonName,addonTable = ...
-print(FOLDER,name)
+local ADDON_NAME,AlertMe = ...
+_G.ViragDevTool_AddData(AlertMe,ADDON_NAME)
+--[[
 -- local declarations
 local _G = _G
 local LibStub = LibStub
@@ -61,3 +62,4 @@ end
 function pmon:onProfileChanged(event,newProfileKey)
 	p.debug(self,2,"Profile changed",event,newProfileKey)
 end
+]]
