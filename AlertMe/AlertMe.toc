@@ -1,0 +1,12 @@
+## Interface: 11304
+
+## Title: AlertMe
+## Author: Nomar - Zandalar Tribe (EU)
+## SavedVariables: AlertMeDB
+## SavedVariablesPerCharacter: AlertMeDBC
+## OptionalDeps: Ace3,ViragDevTool
+
+embeds.xml
+core.lua
+options.lua
+test.lua
