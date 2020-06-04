@@ -1,26 +1,34 @@
 -- get addon environment
 local AlertMe = _G.AlertMe
 -- lua upvalues
+local _G = _G
 local pairs, print = pairs, print
+local tinsert = tinsert
 -- misc upvalues
 local LibStub = LibStub
 -- wow upvalues
 -- set addon environment as new global environment
 setfenv(1, AlertMe)
 
-function AlertMe:ReturnDefaultOptions()
+function ReturnDefaultOptions()
 	---- default values for profiles
 	return {
 		profile = {
 			options= {
 				zones = {
-					['*'] = true,
-					['raid'] = false,
+					['*'] = true
+				},
+				chatFrames = {
+					['ChatFrame1'] = true,
+					['*'] = false
 				},
 			},
 		},
 	}
 end
+
+defaults = ReturnDefaultOptions()
+VDT_AddData(defaults, "defaults")
 
 local tabs = {
 	{text = "General", value = "general"},
@@ -33,7 +41,7 @@ local initialTab = "general"
 local options_general = {
 	{
 		widgetType = "Heading",
-		text = "General Options",
+		text = "Zone configuration",
 		fullWidth = true
 	},
 	{
@@ -48,7 +56,7 @@ local options_general = {
 				type = "radio",
 				key = "bg",
 				text = "Battlegrounds",
-				relativeWidth = 0.2,
+				relativeWidth = 0.15,
 				get = true,
 				set = true,
 			},
@@ -57,7 +65,7 @@ local options_general = {
 				type = "radio",
 				key = "world",
 				text = "World",
-				relativeWidth = 0.2,
+				relativeWidth = 0.1,
 				get = true,
 				set = true,
 			},
@@ -71,27 +79,114 @@ local options_general = {
 				set = true,
 			}
 		}
-	}
+	},
+	{
+		widgetType = "Heading",
+		text = "System messages",
+		fullWidth = true
+	},
+	{
+		widgetType = "InlineGroup",
+		key = "chatFrames",
+		text = "Display addon/system messages in the following chat windows",
+		layout = "Flow",
+		fullWidth = true,
+		children = {
+			{
+				widgetType = "CheckBox",
+				type = "radio",
+				key = "ChatFrame1",
+				text = "Chat Window 1",
+				relativeWidth = 0.15,
+				get = true,
+				set = true,
+			},
+			{
+				widgetType = "CheckBox",
+				type = "radio",
+				key = "ChatFrame2",
+				text = "Chat Window 2",
+				relativeWidth = 0.15,
+				get = true,
+				set = true,
+			},
+			{
+				widgetType = "CheckBox",
+				type = "radio",
+				key = "ChatFrame3",
+				text = "Chat Window 3",
+				relativeWidth = 0.15,
+				get = true,
+				set = true,
+			},
+			{
+				widgetType = "CheckBox",
+				type = "radio",
+				key = "ChatFrame4",
+				text = "Chat Window 4",
+				relativeWidth = 0.15,
+				get = true,
+				set = true,
+			},
+			{
+				widgetType = "CheckBox",
+				type = "radio",
+				key = "ChatFrame5",
+				text = "Chat Window 5",
+				relativeWidth = 0.15,
+				get = true,
+				set = true,
+			},
+		}
+	},
 }
 
--- onClose callback function for widgets
-local function OnClose(widget, event)
-	Debug(2, "OnClose", widget, event)
-	-- frame recycling
-	AceGUI:Release(widget)
-end
-
-local function OpenTab(container, event, tab)
-	Debug(2, "SelectTab", container, event, tab)
-	-- frame recycling
-	container:ReleaseChildren()
-	-- general options
-	if tab == "general" then
-			CreateWidget(container, "options", options_general)
+local function GetDefaultValue(parentKey, key)
+	Debug(2,"GetDefaultvalue", parentKey, key)
+	-- try to find specific value in defaults table
+	local defaults = ReturnDefaultOptions()
+	local value = defaults.profile.options[parentKey][key]
+	if value ~= nil then return value	end
+	-- try to find wildcards for that option
+	value = defaults.profile.options[parentKey]['*']
+	if value ~= nil then
+		return value
+	else
+		Debug(1, "No Defaultvalue for parentKey", parentKey, "key", key)
+		return false
 	end
 end
 
-function CreateWidget(container, parentKey, options)
+local function GetDBValue(parentKey, key)
+	Debug(2,"GetDBValue", parentKey, key)
+	-- try to find the value in options db --> muss eigentlich rekursiv gesucht werden!!!
+	local value = AlertMe.db.profile.options[parentKey][key]
+	if value ~= nil then return value	end
+	-- get default value if no entry in db can be found
+	value = GetDefaultValue(parentKey, key)
+	if value then
+		return value
+	else
+		return false
+	end
+end
+
+local function SetDBValue(widget, event, value)
+	Debug(2,"SetValue", widget, event, value)
+	local key = widget.key
+	local parentKey = widget.parent.key
+	-- get default value
+	local defaultValue = GetDefaultValue(parentKey, key)
+	-- write value only to db, if it not equals default
+	if defaultValue ~= value then
+		AlertMe.db.profile.options[parentKey][key] = value
+	elseif defaultValue == value then
+		-- if value equals default value -> delete db entry
+		AlertMe.db.profile.options[parentKey][key] = nil
+	end
+end
+
+local function CreateWidget(container, parentKey, options)
 	Debug(2, "CreateWidget", container, options)
 	-- loop over elements on this level
 	for _, element in pairs(options) do
@@ -141,6 +236,23 @@ function CreateWidget(container, parentKey, options)
 	end
 end
 
+local function OpenTab(container, event, tab)
+	Debug(2, "SelectTab", container, event, tab)
+	-- frame recycling
+	container:ReleaseChildren()
+	-- general options
+	if tab == "general" then
+			CreateWidget(container, "options", options_general)
+	end
+end
+
+-- onClose callback function for widgets
+local function OnClose(widget, event)
+	Debug(2, "OnClose", widget, event)
+	-- frame recycling
+	AceGUI:Release(widget)
+end
+
 -- initialize options window
 function AlertMe:OpenOptions()
 	Debug(2, "OpenOptions")
@@ -171,35 +283,4 @@ function AlertMe:OpenOptions()
 	f:AddChild(tabGroup)
 	--VDT_AddData(OptionsFrame, "optionsFrame")
 	--VDT_AddData(AceGUI, "AceGUI")
-end
-
-function GetDBValue(parentKey, key)
-	Debug(2,"GetDBValue", parentKey, key)
-	-- try to find the value in options db --> muss eigentlich rekursiv gesucht werden!!!
-	local value = AlertMe.db.profile.options[parentKey][key]
-	if value ~= nil then return value end
-	-- try to find specific value in defaults table
-	local defaults = ReturnDefaultOptions()
-	value = defaults.profile.options[parentKey][key]
-	if value ~= nil then return value end
-	-- try to find wildcards for that option
-	value = defaults.profile[parentKey]['*']
-	if value ~= nil then return value end
-	return false
-end
-
-function SetDBValue(widget, event, value)
-	Debug(2,"SetValue", widget, event, value)
-	local key = widget.key
-	local parentKey = widget.parent.key
-	-- get current db value
-	local valueDB = GetDBValue(parentKey, key)
-	Debug(1, valueDB, "valueDB")
-	if valueDB ~= nil and valueDB ~= value then
-		AlertMe.db.profile.options[parentKey][key] = value
-	end
-end
-
-function ToggleCheckbox(checkbox, event, value)
-	print(checkbox, event, value)
 end
