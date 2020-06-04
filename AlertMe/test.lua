@@ -32,6 +32,43 @@ frame:AddChild(button)
 function AlertMe:OpenCustomOptions()
 	-- init AceGUI
 	AlertMe.AceGUI = LibStub("AceGUI-3.0")
+	local events = {["gain"] = "On aura gain/refresh", ["dispel"] = "On aura dispel", ["start"] = "On cast start"}
+	local ddg = AceGUI:Create("DropdownGroup")
+	ddg:SetGroupList(events)
+	ddg:SetGroup("gain")
+	ddg:SetCallback("OnGroupSelected", function(_, _, key) print (key) end)
+	-- Create the frame container
+	local frame = AceGUI:Create("Frame")
+	frame:SetTitle("Example Frame")
+	frame:SetStatusText("AceGUI-3.0 Example Container Frame")
+	frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
+	-- Fill Layout - the TabGroup widget will fill the whole frame
+	frame:SetLayout("Fill")
+	-- add to the frame container
+	frame:AddChild(ddg)
+
+	-- Callback function for OnGroupSelected
+	local function SelectDDGroup(container, event, group)
+		--container:ReleaseChildren()
+			print("gain")
+	end
+end
+
+
+
+	--[[
+	DropdownGroup
+A group controlled by a dropdown on top of a big container frame.
+
+APIs
+SetTitle(text) - Set the title of the group.
+SetGroupList(table [, order]) - Set the list of groups (key => value pairs) .The order is a optional second table, that contains the order in which the entrys should be displayed (Array table with the data tables keys as values). Behaviour is undefined if you provide a order table that contains not the exact same keys as in the data table.
+SetGroup(key) - Set the active group.
+SetDropdownWidth(width) - Set the width of the dropdown box.
+SetStatusTable(table) - Set an external status table.
+Callbacks
+OnGroupSelected(group) - Fires when a new group selection occ
+
 	local function DrawGroup1(container)
 		local desc = AceGUI:Create("Label")
 		desc:SetText("This is Tab 1")
@@ -103,5 +140,5 @@ function AlertMe:OpenCustomOptions()
 
 		-- add to the frame container
 		frame:AddChild(tab)
+		]]
 		--
-end
