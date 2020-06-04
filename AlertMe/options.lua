@@ -35,7 +35,7 @@ local function ReturnOptionsTable(tbl, byValue)
 	t["tabs_initial"] = "general"
 	-- zone types
 	t["zones"] = {
-		name = "zones",
+		key = "zones",
 		title = "Addon is active in:",
 		widgetType = "InlineGroup",
 		layout = "Flow",
@@ -115,20 +115,18 @@ function CreateGroup(container, optionsTableName)
 	group:SetTitle(options.title)
 	group:SetLayout(options.layout)
 	group:SetFullWidth(true)
-	group.name = options.name
+	group.key = options.key
 	container:AddChild(group)
 	Debug(1, options, "options table bei Group Creation")
 	-- create checkboxes
 	for _, child in pairs(options.children) do
 		local widget = AceGUI:Create(child.widgetType)
-		local value = GetDBValue(options.name, child.key)
+		local value = GetDBValue(options.key, child.key)
 		widget:SetValue(value)
 		widget:SetLabel(child.label)
 		widget:SetRelativeWidth(child.relativewidth)
 		widget:SetType(widget.type)
 		widget:SetCallback("OnValueChanged", child.callback, value)
-		widget.optionsTable = options
-		widget.parentName = options.name
 		widget.key = child.key
 		group:AddChild(widget)
 	end
@@ -168,19 +166,19 @@ function AlertMe:OpenOptions()
 	--VDT_AddData(AceGUI, "AceGUI")
 end
 
-function GetDBValue(parentName, key)
-	Debug(2,"GetDBValue", parentName, key)
+function GetDBValue(parentKey, key)
+	Debug(2,"GetDBValue", parentKey, key)
 	-- try to find the value in options db --> muss eigentlich rekursiv gesucht werden!!!
-	local value = AlertMe.db.profile.options[parentName][key]
+	local value = AlertMe.db.profile.options[parentKey][key]
 	if value ~= nil then return value end
 	-- try to find specific value in defaults table
 	local defaults = ReturnDefaultOptions()
-	value = defaults.profile.options[parentName][key]
+	value = defaults.profile.options[parentKey][key]
 	if value ~= nil then return value end
 	-- try to find wildcards for that option
-	value = defaults.profile[parentName]['*']
+	value = defaults.profile[parentKey]['*']
 	if value ~= nil then return value end
-	Debug(1, "Option key", key, "not found under parent", parentName)
+	Debug(1, "Option key", key, "not found under parent", parentKey)
 	return false
 end
 
@@ -188,12 +186,12 @@ function SetDBValue(widget, event, value)
 	Debug(2,"SetValue", widget, event, value)
 	VDT_AddData(widget, "setdbvalue - widget")
 	local key = widget.key
-	local parentName = widget.parent.name
+	local parentKey = widget.parent.key
 	-- get current db value
-	local valueDB = GetDBValue(parentName, key)
+	local valueDB = GetDBValue(parentKey, key)
 	Debug(1,valueDB, "valueDB on Set")
 	if valueDB ~= nil and valueDB ~= value then
-		AlertMe.db.profile.options[parentName][key] = value
+		AlertMe.db.profile.options[parentKey][key] = value
 	end
 end
 
