@@ -11,32 +11,33 @@ local GetAddOnMetadata = GetAddOnMetadata
 local AlertMe = LibStub("AceAddon-3.0"):NewAddon("AlertMe", "AceConsole-3.0","AceEvent-3.0")
 -- create wow-global
 _G["AlertMe"] = AlertMe
--- add to debugger
-VDT_AddData(AlertMe)
 -- set addon environment as new global environment
 setfenv(1, AlertMe)
 -- set addon version
 version = GetAddOnMetadata("AlertMe", "Version")
 debug_level = 2
+-- make debugger avilable
 AlertMe.VDT_AddData = VDT_AddData
+-- add global object to debugger
+VDT_AddData(AlertMe)
 
 -- addon initialized
 function AlertMe:OnInitialize()
 	Debug(2,"OnInitialize")
 	-- set up ACE db
-	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:GetDefaults(), true)
+	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:GetDefaultOptions(), true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+	-- register slash command
+	self:RegisterChatCommand("alertme", "OpenOptions")
 end
 
 -- addon enabled
 function AlertMe:OnEnable()
 	Debug(2,"OnEnable")
-	-- init options (options.lua)
-	self:InitOptions()
-	--self:OpenCustomOptions()
-	self:RegisterChatCommand("am", "OpenCustomOptions")
+	-- open options (options.lua)
+	self:OpenOptions()
 end
 
 -- addon disabled

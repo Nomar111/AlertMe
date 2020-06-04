@@ -10,4 +10,3 @@
 embeds.xml
 core.lua
 options.lua
-test.lua
