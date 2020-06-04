@@ -22,66 +22,57 @@ function AlertMe:ReturnDefaultOptions()
 	}
 end
 
-local function ReturnOptionsTable(tbl, byValue)
-	Debug(2, "ReturnOptionsTable", tbl, byValue)
-	local t =  {}
-	-- tabs
-	t["tabs"] = {
-		{text = "General", value = "general"},
-		{text = "Event specific", value = "events"},
-		{text = "Alerts", value = "alerts"},
-		{text = "Profiles", value = "profiles"}
-	}
-	t["tabs_initial"] = "general"
-	-- zone types
-	t["zones"] = {
-		key = "zones",
-		title = "Addon is active in:",
+local tabs = {
+	{text = "General", value = "general"},
+	{text = "Event specific", value = "events"},
+	{text = "Alerts", value = "alerts"},
+	{text = "Profiles", value = "profiles"}
+}
+local initialTab = "general"
+
+local options_general = {
+	{
+		widgetType = "Heading",
+		text = "General Options",
+		fullWidth = true
+	},
+	{
 		widgetType = "InlineGroup",
+		key = "zones",
+		text = "Addon is activated in:",
 		layout = "Flow",
+		fullWidth = true,
 		children = {
 			{
+				widgetType = "CheckBox",
+				type = "radio",
 				key = "bg",
-				widgetType = "CheckBox",
-				type = "radio",
-				label = "Battlegrounds",
-				relativewidth = 0.2,
-				callback = SetDBValue
+				text = "Battlegrounds",
+				relativeWidth = 0.2,
+				get = true,
+				set = true,
 			},
 			{
+				widgetType = "CheckBox",
+				type = "radio",
 				key = "world",
-				widgetType = "CheckBox",
-				type = "radio",
-				label = "World",
-				relativewidth = 0.2,
-				callback = SetDBValue
+				text = "World",
+				relativeWidth = 0.2,
+				get = true,
+				set = true,
 			},
 			{
-				key = "raid",
 				widgetType = "CheckBox",
 				type = "radio",
-				label = "Raid Instances",
-				relativewidth = 0.2,
-				callback = SetDBValue
-			},
+				key = "raid",
+				text = "Raid Instances",
+				relativeWidth = 0.2,
+				get = true,
+				set = true,
+			}
 		}
 	}
-	-- return requested table
-	if not byValue then
-		local initial = ""
-		if t[tbl.."_initial"] ~= nil then
-			initial = t[tbl.."_initial"]
-		end
-		return t[tbl], initial
-
-	else
-		local val = {}
-		for _, tab in pairs(t[tbl]) do
-			val[tab.value] = tab.text
-		end
-		return val
-	end
-end
+}
 
 -- onClose callback function for widgets
 local function OnClose(widget, event)
@@ -96,41 +87,58 @@ local function OpenTab(container, event, tab)
 	container:ReleaseChildren()
 	-- general options
 	if tab == "general" then
-		-- heading
-		local heading = AceGUI:Create("Heading")
-		heading:SetText("General Options")
-		heading:SetFullWidth(true)
-		container:AddChild(heading)
-		CreateGroup(container, "zones")
+			CreateWidget(container, "options", options_general)
 	end
 end
 
-function CreateGroup(container, optionsTableName)
-	Debug(2, "CreateGroup", container, optionsTableName)
-	-- get corresponding table
-	local options = ReturnOptionsTable(optionsTableName)
-	VDT_AddData(options, "OptionsTableZones")
-	-- create group
-	local group = AceGUI:Create(options.widgetType)
-	group:SetTitle(options.title)
-	group:SetLayout(options.layout)
-	group:SetFullWidth(true)
-	group.key = options.key
-	container:AddChild(group)
-	Debug(1, options, "options table bei Group Creation")
-	-- create checkboxes
-	for _, child in pairs(options.children) do
-		local widget = AceGUI:Create(child.widgetType)
-		local value = GetDBValue(options.key, child.key)
-		widget:SetValue(value)
-		widget:SetLabel(child.label)
-		widget:SetRelativeWidth(child.relativewidth)
-		widget:SetType(widget.type)
-		widget:SetCallback("OnValueChanged", child.callback, value)
-		widget.key = child.key
-		group:AddChild(widget)
+function CreateWidget(container, parentKey, options)
+	Debug(2, "CreateWidget", container, options)
+	-- loop over elements on this level
+	for _, element in pairs(options) do
+		-- create widget
+		local widget = AceGUI:Create(element.widgetType)
+		-- set label/text/title
+		if element.widgetType == "InlineGroup" then
+			widget:SetTitle(element.text)
+		elseif element.widgetType == "CheckBox" then
+			widget:SetLabel(element.text)
+		elseif element.widgetType == "Heading" then
+			widget:SetText(element.text)
+		end
+		-- set key
+		if element.key then
+			widget.key = element.key
+		end
+		-- layout
+		if element.layout then
+			widget:SetLayout(element.layout)
+		end
+		-- width
+		if element.fullWidth then
+			widget:SetFullWidth(true)
+		elseif element.relativeWidth then
+			widget:SetRelativeWidth(element.relativeWidth)
+		end
+		-- type
+		if element.type then
+			widget:SetType(element.type)
+		end
+		-- get callback
+		if element.get then
+			local value = GetDBValue(parentKey, element.key)
+			widget:SetValue(value)
+		end
+		-- set callback
+		if element.set then
+			widget:SetCallback("OnValueChanged", SetDBValue, value)
+		end
+		-- add to container
+		container:AddChild(widget)
+		-- check for children, if yes recursive function call
+		if element.children then
+			CreateWidget(widget, element.key, element.children)
+		end
 	end
-	VDT_AddData(group, "ZonesGroupinFrame")
 end
 
 -- initialize options window
@@ -157,9 +165,8 @@ function AlertMe:OpenOptions()
 	-- register callback for tab selection
 	tabGroup:SetCallback("OnGroupSelected", OpenTab)
 	-- set tabs and activate initial tab
-	local tabs, initial = ReturnOptionsTable("tabs")
 	tabGroup:SetTabs(tabs)
-	tabGroup:SelectTab(initial)
+	tabGroup:SelectTab(initialTab)
 	-- attach tabs to  main frame
 	f:AddChild(tabGroup)
 	--VDT_AddData(OptionsFrame, "optionsFrame")
@@ -178,7 +185,6 @@ function GetDBValue(parentKey, key)
 	-- try to find wildcards for that option
 	value = defaults.profile[parentKey]['*']
 	if value ~= nil then return value end
-	Debug(1, "Option key", key, "not found under parent", parentKey)
 	return false
 end
 
@@ -189,7 +195,6 @@ function SetDBValue(widget, event, value)
 	local parentKey = widget.parent.key
 	-- get current db value
 	local valueDB = GetDBValue(parentKey, key)
-	Debug(1,valueDB, "valueDB on Set")
 	if valueDB ~= nil and valueDB ~= value then
 		AlertMe.db.profile.options[parentKey][key] = value
 	end
@@ -198,7 +203,3 @@ end
 function ToggleCheckbox(checkbox, event, value)
 	print(checkbox, event, value)
 end
--- various tables for tabs, dropdowns plus initial values
---local drop_down = {["bg"] = "Instance Chat", ["say"] = "/Say", ["system"] = "System"}
---local zone_types = {["bg"] = "Battlegrounds", ["raid"] = "Raid Instances", ["world"] = "World"}
---local events = {["gain"] = "On aura gain/refresh", ["dispel"] = "On aura dispel", ["start"] = "On cast start"}
