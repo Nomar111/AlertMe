@@ -27,7 +27,7 @@ VDT_AddData(AlertMe)
 function AlertMe:OnInitialize()
 	Debug(2,"OnInitialize")
 	-- set up ACE db
-	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:GetDefaultOptions(), true)
+	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:ReturnDefaultOptions(), true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
