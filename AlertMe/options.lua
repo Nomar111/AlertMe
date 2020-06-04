@@ -15,19 +15,19 @@ function AlertMe:InitOptions()
 	local acreg = LibStub("AceConfig-3.0")
 	local acdia = LibStub("AceConfigDialog-3.0")
 	-- start tab
-	options_info = self:GetOptionsTable("info")
+	self.options_info = self:GetOptionsTable("info")
 	acreg:RegisterOptionsTable(self.name, options_info)
 	acdia:AddToBlizOptions(self.name, self.name)
 	-- general options
-	options_general = self:GetOptionsTable("general")
+	self.options_general = self:GetOptionsTable("general")
 	acreg:RegisterOptionsTable("General", options_general)
 	acdia:AddToBlizOptions("General", "General", self.name)
 	-- profiles (uses ACEDbs sstandard table)
-	options_profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+	self.options_profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
   acreg:RegisterOptionsTable("Profiles", options_profiles)
 	acdia:AddToBlizOptions("Profiles", "Profiles", self.name)
 	-- test options
-	options_test = self:GetOptionsTable("test")
+	self.options_test = self:GetOptionsTable("test")
 	acreg:RegisterOptionsTable("Test", options_test)
 	acdia:AddToBlizOptions("Test", "Test", self.name)
   -- register chat commands
@@ -74,6 +74,7 @@ function AlertMe:GetDefaults()
 				zones = {
 					['*'] = true
 				},
+				events = "gain",
 				test_toggle = false,
 				test_select_dropwdown = "say",
 				test_select_radio = "bg",
@@ -87,6 +88,7 @@ function AlertMe:GetOptionsTable(name)
 	-- selections
 	local drop_down = {["bg"] = "Instance Chat", ["say"] = "/Say", ["system"] = "System"}
 	local zone_types = {["bg"] = "Battlegrounds", ["raid"] = "Raid Instances", ["world"] = "World"}
+	local events = {["gain"] = "On aura gain/refresh", ["dispel"] = "On aura dispel", ["start"] = "On cast start"}
 	local options = {}
 	-- info page
 	options["info"] = {
@@ -122,6 +124,14 @@ function AlertMe:GetOptionsTable(name)
 				values = zone_types,
 				get = 'GetOptions',
 				set = 'SetOptions',
+			},
+			events = {
+				order = 4,
+				name = "Event",
+				type = 'select',
+				values = events,
+				get = 'GetOption',
+				set = 'SetOption',
 			}
 		}
 	}

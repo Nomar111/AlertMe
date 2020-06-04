@@ -18,6 +18,7 @@ setfenv(1, AlertMe)
 -- set addon version
 version = GetAddOnMetadata("AlertMe", "Version")
 debug_level = 2
+AlertMe.VDT_AddData = VDT_AddData
 
 -- addon initialized
 function AlertMe:OnInitialize()
@@ -34,6 +35,8 @@ function AlertMe:OnEnable()
 	Debug(2,"OnEnable")
 	-- init options (options.lua)
 	self:InitOptions()
+	--self:OpenCustomOptions()
+	self:RegisterChatCommand("am", "OpenCustomOptions")
 end
 
 -- addon disabled
