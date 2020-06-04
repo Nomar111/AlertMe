@@ -1,6 +1,6 @@
 -- lua upvalues
 local _G = _G
-local print, type = print, type
+local print, type, tostring = print, type, tostring
 -- misc upvalues
 local LibStub = LibStub
 local VDT_AddData = _G.ViragDevTool_AddData
@@ -13,8 +13,10 @@ local AlertMe = LibStub("AceAddon-3.0"):NewAddon("AlertMe", "AceConsole-3.0","Ac
 _G["AlertMe"] = AlertMe
 -- set addon environment as new global environment
 setfenv(1, AlertMe)
--- set addon version
+-- get addon metadata
 version = GetAddOnMetadata("AlertMe", "Version")
+version_string = tostring(version)
+author = GetAddOnMetadata("AlertMe", "Author")
 debug_level = 2
 -- make debugger avilable
 AlertMe.VDT_AddData = VDT_AddData
