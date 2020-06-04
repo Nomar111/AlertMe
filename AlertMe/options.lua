@@ -190,11 +190,11 @@ end
 
 function SetDBValue(widget, event, value)
 	Debug(2,"SetValue", widget, event, value)
-	VDT_AddData(widget, "setdbvalue - widget")
 	local key = widget.key
 	local parentKey = widget.parent.key
 	-- get current db value
 	local valueDB = GetDBValue(parentKey, key)
+	Debug(1, valueDB, "valueDB")
 	if valueDB ~= nil and valueDB ~= value then
 		AlertMe.db.profile.options[parentKey][key] = value
 	end
