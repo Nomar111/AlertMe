@@ -186,7 +186,7 @@ local function SetDBValue(widget, event, value)
 	end
 end
 
-local function CreateWidget(container, parentKey, options)
+local function CreateWidgets(container, parentKey, options)
 	Debug(2, "CreateWidget", container, options)
 	-- loop over elements on this level
 	for _, element in pairs(options) do
@@ -231,7 +231,7 @@ local function CreateWidget(container, parentKey, options)
 		container:AddChild(widget)
 		-- check for children, if yes recursive function call
 		if element.children then
-			CreateWidget(widget, element.key, element.children)
+			CreateWidgets(widget, element.key, element.children)
 		end
 	end
 end
@@ -242,7 +242,17 @@ local function OpenTab(container, event, tab)
 	container:ReleaseChildren()
 	-- general options
 	if tab == "general" then
-			CreateWidget(container, "options", options_general)
+			CreateWidgets(container, "options", options_general)
+	elseif tab == "alerts" then
+			local events = {["gain"] = "On aura gain/refresh", ["dispel"] = "On aura dispel", ["start"] = "On cast start"}
+			local widget = AceGUI:Create("DropdownGroup")
+			widget:SetGroupList(events)
+			widget:SetGroup("gain")
+			widget:SetFullWidth(true)
+			widget:SetLayout("Flow")
+			widget:SetCallback("OnGroupSelected", function(_, _, key) print (key) end)
+			-- Create the frame container
+			container:AddChild(widget)
 	end
 end
 
