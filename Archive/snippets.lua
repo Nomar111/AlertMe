@@ -31,3 +31,29 @@ local function GetChatWindowInfo()
 	end
 	return ChatTabInfo
 end
+
+
+	<Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
+		<Include file="AceHook-3.0\AceHook-3.0.xml"/>
+		
+	<Include file="LibClassicDurations\LibClassicDurations.xml"/>
+	<Script file="LibClassicCasterino-1.0\LibClassicCasterino.lua"/>
+	<Script file="LibHealComm-4.0\LibHealComm-4.0.lua"/>
+	<Script file="LibClassicSpellActionCount-1.0\LibClassicSpellActionCount-1.0.lua"/>
+	<Script file="LibTotemInfo\GetTotemInfo.lua"/>
+
+	<Include file="LibSharedMedia-3.0\lib.xml"/>
+	<Script file="LibSimpleSticky\LibSimpleSticky.lua"/>
+	<Include file='oUF\oUF.xml'/>
+	<Include file='oUF_Plugins\oUF_Plugins.xml'/>
+	<Include file="LibActionButton-1.0\LibActionButton-1.0.xml"/>
+	<Script file="LibDataBroker\LibDataBroker-1.1.lua"/>
+	<Script file="LibElvUIPlugin-1.0\LibElvUIPlugin-1.0.lua"/>
+	<Include file="UTF8\UTF8.xml"/>
+	<Include file="LibItemSearch-1.2\LibItemSearch-1.2.xml"/>
+	<Include file="LibChatAnims\LibChatAnims.xml"/>
+	<Include file="LibCompress\lib.xml"/>
+	<Include file="LibBase64-1.0\lib.xml"/>
+	<Script file="LibAnim\LibAnim.lua"/>
+	<Script file="LibTranslit-1.0\LibTranslit-1.0.lua"/>
+	<Script file="LibRangeCheck-2.0\LibRangeCheck-2.0.lua"/>

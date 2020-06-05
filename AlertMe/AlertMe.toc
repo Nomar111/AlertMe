@@ -7,6 +7,6 @@
 ## OptionalDeps: Ace3,ViragDevTool
 ## Version: 0.1
 
-embeds.xml
+libs\embeds.xml
 core.lua
-options.lua
+#options.lua

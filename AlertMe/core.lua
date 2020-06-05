@@ -3,63 +3,74 @@ local _G = _G
 local print, type, tostring = print, type, tostring
 -- misc upvalues
 local LibStub = LibStub
-local VDT_AddData = _G.ViragDevTool_AddData
 -- wow upvalues
 local GetAddOnMetadata = GetAddOnMetadata
 
+-- get engine/addon environment
+local AddonName, Engine = ...
 -- register as ace addon
-local AlertMe = LibStub("AceAddon-3.0"):NewAddon("AlertMe", "AceConsole-3.0","AceEvent-3.0")
--- create wow-global
-_G["AlertMe"] = AlertMe
--- set addon environment as new global environment
-setfenv(1, AlertMe)
+local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0","AceEvent-3.0")
+-- create (default) options table
+A.Defaults = {profile = {}, global = {}}
+A.Options = {type = 'group', args = {}}
+-- set engine environment
+Engine[1] = A
+Engine[2] = {}
+Engine[3] = A.Defaults.profile
+Engine[4] = A.Defaults.global
+-- set wow global
+_G.AlertMe = Engine
+
+-- set engine environment as new global environment
+setfenv(1, Engine)
 -- get addon metadata
-version = GetAddOnMetadata("AlertMe", "Version")
-version_string = tostring(version)
-author = GetAddOnMetadata("AlertMe", "Author")
-debug_level = 2
+ADDON_NAME = AddonName
+ADDON_VERSION = GetAddOnMetadata(AddonName, "Version")
+ADDON_VERSION_STRING = tostring(ADDON_VERSION)
+ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
+DEBUG_LEVEL = 2
 -- make debugger avilable
-AlertMe.VDT_AddData = VDT_AddData
--- add global object to debugger
-VDT_AddData(AlertMe)
+VDT_AddData = _G.ViragDevTool_AddData
+-- add engine  to debugger
+VDT_AddData(Engine, "Engine")
 
 -- addon initialized
-function AlertMe:OnInitialize()
-	Debug(2,"OnInitialize")
+function A:OnInitialize()
+	self:Debug(2,"OnInitialize")
 	-- set up ACE db
-	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:ReturnDefaultOptions(), true)
-	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
-	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
-	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+	--self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:ReturnDefaultOptions(), true)
+	--self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+	--self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
+	--self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
 	-- register slash command
-	self:RegisterChatCommand("alertme", "OpenOptions")
+	--self:RegisterChatCommand("alertme", "OpenOptions")
 end
 
 -- addon enabled
-function AlertMe:OnEnable()
-	Debug(2,"OnEnable")
+function A:OnEnable()
+	self:Debug(2,"OnEnable")
 	-- open options (options.lua)
-	self:OpenOptions()
+	--self:OpenOptions()
 end
 
 -- addon disabled
-function AlertMe:OnDisable()
-	Debug(2,"OnDisable")
+function A:OnDisable()
+	self:Debug(2,"OnDisable")
 end
 
 -- the profile was changed/copied/deleted
-function AlertMe:OnProfileChanged(event, newProfileKey)
-	Debug(2,"Profile changed", event, newProfileKey)
+function A:OnProfileChanged(event, newProfileKey)
+	self:Debug(2,"Profile changed", event, newProfileKey)
 end
 
 -- debug handling
-Debug = function(lvl,...)
+function A:Debug(lvl,...)
 	local prefix = "|cFF7B241CAlertMe **|r "
 	if type(lvl) ~= "number" or not lvl then
 		print(prefix.."lvl not valid",lvl,...)
 		return
 	end
-	if lvl <= debug_level then
+	if lvl <= DEBUG_LEVEL then
 		print(prefix,...)
 	end
 end
