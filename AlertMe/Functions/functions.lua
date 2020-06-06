@@ -2,7 +2,6 @@
 local pairs, type, table = pairs, type, table
 local setmetatable, getmetatable = setmetatable, getmetatable
 local GetAddOnMetadata = GetAddOnMetadata
-local print = print
 
 function table.copy(t, deep, seen)
 	seen = seen or {}
@@ -25,14 +24,34 @@ end
 
 -- debug handling
 local AddonName,_ = ...
+local ChatFrames = {ChatFrame1, ChatFrame3}
 local debug_level = tonumber(GetAddOnMetadata(AddonName, "X-DebugLevel"))
+local color = "FFcfac67"
+local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
+local separator = WrapTextInColorCode(" ** ", color)
+
 function dprint(lvl,...)
-	local prefix = "|cFF7B241CAlertMe **|r "
-	if type(lvl) ~= "number" or not lvl then
-		print(prefix.."Provided debug arguments invalid: ",lvl,...)
+	local msg = ""
+	local args = {...}
+	-- check lvl argument
+	if not lvl or type(lvl) ~= "number" then
+		msg = "Provided lvl arg is invalid: "..tostring(lvl)
+	end
+	-- check level vs debug_level
+	if lvl > debug_level then
 		return
 	end
-	if lvl <= debug_level then
-		print(prefix,...)
+	-- check args
+	if #args == 0 then
+		msg = "No debug messages provided or nil"
+	else
+		for i=1, #args do
+			local sep = (i == 1) and "" or separator
+			msg = msg..sep..tostring(args[i])
+		end
+	end
+	-- send message to chat framns
+	for _,f in pairs(ChatFrames) do
+		f:AddMessage(prefix..msg)
 	end
 end

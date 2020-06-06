@@ -1,33 +1,31 @@
 dprint(3,"init.lua")
--- lua upvalues
-local _G = _G
-local dprint, print, type, tostring = dprint, print, type, tostring
--- misc upvalues
-local LibStub, VDT_AddData = LibStub, ViragDevTool_AddData
--- wow upvalues
-local GetAddOnMetadata = GetAddOnMetadata
+-- upvalues
+local _G, dprint = _G, dprint
+local tostring = tostring
+local LibStub, GetAddOnMetadata = LibStub, GetAddOnMetadata
 
 -- get engine/addon environment
 local AddonName, Engine = ...
+-- set engine environment as new global environment
+setfenv(1, Engine)
+
 -- register as ace addon
 local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0","AceEvent-3.0")
 -- create (default) options table
 A.Defaults = {profile = {}, global = {}}
 A.Options = {type = 'group', args = {}}
--- set engine environment
+-- set engine environment substructure
 Engine[1] = A
-Engine[2] = {}
-Engine[3] = A.Defaults.profile
-
+Engine[2] = A.Defaults.profile
 -- set wow global
 _G.AlertMe = Engine
 
--- set engine environment as new global environment
-setfenv(1, Engine)
--- get/set addon metadata
+-- addon globls
 ADDON_NAME = AddonName
 ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
 ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
+dprint = dprint
+VDT_AddData = _G.ViragDevTool_AddData
 
 -- add engine  to debugger
 VDT_AddData(Engine, "Engine")
@@ -47,7 +45,7 @@ end
 -- addon enabled
 function A:OnEnable()
 	dprint(3,"Ace Event: OnEnable")
-	--A:Initialize()
+	A:Initialize()
 	-- open options (options.lua)
 	--self:OpenOptions()
 end
