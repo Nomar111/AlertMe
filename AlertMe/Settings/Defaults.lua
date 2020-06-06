@@ -5,8 +5,8 @@ local _, D = unpack(select(2, ...)); --Import: Engine, Defaults
 setfenv(1, _G.AlertMe)
 
 -- set default options
-D.general = {
-	Test = 1
+D.profile = {
+	setting = true,
 }
 
 -- D.general = {}
