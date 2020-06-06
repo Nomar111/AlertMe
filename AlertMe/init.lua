@@ -1,8 +1,9 @@
+dprint(3,"init.lua")
 -- lua upvalues
 local _G = _G
-local print, type, tostring = print, type, tostring
+local dprint, print, type, tostring = dprint, print, type, tostring
 -- misc upvalues
-local LibStub = LibStub
+local LibStub, VDT_AddData = LibStub, ViragDevTool_AddData
 -- wow upvalues
 local GetAddOnMetadata = GetAddOnMetadata
 
@@ -17,26 +18,23 @@ A.Options = {type = 'group', args = {}}
 Engine[1] = A
 Engine[2] = {}
 Engine[3] = A.Defaults.profile
-Engine[4] = A.Defaults.global
+
 -- set wow global
 _G.AlertMe = Engine
 
 -- set engine environment as new global environment
 setfenv(1, Engine)
--- get addon metadata
+-- get/set addon metadata
 ADDON_NAME = AddonName
-ADDON_VERSION = GetAddOnMetadata(AddonName, "Version")
-ADDON_VERSION_STRING = tostring(ADDON_VERSION)
+ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
 ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
-DEBUG_LEVEL = 2
--- make debugger avilable
-VDT_AddData = _G.ViragDevTool_AddData
+
 -- add engine  to debugger
 VDT_AddData(Engine, "Engine")
 
 -- addon initialized
 function A:OnInitialize()
-	self:Debug(2,"OnInitialize")
+	dprint(3,"Ace Event: OnInitialize")
 	-- set up ACE db
 	--self.db = LibStub("AceDB-3.0"):New("AlertMeDB", self:ReturnDefaultOptions(), true)
 	--self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
@@ -48,29 +46,13 @@ end
 
 -- addon enabled
 function A:OnEnable()
-	self:Debug(2,"OnEnable")
+	dprint(3,"Ace Event: OnEnable")
+	--A:Initialize()
 	-- open options (options.lua)
 	--self:OpenOptions()
 end
 
 -- addon disabled
 function A:OnDisable()
-	self:Debug(2,"OnDisable")
-end
-
--- the profile was changed/copied/deleted
-function A:OnProfileChanged(event, newProfileKey)
-	self:Debug(2,"Profile changed", event, newProfileKey)
-end
-
--- debug handling
-function A:Debug(lvl,...)
-	local prefix = "|cFF7B241CAlertMe **|r "
-	if type(lvl) ~= "number" or not lvl then
-		print(prefix.."lvl not valid",lvl,...)
-		return
-	end
-	if lvl <= DEBUG_LEVEL then
-		print(prefix,...)
-	end
+	dprint(3,"Ace Event: OnDisable")
 end

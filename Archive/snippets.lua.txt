@@ -19,6 +19,12 @@ function table.copy(t, deep, seen)
 end
 
 
+-- the profile was changed/copied/deleted
+function A:OnProfileChanged(event, newProfileKey)
+	self:Debug(2,"Profile changed", event, newProfileKey)
+end
+
+
 RAID_CLASS_COLORS["SHAMAN"].colorStr = "ff0270dd"
 RAID_CLASS_COLORS["SHAMAN"].r = 0.01
 RAID_CLASS_COLORS["SHAMAN"].g = 0.44
@@ -35,7 +41,7 @@ end
 
 	<Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
 		<Include file="AceHook-3.0\AceHook-3.0.xml"/>
-		
+
 	<Include file="LibClassicDurations\LibClassicDurations.xml"/>
 	<Script file="LibClassicCasterino-1.0\LibClassicCasterino.lua"/>
 	<Script file="LibHealComm-4.0\LibHealComm-4.0.lua"/>
