@@ -30,13 +30,7 @@ end
 defaults = ReturnDefaultOptions()
 VDT_AddData(defaults, "defaults")
 
-local tabs = {
-	{text = "General", value = "general"},
-	{text = "Event specific", value = "events"},
-	{text = "Alerts", value = "alerts"},
-	{text = "Profiles", value = "profiles"}
-}
-local initialTab = "general"
+
 
 local options_general = {
 	{
