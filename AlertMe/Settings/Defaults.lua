@@ -12,5 +12,9 @@ D.profile = {
 	chat_frames = {
 		['*'] = true,
 	},
-	create_alert = "",
+	-- alerts_events  = {
+	-- 	['*'] = {
+	-- 		create_alert = "X",
+	-- 	}
+	-- },
 }

@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames = _G, dprint, FCF_GetNumActiveChatFrames
+local _G, dprint, FCF_GetNumActiveChatFrames, unpack = _G, dprint, FCF_GetNumActiveChatFrames, unpack
 -- get engine environment
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -11,7 +11,7 @@ O.options = {
 	type = "group",
 	name = "Settings",
 	handler = A,
-	childGroups = "tabs",
+	childGroups = "tree",
 	args = {
 		general = {
 			type = "group",
@@ -27,7 +27,7 @@ O.options = {
 			order = 2,
 			args = {}
 		},
-		alerts = {
+		alerts_events = {
 			type = "group",
 			name = "Alerts",
 			desc = "Configure Alerts",
@@ -85,32 +85,25 @@ O.options.args.general.args = {
 	},
 }
 
--- alerts
-O.options.args.alerts.args = {
-	gain = {
-		type = "group",
-		name = "On aura gain/refresh",
-		order = 1,
-		args = {
-			create_alert_description = {
-				type = "description",
-				name = "Create a new alert: ",
-				order = 1,
-				width = 0.7,
-				fontSize = "medium",
-			},
-			create_alert = {
-				type = "input",
-				name = "",
-				order = 2,
-				width = "full",
-				get = 'GetOption',
-				set = 'SetOption',
-			}
+local eventgroup = {
+	type = "group",
+	name = "On aura gain/refresh",
+	order = 1,
+	args = {
+		create_alert = {
+			type = "input",
+			name = "test",
+			order = 1,
+			width = "full",
+			--get = 'GetOption',
+			set = 'SetOption',
 		}
-	},
+	}
 }
 
+-- alerts
+O.options.args.alerts_events.args.gain = eventgroup
+O.options.args.alerts_events.args.dispel = eventgroup
 
 -- info
 O.options.args.info.args = {
@@ -127,23 +120,39 @@ O.options.args.info.args = {
 	}
 }
 
--- callback functions for single values
+
 function A:GetOptions(info, key)
 	return(self.db.profile[info[#info]][key])
 end
 
 function A:SetOptions(info , key, value)
-	dprint(1,info , key, value)
 	self.db.profile[info[#info]][key] = value
 end
 
 -- callback functions for multiple values
 function A:GetOption(info)
-	return(self.db.profile[info[#info]])
+	VDT_AddData(info,"getinfo")
+	local path = self.db.profile
+	for i=1, #info do
+		--dprint(info[i])
+		path = path[info[i]]
+	end
+	return path
+	--return(self.db.profile[info[#info]])
 end
 
 function A:SetOption(info, value)
-	self.db.profile[info[#info]] = value
+	dprint(1,info[1],info[2],info[3])
+	--self.db.profile[info[#info]] = value
+	local dreck = info
+	VDT_AddData(dreck,"volldreck")
+	local path = self.db.profile
+	for i=1, #dreck do
+		--dprint(1,info[i])
+		dprint(1,i)
+		path = path[dreck[i]]
+	end
+	path = value
 end
 
 -- automatically called on profile copy/delete/etc.
