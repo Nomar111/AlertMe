@@ -17,7 +17,7 @@ function A:OpenOptions(tab)
 	Frame:SetTitle("AlertMe Options")
 	--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
 	Frame:EnableResize(true)
-	Frame:SetLayout("Flow")
+	Frame:SetLayout("List")
 	Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
 	-- initialize options table
 	A:RefreshProfiles()

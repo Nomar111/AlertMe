@@ -30,7 +30,7 @@ O.options = {
 		alerts_events = {
 			type = "group",
 			name = "Alerts",
-			desc = "Configure Alerts",
+			desc = "Create Alerts",
 			order = 3,
 			args = {}
 		},
@@ -67,6 +67,13 @@ O.options.args.general.args = {
 		name = "General Options",
 		order = 1,
 	},
+	spacer = {
+    name = "",
+    type = 'description',
+    width = 'full',
+    cmdHidden = true,
+    order = 2,
+	},
 	zones = {
 		type = 'multiselect',
 		name = "Addon is enabled in",
@@ -85,6 +92,7 @@ O.options.args.general.args = {
 	},
 }
 
+<<<<<<< HEAD
 local eventgroup = {
 	type = "group",
 	name = "On aura gain/refresh",
@@ -105,6 +113,8 @@ local eventgroup = {
 O.options.args.alerts_events.args.gain = eventgroup
 O.options.args.alerts_events.args.dispel = eventgroup
 
+=======
+>>>>>>> parent of d98925e... optionen - alerts
 -- info
 O.options.args.info.args = {
 	header = {

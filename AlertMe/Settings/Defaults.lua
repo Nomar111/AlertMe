@@ -9,12 +9,16 @@ D.profile = {
 	zones = {
 		['*'] = true,
 	},
-	chat_frames = {
+	chat_frames ={
 		['*'] = true,
+<<<<<<< HEAD
 	},
 	-- alerts_events  = {
 	-- 	['*'] = {
 	-- 		create_alert = "X",
 	-- 	}
 	-- },
+=======
+	}
+>>>>>>> parent of d98925e... optionen - alerts
 }
