@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, unpack = _G, dprint, FCF_GetNumActiveChatFrames, unpack
+local _G, dprint, FCF_GetNumActiveChatFrames, type, tinsert = _G, dprint, FCF_GetNumActiveChatFrames, type, table.insert
 -- get engine environment
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -107,8 +107,9 @@ function A:InitOptions()
 				name = "New alert",
 				desc = "Name of new event",
 				order = 1,
-				--get = "",
-				--set = ""
+				width = "double",
+				get = function(info) return "" end,
+				set = "CreateAlert"
 			},
 		}
 	}
@@ -120,27 +121,6 @@ function A:InitOptions()
 	opt.interrupt.args.event_control = event_control
 end
 
-
---
--- local eventgroup = {
--- 	type = "group",
--- 	name = "On aura gain/refresh",
--- 	order = 1,
--- 	args = {
--- 		create_alert = {
--- 			type = "input",
--- 			name = "test",
--- 			order = 1,
--- 			width = "full",
--- 			--get = 'GetOption',
--- 			set = 'SetOption',
--- 		}
--- 	}
--- }
---
--- -- alerts
--- O.options.args.alerts_events.args.gain = eventgroup
--- O.options.args.alerts_events.args.dispel = eventgroup
 function A:GetInfoPath(info)
 	--VDT_AddData(info,"info")
 	local i = 1
@@ -161,11 +141,8 @@ function A:GetOptions(info, key)
 end
 
 function A:SetOptions(info , key, value)
-	--dprint(1, info, key, value)
 	local path = A:GetInfoPath(info)
-	--VDT_AddData(path, "path")
 	path[key] = value
-	--self.db.profile[info[#info]][key] = value
 end
 
 -- callback functions for single values
@@ -177,7 +154,18 @@ end
 function A:SetOption(info, value)
 	local path = A:GetInfoPath(info)
 	path = value
+end
 
+function A:CreateAlert(info, value)
+	local i = 1
+	local path = self.db.profile
+	while info[i] ~= nil and info[i] ~= "create_alert" do
+		path = path[info[i]]
+		i = i + 1
+	end
+	-- save last input
+	path.create_alert = value
+	tinsert(path["alerts"], value)
 end
 
 -- automatically called on profile copy/delete/etc.
