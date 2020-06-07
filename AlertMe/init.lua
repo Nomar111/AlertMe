@@ -1,8 +1,9 @@
-dprint(3, "init.lua")
+dprint(2, "init.lua")
 -- upvalues
 local _G, dprint = _G, dprint
 local tostring  = tostring
 local LibStub, GetAddOnMetadata = LibStub, GetAddOnMetadata
+local UnitName, GetRealmName = UnitName, GetRealmName
 
 -- get engine/addon environment
 local AddonName, Engine = ...
@@ -25,6 +26,9 @@ _G.AlertMe = Engine
 ADDON_NAME = AddonName
 ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
 ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
+PLAYER_NAME = UnitName("player")
+REALM_NAME = GetRealmName()
+PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 VDT_AddData = _G.ViragDevTool_AddData
 LibStub = LibStub
 dprint = dprint
@@ -46,28 +50,24 @@ A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 function A:OnInitialize()
 	dprint(2, "Ace Event: OnInitialize")
 	-- setup database
-	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", A.Defaults, true)
-	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
-	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
-	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", A.Defaults, false)
+	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
+	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
+	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
+	self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileEvent")
 	VDT_AddData(self.db, "db")
 	-- register slash command
-	self:RegisterChatCommand("alertme", "A:OpenOptions")
+	self:RegisterChatCommand("alertme", "OpenOptions")
 end
 
 -- addon enabled
 function A:OnEnable()
-	dprint(3, "Ace Event: OnEnable")
+	dprint(2, "Ace Event: OnEnable")
 	self:Initialize()
 	self:OpenOptions()
 end
 
 -- addon disabled
 function A:OnDisable()
-	dprint(3, "Ace Event: OnDisable")
-end
-
--- automatically called when profile changes
-function A:OnProfileChanged()
-	dprint(3, "OnProfileChanged")
+	dprint(2, "Ace Event: OnDisable")
 end

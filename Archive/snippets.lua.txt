@@ -1,23 +1,11 @@
 
 
--- the profile was changed/copied/deleted
-function A:OnProfileChanged(event, newProfileKey)
-	self:Debug(2,"Profile changed", event, newProfileKey)
-end
-
-
 RAID_CLASS_COLORS["SHAMAN"].colorStr = "ff0270dd"
 RAID_CLASS_COLORS["SHAMAN"].r = 0.01
 RAID_CLASS_COLORS["SHAMAN"].g = 0.44
 RAID_CLASS_COLORS["SHAMAN"].b = 0.87
 
-local function GetChatWindowInfo()
-	local ChatTabInfo = {}
-	for i = 1, FCF_GetNumActiveChatFrames() do
-		ChatTabInfo["ChatFrame"..i] = _G["ChatFrame"..i.."Tab"]:GetText()
-	end
-	return ChatTabInfo
-end
+
 
 
 	<Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
