@@ -111,6 +111,13 @@ function A:InitOptions()
 				get = function(info) return "" end,
 				set = "CreateAlert"
 			},
+			select_alert = {
+				type = "select",
+				name = "Alert",
+				values = "GetAlertList",
+				style = "dropdown",
+				get = "GetLastEntry"
+			}
 		}
 	}
 	-- attach to options
@@ -120,6 +127,15 @@ function A:InitOptions()
 	opt.success.args.event_control = event_control
 	opt.interrupt.args.event_control = event_control
 end
+
+function A:GetAlertList(info)
+	return self.db.profile.alerts[info[2]].event_control.alerts
+end
+
+function A:GetLastEntry(info)
+	return #self.db.profile.alerts[info[2]].event_control.alerts
+end
+
 
 function A:GetInfoPath(info)
 	--VDT_AddData(info,"info")
