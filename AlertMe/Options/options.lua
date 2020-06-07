@@ -5,164 +5,179 @@ local _G, dprint, FCF_GetNumActiveChatFrames, unpack = _G, dprint, FCF_GetNumAct
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+O.options = nil
 
--- basic tab layout
-O.options = {
-	type = "group",
-	name = "Settings",
-	handler = A,
-	childGroups = "tree",
-	args = {
-		general = {
+function A:InitOptions()
+	dprint(2, "A:InitOptions")
+	-- if table was already initialized, abort
+	if O.options ~= nil then
+		return
+	end
+
+	-- create standard groups with order
+	O.order = 1
+	local function CreateGroup(name, desc, childGroups, reset_order)
+		if reset_order then O.order = 1 end
+		local group = {
 			type = "group",
-			name = "General",
-			desc = "General settings",
-			order = 1,
-			args = {}
-		},
-		events = {
-			type = "group",
-			name = "Events",
-			desc = "Event-specific Settings",
-			order = 2,
-			args = {}
-		},
-		alerts_events = {
-			type = "group",
-			name = "Alerts",
-			desc = "Create Alerts",
-			order = 3,
-			args = {}
-		},
-		profiles = {
-			type = "group",
-			name = "Profiles",
-			desc = "Manage Profiles",
-			order = 4,
-			args = {}
-		},
-		info = {
-			type = "group",
-			name = "Info",
-			desc = "Addon Info",
-			order = 5,
+			name = name,
+			desc = desc,
+			childGroups = childGroups,
+			order = O.order,
 			args = {}
 		}
-	}
-}
-
--- general
-local chat_frames = {}
-for i = 1, FCF_GetNumActiveChatFrames() do
-	local name = _G["ChatFrame"..i.."Tab"]:GetText()
-	if name ~= "Combat Log" then
-		chat_frames["ChatFrame"..i] = name
+		O.order = O.order + 1
+		return group
 	end
-end
-local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
+	-- create standard header
+	local function CreateHeader(name, order)
+		local header = {
+			type = "header",
+			name = name,
+			order = (order ~= nil) and order or 1,
+		}
+		return header
+	end
 
-O.options.args.general.args = {
-	header = {
-		type = 'header',
-		name = "General Options",
-		order = 1,
-	},
-	spacer = {
-    name = "",
-    type = 'description',
-    width = 'full',
-    cmdHidden = true,
-    order = 2,
-	},
-	zones = {
+	-- first level
+	O.options = CreateGroup("AlertMeOptions", _, "tree")
+	O.options.handler = A
+	-- second level
+	O.options.args.general = CreateGroup("General", _, _, true)
+	O.options.args.events = CreateGroup("Event")
+	O.options.args.alerts = CreateGroup("Alerts", "Create your alerts", _)
+	O.options.args.profiles = CreateGroup("Profiles")
+	O.options.args.info = CreateGroup("Info")
+
+	-- general
+	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
+	O.options.args.general.args.header = CreateHeader("General Options")
+	O.options.args.general.args.zones = {
 		type = 'multiselect',
 		name = "Addon is enabled in",
-		order = 3,
+		order = 5,
 		values = zone_types,
 		get = 'GetOptions',
 		set = 'SetOptions',
-	},
-	chat_frames = {
+	}
+	O.options.args.general.args.chat_frames = {
 		type = 'multiselect',
 		name = "Display addon messages in the following chat windows",
-		order = 4,
-		values = chat_frames,
+		order = 10,
+		values = A:GetChatInfo(),
 		get = 'GetOptions',
 		set = 'SetOptions',
-	},
-}
-
-<<<<<<< HEAD
-local eventgroup = {
-	type = "group",
-	name = "On aura gain/refresh",
-	order = 1,
-	args = {
-		create_alert = {
-			type = "input",
-			name = "test",
-			order = 1,
-			width = "full",
-			--get = 'GetOption',
-			set = 'SetOption',
-		}
 	}
-}
 
--- alerts
-O.options.args.alerts_events.args.gain = eventgroup
-O.options.args.alerts_events.args.dispel = eventgroup
+	-- profiles
+	A:RefreshProfiles()
 
-=======
->>>>>>> parent of d98925e... optionen - alerts
--- info
-O.options.args.info.args = {
-	header = {
-		type = "header",
-		name = "Addon Info",
-		order = 1
-	},
-	addonInfo = {
+	-- info
+	O.options.args.info.args.header = CreateHeader("Addon Info")
+	O.options.args.info.args.addonInfo = {
 		type = "description",
 		name = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR,
 		fontSize = "medium",
 		order = 2
 	}
-}
 
+	-- alerts: eventtabs - preparation
+	local opt = O.options.args.alerts.args
+	opt.gain = CreateGroup("On aura gain", _, _, true)
+	opt.dispel = CreateGroup("On spell dispel")
+	opt.start = CreateGroup("On cast start")
+	opt.success = CreateGroup("On cast success")
+	opt.interrupt = CreateGroup("On interrupt")
+	opt.gain.args.header = CreateHeader("On aura gain & refresh")
+	opt.dispel.args.header = CreateHeader("On spell dispel")
+	opt.start.args.header = CreateHeader("On spell cast start")
+	opt.success.args.header = CreateHeader("On spell cast success")
+	opt.interrupt.args.header = CreateHeader("On interrupt")
 
-function A:GetOptions(info, key)
-	return(self.db.profile[info[#info]][key])
+	-- prepare event control
+	local event_control = {
+		type = "group",
+		name = "",
+		desc = "Create, edit, delete alerts",
+		inline = true,
+		order = 2,
+		args = {
+			create_alert = {
+				type = "input",
+				name = "New alert",
+				desc = "Name of new event",
+				order = 1,
+				--get = "",
+				--set = ""
+			},
+		}
+	}
+	-- attach to options
+	opt.gain.args.event_control = event_control
+	opt.dispel.args.event_control = event_control
+	opt.start.args.event_control = event_control
+	opt.success.args.event_control = event_control
+	opt.interrupt.args.event_control = event_control
 end
 
-function A:SetOptions(info , key, value)
-	self.db.profile[info[#info]][key] = value
+
+--
+-- local eventgroup = {
+-- 	type = "group",
+-- 	name = "On aura gain/refresh",
+-- 	order = 1,
+-- 	args = {
+-- 		create_alert = {
+-- 			type = "input",
+-- 			name = "test",
+-- 			order = 1,
+-- 			width = "full",
+-- 			--get = 'GetOption',
+-- 			set = 'SetOption',
+-- 		}
+-- 	}
+-- }
+--
+-- -- alerts
+-- O.options.args.alerts_events.args.gain = eventgroup
+-- O.options.args.alerts_events.args.dispel = eventgroup
+function A:GetInfoPath(info)
+	--VDT_AddData(info,"info")
+	local i = 1
+	local path = self.db.profile
+	while info[i] ~= nil do
+		path = path[info[i]]
+		i = i + 1
+	end
+	--VDT_AddData(path, "path")
+	return path
 end
 
 -- callback functions for multiple values
+function A:GetOptions(info, key)
+	local path = A:GetInfoPath(info)
+	return path[key]
+	--return(self.db.profile[info[#info]][key])
+end
+
+function A:SetOptions(info , key, value)
+	--dprint(1, info, key, value)
+	local path = A:GetInfoPath(info)
+	--VDT_AddData(path, "path")
+	path[key] = value
+	--self.db.profile[info[#info]][key] = value
+end
+
+-- callback functions for single values
 function A:GetOption(info)
-	VDT_AddData(info,"getinfo")
-	local path = self.db.profile
-	for i=1, #info do
-		--dprint(info[i])
-		path = path[info[i]]
-	end
+	local path = A:GetInfoPath(info)
 	return path
-	--return(self.db.profile[info[#info]])
 end
 
 function A:SetOption(info, value)
-	dprint(1,info[1],info[2],info[3])
-	--self.db.profile[info[#info]] = value
-	local dreck = info
-	VDT_AddData(dreck,"volldreck")
-	local path = self.db.profile
-	for i=1, #dreck do
-		--dprint(1,info[i])
-		dprint(1,i)
-		path = path[dreck[i]]
-	end
+	local path = A:GetInfoPath(info)
 	path = value
+
 end
 
 -- automatically called on profile copy/delete/etc.
@@ -176,4 +191,15 @@ end
 function A:RefreshProfiles()
 	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
 	O.options.args.profiles.order = 4
+end
+
+function A:GetChatInfo()
+	local chat_frames = {}
+	for i = 1, FCF_GetNumActiveChatFrames() do
+		local name = _G["ChatFrame"..i.."Tab"]:GetText()
+		if name ~= "Combat Log" then
+			chat_frames["ChatFrame"..i] = name
+		end
+	end
+	return chat_frames
 end

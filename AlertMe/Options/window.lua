@@ -17,23 +17,14 @@ function A:OpenOptions(tab)
 	Frame:SetTitle("AlertMe Options")
 	--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
 	Frame:EnableResize(true)
-	Frame:SetLayout("List")
+	Frame:SetLayout("Flow")
 	Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
 	-- initialize options table
-	A:RefreshProfiles()
+	A:InitOptions()
 	-- register options table and assign to frame
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
-	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 900, 600)
+	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
 	if not tab then tab = "general" end
 	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
 	A.Libs.AceConfigDialog:Open("AlertMeOptions", Frame)
 end
---
--- -- tab configuration
--- tabs = {
--- 	{text = "General", value = "general"},
--- 	{text = "Event specific", value = "events"},
--- 	{text = "Alerts", value = "alerts"},
--- 	{text = "Profiles", value = "profiles"}
--- }
--- local initialTab = "general"

@@ -6,19 +6,12 @@ setfenv(1, _G.AlertMe)
 
 -- set default options
 D.profile = {
-	zones = {
-		['*'] = true,
+	general = {
+		zones = {
+			['*'] = true,
+		},
+		chat_frames ={
+			['*'] = true,
+		},
 	},
-	chat_frames ={
-		['*'] = true,
-<<<<<<< HEAD
-	},
-	-- alerts_events  = {
-	-- 	['*'] = {
-	-- 		create_alert = "X",
-	-- 	}
-	-- },
-=======
-	}
->>>>>>> parent of d98925e... optionen - alerts
 }
