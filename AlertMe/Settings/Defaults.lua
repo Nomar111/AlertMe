@@ -9,7 +9,8 @@ D.profile = {
 	zones = {
 		['*'] = true,
 	},
-	chat_frames ={
+	chat_frames = {
 		['*'] = true,
-	}
+	},
+	create_alert = "",
 }

@@ -30,7 +30,7 @@ O.options = {
 		alerts = {
 			type = "group",
 			name = "Alerts",
-			desc = "Create Alerts",
+			desc = "Configure Alerts",
 			order = 3,
 			args = {}
 		},
@@ -67,13 +67,6 @@ O.options.args.general.args = {
 		name = "General Options",
 		order = 1,
 	},
-	spacer = {
-    name = "",
-    type = 'description',
-    width = 'full',
-    cmdHidden = true,
-    order = 2,
-	},
 	zones = {
 		type = 'multiselect',
 		name = "Addon is enabled in",
@@ -91,6 +84,33 @@ O.options.args.general.args = {
 		set = 'SetOptions',
 	},
 }
+
+-- alerts
+O.options.args.alerts.args = {
+	gain = {
+		type = "group",
+		name = "On aura gain/refresh",
+		order = 1,
+		args = {
+			create_alert_description = {
+				type = "description",
+				name = "Create a new alert: ",
+				order = 1,
+				width = 0.7,
+				fontSize = "medium",
+			},
+			create_alert = {
+				type = "input",
+				name = "",
+				order = 2,
+				width = "full",
+				get = 'GetOption',
+				set = 'SetOption',
+			}
+		}
+	},
+}
+
 
 -- info
 O.options.args.info.args = {
@@ -113,6 +133,7 @@ function A:GetOptions(info, key)
 end
 
 function A:SetOptions(info , key, value)
+	dprint(1,info , key, value)
 	self.db.profile[info[#info]][key] = value
 end
 
