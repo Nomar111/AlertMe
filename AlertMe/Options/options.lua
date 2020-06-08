@@ -1,8 +1,8 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type, tostring = _G, dprint, FCF_GetNumActiveChatFrames, type, tostring
+local _G, dprint, FCF_GetNumActiveChatFrames, type = _G, dprint, FCF_GetNumActiveChatFrames, type
 -- get engine environment
-local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
+local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 -- set some variables
@@ -11,7 +11,7 @@ O.order = 1
 
 -- *************************************************************************************
 -- open the options window
-function O:OpenOptions()
+function O:OpenOptions(tab)
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
 	local Frame = A.Libs.AceGUI:Create("Frame")
@@ -21,46 +21,48 @@ function O:OpenOptions()
 	Frame:SetLayout("Flow")
 	Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
 	-- initialize options table
-	O:InitOptions()
+	O:CreateOptions()
 	-- register options table and assign to frame
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
 	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
-	--if not tab then tab = "general" end
-	--A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
+	if tab == nil then tab = "general" end
+	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
 	A.Libs.AceConfigDialog:Open("AlertMeOptions", Frame)
 end
 
 -- *************************************************************************************
--- initializes the options table
-function O:InitOptions()
-	dprint(2, "O:InitOptions")
+-- creates the options table
+function O:CreateOptions()
+	dprint(2, "O:CreateOptions")
 	-- if table was already initialized, abort
-	if O.options ~= nil then return	end
-
+	if O.options ~= nil then
+		dprint(1, "options table not nil!")
+		return
+	end
 	-- create first and second level (main tabs) here
-	O.options = O:CreateGroup("AlertMeOptions", _, _, "tree")
+	O.options = O:CreateGroup("AlertMeOptions", "", 1, "tree")
 	O.options.handler = O
 	O.options.get = "GetOption"
 	O.options.set = "SetOption"
 	-- second level
-	O.options.args.general = O:CreateGroup("General", _, true)
+	O.options.args.general = O:CreateGroup("General", "", 1)
 	O.options.args.events = O:CreateGroup("Event")
 	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
 	O.options.args.profiles = O:CreateGroup("Profiles")
 	O.options.args.info = O:CreateGroup("Info")
 	-- general
-	O:CreateGeneral(O.options.args.general.args)
+	O:CreateGeneralOptions(O.options.args.general.args)
 	-- profiles
-	O:CreateProfiles()
+	O:CreateProfileOptions()
 	-- info
-	O:CreateInfo(O.options.args.info.args)
+	O:CreateInfoOptions(O.options.args.info.args)
 	-- alerts
-	O:CreateAlerts(O.options.args.alerts.args)
+	O:CreateAlertOptions(O.options.args.alerts.args)
 
 end
 
 -- creates the general options tab
-function O:CreateGeneral(o)
+function O:CreateGeneralOptions(o)
 	-- some local tables for populating dropdowns etc.
 	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
 	-- header
@@ -69,7 +71,7 @@ function O:CreateGeneral(o)
 	o.zones = {
 		type = 'multiselect',
 		name = "Addon is enabled in",
-		order = 5,
+		order = 1,
 		values = zone_types,
 		--get = 'GetOption',
 		--set = 'SetOption',
@@ -94,7 +96,7 @@ function O:CreateGeneral(o)
 end
 
 -- creates the info tab
-function O:CreateInfo(o)
+function O:CreateInfoOptions(o)
 	o.header = O:CreateHeader("Addon Info")
 	o.addonInfo = {
 		type = "description",
@@ -105,7 +107,7 @@ function O:CreateInfo(o)
 end
 
 -- creates / refreshes the profiles tab
-function O:CreateProfiles()
+function O:CreateProfileOptions()
 	-- check if options table is initialized
 	if not O.options then return end
 	-- get options table and override order
@@ -141,7 +143,6 @@ end
 
 -- standard set
 function O:SetOption(info, arg2, arg3)
-	dprint(1, arg2, arg3)
 	local path, key_ = O:GetInfoPath(info)
 	local value, key
 	if arg3 == nil then
@@ -165,17 +166,20 @@ function O:CreateHeader(name, order)
 end
 
 -- create standard groups with order
-function O:CreateGroup(name, desc, reset_order, childGroups)
-	if reset_order then O.order = 1 end
+function O:CreateGroup(name, desc, order, childGroups)
+	-- count orders up automatically if not provided
+	if order == nil then
+		order = O.order
+	end
 	local group = {
 		type = "group",
 		name = name,
 		desc = desc,
 		childGroups = childGroups,
-		order = O.order,
+		order = order,
 		args = {}
 	}
-	O.order = O.order + 1
+	O.order = order + 1
 	return group
 end
 

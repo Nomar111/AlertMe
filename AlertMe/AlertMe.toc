@@ -6,7 +6,7 @@
 ## SavedVariablesPerCharacter: AlertMeDBChr
 ## OptionalDeps: Ace3, ViragDevTool
 ## Version: 0.1
-## X-DebugLevel: 2
+## X-DebugLevel: 1
 
 Libs\Load_Libs.xml
 Functions\Load_Functions.xml

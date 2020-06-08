@@ -1,55 +1,29 @@
 dprint(2, "events.lua")
 -- upvalues
 local _G = _G
-local dprint, tinsert = dprint, table.insert
+local dprint, tinsert, pairs = dprint, table.insert, pairs
 -- get engine environment
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 -- creates the alerts options tab
-function O:CreateAlerts(o)
-	--  event control
-		o.gain = O:CreateGroup("On aura gain", _, true)
-	o.dispel = O:CreateGroup("On spell dispel")
-	o.start = O:CreateGroup("On cast start")
-	o.success = O:CreateGroup("On cast success")
-	o.interrupt = O:CreateGroup("On interrupt")
-	o.gain.args.header = O:CreateHeader("On aura gain & refresh")
-	o.dispel.args.header = O:CreateHeader("On spell dispel")
-	o.start.args.header = O:CreateHeader("On spell cast start")
-	o.success.args.header = O:CreateHeader("On spell cast success")
-	o.interrupt.args.header = O:CreateHeader("On interrupt")
+function O:CreateAlertOptions(o)
+	-- loop over events that need to be displayed
+	for event_id, tbl in pairs(A.Events) do
+		if tbl.options_display ~= nil and tbl.options_display == true then
+			O:DrawAlertOptions(o, tbl.handle, tbl.options_name, tbl.options_order)
+		end
+	end
+end
+
+function O:DrawAlertOptions(o, handle, name, order)
+	--  create group
+	o[handle] = O:CreateGroup(name, nil, order)
+	-- create header
+	o[handle].args.header = O:CreateHeader(name)
 	-- attach to options
-	local event_control = {
-		type = "group",
-		name = "",
-		inline = true,
-		order = 2,
-		args = {
-			create_alert = {
-				type = "input",
-				name = "New alert",
-				desc = "Name of new alert",
-				order = 1,
-				width = "double",
-				get = function(info) return "" end,
-				set = "CreateAlert"
-			},
-			select_alert = {
-				type = "select",
-				name = "Alert",
-				values = "GetAlertList",
-				style = "dropdown",
-				get = "GetLastEntry"
-			}
-		}
-	}
-	o.gain.args.event_control = event_control
-	o.dispel.args.event_control = event_control
-	o.start.args.event_control = event_control
-	o.success.args.event_control = event_control
-	o.interrupt.args.event_control = event_control
+	o[handle].args.alert_control = O:GetAlertControl()
 end
 
 function O:CreateAlert(info, value)
@@ -65,9 +39,41 @@ function O:CreateAlert(info, value)
 end
 
 function O:GetAlertList(info)
-	return A.db.profile.alerts[info[2]].event_control.alerts
+	return A.db.profile.alerts[info[2]].alert_control.alerts
 end
 
 function O:GetLastEntry(info)
-	return #A.db.profile.alerts[info[2]].event_control.alerts
+	return #A.db.profile.alerts[info[2]].alert_control.alerts
+end
+
+-- provides a standard control for adding, selecting and deleting alerts
+function O:GetAlertControl()
+	local alert_control = {
+		type = "group",
+		name = "",
+		inline = true,
+		order = 2,
+		args = {
+			select_alert = {
+				type = "select",
+				style = "dropdown",
+				name = "Alert",
+				order = 1,
+				width = 2,
+				values = "GetAlertList",
+				get = "GetLastEntry"
+			},
+			create_alert = {
+				type = "input",
+				name = "New alert",
+				desc = "Name of new alert",
+				order = 2,
+				width = 2,
+				get = function(info) return "" end,
+				set = "CreateAlert"
+			},
+
+		}
+	}
+	return alert_control
 end

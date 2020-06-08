@@ -64,7 +64,7 @@ end
 function A:OnEnable()
 	dprint(2, "Ace Event: OnEnable")
 	A:Initialize()
-	A.Options:OpenOptions()
+	A.Options:OpenOptions("alerts")
 end
 
 -- addon disabled
@@ -76,6 +76,6 @@ end
 function A:OnProfileEvent(event)
 	dprint(2, "OnProfileEvent", event)
 	-- update options table
-	A.Options:RefreshProfiles()
+	A.Options:CreateProfiles()
 	-- do whatever it takes
 end
