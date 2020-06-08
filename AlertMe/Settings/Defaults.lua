@@ -13,6 +13,7 @@ D.profile = {
 		chat_frames ={
 			['*'] = true,
 		},
+		test = false
 	},
 	alerts = {
 		['*'] = {

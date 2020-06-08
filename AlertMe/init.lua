@@ -14,11 +14,11 @@ setfenv(1, Engine)
 local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEvent-3.0")
 -- create (default) options table
 A.Defaults = {}
-A.Options = {Profiles={}}
+A.Options = {}
 -- set engine environment substructure
 Engine[1] = A
-Engine[2] = A.Defaults
-Engine[3] = A.Options
+Engine[2] = A.Defaults  --- D
+Engine[3] = A.Options   --- O
 -- set wow global
 _G.AlertMe = Engine
 
@@ -63,11 +63,19 @@ end
 -- addon enabled
 function A:OnEnable()
 	dprint(2, "Ace Event: OnEnable")
-	self:Initialize()
-	self:OpenOptions()
+	A:Initialize()
+	A.Options:OpenOptions()
 end
 
 -- addon disabled
 function A:OnDisable()
 	dprint(2, "Ace Event: OnDisable")
+end
+
+-- automatically called on profile copy/delete/etc.
+function A:OnProfileEvent(event)
+	dprint(2, "OnProfileEvent", event)
+	-- update options table
+	A.Options:RefreshProfiles()
+	-- do whatever it takes
 end

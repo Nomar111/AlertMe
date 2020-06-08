@@ -5,54 +5,66 @@ local _G, dprint, FCF_GetNumActiveChatFrames, type, tinsert = _G, dprint, FCF_Ge
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+-- set some variables
 O.options = nil
+O.order = 1
 
-function A:InitOptions()
-	dprint(2, "A:InitOptions")
+-- *************************************************************************************
+-- open the options window
+function O:OpenOptions()
+	dprint(2, "OpenOptions")
+	-- create main frame for options
+	local Frame = A.Libs.AceGUI:Create("Frame")
+	Frame:SetTitle("AlertMe Options")
+	--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
+	Frame:EnableResize(true)
+	Frame:SetLayout("Flow")
+	Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
+	-- initialize options table
+	O:InitOptions()
+	-- register options table and assign to frame
+	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
+	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
+	--if not tab then tab = "general" end
+	--A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
+	A.Libs.AceConfigDialog:Open("AlertMeOptions", Frame)
+end
+
+-- *************************************************************************************
+-- initializes the options table
+function O:InitOptions()
+	dprint(2, "O:InitOptions")
 	-- if table was already initialized, abort
-	if O.options ~= nil then
-		return
-	end
+	if O.options ~= nil then return	end
 
-	-- create standard groups with order
-	O.order = 1
-	local function CreateGroup(name, desc, childGroups, reset_order)
-		if reset_order then O.order = 1 end
-		local group = {
-			type = "group",
-			name = name,
-			desc = desc,
-			childGroups = childGroups,
-			order = O.order,
-			args = {}
-		}
-		O.order = O.order + 1
-		return group
-	end
-	-- create standard header
-	local function CreateHeader(name, order)
-		local header = {
-			type = "header",
-			name = name,
-			order = (order ~= nil) and order or 1,
-		}
-		return header
-	end
-
-	-- first level
-	O.options = CreateGroup("AlertMeOptions", _, "tree")
-	O.options.handler = A
+	-- create first and second level (main tabs) here
+	O.options = O:CreateGroup("AlertMeOptions", _, _, "tree")
+	O.options.handler = O
 	-- second level
-	O.options.args.general = CreateGroup("General", _, _, true)
-	O.options.args.events = CreateGroup("Event")
-	O.options.args.alerts = CreateGroup("Alerts", "Create your alerts", _)
-	O.options.args.profiles = CreateGroup("Profiles")
-	O.options.args.info = CreateGroup("Info")
-
+	O.options.args.general = O:CreateGroup("General", _, true)
+	O.options.args.events = O:CreateGroup("Event")
+	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
+	O.options.args.profiles = O:CreateGroup("Profiles")
+	O.options.args.info = O:CreateGroup("Info")
 	-- general
+	O:CreateGeneral(O.options.args.general.args)
+	-- profiles
+	O:CreateProfiles()
+	-- info
+	O:CreateInfo(O.options.args.info.args)
+	-- alerts
+	O:CreateAlerts(O.options.args.alerts.args)
+
+end
+
+-- creates the general options tab
+function O:CreateGeneral(o)
+	-- some local tables for populating dropdowns etc.
 	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
-	O.options.args.general.args.header = CreateHeader("General Options")
-	O.options.args.general.args.zones = {
+	-- header
+	o.header = O:CreateHeader("General Options")
+	-- zones multi
+	o.zones = {
 		type = 'multiselect',
 		name = "Addon is enabled in",
 		order = 5,
@@ -60,87 +72,48 @@ function A:InitOptions()
 		get = 'GetOptions',
 		set = 'SetOptions',
 	}
-	O.options.args.general.args.chat_frames = {
+	-- chat frames multi
+	o.chat_frames = {
 		type = 'multiselect',
 		name = "Display addon messages in the following chat windows",
 		order = 10,
-		values = A:GetChatInfo(),
+		values = O:GetChatFrameInfo(),
 		get = 'GetOptions',
 		set = 'SetOptions',
 	}
+	o.test = {
+		type = "toggle",
+		name = "test",
+		set = "SetOption",
+		get = "GetOption",
+	}
+end
 
-	-- profiles
-	A:RefreshProfiles()
-
-	-- info
-	O.options.args.info.args.header = CreateHeader("Addon Info")
-	O.options.args.info.args.addonInfo = {
+-- creates the info tab
+function O:CreateInfo(o)
+	o.header = O:CreateHeader("Addon Info")
+	o.addonInfo = {
 		type = "description",
 		name = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR,
 		fontSize = "medium",
 		order = 2
 	}
-
-	-- alerts: eventtabs - preparation
-	local opt = O.options.args.alerts.args
-	opt.gain = CreateGroup("On aura gain", _, _, true)
-	opt.dispel = CreateGroup("On spell dispel")
-	opt.start = CreateGroup("On cast start")
-	opt.success = CreateGroup("On cast success")
-	opt.interrupt = CreateGroup("On interrupt")
-	opt.gain.args.header = CreateHeader("On aura gain & refresh")
-	opt.dispel.args.header = CreateHeader("On spell dispel")
-	opt.start.args.header = CreateHeader("On spell cast start")
-	opt.success.args.header = CreateHeader("On spell cast success")
-	opt.interrupt.args.header = CreateHeader("On interrupt")
-
-	-- prepare event control
-	local event_control = {
-		type = "group",
-		name = "",
-		desc = "Create, edit, delete alerts",
-		inline = true,
-		order = 2,
-		args = {
-			create_alert = {
-				type = "input",
-				name = "New alert",
-				desc = "Name of new event",
-				order = 1,
-				width = "double",
-				get = function(info) return "" end,
-				set = "CreateAlert"
-			},
-			select_alert = {
-				type = "select",
-				name = "Alert",
-				values = "GetAlertList",
-				style = "dropdown",
-				get = "GetLastEntry"
-			}
-		}
-	}
-	-- attach to options
-	opt.gain.args.event_control = event_control
-	opt.dispel.args.event_control = event_control
-	opt.start.args.event_control = event_control
-	opt.success.args.event_control = event_control
-	opt.interrupt.args.event_control = event_control
 end
 
-function A:GetAlertList(info)
-	return self.db.profile.alerts[info[2]].event_control.alerts
+-- creates / refreshes the profiles tab
+function O:CreateProfiles()
+	-- check if options table is initialized
+	if not O.options then return end
+	-- get options table and override order
+	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	O.options.args.profiles.order = 4
 end
 
-function A:GetLastEntry(info)
-	return #self.db.profile.alerts[info[2]].event_control.alerts
-end
-
-
-function A:GetInfoPath(info)
+-- return a table reference from info
+function O:GetInfoPath(info)
 	--VDT_AddData(info,"info")
 	local i = 1
-	local path = self.db.profile
+	local path = A.db.profile
 	while info[i] ~= nil do
 		path = path[info[i]]
 		i = i + 1
@@ -150,54 +123,53 @@ function A:GetInfoPath(info)
 end
 
 -- callback functions for multiple values
-function A:GetOptions(info, key)
-	local path = A:GetInfoPath(info)
+function O:GetOptions(info, key)
+	local path = O:GetInfoPath(info)
 	return path[key]
-	--return(self.db.profile[info[#info]][key])
 end
 
-function A:SetOptions(info , key, value)
-	local path = A:GetInfoPath(info)
+function O:SetOptions(info , key, value)
+	local path = O:GetInfoPath(info)
 	path[key] = value
 end
 
 -- callback functions for single values
-function A:GetOption(info)
-	local path = A:GetInfoPath(info)
+function O:GetOption(info)
+	local path = O:GetInfoPath(info)
 	return path
 end
 
-function A:SetOption(info, value)
-	local path = A:GetInfoPath(info)
+function O:SetOption(info, value)
+	local path = O:GetInfoPath(info)
 	path = value
 end
 
-function A:CreateAlert(info, value)
-	local i = 1
-	local path = self.db.profile
-	while info[i] ~= nil and info[i] ~= "create_alert" do
-		path = path[info[i]]
-		i = i + 1
-	end
-	-- save last input
-	path.create_alert = value
-	tinsert(path["alerts"], value)
+-- create standard header
+function O:CreateHeader(name, order)
+	local header = {
+		type = "header",
+		name = name,
+		order = (order ~= nil) and order or 1,
+	}
+	return header
 end
 
--- automatically called on profile copy/delete/etc.
-function A:OnProfileEvent(event)
-	dprint(2, "OnProfileEvent", event)
-	A:RefreshProfiles()
-	-- do whatever it takes
+-- create standard groups with order
+function O:CreateGroup(name, desc, reset_order, childGroups)
+	if reset_order then O.order = 1 end
+	local group = {
+		type = "group",
+		name = name,
+		desc = desc,
+		childGroups = childGroups,
+		order = O.order,
+		args = {}
+	}
+	O.order = O.order + 1
+	return group
 end
 
--- refreshes the profiles tab
-function A:RefreshProfiles()
-	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	O.options.args.profiles.order = 4
-end
-
-function A:GetChatInfo()
+function O:GetChatFrameInfo()
 	local chat_frames = {}
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
