@@ -14,12 +14,16 @@ O.order = 1
 function O:OpenOptions(tab)
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
-	local Frame = A.Libs.AceGUI:Create("Frame")
-	Frame:SetTitle("AlertMe Options")
-	--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
-	Frame:EnableResize(true)
-	Frame:SetLayout("Flow")
-	Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
+	if O.Frame == nil then
+		O.Frame = A.Libs.AceGUI:Create("Frame")
+		O.Frame:SetTitle("AlertMe Options")
+		--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
+		O.Frame:EnableResize(true)
+		O.Frame:SetLayout("Flow")
+		O.Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
+	else
+		O.Frame:Show()
+	end
 	-- initialize options table
 	O:CreateOptions()
 	-- register options table and assign to frame
@@ -27,7 +31,7 @@ function O:OpenOptions(tab)
 	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
 	if tab == nil then tab = "general" end
 	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
-	A.Libs.AceConfigDialog:Open("AlertMeOptions", Frame)
+	A.Libs.AceConfigDialog:Open("AlertMeOptions", O.Frame)
 end
 
 -- *************************************************************************************

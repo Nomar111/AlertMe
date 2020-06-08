@@ -3,14 +3,14 @@ dprint(2, "events.lua")
 local _G = _G
 local dprint, tinsert, pairs = dprint, table.insert, pairs
 -- get engine environment
-local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
+local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 -- creates the alerts options tab
-function O:CreateAlertOptions(o)
+function O:CreateAlertOptions(o)		--O.options.args.alerts.args
 	-- loop over events that need to be displayed
-	for event_id, tbl in pairs(A.Events) do
+	for _, tbl in pairs(A.Events) do
 		if tbl.options_display ~= nil and tbl.options_display == true then
 			O:DrawAlertOptions(o, tbl.handle, tbl.options_name, tbl.options_order)
 		end
@@ -18,12 +18,9 @@ function O:CreateAlertOptions(o)
 end
 
 function O:DrawAlertOptions(o, handle, name, order)
-	--  create group
-	o[handle] = O:CreateGroup(name, nil, order)
-	-- create header
-	o[handle].args.header = O:CreateHeader(name)
-	-- attach to options
-	o[handle].args.alert_control = O:GetAlertControl()
+	o[handle] = O:CreateGroup(name, nil, order, "select")
+	o[handle].args.alert_control =  O:GetAlertControl()
+	o[handle].args.alert1 = O:CreateGroup("Alert1")
 end
 
 function O:CreateAlert(info, value)
@@ -51,29 +48,38 @@ function O:GetAlertControl()
 	local alert_control = {
 		type = "group",
 		name = "",
-		inline = true,
+		--inline = true,
 		order = 2,
 		args = {
-			select_alert = {
-				type = "select",
-				style = "dropdown",
-				name = "Alert",
+			description = {
+				type = "description",
+				name = "New Alert: ",
 				order = 1,
-				width = 2,
-				values = "GetAlertList",
-				get = "GetLastEntry"
+				width = 0.4,
+				fontSize = "medium",
 			},
-			spacer = O:CreateSpacer(2, 1),
 			create_alert = {
 				type = "input",
-				name = "New alert",
-				desc = "Name of new alert",
-				order = 3,
+				name = "",
+				order = 2,
 				width = 2,
 				get = function(info) return "" end,
 				set = "CreateAlert"
 			},
-
+			spacer = O:CreateSpacer(3,5),
+			delete_alert = {
+				type = "execute",
+				name = "delete",
+				width = 0.4,
+				order = 9,
+				func = function() return end
+			},
+			fullspacer = {
+				type = "description",
+				name = "M",
+				width = "full",
+				order = 99
+			}
 		}
 	}
 	return alert_control

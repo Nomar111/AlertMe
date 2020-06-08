@@ -60,6 +60,10 @@ function A:OnInitialize()
 	self:RegisterChatCommand("alertme", "OpenOptions")
 end
 
+function A:OpenOptions()
+	A.Options:OpenOptions()
+end
+
 -- addon enabled
 function A:OnEnable()
 	dprint(2, "Ace Event: OnEnable")
