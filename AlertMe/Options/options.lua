@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type, tinsert = _G, dprint, FCF_GetNumActiveChatFrames, type, table.insert
+local _G, dprint, FCF_GetNumActiveChatFrames, type, tostring = _G, dprint, FCF_GetNumActiveChatFrames, type, tostring
 -- get engine environment
 local A, D, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -12,7 +12,7 @@ O.order = 1
 -- *************************************************************************************
 -- open the options window
 function O:OpenOptions()
-	dprint(2, "OpenOptions")
+	dprint(2, "O:OpenOptions")
 	-- create main frame for options
 	local Frame = A.Libs.AceGUI:Create("Frame")
 	Frame:SetTitle("AlertMe Options")
@@ -40,6 +40,8 @@ function O:InitOptions()
 	-- create first and second level (main tabs) here
 	O.options = O:CreateGroup("AlertMeOptions", _, _, "tree")
 	O.options.handler = O
+	O.options.get = "GetOption"
+	O.options.set = "SetOption"
 	-- second level
 	O.options.args.general = O:CreateGroup("General", _, true)
 	O.options.args.events = O:CreateGroup("Event")
@@ -69,8 +71,8 @@ function O:CreateGeneral(o)
 		name = "Addon is enabled in",
 		order = 5,
 		values = zone_types,
-		get = 'GetOptions',
-		set = 'SetOptions',
+		--get = 'GetOption',
+		--set = 'SetOption',
 	}
 	-- chat frames multi
 	o.chat_frames = {
@@ -78,14 +80,16 @@ function O:CreateGeneral(o)
 		name = "Display addon messages in the following chat windows",
 		order = 10,
 		values = O:GetChatFrameInfo(),
-		get = 'GetOptions',
-		set = 'SetOptions',
+		--get = 'GetOption',
+		--set = 'SetOption',
 	}
 	o.test = {
 		type = "toggle",
 		name = "test",
-		set = "SetOption",
-		get = "GetOption",
+		order = 99,
+		--get = "GetOption",
+		--set = "SetOption",
+
 	}
 end
 
@@ -109,39 +113,45 @@ function O:CreateProfiles()
 	O.options.args.profiles.order = 4
 end
 
--- return a table reference from info
+-- return a table reference and key from info
 function O:GetInfoPath(info)
-	--VDT_AddData(info,"info")
 	local i = 1
 	local path = A.db.profile
+	local key = ""
 	while info[i] ~= nil do
-		path = path[info[i]]
+		-- check if item is table
+		local object = path[info[i]]
+		if type(object) == "table" then
+			path = path[info[i]]
+		else
+			key = info[i]
+		end
 		i = i + 1
 	end
-	--VDT_AddData(path, "path")
-	return path
+	--VDT_AddData(path, "path");VDT_AddData(key, "key")
+	return path, key
 end
 
--- callback functions for multiple values
-function O:GetOptions(info, key)
-	local path = O:GetInfoPath(info)
+-- standard get
+function O:GetOption(info, key)
+	local path, key_ = O:GetInfoPath(info)
+	if not key then key = key_ end
 	return path[key]
 end
 
-function O:SetOptions(info , key, value)
-	local path = O:GetInfoPath(info)
+-- standard set
+function O:SetOption(info, arg2, arg3)
+	dprint(1, arg2, arg3)
+	local path, key_ = O:GetInfoPath(info)
+	local value, key
+	if arg3 == nil then
+		key = key_
+		value = arg2
+	else
+		key = arg2
+		value = arg3
+	end
 	path[key] = value
-end
-
--- callback functions for single values
-function O:GetOption(info)
-	local path = O:GetInfoPath(info)
-	return path
-end
-
-function O:SetOption(info, value)
-	local path = O:GetInfoPath(info)
-	path = value
 end
 
 -- create standard header
