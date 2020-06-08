@@ -1,7 +1,7 @@
 dprint(2, "events.lua")
 -- upvalues
 local _G = _G
-local dprint, tinsert, pairs = dprint, table.insert, pairs
+local dprint, tinsert, pairs, uuid = dprint, table.insert, pairs, uuid
 -- get engine environment
 local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -23,22 +23,6 @@ function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts.args
 	O:AttachAlertControl(o.args, name)
 end
 
-function O:CreateAlert(info, value)
-	local path,key = O:GetInfoPath(info)
-	tinsert(path.alerts, value)
-	path.select_alert = #path.alerts
-end
-
-function O:GetAlertList(info)
-	local path,key = O:GetInfoPath(info)
-	return path.alerts
-end
-
-function O:GetAlert(info)
-	local path,key = O:GetInfoPath(info)
-	return #path.alerts
-end
-
 function O:AttachAlertControl(o, name)
 	o.header = O:CreateHeader(name)
 	o.create_alert = {
@@ -57,6 +41,35 @@ function O:AttachAlertControl(o, name)
 		order = 3,
 		width = 2.1,
 		values = "GetAlertList",
-		set = "SetOption",
+		set = "SetAlert",
 	}
+end
+
+function O:SetAlert(info, key)
+	-- save value standard
+	O:SetOption(info, key)
+	O:DrawAlertDetails(info, key)
+end
+
+function O:DrawAlertDetails(info, key)
+	local path, key_ = O:GetInfoPath(info)
+	VDT_AddData(path,"path")
+	dprint(1, key, key_)
+end
+
+function O:CreateAlert(info, value)
+	local path,_ = O:GetInfoPath(info)
+	local uid = uuid()
+	path.alerts[uid] = value
+	path.select_alert = uid
+end
+
+function O:GetAlertList(info)
+	local path,key = O:GetInfoPath(info)
+	return path.alerts
+end
+
+function O:GetAlert(info)
+	local path,key = O:GetInfoPath(info)
+	return #path.alerts
 end
