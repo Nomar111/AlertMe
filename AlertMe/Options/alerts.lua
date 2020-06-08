@@ -8,7 +8,7 @@ local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 setfenv(1, _G.AlertMe)
 
 -- creates the alerts options tab
-function O:CreateAlertOptions(o)		--O.options.args.alerts.args
+function O:CreateAlertOptions(o)
 	-- loop over events that need to be displayed
 	for _, tbl in pairs(A.Events) do
 		if tbl.options_display ~= nil and tbl.options_display == true then
@@ -17,70 +17,46 @@ function O:CreateAlertOptions(o)		--O.options.args.alerts.args
 	end
 end
 
-function O:DrawAlertOptions(o, handle, name, order)
-	o[handle] = O:CreateGroup(name, nil, order, "select")
-	o[handle].args.alert_control =  O:GetAlertControl()
-	o[handle].args.alert1 = O:CreateGroup("Alert1")
+function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts.args
+	o[handle] = O:CreateGroup(name, nil, order)
+	o = o[handle]
+	O:AttachAlertControl(o.args, name)
 end
 
 function O:CreateAlert(info, value)
-	local i = 1
-	local path = A.db.profile
-	while info[i] ~= nil and info[i] ~= "create_alert" do
-		path = path[info[i]]
-		i = i + 1
-	end
-	-- save last input
-	path.create_alert = value
-	tinsert(path["alerts"], value)
+	local path,key = O:GetInfoPath(info)
+	tinsert(path.alerts, value)
+	path.select_alert = #path.alerts
 end
 
 function O:GetAlertList(info)
-	return A.db.profile.alerts[info[2]].alert_control.alerts
+	local path,key = O:GetInfoPath(info)
+	return path.alerts
 end
 
-function O:GetLastEntry(info)
-	return #A.db.profile.alerts[info[2]].alert_control.alerts
+function O:GetAlert(info)
+	local path,key = O:GetInfoPath(info)
+	return #path.alerts
 end
 
--- provides a standard control for adding, selecting and deleting alerts
-function O:GetAlertControl()
-	local alert_control = {
-		type = "group",
-		name = "",
-		--inline = true,
+function O:AttachAlertControl(o, name)
+	o.header = O:CreateHeader(name)
+	o.create_alert = {
+		type = "input",
+		name = "New alert",
 		order = 2,
-		args = {
-			description = {
-				type = "description",
-				name = "New Alert: ",
-				order = 1,
-				width = 0.4,
-				fontSize = "medium",
-			},
-			create_alert = {
-				type = "input",
-				name = "",
-				order = 2,
-				width = 2,
-				get = function(info) return "" end,
-				set = "CreateAlert"
-			},
-			spacer = O:CreateSpacer(3,5),
-			delete_alert = {
-				type = "execute",
-				name = "delete",
-				width = 0.4,
-				order = 9,
-				func = function() return end
-			},
-			fullspacer = {
-				type = "description",
-				name = "M",
-				width = "full",
-				order = 99
-			}
-		}
+		width = 2,
+		get = function(info) return "" end,
+		set = "CreateAlert"
 	}
-	return alert_control
+	o.spacer = O:CreateSpacer(3, 1)
+	o.select_alert = {
+		type = "select",
+		name = "Alert",
+		style = "dropdown",
+		order = 3,
+		width = 2.1,
+		values = "GetAlertList",
+		set = "SetOption",
+	}
 end

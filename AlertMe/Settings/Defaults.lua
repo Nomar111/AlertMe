@@ -17,11 +17,9 @@ D.profile = {
 	},
 	alerts = {
 		['*'] = {
-			alert_control = {
-				--create_alert = "X",
-				select_alert = 1,
-				alerts = {}
-			}
+			create_alert = 1,
+			select_alert = 1,
+			alerts = {}
 		}
 	}
 }
