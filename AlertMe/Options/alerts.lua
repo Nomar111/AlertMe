@@ -63,11 +63,12 @@ function O:GetAlertControl()
 				values = "GetAlertList",
 				get = "GetLastEntry"
 			},
+			spacer = O:CreateSpacer(2, 1),
 			create_alert = {
 				type = "input",
 				name = "New alert",
 				desc = "Name of new alert",
-				order = 2,
+				order = 3,
 				width = 2,
 				get = function(info) return "" end,
 				set = "CreateAlert"

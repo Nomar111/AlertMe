@@ -183,6 +183,17 @@ function O:CreateGroup(name, desc, order, childGroups)
 	return group
 end
 
+function O:CreateSpacer(order, width)
+	local spacer = {
+		name = '',
+		type = 'description',
+		order = order,
+		cmdHidden = true,
+		width = width/10,
+	}
+	return spacer
+end
+
 function O:GetChatFrameInfo()
 	local chat_frames = {}
 	for i = 1, FCF_GetNumActiveChatFrames() do
