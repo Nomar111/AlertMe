@@ -1,7 +1,8 @@
 dprint(2, "events.lua")
 -- upvalues
 local _G = _G
-local dprint, tinsert, pairs, uuid, GetTime, time = dprint, table.insert, pairs, uuid, GetTime, time
+local dprint, tinsert, pairs, uuid, GetTime, time, tostring = dprint, table.insert, pairs, uuid, GetTime, time, tostring
+local type, unpack = type, unpack
 -- get engine environment
 local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -22,21 +23,29 @@ function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts.args
 	o = o[handle]
 	-- attach alert controls
 	O:AttachAlertControl(o.args, name)
-	O:DrawAlertDetails(o.args, name)
+	-- create container for details
+	o.args.details_container = O:CreateGroup("cnt", nil, 50)
+	o.args.details_container.inline = true
+	--O:DrawAlertDetails(o.args, name)
 end
 
-function O:DrawAlertDetails(o, name)
-	o.alert_details = O:CreateGroup("", nil, 50)
-	o.alert_details.inline = true
-	o.alert_details.disabled = "DisableAlertDetails"
-	o.alert_details.args = {
+function O:DrawAlertDetails(o, uid)
+	-- get current alert selection
+	VDT_AddData(o, "o")
+	dprint(1, "uid übergeben", uid)
+	if uid == nil or type(uid) ~= "number" then return end
+	-- delete old group if there was any
+	o.args.details_container.args = {}
+	uid = tostring(uid)
+	o.args.details_container.args[uid] = O:CreateGroup(name, nil, 1)
+	o.args.details_container.args[uid].inline = true
+	o.args.details_container.args[uid].args = {
 		test = {
 			type = "toggle",
 			name = "test",
-			--desc = "Please test this",
-			--descStyle = "inline"
 		}
 	}
+	-- o[uid].disabled = "DisableAlertDetails"
 end
 
 function O:AttachAlertControl(o, name)
@@ -50,38 +59,42 @@ function O:AttachAlertControl(o, name)
 		width = 1.9,
 		values = "GetAlertList",
 		set = "SetAlert",
+		get = "GetAlert"
 	}
+	--o.select_alert:SetCallback("OnValueChanged", function() print("value changes") end)
 	o.spacer1 = O:CreateSpacer(3, 0.7)
 	o.reset_alert = {
 		type = "execute",
-		name = "",
-		desc = "Reset selected alert",
+		name = "Reset",
+		desc = "current selection",
 		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\reset.tga",
 		imageWidth = 18,
 		imageHeight = 18,
 		width = O:GetWidth(18),
-		func = function(info) return "" end,
+		func = function(info) print("reset") end,
 		order = 4,
 		confirm = true,
 		confirmText = "Do you really want to reset this alert?",
 		dialogControl = "WeakAurasIcon",
-		control = "WeakAurasIcon"
 	}
 	o.spacer2 = O:CreateSpacer(5, 0.5)
 	o.add_alert = {
 		type = "execute",
-		name = "",
+		name = "Create",
+		desc = "a new alert",
 		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga",
 		imageWidth = 18,
 		imageHeight = 18,
 		width = O:GetWidth(18),
 		func = "CreateAlert",
-		order = 6
+		order = 6,
+		dialogControl = "WeakAurasIcon",
 	}
 	o.spacer3 = O:CreateSpacer(7, 0.4)
 	o.delete_alert = {
 		type = "execute",
-		name = "",
+		name = "Delete",
+		desc = "current selection",
 		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga",
 		imageWidth = 18,
 		imageHeight = 18,
@@ -89,7 +102,8 @@ function O:AttachAlertControl(o, name)
 		func = "DeleteAlert",
 		order = 8,
 		confirm = true,
-		confirmText = "Do you really want to delete this alert?"
+		confirmText = "Do you really want to delete this alert?",
+		dialogControl = "WeakAurasIcon",
 	}
 	o.spacer4 = O:CreateSpacer(9, 0.4)
 	o.alert_name = {
@@ -106,13 +120,10 @@ end
 function O:SetAlert(info, key)
 	-- save value standard
 	O:SetOption(info, key)
+	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
+		O:DrawAlertDetails(O.options.args.alerts.args[info[2]], key)
+	end
 end
-
--- function O:DrawAlertDetails(info, key)
--- 	local path, key_ = O:GetInfoPath(info)
--- 	VDT_AddData(path,"path")
--- 	dprint(1, key, key_)
--- end
 
 function O:CreateAlert(info)
 	local path,_ = O:GetInfoPath(info)
@@ -123,16 +134,31 @@ end
 
 function O:DeleteAlert(info)
 	local path,_ = O:GetInfoPath(info)
-	if path.alerts[path.select_alert] ~= nil then
-		path.alerts[path.select_alert] = nil
-		for uid,_ in pairs(path.alerts) do
-			if uid ~= nil then
-				path.select_alert = uid
-				return
-			end
-		end
-		path.select_alert = nil
+	local uid = path.select_alert
+	if uid == nil then return end
+	-- delete entry from "alert_name".alerts{}
+	if path.alerts[uid] ~= nil then
+		path.alerts[uid] = nil
 	end
+	-- and don't forget about details_container
+	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
+		O.options.args.alerts.args[info[2]].args.details_container = nil
+	end
+	-- but also delete group in details container in db
+	if path.details_container.args[uid] ~= nil then
+		path.details_container.args[uid] = nil
+	end
+
+	-- now just set something in the alert selector (if possible)
+	for id,_ in pairs(path.alerts) do
+		if id ~= nil then
+			-- set select to first found id
+			path.select_alert = id
+			return
+		end
+	end
+	-- nothing found - set empty
+	path.select_alert = ""
 end
 
 function O:GetAlertList(info)
@@ -162,7 +188,6 @@ end
 
 function O:DisableAlertName(info)
 	local path,_ = O:GetInfoPath(info)
-	VDT_AddData(info,"info")
 	local uid = path.select_alert
 	if uid == nil then
 		return true
@@ -172,7 +197,6 @@ end
 
 function O:DisableAlertDetails(info)
 	local uid = A.db.profile.alerts[info[2]].select_alert
-	VDT_AddData(info,"info")
 	if uid == nil then
 		return true
 	end
@@ -181,4 +205,19 @@ end
 
 function O:GetWidth(pixel)
 	return (1/170*pixel)
+end
+
+function O:GetAlert(info, value)
+	--VDT_AddData(info,"getinfo")
+	local path,_ = O:GetInfoPath(info)
+	VDT_AddData(path, "path")
+	--dprint(1, "GetAlert info", info, value)
+	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
+		O:DrawAlertDetails(O.options.args.alerts.args[info[2]],  path["select_alert"])
+	end
+	if path["select_alert"] ~= nil then
+		return path["select_alert"]
+	else
+		return ""
+	end
 end

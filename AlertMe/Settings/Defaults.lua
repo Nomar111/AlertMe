@@ -18,8 +18,13 @@ D.profile = {
 	alerts = {
 		['*'] = {
 			--alert_name = "New Alert",
-			select_alert = nil,
-			alerts = {}
-		}
-	}
+			select_alert = "",
+			alerts = {},
+			details_container = {
+				['*'] = {
+					test = true,
+				},
+			},
+		},
+	},
 }
