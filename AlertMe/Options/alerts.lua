@@ -23,28 +23,52 @@ function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts.args
 	o = o[handle]
 	-- attach alert controls
 	O:AttachAlertControl(o.args, name)
-	-- create container for details
-	o.args.details_container = O:CreateGroup("cnt", nil, 50)
+	o.args.details_container = O:CreateGroup("Alert Settings", nil, 50)
 	o.args.details_container.inline = true
-	--O:DrawAlertDetails(o.args, name)
 end
 
 function O:DrawAlertDetails(o, uid)
 	-- get current alert selection
 	VDT_AddData(o, "o")
-	dprint(1, "uid übergeben", uid)
+	dprint(1, "DrawAlertDetails")
 	if uid == nil or type(uid) ~= "number" then return end
+	dprint(1, "uid gültig es wird gezeichnet")
 	-- delete old group if there was any
-	o.args.details_container.args = {}
+	-- create container for details
+
 	uid = tostring(uid)
-	o.args.details_container.args[uid] = O:CreateGroup(name, nil, 1)
-	o.args.details_container.args[uid].inline = true
-	o.args.details_container.args[uid].args = {
-		test = {
-			type = "toggle",
-			name = "test",
-		}
+	o.args.details_container = {
+		type = "group",
+		name = "Alert Settings",
+		order = 50,
+		inline = true,
+		args = {
+			uid = {
+				type = "group",
+				name = "Set",
+				order = 1,
+				inline = true,
+				args = {
+					test = {
+						type = "toggle",
+						name = "test",
+					},
+				},
+			},
+		},
 	}
+	-- o.args.details_container.args[uid].inline = true
+	-- o.args.details_container.args[uid].args = {
+	-- 	test = {
+	-- 		type = "toggle",
+	-- 		name = "test",
+	-- 	}
+	-- }
+	local info = {"alerts","gain","details_container",uid}
+	dprint(1,"SelectGroup")
+	local status = A.Libs.AceConfigDialog:GetStatusTable("AlertMeOptions", {"alerts","gain","details_container"})
+	VDT_AddData(status, "status")
+	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", "alerts","gain")
 	-- o[uid].disabled = "DisableAlertDetails"
 end
 
@@ -119,10 +143,11 @@ end
 
 function O:SetAlert(info, key)
 	-- save value standard
+	dprint(1, "SetAlert")
 	O:SetOption(info, key)
-	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
+	--if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
 		O:DrawAlertDetails(O.options.args.alerts.args[info[2]], key)
-	end
+	--end
 end
 
 function O:CreateAlert(info)
@@ -140,25 +165,25 @@ function O:DeleteAlert(info)
 	if path.alerts[uid] ~= nil then
 		path.alerts[uid] = nil
 	end
-	-- and don't forget about details_container
-	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
-		O.options.args.alerts.args[info[2]].args.details_container = nil
-	end
+	-- -- and don't forget about details_container
+	-- if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
+	-- 	O.options.args.alerts.args[info[2]].args.details_container = nil
+	-- end
 	-- but also delete group in details container in db
-	if path.details_container.args[uid] ~= nil then
-		path.details_container.args[uid] = nil
-	end
+	-- if path.details_container.args[uid] ~= nil then
+	-- 	path.details_container.args[uid] = nil
+	-- end
 
-	-- now just set something in the alert selector (if possible)
-	for id,_ in pairs(path.alerts) do
-		if id ~= nil then
-			-- set select to first found id
-			path.select_alert = id
-			return
-		end
-	end
-	-- nothing found - set empty
-	path.select_alert = ""
+	-- -- now just set something in the alert selector (if possible)
+	-- for id,_ in pairs(path.alerts) do
+	-- 	if id ~= nil then
+	-- 		-- set select to first found id
+	-- 		path.select_alert = id
+	-- 		return
+	-- 	end
+	-- end
+	-- -- nothing found - set empty
+	-- path.select_alert = ""
 end
 
 function O:GetAlertList(info)
@@ -208,9 +233,10 @@ function O:GetWidth(pixel)
 end
 
 function O:GetAlert(info, value)
+	dprint(1, "GetAlert")
 	--VDT_AddData(info,"getinfo")
 	local path,_ = O:GetInfoPath(info)
-	VDT_AddData(path, "path")
+	--VDT_AddData(path, "path")
 	--dprint(1, "GetAlert info", info, value)
 	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
 		O:DrawAlertDetails(O.options.args.alerts.args[info[2]],  path["select_alert"])

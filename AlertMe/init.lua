@@ -43,6 +43,7 @@ VDT_AddData(A.Options, "O")
 A.Libs = {AceGUI={}, AceConfig={}, AceConfigDialog={}, AceConfigRegistry={}, AceDBOptions={}}
 A.Libs.AceGUI = LibStub("AceGUI-3.0")
 A.Libs.AceConfig = LibStub("AceConfig-3.0")
+A.Libs.AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")

@@ -28,6 +28,15 @@ function O:OpenOptions(tab)
 	O:CreateOptions()
 	-- register options table and assign to frame
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
+	A.Libs.AceConfigRegistry:NotifyChange("AlertMeOptions")
+	A.Libs.AceConfigRegistry:RegisterCallback("ConfigTableChange", function(self)
+		dprint(1,"fire")
+		VDT_AddData(self,"self")
+			A.Libs.AceConfigDialog.frame.apps["AlertMeOptions"] = true
+			A.Libs.AceConfigDialog.frame:SetScript("OnUpdate", RefreshOnUpdate)
+		--A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
+	end)
+	--MyLib.RegisterCallback(self, "eventName"[, method, [arg]])
 	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
 	if tab == nil then tab = "general" end
 	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
