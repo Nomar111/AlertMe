@@ -93,9 +93,6 @@ function O:CreateGeneralOptions(o)
 		type = "toggle",
 		name = "test",
 		order = 99,
-		--get = "GetOption",
-		--set = "SetOption",
-
 	}
 end
 

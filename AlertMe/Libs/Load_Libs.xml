@@ -12,4 +12,5 @@
 	<Include file="AceConfig-3.0\AceConfigDialog-3.0\AceConfigDialog-3.0.xml"/>
 	<Include file="AceComm-3.0\AceComm-3.0.xml"/>
 	<Include file="AceSerializer-3.0\AceSerializer-3.0.xml"/>
+	<Include file="LibSharedMedia-3.0\lib.xml"/>
 </Ui>

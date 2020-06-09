@@ -45,6 +45,7 @@ A.Libs.AceGUI = LibStub("AceGUI-3.0")
 A.Libs.AceConfig = LibStub("AceConfig-3.0")
 A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
+A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
 
 -- addon initialized
 function A:OnInitialize()
