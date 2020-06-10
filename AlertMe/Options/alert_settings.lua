@@ -1,4 +1,4 @@
-dprint(2, "alert_details.lua")
+dprint(2, "alert_settings.lua")
 -- upvalues
 local _G = _G
 local dprint, tinsert, pairs, GetTime, time, tostring = dprint, table.insert, pairs, GetTime, time, tostring

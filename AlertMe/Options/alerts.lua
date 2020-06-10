@@ -22,74 +22,74 @@ function O:DrawAlertOptions(o, event, name, order)	--O.options.args.alerts_main.
 	-- create groups for each display event * handle = gain, dispel....
 	o[event] = O:CreateGroup(name, nil, order)
 	-- add alert control widgets
-	o[event].args = O:CreateAlertControl(name)
+	O:AttachAlertControl(o[event].args, name)
+	-- paint the alert seetings
+	--o[event]
 end
 
-function O:CreateAlertControl(name)	--0 = --O.options.args.alerts_main.args.handle
-	return {
-		header = O:CreateHeader(name),
-		select_alert = {
-			type = "select",
-			name = "Alert",
-			desc = "Select alert",
-			style = "dropdown",
-			order = 2,
-			width = 1.9,
-			values = "GetAlerts",
-		},
-		spacer1 = O:CreateSpacer(3, 0.7),
-		reset_alert = {
-			type = "execute",
-			name = "Reset",
-			desc = "current selection",
-			image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\reset.tga",
-			imageWidth = 18,
-			imageHeight = 18,
-			width = O:GetWidth(18),
-			func = function(info) dprint(1, "reset") end,
-			order = 4,
-			confirm = true,
-			confirmText = "Do you really want to reset this alert?",
-			dialogControl = "WeakAurasIcon",
-		},
-		spacer2 = O:CreateSpacer(5, 0.5),
-		add_alert = {
-			type = "execute",
-			name = "Create",
-			desc = "a new alert",
-			image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga",
-			imageWidth = 18,
-			imageHeight = 18,
-			width = O:GetWidth(18),
-			func = "CreateAlert",
-			order = 6,
-			dialogControl = "WeakAurasIcon",
-		},
-		spacer3 = O:CreateSpacer(7, 0.4),
-		delete_alert = {
-			type = "execute",
-			name = "Delete",
-			desc = "current selection",
-			image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga",
-			imageWidth = 18,
-			imageHeight = 18,
-			width = O:GetWidth(18),
-			func = "DeleteAlert",
-			order = 8,
-			confirm = true,
-			confirmText = "Do you really want to delete this alert?",
-			dialogControl = "WeakAurasIcon",
-		},
-		spacer4 = O:CreateSpacer(9, 0.4),
-		alert_name = {
-			type = "input",
-			name = "Alert name",
-			order = 10,
-			width = 1.7,
-			get = "GetAlertName",
-			set = "SetAlertName",
-			disabled = "DisableAlertName",
-		},
+function O:AttachAlertControl(o, name)	--0 = --O.options.args.alerts_main.args.handle
+	o.header = O:CreateHeader(name)
+	o.select_alert = {
+		type = "select",
+		name = "Alert",
+		desc = "Select alert",
+		style = "dropdown",
+		order = 2,
+		width = 1.9,
+		values = "GetAlerts",
+	}
+	o.spacer1 = O:CreateSpacer(3, 0.7)
+	o.reset_alert = {
+		type = "execute",
+		name = "Reset",
+		desc = "current selection",
+		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\reset.tga",
+		imageWidth = 18,
+		imageHeight = 18,
+		width = O:GetWidth(18),
+		func = function(info) dprint(1, "reset") end,
+		order = 4,
+		confirm = true,
+		confirmText = "Do you really want to reset this alert?",
+		dialogControl = "WeakAurasIcon",
+	}
+	o.spacer2 = O:CreateSpacer(5, 0.5)
+	o.add_alert = {
+		type = "execute",
+		name = "Create",
+		desc = "a new alert",
+		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga",
+		imageWidth = 18,
+		imageHeight = 18,
+		width = O:GetWidth(18),
+		func = "CreateAlert",
+		order = 6,
+		dialogControl = "WeakAurasIcon",
+	}
+	o.spacer3 = O:CreateSpacer(7, 0.4)
+	o.delete_alert = {
+		type = "execute",
+		name = "Delete",
+		desc = "current selection",
+		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga",
+		imageWidth = 18,
+		imageHeight = 18,
+		width = O:GetWidth(18),
+		func = "DeleteAlert",
+		order = 8,
+		confirm = true,
+		confirmText = "Do you really want to delete this alert?",
+		dialogControl = "WeakAurasIcon",
+	}
+	o.spacer4 = O:CreateSpacer(9, 0.4)
+	o.alert_name = {
+		type = "input",
+		name = "Alert name",
+		order = 10,
+		width = 1.7,
+		get = "GetAlertName",
+		set = "SetAlertName",
+		disabled = "DisableAlertName",
 	}
 end
 
@@ -148,12 +148,6 @@ end
 
 function O:DisableAlertName(info)
 	local path = O:GetInfoPath(info)
-	-- local key = path.select_alert
-	-- -- if select has no valid selection then disable name widget
-	-- if key == nil then
-	-- 	return true
-	-- end
-	-- return false
 	return (path.select_alert == nil)
 end
 

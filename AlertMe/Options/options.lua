@@ -109,11 +109,12 @@ end
 
 -- creates / refreshes the profiles tab
 function O:CreateProfileOptions()
-	-- check if options table is initialized
+	-- check if options table is initialized - this function may get called by other functions too
 	if not O.options then return end
 	-- get options table and override order
-	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	--O.options.args.profiles.order = 4
+	local p = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	O.options.args.profiles.handler = p.handler
+	O.options.args.profiles.args = p.args
 end
 
 -- return a table reference and key from info
