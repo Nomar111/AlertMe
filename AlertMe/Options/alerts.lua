@@ -13,16 +13,16 @@ function O:CreateAlertOptions(o)
 	-- loop over events that need to be displayed
 	for _, tbl in pairs(A.Events) do
 		if tbl.options_display ~= nil and tbl.options_display == true then
-			O:DrawAlertOptions(o, tbl.handle, tbl.options_name, tbl.options_order)
+			O:DrawAlertOptions(o, tbl.short, tbl.options_name, tbl.options_order)
 		end
 	end
 end
 
-function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts_main.args
+function O:DrawAlertOptions(o, event, name, order)	--O.options.args.alerts_main.args
 	-- create groups for each display event * handle = gain, dispel....
-	o[handle] = O:CreateGroup(name, nil, order)
+	o[event] = O:CreateGroup(name, nil, order)
 	-- add alert control widgets
-	o[handle].args = O:CreateAlertControl(name)
+	o[event].args = O:CreateAlertControl(name)
 end
 
 function O:CreateAlertControl(name)	--0 = --O.options.args.alerts_main.args.handle
@@ -93,63 +93,68 @@ function O:CreateAlertControl(name)	--0 = --O.options.args.alerts_main.args.hand
 	}
 end
 
+function O:GetAlerts(info)
+	local path = O:GetInfoPath(info)
+	local values = {}
+	-- loop over events table
+	for key, set in pairs(path.alerts_db) do
+		values[key] = set.name
+	end
+	return values
+end
+
 function O:CreateAlert(info)
-	local path,_ = O:GetInfoPath(info)
+	local path = O:GetInfoPath(info)
+	-- create new entry in alerts_db
 	local key = time()
-	path.alerts[key] = "New Alert" --..date("%m/%d/%y %H:%M:%S")
+	path.alerts_db[key] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
+	-- set the dropwdown to the new element
 	path.select_alert = key
 end
 
 function O:DeleteAlert(info)
-	local path,_ = O:GetInfoPath(info)
+	-- delete entry from the alerts table of this event handle
+	local path = O:GetInfoPath(info)
 	local key = path.select_alert
 	-- if nothing is selected in dropwdown, abort
 	if key == nil then return end
-	-- delete entry from the alerts table of this event handle
-	if path.alerts[key] ~= nil then
-		path.alerts[key] = nil
-	end
+	-- delete key, the check is probably overkill
+	path.alerts_db[key] = nil
 	-- set the dropdown to the first found alert (if there is one left)
-	n, t = pairs(path.alerts)
-	local somekey, _ = n(t)
+	n, t = pairs(path.alerts_db)
+	local somekey,_ = n(t)
 	if somekey ~= nil then path.select_alert = somekey end
-end
-
-function O:GetAlerts(info)
-	local path,key = O:GetInfoPath(info)
-	return path.alerts
 end
 
 function O:GetAlertName(info)
 	--dprint(1, "GetAlertName", unpack(info))
-	local path,_ = O:GetInfoPath(info)
-	local name = ""
+	local path = O:GetInfoPath(info)
 	local key = path.select_alert
 	-- if select is set to an item, get the name from the feeder table
 	if key ~= nil then
-		name = path.alerts[key]
+		return path.alerts_db[key].name
 	end
-	return name
 end
 
 function O:SetAlertName(info, value)
 	--dprint(1, "SetAlertName", unpack(info))
-	local path,_ = O:GetInfoPath(info)
+	local path = O:GetInfoPath(info)
 	local key = path.select_alert
 	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
 	if key ~= nil then
-		path.alerts[key] = value
+		path.alerts_db[key].name = value
 	end
 end
 
 function O:DisableAlertName(info)
-	local path,_ = O:GetInfoPath(info)
-	local key = path.select_alert
-	-- if select has no valid selection then disable name widget
-	if key == nil then
-		return true
-	end
-	return false
+	local path = O:GetInfoPath(info)
+	-- local key = path.select_alert
+	-- -- if select has no valid selection then disable name widget
+	-- if key == nil then
+	-- 	return true
+	-- end
+	-- return false
+	return (path.select_alert == nil)
 end
 
 function O:GetWidth(pixel)

@@ -6,19 +6,24 @@ setfenv(1, _G.AlertMe)
 
 -- set default options
 D.profile = {
-	general_main = {
+	general = {
 		zones = {
-			['*'] = true,
+			["*"] = true,
 		},
 		chat_frames ={
-			['*'] = true,
+			["*"] = true,
 		},
 		test = true
 	},
-	alerts_main = {
-		['*'] = {
+	alerts = {
+		["*"] = {							-- events
 			--select_alert = 1,
-			alerts = {},
+			alerts_db = {
+				["*"] = { 					-- alerts (key = creationtime)
+					name = "New Alert",
+					active = false,
+				},
+			},
 		},
 	},
 }

@@ -1,7 +1,7 @@
 dprint(2, "init.lua")
 -- upvalues
 local _G, dprint = _G, dprint
-local tostring  = tostring
+local tostring, unpack  = tostring, unpack
 local LibStub, GetAddOnMetadata = LibStub, GetAddOnMetadata
 local UnitName, GetRealmName = UnitName, GetRealmName
 
@@ -15,12 +15,21 @@ local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEven
 -- create (default) options table
 A.Defaults = {}
 A.Options = {}
+A.Profile = {profile = {}}
 -- set engine environment substructure
 Engine[1] = A
-Engine[2] = A.Defaults  --- D
-Engine[3] = A.Options   --- O
+Engine[2] = A.Defaults  	-- D
+Engine[3] = A.Options   	-- O
+
 -- set wow global
 _G.AlertMe = Engine
+
+-- init debugger and add engine
+VDT_AddData = _G.ViragDevTool_AddData
+VDT_AddData(Engine, "Engine")
+VDT_AddData(A, "A")
+VDT_AddData(A.Defaults, "D")
+VDT_AddData(A.Options, "O")
 
 -- addon globls
 ADDON_NAME = AddonName
@@ -29,15 +38,8 @@ ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
 PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
-VDT_AddData = _G.ViragDevTool_AddData
 LibStub = LibStub
 dprint = dprint
-
--- add engine  to debugger
-VDT_AddData(Engine, "Engine")
-VDT_AddData(A, "A")
-VDT_AddData(A.Defaults, "D")
-VDT_AddData(A.Options, "O")
 
 -- libraries
 A.Libs = {AceGUI={}, AceConfig={}, AceConfigDialog={}, AceConfigRegistry={}, AceDBOptions={}}
@@ -57,7 +59,10 @@ function A:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileEvent")
+	-- define addon global P for profile data
+	P = A.db.profile
 	VDT_AddData(self.db, "db")
+	VDT_AddData(P, "P")
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
 end

@@ -8,6 +8,7 @@ setfenv(1, _G.AlertMe)
 -- (re)set some variables
 O.options = nil
 O.order = 1
+O.ilvl = 2 -- That's the level functions assume the events to be
 
 -- *************************************************************************************
 -- open the options window
@@ -30,7 +31,7 @@ function O:OpenOptions(tab)
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
 	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
 	-- open the options window at a certainn group/tab
-	if tab == nil then tab = "general_main" end
+	if tab == nil then tab = "general" end
 	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
 	A.Libs.AceConfigDialog:Open("AlertMeOptions", O.Frame)
 end
@@ -46,29 +47,29 @@ function O:CreateOptions()
 	end
 	-- create first and second level (main tabs) here
 	O.options = O:CreateGroup("AlertMeOptions", "", 1, "tree")
+	-- set handler and standard get/set functions
 	O.options.handler = O
 	O.options.get = "GetOption"
 	O.options.set = "SetOption"
 	VDT_AddData(O.options, "options")
-	VDT_AddData(A.db.profile, "profile")
 	-- second level
-	O.options.args.general_main = O:CreateGroup("General", "", 1)
-	O.options.args.events_main = O:CreateGroup("Event")
-	O.options.args.alerts_main = O:CreateGroup("Alerts", "Create your alerts")
-	O.options.args.profiles_main = O:CreateGroup("Profiles")
-	O.options.args.info_main = O:CreateGroup("Info")
+	O.options.args.general = O:CreateGroup("General", "", 1)
+	O.options.args.events = O:CreateGroup("Event")
+	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
+	O.options.args.profiles = O:CreateGroup("Profiles")
+	O.options.args.info = O:CreateGroup("Info")
 	-- general_main
-	O:CreateGeneralOptions(O.options.args.general_main.args)
+	O:CreateGeneralOptions(O.options.args.general.args)
 	-- profiles
 	O:CreateProfileOptions()
 	-- info
-	O:CreateInfoOptions(O.options.args.info_main.args)
+	O:CreateInfoOptions(O.options.args.info.args)
 	-- alerts
-	O:CreateAlertOptions(O.options.args.alerts_main.args)
+	O:CreateAlertOptions(O.options.args.alerts.args)
 
 end
 
--- creates the general_main options tab
+-- creates the general options tab
 function O:CreateGeneralOptions(o)
 	-- some local tables for populating dropdowns etc.
 	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
@@ -95,7 +96,7 @@ function O:CreateGeneralOptions(o)
 	}
 end
 
--- creates the info_main tab
+-- creates the info tab
 function O:CreateInfoOptions(o)
 	o.header = O:CreateHeader("Addon Info")
 	o.addonInfo = {
@@ -111,14 +112,14 @@ function O:CreateProfileOptions()
 	-- check if options table is initialized
 	if not O.options then return end
 	-- get options table and override order
-	O.options.args.profiles_main = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	O.options.args.profiles_main.order = 4
+	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	--O.options.args.profiles.order = 4
 end
 
 -- return a table reference and key from info
 function O:GetInfoPath(info)
 	local i = 1
-	local path = A.db.profile
+	local path = P
 	local key = ""
 	while info[i] ~= nil do
 		-- check if item is table
@@ -130,7 +131,7 @@ function O:GetInfoPath(info)
 		end
 		i = i + 1
 	end
-	return path, key
+	return path, key, info[ilvl]
 end
 
 -- standard get
