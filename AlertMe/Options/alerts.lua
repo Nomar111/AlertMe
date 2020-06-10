@@ -1,7 +1,7 @@
 dprint(2, "alerts.lua")
 -- upvalues
 local _G = _G
-local dprint, tinsert, pairs, GetTime, time, tostring = dprint, table.insert, pairs, GetTime, time, tostring
+local dprint, tinsert, pairs, GetTime, time, tostring, date = dprint, table.insert, pairs, GetTime, time, tostring, date
 local type, unpack = type, unpack
 -- get engine environment
 local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
@@ -99,41 +99,26 @@ function O:CreateAlertControl(name)
 	return alert_control
 end
 
-
 function O:CreateAlert(info)
 	local path,_ = O:GetInfoPath(info)
 	local key = time()
-	path.alerts[key] = "New Alert"
+	path.alerts[key] = "New Alert" --..date("%m/%d/%y %H:%M:%S")
 	path.select_alert = key
 end
 
 function O:DeleteAlert(info)
 	local path,_ = O:GetInfoPath(info)
 	local key = path.select_alert
+	-- if nothing is selected in dropwdown, abort
 	if key == nil then return end
-	-- delete entry from "alert_name".alerts{}
+	-- delete entry from the alerts table of this event handle
 	if path.alerts[key] ~= nil then
 		path.alerts[key] = nil
 	end
-	-- -- and don't forget about alert_settings
-	-- if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
-	-- 	O.options.args.alerts.args[info[2]].args.alert_settings = nil
-	-- end
-	-- but also delete group in details container in db
-	-- if path.alert_settings.args[key] ~= nil then
-	-- 	path.alert_settings.args[key] = nil
-	-- end
-
-	-- -- now just set something in the alert selector (if possible)
-	-- for id,_ in pairs(path.alerts) do
-	-- 	if id ~= nil then
-	-- 		-- set select to first found id
-	-- 		path.select_alert = id
-	-- 		return
-	-- 	end
-	-- end
-	-- -- nothing found - set empty
-	-- path.select_alert = ""
+	-- set the dropdown to the first found alert (if there is one left)
+	n, t = pairs(path.alerts)
+	local somekey, _ = n(t)
+	if somekey ~= nil then path.select_alert = somekey end
 end
 
 function O:GetAlerts(info)

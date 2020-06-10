@@ -19,12 +19,7 @@ D.profile = {
 		['*'] = {
 			--alert_name = "New Alert",
 			--select_alert = "",
-			alerts = {[1] = "TestAlert1", [2] = "TestAlert2", [3] = "TestAlert3"},
-			-- alert_settings = {
-			-- 	['*'] = {
-			-- 		test = true,
-			-- 	},
-			-- },
+			alerts = {},
 		},
 	},
 }
