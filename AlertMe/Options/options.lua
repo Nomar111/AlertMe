@@ -2,10 +2,10 @@ dprint(2, "options.lua")
 -- upvalues
 local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack
 -- get engine environment
-local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
+local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
--- set some variables
+-- (re)set some variables
 O.options = nil
 O.order = 1
 
@@ -133,7 +133,7 @@ end
 
 -- standard get
 function O:GetOption(info, key)
-	dprint(1, "GetOption", unpack(info))
+	--dprint(1, "GetOption", unpack(info))
 	local path, key_ = O:GetInfoPath(info)
 	if not key then key = key_ end
 	return path[key]
@@ -141,7 +141,7 @@ end
 
 -- standard set
 function O:SetOption(info, arg2, arg3)
-	dprint(1, "SetOption", unpack(info))
+	--dprint(1, "SetOption", unpack(info))
 	local path, key_ = O:GetInfoPath(info)
 	local value, key
 	if arg3 == nil then
@@ -166,7 +166,7 @@ end
 
 -- create standard groups with order
 function O:CreateGroup(name, desc, order, childGroups)
-	-- count orders up automatically if not provided
+	-- increase order numbers automatically if not provided
 	if order == nil then
 		order = O.order
 	end

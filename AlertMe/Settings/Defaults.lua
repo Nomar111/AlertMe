@@ -1,6 +1,6 @@
 dprint(2,"defaults.lua")
 -- get engine environment
-local _, D = unpack(select(2, ...)); --Import: Engine, Defaults
+local _, D = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -17,9 +17,8 @@ D.profile = {
 	},
 	alerts_main = {
 		['*'] = {
-			--alert_name = "New Alert",
-			--select_alert = "",
-			alerts = {},
+			--select_alert = 1,
+			--alerts = {[1] = "New Alert"},
 		},
 	},
 }

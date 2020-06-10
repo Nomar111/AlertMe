@@ -4,7 +4,7 @@ local _G = _G
 local dprint, tinsert, pairs, GetTime, time, tostring = dprint, table.insert, pairs, GetTime, time, tostring
 local type, unpack = type, unpack
 -- get engine environment
-local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
+local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 

@@ -1,14 +1,14 @@
 dprint(2, "alerts.lua")
 -- upvalues
 local _G = _G
-local dprint, tinsert, pairs, GetTime, time, tostring, date = dprint, table.insert, pairs, GetTime, time, tostring, date
+local dprint, tinsert, pairs, GetTime, time, date = dprint, table.insert, pairs, GetTime, time, date
 local type, unpack = type, unpack
 -- get engine environment
-local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
+local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
--- creates the alerts options tab
+-- creates sub-entries for each event ** alerts - dispel
 function O:CreateAlertOptions(o)
 	-- loop over events that need to be displayed
 	for _, tbl in pairs(A.Events) do
@@ -38,9 +38,6 @@ function O:CreateAlertControl(name)
 			order = 2,
 			width = 1.9,
 			values = "GetAlerts",
-			--values = {[1]="Test1", [2]="Test2"},
-			-- get = function() dprint(1, "GetInlineFunc"); return "" end,
-			-- set = function() dprint(1, "SetInlineFunc") end,
 		},
 		spacer1 = O:CreateSpacer(3, 0.7),
 		reset_alert = {
@@ -127,7 +124,7 @@ function O:GetAlerts(info)
 end
 
 function O:GetAlertName(info)
-	dprint(1, "GetAlertName", unpack(info))
+	--dprint(1, "GetAlertName", unpack(info))
 	local path,_ = O:GetInfoPath(info)
 	local name = ""
 	local key = path.select_alert
@@ -139,7 +136,7 @@ function O:GetAlertName(info)
 end
 
 function O:SetAlertName(info, value)
-	dprint(1, "SetAlertName", unpack(info))
+	--dprint(1, "SetAlertName", unpack(info))
 	local path,_ = O:GetInfoPath(info)
 	local key = path.select_alert
 	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
@@ -161,39 +158,3 @@ end
 function O:GetWidth(pixel)
 	return (1/170*pixel)
 end
-
-
-
--- function O:DisableAlertDetails(info)
--- 	local key = A.db.profile.alerts[info[2]].select_alert
--- 	if key == nil then
--- 		return true
--- 	end
--- 	return false
--- end
---
--- -- callbacks
--- function O:GetAlert(info, value)
--- 	dprint(1, "GetAlert")
--- 	--VDT_AddData(info,"getinfo")
--- 	local path,_ = O:GetInfoPath(info)
--- 	--VDT_AddData(path, "path")
--- 	--dprint(1, "GetAlert info", info, value)
--- 	if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
--- 		O:DrawAlertDetails(O.options.args.alerts.args[info[2]],  path["select_alert"])
--- 	end
--- 	if path["select_alert"] ~= nil then
--- 		return path["select_alert"]
--- 	else
--- 		return ""
--- 	end
--- end
---
--- function O:SetAlert(info, key)
--- 	-- save value standard
--- 	dprint(1, "SetAlert")
--- 	O:SetOption(info, key)
--- 	--if info[2] ~= nil and O.options.args.alerts.args[info[2]] ~= nil then
--- 		O:DrawAlertDetails(O.options.args.alerts.args[info[2]], key)
--- 	--end
--- end
