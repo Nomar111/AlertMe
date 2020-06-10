@@ -1,4 +1,12 @@
-
+A.Libs.AceConfigRegistry:NotifyChange("AlertMeOptions")
+A.Libs.AceConfigRegistry:RegisterCallback("ConfigTableChange", function(self)
+	dprint(1,"fire")
+	VDT_AddData(self,"self")
+		A.Libs.AceConfigDialog.frame.apps["AlertMeOptions"] = true
+		A.Libs.AceConfigDialog.frame:SetScript("OnUpdate", RefreshOnUpdate)
+	--A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
+end)
+--MyLib.RegisterCallback(self, "eventName"[, method, [arg]])
 
 RAID_CLASS_COLORS["SHAMAN"].colorStr = "ff0270dd"
 RAID_CLASS_COLORS["SHAMAN"].r = 0.01

@@ -6,7 +6,7 @@ setfenv(1, _G.AlertMe)
 
 -- set default options
 D.profile = {
-	general = {
+	general_main = {
 		zones = {
 			['*'] = true,
 		},
@@ -15,16 +15,16 @@ D.profile = {
 		},
 		test = true
 	},
-	alerts = {
+	alerts_main = {
 		['*'] = {
 			--alert_name = "New Alert",
-			select_alert = "",
-			alerts = {},
-			details_container = {
-				['*'] = {
-					test = true,
-				},
-			},
+			--select_alert = "",
+			alerts = {[1] = "TestAlert1", [2] = "TestAlert2", [3] = "TestAlert3"},
+			-- alert_settings = {
+			-- 	['*'] = {
+			-- 		test = true,
+			-- 	},
+			-- },
 		},
 	},
 }

@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type = _G, dprint, FCF_GetNumActiveChatFrames, type
+local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack
 -- get engine environment
 local A, _, O = unpack(select(2, ...)); --Import: Engine, Defaults
 -- set engine as new global environment
@@ -24,21 +24,13 @@ function O:OpenOptions(tab)
 	else
 		O.Frame:Show()
 	end
-	-- initialize options table
+	-- create options table
 	O:CreateOptions()
 	-- register options table and assign to frame
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
-	A.Libs.AceConfigRegistry:NotifyChange("AlertMeOptions")
-	A.Libs.AceConfigRegistry:RegisterCallback("ConfigTableChange", function(self)
-		dprint(1,"fire")
-		VDT_AddData(self,"self")
-			A.Libs.AceConfigDialog.frame.apps["AlertMeOptions"] = true
-			A.Libs.AceConfigDialog.frame:SetScript("OnUpdate", RefreshOnUpdate)
-		--A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
-	end)
-	--MyLib.RegisterCallback(self, "eventName"[, method, [arg]])
 	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
-	if tab == nil then tab = "general" end
+	-- open the options window at a certainn group/tab
+	if tab == nil then tab = "general_main" end
 	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
 	A.Libs.AceConfigDialog:Open("AlertMeOptions", O.Frame)
 end
@@ -58,23 +50,23 @@ function O:CreateOptions()
 	O.options.get = "GetOption"
 	O.options.set = "SetOption"
 	-- second level
-	O.options.args.general = O:CreateGroup("General", "", 1)
-	O.options.args.events = O:CreateGroup("Event")
-	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
-	O.options.args.profiles = O:CreateGroup("Profiles")
-	O.options.args.info = O:CreateGroup("Info")
-	-- general
-	O:CreateGeneralOptions(O.options.args.general.args)
+	O.options.args.general_main = O:CreateGroup("General", "", 1)
+	O.options.args.events_main = O:CreateGroup("Event")
+	O.options.args.alerts_main = O:CreateGroup("Alerts", "Create your alerts")
+	O.options.args.profiles_main = O:CreateGroup("Profiles")
+	O.options.args.info_main = O:CreateGroup("Info")
+	-- general_main
+	O:CreateGeneralOptions(O.options.args.general_main.args)
 	-- profiles
 	O:CreateProfileOptions()
 	-- info
-	O:CreateInfoOptions(O.options.args.info.args)
+	O:CreateInfoOptions(O.options.args.info_main.args)
 	-- alerts
-	O:CreateAlertOptions(O.options.args.alerts.args)
+	O:CreateAlertOptions(O.options.args.alerts_main.args)
 
 end
 
--- creates the general options tab
+-- creates the general_main options tab
 function O:CreateGeneralOptions(o)
 	-- some local tables for populating dropdowns etc.
 	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
@@ -86,8 +78,6 @@ function O:CreateGeneralOptions(o)
 		name = "Addon is enabled in",
 		order = 1,
 		values = zone_types,
-		--get = 'GetOption',
-		--set = 'SetOption',
 	}
 	-- chat frames multi
 	o.chat_frames = {
@@ -95,8 +85,6 @@ function O:CreateGeneralOptions(o)
 		name = "Display addon messages in the following chat windows",
 		order = 10,
 		values = O:GetChatFrameInfo(),
-		--get = 'GetOption',
-		--set = 'SetOption',
 	}
 	o.test = {
 		type = "toggle",
@@ -105,7 +93,7 @@ function O:CreateGeneralOptions(o)
 	}
 end
 
--- creates the info tab
+-- creates the info_main tab
 function O:CreateInfoOptions(o)
 	o.header = O:CreateHeader("Addon Info")
 	o.addonInfo = {
@@ -121,8 +109,8 @@ function O:CreateProfileOptions()
 	-- check if options table is initialized
 	if not O.options then return end
 	-- get options table and override order
-	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	O.options.args.profiles.order = 4
+	O.options.args.profiles_main = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	O.options.args.profiles_main.order = 4
 end
 
 -- return a table reference and key from info
@@ -140,12 +128,12 @@ function O:GetInfoPath(info)
 		end
 		i = i + 1
 	end
-	--VDT_AddData(path, "path");VDT_AddData(key, "key")
 	return path, key
 end
 
 -- standard get
 function O:GetOption(info, key)
+	dprint(1, "GetOption", unpack(info))
 	local path, key_ = O:GetInfoPath(info)
 	if not key then key = key_ end
 	return path[key]
@@ -153,6 +141,7 @@ end
 
 -- standard set
 function O:SetOption(info, arg2, arg3)
+	dprint(1, "SetOption", unpack(info))
 	local path, key_ = O:GetInfoPath(info)
 	local value, key
 	if arg3 == nil then
