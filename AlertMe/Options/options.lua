@@ -49,6 +49,7 @@ function O:CreateOptions()
 	O.options.handler = O
 	O.options.get = "GetOption"
 	O.options.set = "SetOption"
+	VDT_AddData(O.options, "options")
 	-- second level
 	O.options.args.general_main = O:CreateGroup("General", "", 1)
 	O.options.args.events_main = O:CreateGroup("Event")

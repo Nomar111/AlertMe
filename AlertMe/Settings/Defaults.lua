@@ -18,7 +18,7 @@ D.profile = {
 	alerts_main = {
 		['*'] = {
 			--select_alert = 1,
-			--alerts = {[1] = "New Alert"},
+			alerts = {},
 		},
 	},
 }

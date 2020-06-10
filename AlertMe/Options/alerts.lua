@@ -21,14 +21,12 @@ end
 function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts_main.args
 	-- create groups for each display event * handle = gain, dispel....
 	o[handle] = O:CreateGroup(name, nil, order)
-	o[handle].set = nil
-	o[handle].set = nil
 	-- add alert control widgets
-	o[handle].args = O:CreateAlertControl(name)
+	o[handle].args = O:AttachAlertControl(name)
 end
 
-function O:CreateAlertControl(name)
-	local alert_control = {
+function O:CreateAlertControl(name)	--0 = --O.options.args.alerts_main.args.handle
+	return {
 		header = O:CreateHeader(name),
 		select_alert = {
 			type = "select",
@@ -93,7 +91,6 @@ function O:CreateAlertControl(name)
 			disabled = "DisableAlertName",
 		},
 	}
-	return alert_control
 end
 
 function O:CreateAlert(info)
