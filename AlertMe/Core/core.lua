@@ -12,39 +12,39 @@ end
 -- central table with event options
 A.Events = {
 	["SPELL_AURA_APPLIED"] = {
-		handle = "gain",
+		short = "gain",
 		options_display = true,
 		options_name = "On aura gain or refresh",
 		options_order = 1,
 	},
 	["SPELL_AURA_REFRESH"] = {
-		handle = "gain",
+		short = "gain",
 		options_display = false,
 	},
 	["SPELL_AURA_REMOVED"] = {
-		handle = "removed",
+		short = "removed",
 		options_display = false,
 	},
 	["SPELL_DISPEL"] = {
-		handle = "dispel",
+		short = "dispel",
 		options_display = true,
 		options_name = "On dispel",
 		options_order = 2,
 	},
 	["SPELL_CAST_START"] = {
-		handle = "start",
+		short = "start",
 		options_display = true,
 		options_name = "On cast start",
 		options_order = 3,
 	},
 	["SPELL_CAST_SUCCESS"] = {
-		handle = "success",
+		short = "success",
 		options_display = true,
 		options_name = "On cast start",
 		options_order = 4,
 	},
 	["SPELL_INTERRUPT"] = {
-		handle = "interrupt",
+		short = "interrupt",
 		options_display = true,
 		options_name = "On cast success",
 		options_order = 5,
