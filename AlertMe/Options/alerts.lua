@@ -48,7 +48,7 @@ function O:CreateAlertControl(name)
 			imageWidth = 18,
 			imageHeight = 18,
 			width = O:GetWidth(18),
-			func = function(info) print("reset") end,
+			func = function(info) dprint(1, "reset") end,
 			order = 4,
 			confirm = true,
 			confirmText = "Do you really want to reset this alert?",
