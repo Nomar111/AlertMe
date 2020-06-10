@@ -22,7 +22,7 @@ function O:DrawAlertOptions(o, handle, name, order)	--O.options.args.alerts_main
 	-- create groups for each display event * handle = gain, dispel....
 	o[handle] = O:CreateGroup(name, nil, order)
 	-- add alert control widgets
-	o[handle].args = O:AttachAlertControl(name)
+	o[handle].args = O:CreateAlertControl(name)
 end
 
 function O:CreateAlertControl(name)	--0 = --O.options.args.alerts_main.args.handle
