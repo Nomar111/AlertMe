@@ -107,61 +107,61 @@ function O:AttachAlertControl(o, name)	-- O.options.args.alerts_main.args.handle
 end
 
 function O:GetAlerts(info)
-	local path = O:GetInfoPath(info)
+	local event = info[O.ilvl]
 	local values = {}
 	-- loop over events table
-	for uid, set in pairs(path.alert_settings) do
+	for uid, set in pairs(	P.alerts_db[event]) do
 		values[uid] = set.name
 	end
 	return values
 end
 
 function O:CreateAlert(info)
-	local path = O:GetInfoPath(info)
-	-- create new entry in alert_settings
-	local uid = time()
-	path.alert_settings[uid] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
-	-- set the dropwdown to the new element
-	path.select_alert = uid
+	-- local path = O:GetInfoPath(info)
+	-- -- create new entry in alert_settings
+	-- local uid = time()
+	-- path.alert_settings[uid] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
+	-- -- set the dropwdown to the new element
+	-- path.select_alert = uid
 end
 
 function O:DeleteAlert(info)
-	-- delete entry from the alerts table of this event handle
-	local path = O:GetInfoPath(info)
-	local uid = path.select_alert
-	-- if nothing is selected in dropwdown, abort
-	if uid == nil then return end
-	-- delete key, the check is probably overkill
-	path.alert_settings[uid] = nil
-	-- set the dropdown to the first found alert (if there is one left)
-	n, t = pairs(path.alert_settings)
-	local someuid,_ = n(t)
-	if someuid ~= nil then path.select_alert = someuid end
+	-- -- delete entry from the alerts table of this event handle
+	-- local path = O:GetInfoPath(info)
+	-- local uid = path.select_alert
+	-- -- if nothing is selected in dropwdown, abort
+	-- if uid == nil then return end
+	-- -- delete key, the check is probably overkill
+	-- path.alert_settings[uid] = nil
+	-- -- set the dropdown to the first found alert (if there is one left)
+	-- n, t = pairs(path.alert_settings)
+	-- local someuid,_ = n(t)
+	-- if someuid ~= nil then path.select_alert = someuid end
 end
 
 function O:GetAlertSettingTop(info)
-	--dprint(1, "GetAlertSettingSameLevel", unpack(info))
-	local path, key = O:GetInfoPath(info)
-	local uid = path.select_alert
-	-- if select is set to an item, get the name from the feeder table
-	if uid ~= nil then
-		return path.alert_settings[uid][key]
-	end
+	-- --dprint(1, "GetAlertSettingSameLevel", unpack(info))
+	-- local path, key = O:GetInfoPath(info)
+	-- local uid = path.select_alert
+	-- -- if select is set to an item, get the name from the feeder table
+	-- if uid ~= nil then
+	-- 	return path.alert_settings[uid][key]
+	-- end
 end
 
 function O:SetAlertSettingTop(info, value)
-	--dprint(1, "SetAlertSettingSameLevel", unpack(info))
-	local path, key = O:GetInfoPath(info)
-	local uid = path.select_alert
-	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
-	if key ~= uid then
-		path.alert_settings[uid][key] = value
-	end
+	-- --dprint(1, "SetAlertSettingSameLevel", unpack(info))
+	-- local path, key = O:GetInfoPath(info)
+	-- local uid = path.select_alert
+	-- -- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
+	-- if key ~= uid then
+	-- 	path.alert_settings[uid][key] = value
+	-- end
 end
 
 function O:DisableAlertName(info)
-	local path = O:GetInfoPath(info)
-	return (path.select_alert == nil)
+	-- local path = O:GetInfoPath(info)
+	-- return (path.select_alert == nil)
 end
 
 function O:GetWidth(pixel)

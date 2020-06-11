@@ -112,50 +112,52 @@ function O:CreateProfileOptions()
 	-- check if options table is initialized - this function may get called by other functions too
 	if not O.options then return end
 	-- get options table and override order
-	local p = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	O.options.args.profiles.handler = p.handler
-	O.options.args.profiles.args = p.args
+	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	O.options.args.profiles.order = 4
 end
 
 -- return a table reference and key from info
-function O:GetInfoPath(info)
-	local i = 1
+function O:GetInfoPath(info, relative, num)
+	dprint(1, unpack(info))
+	dprint(1, "rel", relative, "num", num)
+	local count = num
+	if relative == true then count = (#info + num) end
 	local path = P
-	local key = ""
-	while info[i] ~= nil do
-		-- check if item is table
-		local object = path[info[i]]
-		if type(object) == "table" then
-			path = path[info[i]]
-		else
-			key = info[i]
-		end
-		i = i + 1
+	-- loop until lvl
+	for i = 1, count do
+		path = path[info[i]]
 	end
-	return path, key, info[ilvl]
+	dprint(1, "ofs", num, "returned path", path)
+	return path
 end
 
 -- standard get
 function O:GetOption(info, key)
-	--dprint(1, "GetOption", unpack(info))
-	local path, key_ = O:GetInfoPath(info)
-	if not key then key = key_ end
-	return path[key]
+	--dprint(1, "GetOption", "key", key, unpack(info))
+	local offset = 0
+	-- get parent object
+	if key == nil then
+		key = info[#info]
+		offset = -1
+	end
+	local parent = O:GetInfoPath(info, true, offset)
+	return parent[key]
 end
 
 -- standard set
-function O:SetOption(info, arg2, arg3)
+function O:SetOption(info, arg2, value)
 	--dprint(1, "SetOption", unpack(info))
-	local path, key_ = O:GetInfoPath(info)
-	local value, key
-	if arg3 == nil then
-		key = key_
+	local offset = 0
+	-- get parent object
+	if value == nil then
+		key = info[#info]
+		offset = -1
 		value = arg2
 	else
 		key = arg2
-		value = arg3
 	end
-	path[key] = value
+	local parent = O:GetInfoPath(info, true, offset)
+	parent[key] = value
 end
 
 -- create standard header
