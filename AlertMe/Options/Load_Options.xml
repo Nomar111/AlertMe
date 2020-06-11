@@ -1,5 +1,3 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file='options.lua'/>
-	<Script file='alerts.lua'/>
-	<Script file='alert_settings.lua'/>
 </Ui>

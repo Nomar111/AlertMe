@@ -16,32 +16,16 @@ D.profile = {
 		test = true,
 	},
 	alerts_db = {
-		gain = {
+		["*"] = {
 			alerts = {
 				["*"] = {
-					name = "New gain alert",
+					name = "New alert",
 					active = "false",
 					src_units = 5,
 					src_units_exclude = 1,
 					dst_units = 5,
 					dst_units_exclude = 1,
 				},
-			}
-		},
-		dispel = {
-			alerts = {
-			}
-		},
-		start = {
-			alerts = {
-			}
-		},
-		success = {
-			alerts = {
-			}
-		},
-		interrupt = {
-			alerts = {
 			}
 		},
 	},

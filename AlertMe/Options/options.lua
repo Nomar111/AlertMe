@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack
+local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -15,59 +15,182 @@ O.elvl = 2 -- That's the level functions assume the events to be
 function O:OpenOptions(tab)
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
-	if O.Frame == nil then
+	--if O.Frame == nil then
 		O.Frame = A.Libs.AceGUI:Create("Frame")
 		O.Frame:SetTitle("AlertMe Options")
 		--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
 		O.Frame:EnableResize(true)
 		O.Frame:SetLayout("Flow")
-		O.Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
-	else
-		O.Frame:Show()
-	end
-	-- create options table
-	O:CreateOptions()
-	-- register options table and assign to frame
-	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
-	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
-	-- open the options window at a certainn group/tab
-	if tab == nil then tab = "general" end
-	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
-	A.Libs.AceConfigDialog:Open("AlertMeOptions", O.Frame)
+		O.Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget) end)
+		O.Frame:SetWidth(900)
+		O.Frame:SetHeight(650)
+	--else
+		--O.Frame:Show()
+	--end
+	VDT_AddData(O.Frame, "OptionsFrame")
+	O.Frame.userdata = {[1]="Rootframe"}
+	O:CreateMainTree(O.Frame)
 end
 
 -- *************************************************************************************
--- creates the options table
-function O:CreateOptions()
-	dprint(2, "O:CreateOptions")
-	-- if table was already initialized, abort
-	if O.options ~= nil then
-		dprint(1, "options table not nil!")
-		return
+-- creates the basic layout and first level tabs/tree
+function O:CreateMainTree(container)
+	dprint(2, "O:CreateMainTree")
+	-- function to draw the groupd
+	local tree_structure = {
+		{
+			value = "general",
+			text = "General",
+		},
+		{
+			value = "event",
+			text = "Event specific",
+		},
+		{
+			value = "alerts",
+			text = "Alerts",
+			children = {},
+		},
+		{
+			value = "profiles",
+			text = "Profiles",
+		},
+		{
+			value = "info",
+			text = "Info",
+		}
+	}
+	-- loop over events and add them as children of alerts
+	for _, tbl in pairs(A.Events) do
+		if tbl.options_display ~= nil and tbl.options_display == true then
+			tree_structure[3].children[tbl.options_order]  = {
+				value = tbl.short,
+				text = tbl.options_name
+			}
+		end
 	end
-	-- create first and second level (main tabs) here
-	O.options = O:CreateGroup("AlertMeOptions", "", 1, "tree")
-	-- set handler and standard get/set functions
-	O.options.handler = O
-	O.options.get = "GetOption"
-	O.options.set = "SetOption"
-	VDT_AddData(O.options, "options")
-	-- second level
-	O.options.args.general = O:CreateGroup("General", "", 1)
-	O.options.args.events = O:CreateGroup("Event")
-	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
-	O.options.args.profiles = O:CreateGroup("Profiles")
-	O.options.args.info = O:CreateGroup("Info")
-	-- general_main
-	O:CreateGeneralOptions(O.options.args.general.args)
-	-- profiles
-	O:CreateProfileOptions()
-	-- info
-	O:CreateInfoOptions(O.options.args.info.args)
-	-- alerts
-	O:CreateAlertOptions(O.options.args.alerts.args)
+	-- create the tree group
+	local tree = A.Libs.AceGUI:Create("TreeGroup")
+	tree:EnableButtonTooltips(false)
+	tree.width = "fill"
+	tree.height = "fill"
+	-- callbacks
+	-- cursor on button
+	local function TreeOnButtonEnter(widget, event, uniquevalue, button)
+		--dprint(1,"TreeOnButtonEnter",widget, event, uniquevalue, button)
+		-- > AceConfigDialog
+	end
+	-- cursor leaves the area
+	local function TreeOnButtonLeave(widget, event, value, button)
+		--dprint(1,"TreeOnButtonLeave",widget, event, value, button)
+		--AceConfigDialog.tooltip:Hide()
+	end
+
+	local function GroupSelected(widget, event, uniquevalue)
+		dprint(1,"GroupSelected",widget, event, uniquevalue)
+		VDT_AddData(widget, "widget")			local GroupContainer = A.Libs.AceGUI:Create("SimpleGroup")
+		local user = widget.userdata
+		VDT_AddData(user, "userdata")
+		widget:ReleaseChildren()
+		local GroupContainer = A.Libs.AceGUI:Create("SimpleGroup")
+		if uniquevalue == "general" then
+
+
+			--GroupContainer:SetTitle("General Settings")
+			GroupContainer.width = "fill"
+			GroupContainer:SetLayout("flow")
+			widget:AddChild(GroupContainer)
+			widget.hasChildGroups = true
+			widget = GroupContainer
+			local heading = A.Libs.AceGUI:Create("Heading")
+			heading:SetText("Überschrift")
+			heading:SetFullWidth(true)
+			widget:AddChild(heading)
+		end
+	end
+		--widget:GetUserDataTable()
+		--widget:SetUserData(key, value)
+		--widget:GetUserData(key)
+		-- local user = widget:GetUserDataTable()
+		-- local options = user.options
+		-- local option = user.option
+		-- local path = user.path
+		-- local rootframe = user.rootframe
+		-- local feedpath = new()
+		-- for i = 1, #path do
+		-- 	feedpath[i] = path[i]
+		-- end
+		-- --BuildPath(feedpath, ("\001"):split(uniquevalue))
+		-- widget:ReleaseChildren()
+		--AceConfigDialog:FeedGroup(user.appName,options,widget,rootframe,feedpath)
+		--del(feedpath)
+	tree:SetCallback("OnGroupSelected", GroupSelected)
+	tree:SetCallback("OnButtonEnter", TreeOnButtonEnter)
+	tree:SetCallback("OnButtonLeave", TreeOnButtonLeave)
+	--OnTreeResize(width) - Fires when the tree was resized by the user.
+	--[[
+	SetTree(tree) - Set the tree to be displayed. See above for the format of the tree table.
+	SelectByPath(...) - Set the path in the tree given the raw keys.
+	SelectByValue(uniquevalue) - Set the path in the tree by a given unique value.
+	EnableButtonTooltips(flag) - Toggle the tooltips on the tree buttons.
+	SetStatusTable(table) - Set an external status table.
+	]]
+	--tree:SetStatusTable(status.groups)
+	tree:SetTree(tree_structure)
+	tree:SetUserData("tree",treedefinition)
+	tree:SetUserData("config", {
+		general = {
+				header = "General Settings"
+			},
+		})
+	--[[
+	if container then
+		f = container
+		f:ReleaseChildren()
+		f:SetUserData("appName", appName)
+		f:SetUserData("iscustom", true)
+		if #path > 0 then
+			f:SetUserData("basepath", copy(path))
+		end
+		local status = AceConfigDialog:GetStatusTable(appName)
+		if not status.width then
+			status.width =  700
+		end
+		if not status.height then
+			status.height = 500
+		end
+		if f.SetStatusTable then
+			f:SetStatusTable(status)
+		end
+		if f.SetTitle then
+			f:SetTitle(name or "")
+		end
+		]]
+	container:AddChild(tree)
+	-- APIs
+	-- SetTree(tree) - Set the tree to be displayed. See above for the format of the tree table.
+	-- SelectByPath(...) - Set the path in the tree given the raw keys.
+	-- SelectByValue(uniquevalue) - Set the path in the tree by a given unique value.
+	-- EnableButtonTooltips(flag) - Toggle the tooltips on the tree buttons.
+	-- SetStatusTable(table) - Set an external status table.
 
 end
+
+function O:GroupSelected(...)
+	dprint(1, "O:GroupSelected", ...)
+	print("GroupSelected")
+end
+
+function O:TreeOnButtonEnter(...)
+	dprint(1, "O:TreeOnButtonEnter", ...)
+	print("TreeOnButtonEnter")
+end
+
+function O:TreeOnButtonLeave(...)
+	dprint(1, "O:TreeOnButtonLeave", ...)
+	print("TreeOnButtonLeave")
+end
+
 
 -- creates the general options tab
 function O:CreateGeneralOptions(o)
