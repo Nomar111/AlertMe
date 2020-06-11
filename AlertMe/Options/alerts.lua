@@ -23,19 +23,23 @@ function O:DrawAlertOptions(o, event, name, order)	--O.options.args.alerts_main.
 	o[event] = O:CreateGroup(name, nil, order)
 	-- add alert control widgets
 	O:AttachAlertControl(o[event].args, name)
-	-- paint the alert seetings
-	--o[event]
+	-- create group for alert settings
+	o[event].args.alert_settings = O:CreateGroup("", nil, 50)
+	o[event].args.alert_settings.inline = true
+	o[event].args.alert_settings.get = "GetAlertSetting"
+	o[event].args.alert_settings.set = "SetAlertSetting"
+	O:AttachAlertSettings(o[event].args.alert_settings.args)
 end
 
-function O:AttachAlertControl(o, name)	--0 = --O.options.args.alerts_main.args.handle
-	o.header = O:CreateHeader(name)
+function O:AttachAlertControl(o, name)	-- O.options.args.alerts_main.args.handle.args
+	o.header = O:CreateHeader(name, nil, order)
 	o.select_alert = {
 		type = "select",
 		name = "Alert",
 		desc = "Select alert",
 		style = "dropdown",
 		order = 2,
-		width = 1.9,
+		width = 1.7,
 		values = "GetAlerts",
 	}
 	o.spacer1 = O:CreateSpacer(3, 0.7)
@@ -82,13 +86,22 @@ function O:AttachAlertControl(o, name)	--0 = --O.options.args.alerts_main.args.h
 		dialogControl = "WeakAurasIcon",
 	}
 	o.spacer4 = O:CreateSpacer(9, 0.4)
-	o.alert_name = {
+	o.name = {
 		type = "input",
 		name = "Alert name",
 		order = 10,
-		width = 1.7,
-		get = "GetAlertName",
-		set = "SetAlertName",
+		width = 1.5,
+		get = "GetAlertSettingTop",
+		set = "SetAlertSettingTop",
+		disabled = "DisableAlertName",
+	}
+	o.active = {
+		type = "toggle",
+		name = "Active?",
+		width = 0.5,
+		order = 11,
+		get = "GetAlertSettingTop",
+		set = "SetAlertSettingTop",
 		disabled = "DisableAlertName",
 	}
 end
@@ -97,52 +110,52 @@ function O:GetAlerts(info)
 	local path = O:GetInfoPath(info)
 	local values = {}
 	-- loop over events table
-	for key, set in pairs(path.alerts_db) do
-		values[key] = set.name
+	for uid, set in pairs(path.alert_settings) do
+		values[uid] = set.name
 	end
 	return values
 end
 
 function O:CreateAlert(info)
 	local path = O:GetInfoPath(info)
-	-- create new entry in alerts_db
-	local key = time()
-	path.alerts_db[key] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
+	-- create new entry in alert_settings
+	local uid = time()
+	path.alert_settings[uid] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
 	-- set the dropwdown to the new element
-	path.select_alert = key
+	path.select_alert = uid
 end
 
 function O:DeleteAlert(info)
 	-- delete entry from the alerts table of this event handle
 	local path = O:GetInfoPath(info)
-	local key = path.select_alert
+	local uid = path.select_alert
 	-- if nothing is selected in dropwdown, abort
-	if key == nil then return end
+	if uid == nil then return end
 	-- delete key, the check is probably overkill
-	path.alerts_db[key] = nil
+	path.alert_settings[uid] = nil
 	-- set the dropdown to the first found alert (if there is one left)
-	n, t = pairs(path.alerts_db)
-	local somekey,_ = n(t)
-	if somekey ~= nil then path.select_alert = somekey end
+	n, t = pairs(path.alert_settings)
+	local someuid,_ = n(t)
+	if someuid ~= nil then path.select_alert = someuid end
 end
 
-function O:GetAlertName(info)
-	--dprint(1, "GetAlertName", unpack(info))
-	local path = O:GetInfoPath(info)
-	local key = path.select_alert
+function O:GetAlertSettingTop(info)
+	--dprint(1, "GetAlertSettingSameLevel", unpack(info))
+	local path, key = O:GetInfoPath(info)
+	local uid = path.select_alert
 	-- if select is set to an item, get the name from the feeder table
-	if key ~= nil then
-		return path.alerts_db[key].name
+	if uid ~= nil then
+		return path.alert_settings[uid][key]
 	end
 end
 
-function O:SetAlertName(info, value)
-	--dprint(1, "SetAlertName", unpack(info))
-	local path = O:GetInfoPath(info)
-	local key = path.select_alert
+function O:SetAlertSettingTop(info, value)
+	--dprint(1, "SetAlertSettingSameLevel", unpack(info))
+	local path, key = O:GetInfoPath(info)
+	local uid = path.select_alert
 	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
-	if key ~= nil then
-		path.alerts_db[key].name = value
+	if key ~= uid then
+		path.alert_settings[uid][key] = value
 	end
 end
 

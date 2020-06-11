@@ -18,12 +18,23 @@ D.profile = {
 	alerts = {
 		["*"] = {							-- events
 			--select_alert = 1,
-			alerts_db = {
+			alert_settings = {
 				["*"] = { 					-- alerts (key = creationtime)
 					name = "New Alert",
 					active = false,
+					testbox = false,
 				},
 			},
 		},
 	},
+	alerts_db = {
+		["*"] = { 		-- events
+			["*"] = {	-- uid
+				name = "NEUE",
+				active = true,
+				testbox = false,
+			}
+		}
+	}
+
 }
