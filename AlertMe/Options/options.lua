@@ -8,7 +8,7 @@ setfenv(1, _G.AlertMe)
 -- (re)set some variables
 O.options = nil
 O.order = 1
-O.ilvl = 2 -- That's the level functions assume the events to be
+O.elvl = 2 -- That's the level functions assume the events to be
 
 -- *************************************************************************************
 -- open the options window
@@ -118,8 +118,8 @@ end
 
 -- return a table reference and key from info
 function O:GetInfoPath(info, relative, num)
-	dprint(1, unpack(info))
-	dprint(1, "rel", relative, "num", num)
+	--dprint(1, unpack(info))
+	--dprint(1, "rel", relative, "num", num)
 	local count = num
 	if relative == true then count = (#info + num) end
 	local path = P
@@ -127,7 +127,7 @@ function O:GetInfoPath(info, relative, num)
 	for i = 1, count do
 		path = path[info[i]]
 	end
-	dprint(1, "ofs", num, "returned path", path)
+	--dprint(1, "ofs", num, "returned path", path)
 	return path
 end
 

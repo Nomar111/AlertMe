@@ -13,28 +13,20 @@ D.profile = {
 		chat_frames ={
 			["*"] = true,
 		},
-		test = true
-	},
-	alerts = {
-		["*"] = {							-- events
-			--select_alert = 1,
-			alert_settings = {
-				["*"] = { 					-- alerts (key = creationtime)
-					name = "New Alert",
-					active = false,
-					testbox = false,
-				},
-			},
-		},
+		test = true,
 	},
 	alerts_db = {
-		["*"] = { 		-- events
-			["*"] = {	-- uid
-				name = "NEUE",
-				active = true,
-				testbox = false,
+		["*"] = {						-- events
+			alerts = {
+				["*"] = {
+					name = "New Alert",
+					active = true,
+					src_units = 5,
+					dst_units = 5,
+					src_units_excluding = 1,
+					dst_units_excluding = 1,
+				}
 			}
-		}
+		},
 	}
-
 }

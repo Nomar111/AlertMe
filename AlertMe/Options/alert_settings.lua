@@ -9,37 +9,51 @@ local A, _, O = unpack(select(2, ...))
 setfenv(1, _G.AlertMe)
 
 function O:AttachAlertSettings(o)	-- O.options.args.alerts_main.args.handle.args.alert_settings.args
-	-- o.testbox = {
-	-- 	type = "toggle",
-	-- 	name ="test",
-	-- 	order = 1,
-	-- 	set = function() end,
-	-- 	get = function() return true end,
-	-- 	disabled = "DisableAlertSettings"
-	-- }
+	o.units = O:CreateGroup("Unit selection", nil, 1)
+	-- unit selection
+	local units = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself"}
+	local excluding = {[1] = "---------", [2] = "Myself", [3] = "Target"}
+	o.units.args.src_units = O:CreateSelection("Source units", 1, units)
+	--o.units.args.spacer1 = O:CreateSpacer(2, 1)
+	o.units.args.src_units_excluding = O:CreateSelection("excluding", 3, excluding, 0.6)
+	o.units.args.src_units_excluding.disabled = function() if o.units.args.src_units end
+	o.units.args.spacer2 = O:CreateSpacer(5, 5)
+	o.units.args.dst_units = O:CreateSelection("Destination units", 7, units)
+	--o.units.args.spacer3 = O:CreateSpacer(8, 1)
+	o.units.args.dst_units_excluding = O:CreateSelection("excluding", 10, excluding, 0.6)
+end
+
+function O:CreateSelection(name, order, values, width)
+	return {
+		type = "select",
+		name = name,
+		style = "dropdown",
+		order = order,
+		width = width,
+		values = values,
+	}
 end
 
 function O:GetAlertSetting(info)
-	-- dprint(1, "GetAlert", unpack(info))
-	-- local path = O:GetInfoPath(info)
-	-- local key = path.select_alert
-	-- -- if select is set to an item, get the name from the feeder table
-	-- if key ~= nil then
-	-- 	return path[info[#info]]
-	-- end
+	--dprint(1, "GetAlertSettingSameLevel", unpack(info))
+	local event = info[O.elvl]
+	local uid = P.alerts_db[event].select_alert
+	if uid ~= nil then
+		return P.alerts_db[event].alerts[uid][info[#info]]
+	end
 end
 
 function O:SetAlertSetting(info, value)
-	-- dprint(1, "SetAlertSetting", unpack(info))
-	-- local path = O:GetInfoPath(info)
-	-- local key = path.select_alert
-	-- -- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
-	-- if key ~= nil then
-	-- 	path[info[#info]] = value
-	-- end
+	--dprint(1, "SetAlertSettingSameLevel", unpack(info))
+	local event = info[O.elvl]
+	local uid = P.alerts_db[event].select_alert
+	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table
+	if uid ~= nil then
+		P.alerts_db[event].alerts[uid][info[#info]] = value
+	end
 end
 
-function O:DisableAlertSettings (info)
-	-- local path, key, event = O:GetInfoPath(info)
-	-- dprint(1, "pathkeyinfo", path, key, info, "unpackinfo", unpack(info))
+function O:DisableAlertSettings(info)
+	local event = info[O.elvl]
+	return (P.alerts_db[event].select_alert == nil)
 end
