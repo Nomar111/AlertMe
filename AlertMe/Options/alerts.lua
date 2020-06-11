@@ -85,8 +85,8 @@ function O:AttachAlertControl(o, name)	-- O.options.args.alerts_main.args.handle
 		width = O:GetWidth(18),
 		func = "DeleteAlert",
 		order = 8,
-		-- confirm = true,
-		-- confirmText = "Do you really want to delete this alert?",
+		confirm = true,
+		confirmText = "Do you really want to delete this alert?",
 		dialogControl = "WeakAurasIcon",
 	}
 	o.spacer4 = O:CreateSpacer(9, 0.4)
@@ -124,33 +124,47 @@ function O:CreateAlert(info)
 	local event = info[O.elvl]
 	-- create new entry in alert_settings
 	local uid = tostring(time())
-	P.alerts_db[event].alerts[uid] = {name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
+	P.alerts_db[event].alerts[uid] = {}--name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
 	-- set the dropwdown to the new element
 	P.alerts_db[event].select_alert = uid
 end
 
 function O:DeleteAlert(info)
-	--dprint(1, "delete", unpack(info))
+	dprint(1, "delete", unpack(info))
 	local event = info[O.elvl]
 	local uid = P.alerts_db[event].select_alert
 	-- if nothing is selected in dropwdown, abort
 	if uid == nil then return end
+	P.alerts_db[event].select_alert = nil
 	P.alerts_db[event].alerts[uid] = nil
-	-- set the dropdown to the first found alert (if there is one left)
-	n, t = pairs(P.alerts_db[event].alerts)
-	local someuid,_ = n(t)
-	if someuid ~= nil then P.alerts_db[event].select_alert = someuid end
+	local someuid = O:GetAnyValidAlert(P.alerts_db[event].alerts)
+	if someuid ~= nil then
+		P.alerts_db[event].select_alert = someuid
+	end
 end
 
 function O:GetSelectedAlert(info)
-	--print(1,unpack(info))
+	--dprint(1,unpack(info))
 	local event = info[O.elvl]
-	return P.alerts_db[event].select_alert
+	local selection = P.alerts_db[event].select_alert
+	-- if selection is nil or doesnt exists in the alerts table try to get another one
+	if selection == nil or P.alerts_db[event].alerts[selection] == nil then
+		return O:GetAnyValidAlert(P.alerts_db[event].alerts)
+	else
+		return selection
+	end
 end
 
 function O:SetSelectedAlert(info, val)
 	local event = info[O.elvl]
 	P.alerts_db[event].select_alert = val
+end
+
+function O:GetAnyValidAlert(alerts)
+	-- set the dropdown to the first found alert (if there is one left)
+	n, t = pairs(alerts)
+	local someuid,_ = n(t)
+	return someuid
 end
 
 function O:GetWidth(pixel)

@@ -16,7 +16,6 @@ function O:AttachAlertSettings(o)	-- O.options.args.alerts_main.args.handle.args
 	o.units.args.src_units = O:CreateSelection("Source units", 1, units)
 	--o.units.args.spacer1 = O:CreateSpacer(2, 1)
 	o.units.args.src_units_excluding = O:CreateSelection("excluding", 3, excluding, 0.6)
-	o.units.args.src_units_excluding.disabled = function() if o.units.args.src_units end
 	o.units.args.spacer2 = O:CreateSpacer(5, 5)
 	o.units.args.dst_units = O:CreateSelection("Destination units", 7, units)
 	--o.units.args.spacer3 = O:CreateSpacer(8, 1)
@@ -35,7 +34,7 @@ function O:CreateSelection(name, order, values, width)
 end
 
 function O:GetAlertSetting(info)
-	--dprint(1, "GetAlertSettingSameLevel", unpack(info))
+	dprint(1, "GetAlertSetting", unpack(info))
 	local event = info[O.elvl]
 	local uid = P.alerts_db[event].select_alert
 	if uid ~= nil then
@@ -44,7 +43,7 @@ function O:GetAlertSetting(info)
 end
 
 function O:SetAlertSetting(info, value)
-	--dprint(1, "SetAlertSettingSameLevel", unpack(info))
+	dprint(1, "SetAlertSetting", unpack(info))
 	local event = info[O.elvl]
 	local uid = P.alerts_db[event].select_alert
 	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table

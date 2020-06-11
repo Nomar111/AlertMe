@@ -40,13 +40,13 @@ A.Events = {
 	["SPELL_CAST_SUCCESS"] = {
 		short = "success",
 		options_display = true,
-		options_name = "On cast start",
+		options_name = "On cast success",
 		options_order = 4,
 	},
 	["SPELL_INTERRUPT"] = {
 		short = "interrupt",
 		options_display = true,
-		options_name = "On cast success",
+		options_name = "On interrupt",
 		options_order = 5,
 	},
 }

@@ -125,6 +125,7 @@ function O:GetInfoPath(info, relative, num)
 	local path = P
 	-- loop until lvl
 	for i = 1, count do
+		dprint(1, info[i])
 		path = path[info[i]]
 	end
 	--dprint(1, "ofs", num, "returned path", path)
