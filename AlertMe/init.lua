@@ -47,6 +47,7 @@ A.Libs.AceGUI = LibStub("AceGUI-3.0")
 A.Libs.AceConfig = LibStub("AceConfig-3.0")
 A.Libs.AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
+A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
 
@@ -54,7 +55,7 @@ A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
 function A:OnInitialize()
 	dprint(2, "Ace Event: OnInitialize")
 	-- setup database
-	self.db = LibStub("AceDB-3.0"):New("AlertMeDB", A.Defaults, false)
+	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
@@ -75,7 +76,7 @@ end
 function A:OnEnable()
 	dprint(2, "Ace Event: OnEnable")
 	A:Initialize()
-	A.Options:OpenOptions("alerts")
+	A.Options:OpenOptions()
 end
 
 -- addon disabled
@@ -89,6 +90,6 @@ function A:OnProfileEvent(event)
 	-- set global P again
 	P = A.db.profile
 	-- update options table
-	A.Options:CreateProfileOptions()
-	-- do whatever it takes
+	A.Options.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	-- do whatever else
 end
