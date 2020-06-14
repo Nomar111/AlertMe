@@ -15,6 +15,9 @@ D.profile = {
 		},
 		test = false,
 	},
+	alerts = {
+		dropdown_selected = 1,
+	}
 	-- alerts_db = {
 	-- 	["*"] = {
 	-- 		alerts = {

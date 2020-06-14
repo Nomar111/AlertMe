@@ -7,8 +7,6 @@ local A, _, O = unpack(select(2, ...))
 setfenv(1, _G.AlertMe)
 -- (re)set some variables
 O.config = {}
-O.order = 1
-O.elvl = 2 -- That's the level functions assume the events to be
 
 -- *************************************************************************************
 -- open the options window
@@ -59,11 +57,12 @@ function O:CreateNavTree(container)
 	local function GroupSelected(widget, event, uniquevalue)
 		-- delete whatever is shown on the right side
 		widget:ReleaseChildren()
-		-- create new contnent container
+		-- create new content container
 		local content_group = A.Libs.AceGUI:Create("SimpleGroup")
 		content_group:SetLayout("Flow")
 		content_group.width = "fill"
 		widget:AddChild(content_group)
+		VDT_AddData(content_group,"content")
 		-- call function to draw the various settings  on the right
 		O:DrawOptions(content_group, uniquevalue)
 	end
@@ -73,16 +72,19 @@ function O:CreateNavTree(container)
 end
 
 function O:DrawOptions(container, uniquevalue)
+	dprint(1, "clicked on", uniquevalue)
 	if uniquevalue == "profiles" then O:DrawProfileOptions(container)
 	elseif uniquevalue == "general" then O:DrawGeneralOptions(container)
+	elseif uniquevalue == "info" then O:DrawInfoOptions(container)
+	elseif uniquevalue == "alerts" then O:DrawAlertsOptions(container)
 	end
 end
 
 -- creates the general options tab
 function O:DrawGeneralOptions(container)
 	dprint(2, "O:DrawGeneralOptions")
-	VDT_AddData(container, "General")
-	-- create general config options if they don'T exist yet
+	--VDT_AddData(container, "General")
+	-- header
 	O:AttachHeader(container, "General Settings")
 	-- zones
 	local zones = O:AttachInlineGroup(container, "Addon is enabled in")
@@ -100,14 +102,10 @@ function O:DrawGeneralOptions(container)
 end
 
 -- creates the info tab
-function O:DrawInfoOptions(o)
-	-- o.header = O:CreateHeader("Addon Info")
-	-- o.addonInfo = {
-	-- 	type = "description",
-	-- 	name = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR,
-	-- 	fontSize = "medium",
-	-- 	order = 2
-	-- }
+function O:DrawInfoOptions(container)
+	O:AttachHeader(container, "Addon Info")
+	local text = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR
+	local description = O:AttachInteractiveLabel(container, text, "large")
 end
 
 -- creates / refreshes the profiles tab
@@ -127,6 +125,7 @@ function O:AttachHeader(container, name)
 	header:SetText(name)
 	header.width = "fill"
 	container:AddChild(header)
+	return header
 end
 
 function O:AttachInlineGroup(container, name)
@@ -136,6 +135,21 @@ function O:AttachInlineGroup(container, name)
 	group:SetLayout("Flow")
 	container:AddChild(group)
 	return group
+end
+
+function O:AttachInteractiveLabel(container, text, fontSize)
+	local control = A.Libs.AceGUI:Create("InteractiveLabel")
+	control:SetText(text)
+	control.width = "fill"
+	if fontSize == "medium" then
+		control:SetFontObject(GameFontHighlight)
+	elseif fontSize == "large" then
+		control:SetFontObject(GameFontHighlightLarge)
+	else -- small or invalid
+		control:SetFontObject(GameFontHighlightSmall)
+	end
+	container:AddChild(control)
+	return control
 end
 
 function O:AttachCheckBox(container, name, path, key, width)
