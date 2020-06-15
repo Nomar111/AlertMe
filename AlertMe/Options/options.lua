@@ -1,6 +1,6 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, tcopy = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, table.copy
+local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, tcopy, strsplit = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, table.copy, strsplit
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -62,7 +62,7 @@ function O:CreateNavTree(container)
 		content_group:SetLayout("Flow")
 		content_group.width = "fill"
 		widget:AddChild(content_group)
-		VDT_AddData(content_group,"content")
+		--VDT_AddData(content_group,"content")
 		-- call function to draw the various settings  on the right
 		O:DrawOptions(content_group, uniquevalue)
 	end
@@ -72,11 +72,13 @@ function O:CreateNavTree(container)
 end
 
 function O:DrawOptions(container, uniquevalue)
-	dprint(1, "clicked on", uniquevalue)
-	if uniquevalue == "profiles" then O:DrawProfileOptions(container)
-	elseif uniquevalue == "general" then O:DrawGeneralOptions(container)
-	elseif uniquevalue == "info" then O:DrawInfoOptions(container)
-	elseif uniquevalue == "alerts" then O:DrawAlertsOptions(container)
+	dprint(2, "clicked on", uniquevalue)
+	local delim = "\001"
+	local lvl1, lvl2 = strsplit(delim, uniquevalue)
+	if lvl1 == "profiles" then O:DrawProfileOptions(container)
+		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
+		elseif lvl1 == "info" then O:DrawInfoOptions(container)
+		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
 	end
 end
 

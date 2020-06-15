@@ -1,45 +1,63 @@
 dprint(2, "alerts.lua")
 -- upvalues
-local _G, dprint, type, unpack, pairs = _G, dprint, type, unpack, pairs
+local _G, dprint, type, unpack, pairs, time, tostring = _G, dprint, type, unpack, pairs, time, tostring
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:DrawAlertsOptions(container)
-	dprint(2, "O:DrawAlertsOptions")
+function O:DrawAlertsOptions(container, event)
+	dprint(1, "O:DrawAlertsOptions", event)
 	VDT_AddData(container, "alerts")
 	-- header
-	O:AttachHeader(container, "Alert settings")
-	local dd = {[1]="First",[2]="Second"}
-	local path = P.alerts
-	local key = "dropdown_selected"
-	-- alerts dropdown
+	O:AttachHeader(container, "Alert settings "..event)
+	-- set path to profile db for this event
+	local path = P.alerts_db[event]
+
 	local dropdown = A.Libs.AceGUI:Create("Dropdown")
 	dropdown:SetLabel("Alerts")
-	dropdown:SetList(dd)
-	dropdown:SetValue(path[key])
-	dropdown:SetUserData("path", path)
-	dropdown:SetUserData("key", key)
-	dropdown:SetCallback("OnValueChanged", function(widget, key, event) O:OnChange(widget, key, event) end)
-	--dropdown:SetText("Select an alert")
-	--AddItem(key, value) - Add an item to the list.
 	dropdown:SetMultiselect(false)
---GetMultiselect() - Query the multi-select flag.
---SetItemValue(key, value) - Set the value of a item in the list.
---SetItemDisabled(key, flag) - Disable one item in the list.
---SetDisabled(flag) - Disable the widget.
-	--select:SetDropdownWidth("full")
-	--SetStatusTable(table) - Set an external status table.
-	--OnGroupSelected(group) - Fires when a new group selection occurs.
+	dropdown:SetList(O:GetAlertList(path))
+	dropdown:SetValue(path["select_alert"])
+	dropdown:SetUserData("path", path)
+	dropdown:SetCallback("OnValueChanged", function(widget) O:DropDownOnChange(widget) end)
+	dropdown:SetCallback("OnEnter", function(widget) O:DropDownOnEnter(widget) end)
+	path.dropdown = dropdown
 	container:AddChild(dropdown)
 	VDT_AddData(dropdown,"dropdown")
+	-- icon
+	local icon = A.Libs.AceGUI:Create("Icon")
+	icon:SetImage("Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga")
+	icon:SetImageSize(18,18)
+	icon:SetUserData("path", path)
+	icon:SetCallback("OnClick", function(widget) O:CreateAlert(widget) end)
+	container:AddChild(icon)
 end
 
-function O:OnChange(widget, event)
+function O:CreateAlert(widget, event)
+	local uid = tostring(time())
 	local path = widget:GetUserData("path")
-	local key = widget:GetUserData("key")
-	dprint(1, widget, event, path, key)
-	path[key] = widget.value
+	path.alerts[uid] = {name = "New alert "..uid, active = true}
+	path.select_alert = uid
+	path.dropdown:SetValue(path["select_alert"])
+	path.dropdown:SetText("New alert "..uid)
+end
+
+function O:DropDownOnChange(widget, event)
+	local path = widget:GetUserData("path")
+	path["select_alert"] = widget.value
+end
+
+function O:DropDownOnEnter(widget)
+	local path = widget:GetUserData("path")
+	widget:SetList(O:GetAlertList(path))
+end
+
+function O:GetAlertList(path)
+	local list = {}
+	for uid, v in pairs(path.alerts) do
+		list[uid] = v.name
+	end
+	return list
 end

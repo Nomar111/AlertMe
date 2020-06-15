@@ -15,21 +15,15 @@ D.profile = {
 		},
 		test = false,
 	},
-	alerts = {
-		dropdown_selected = 1,
+	alerts_db = {
+		["*"] = {
+			select_alert = nil,
+			alerts = {
+				["*"] = {
+					name = "New alert",
+					active = true
+				}
+			},
+		}
 	}
-	-- alerts_db = {
-	-- 	["*"] = {
-	-- 		alerts = {
-	-- 			["*"] = {
-	-- 				name = "New alert",
-	-- 				active = "false",
-	-- 				src_units = 5,
-	-- 				src_units_exclude = 1,
-	-- 				dst_units = 5,
-	-- 				dst_units_exclude = 1,
-	-- 			},
-	-- 		}
-	-- 	},
-	-- },
 }
