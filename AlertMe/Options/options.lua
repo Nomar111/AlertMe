@@ -154,6 +154,14 @@ function O:AttachInteractiveLabel(container, text, fontSize)
 	return control
 end
 
+function O:AttachSpacer(container, width)
+	local control = A.Libs.AceGUI:Create("InteractiveLabel")
+	control:SetText("")
+	control:SetWidth(width)
+	container:AddChild(control)
+	return control
+end
+
 function O:AttachCheckBox(container, name, path, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
 	control:SetValue(path[key])
