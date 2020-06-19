@@ -89,11 +89,11 @@ function O:DrawGeneralOptions(container)
 	-- header
 	O:AttachHeader(container, "General Settings")
 	-- zones
-	local zones = O:AttachInlineGroup(container, "Addon is enabled in")
+	local zones = O:AttachGroup(container, "Addon is enabled in", true)
 	local cb1 = O:AttachCheckBox(zones, "Battlegrounds", P.general.zones, "bg", 150)
 	local cb2 = O:AttachCheckBox(zones, "World", P.general.zones, "world")
 	-- chat frames
-	local chat_frames = O:AttachInlineGroup(container, "Post addon messages in the following chat wibdows")
+	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat wibdows", true)
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
@@ -130,9 +130,14 @@ function O:AttachHeader(container, name)
 	return header
 end
 
-function O:AttachInlineGroup(container, name)
-	local group = A.Libs.AceGUI:Create("InlineGroup")
-	group:SetTitle(name)
+function O:AttachGroup(container, name, inline)
+	local group = {}
+	if inline == true then
+		group = A.Libs.AceGUI:Create("InlineGroup")
+		group:SetTitle(name)
+	else
+		group = A.Libs.AceGUI:Create("SimpleGroup")
+	end
 	group.width = "fill"
 	group:SetLayout("Flow")
 	container:AddChild(group)

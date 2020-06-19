@@ -1,3 +1,5 @@
+confirm frage popup getter setter function....
+
 
 --- Fires a "ConfigTableChange" callback for those listening in on it, allowing config GUIs to refresh.
 -- You should call this function if your options table changed from any outside event, like a game event

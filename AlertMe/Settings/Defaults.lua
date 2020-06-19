@@ -16,14 +16,20 @@ D.profile = {
 		test = false,
 	},
 	alerts_db = {
-		["*"] = {
+		["**"] = {
 			selected_alert = nil,
 			alerts = {
-				["*"] = {
-					name = "New alert",
-					active = true
-				}
+				['*'] = {
+					name = "New Alert",
+					active = true,
+					spell_names = "Spellname1, Spellname2, ...",
+					source_units = 5,
+					source_exclude = 1,
+					target_units = 5,
+					target_exclude = 1,
+					dummy = 1,
+				},
 			},
-		}
-	}
+		},
+	},
 }
