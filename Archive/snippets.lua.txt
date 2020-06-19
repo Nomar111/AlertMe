@@ -1,3 +1,28 @@
+	local dropdown = A.Libs.AceGUI:Create("Dropdown")
+	O.test.dropdown = dropdown
+	local path = P.events
+
+	local key = "dd_value"
+	dropdown:SetLabel("Label")
+	dropdown:SetMultiselect(false)
+	dropdown:SetWidth(200)
+	dropdown:SetList(path.dd_items)
+	dropdown:SetValue(path.dd_value)
+	dropdown:SetCallback("OnValueChanged", function(self, callback, val) path.dd_value = val end);
+	container:AddChild(dropdown)
+	VDT_AddData(dropdown, "dd")
+
+
+	function O:IconClick(widget, event, button)
+		O.test.dropdown:AddItem(5,"Fünf")
+		O.test.dropdown:SetValue(5)
+		O.test.dropdown:Fire("OnValueChanged", 5)
+		--P.events.dd_value = 1
+	end
+
+
+
+
 A.Libs.AceConfigRegistry:NotifyChange("AlertMeOptions")
 A.Libs.AceConfigRegistry:RegisterCallback("ConfigTableChange", function(self)
 	dprint(1,"fire")

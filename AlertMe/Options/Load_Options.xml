@@ -2,4 +2,5 @@
 	<Script file='options.lua'/>
 	<Script file='alerts.lua'/>
 	<Script file='alert_details.lua'/>
+	<Script file='test.lua'/>
 </Ui>

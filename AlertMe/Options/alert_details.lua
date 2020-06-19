@@ -1,9 +1,9 @@
 dprint(2, "alert_details.lua")
 -- upvalues
-local _G, dprint, type, unpack, pairs, time, tostring, xpcall = _G, dprint, type, unpack, pairs, time, tostring, xpcall
+local _G, dprint, type, unpack, pairs, time, tostring, xpcall, tinsert = _G, dprint, type, unpack, pairs, time, tostring, xpcall, table.insert
 local GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall
 -- get engine environment
-local A, _, O = unpack(select(2, ...))
+local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -20,8 +20,11 @@ function O:DrawAlertDetails(container, event)
 	local path = P.alerts_db[event].alerts[uid]
 	-- spell names
 	local spell_aura = A:GetEventSettingByShort(event, "spell_aura")
-	O:AttachHeader(container, spell_aura.." names to be tracked")
-	local spell_names = O:AttachEditBox(container, path, "spell_names", "")
+	O:AttachHeader(container, spell_aura.." settings")
+	local spell_add = O:AttachEditBox(container, path, "spell_add", "Insert new "..spell_aura.." name")
+	spell_add:SetRelativeWidth(0.35)
+	O.spell_dropdown = O:AttachDropdown(container, path, "spell_dropdown", "Added spells", path.spell_names, 200)
+
 	-- unit selection
 	O:AttachHeader(container, "Unit selection")
 	local units_list = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself"}
@@ -34,6 +37,8 @@ function O:DrawAlertDetails(container, event)
 	-- display settings
 	O:AttachHeader(container, "Display settings")
 	O:AttachCheckBox(container, "Show progress bar", path, show_bar, 150)
+	-- test dropdown
+
 end
 
 function O:AttachEditBox(container, path, key, label)
@@ -43,15 +48,35 @@ function O:AttachEditBox(container, path, key, label)
 	edit:SetText(path[key])
 	edit:SetUserData("path", path)
 	edit:SetUserData("key", key)
-	edit:SetCallback("OnEnterPressed", function(widget, text) O:EditBoxOnEnter(widget, text) end)
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) O:EditBoxOnEnter(widget, event, text) end)
 	container:AddChild(edit)
 	return edit
 end
 
-function O:EditBoxOnEnter(widget, text)
+function O:EditBoxOnEnter(widget, event, text)
+	dprint(1, "EditBoxOnEnter", widget, event, text)
+	--if S.cache[text] == nil then dprint(1, "No such spellname found") end
 	local path = widget:GetUserData("path")
 	local key = widget:GetUserData("key")
-	path[key] = widget:GetText()
+	dprint(1, key)
+	if key == "spell_add" then
+		O:UpdateSpellNames(text, path)
+		widget:SetText("")
+	else
+		path[key] = text
+	end
+end
+
+function O:UpdateSpellNames(text, path)
+	dprint(1, "UpdateSpellNames", text, path)
+	local spellName, spellId = S.CorrectAuraName(text)
+	if spellName == "Invalid Spell ID" or spellName ==  "No Match Found" then
+		dprint(1, spellName) -- popup!
+	else
+		path.spell_names[spellName] = spellName
+		O.spell_dropdown:SetList(path.spell_names)
+		O.spell_dropdown:SetValue(spellName)
+	end
 end
 
 function O:AttachMultiLineEditBox(container, path, key, label, lines)

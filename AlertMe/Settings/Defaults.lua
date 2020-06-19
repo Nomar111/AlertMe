@@ -22,7 +22,9 @@ D.profile = {
 				['*'] = {
 					name = "New Alert",
 					active = true,
-					spell_names = "Spellname1, Spellname2, ...",
+					spell_names = {
+						['*'] = ""
+					},
 					source_units = 5,
 					source_exclude = 1,
 					target_units = 5,
@@ -32,4 +34,8 @@ D.profile = {
 			},
 		},
 	},
+	events = {
+		dd_value = 3,
+		dd_items = {[1] = "Eins", [2] = "Zwei"},
+	}
 }

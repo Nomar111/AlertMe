@@ -78,6 +78,7 @@ function O:DrawOptions(container, uniquevalue)
 	if lvl1 == "profiles" then O:DrawProfileOptions(container)
 		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
 		elseif lvl1 == "info" then O:DrawInfoOptions(container)
+		elseif lvl1 == "events" then O:DrawTest(container)
 		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
 	end
 end

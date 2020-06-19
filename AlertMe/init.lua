@@ -16,10 +16,12 @@ local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEven
 A.Defaults = {}
 A.Options = {}
 A.Profile = {profile = {}}
+A.Spells = {}
 -- set engine environment substructure
 Engine[1] = A
 Engine[2] = A.Defaults  	-- D
 Engine[3] = A.Options   	-- O
+Engine[4] = A.Spells		-- S
 
 -- set wow global
 _G.AlertMe = Engine
@@ -30,6 +32,7 @@ VDT_AddData(Engine, "Engine")
 VDT_AddData(A, "A")
 VDT_AddData(A.Defaults, "D")
 VDT_AddData(A.Options, "O")
+VDT_AddData(A.Spells, "S")
 
 -- addon globls
 ADDON_NAME = AddonName
