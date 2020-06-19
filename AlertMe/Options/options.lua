@@ -1,6 +1,7 @@
 dprint(2, "options.lua")
 -- upvalues
 local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, tcopy, strsplit = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, table.copy, strsplit
+local GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -62,12 +63,10 @@ function O:CreateNavTree(container)
 		content_group:SetLayout("Flow")
 		content_group.width = "fill"
 		widget:AddChild(content_group)
-		--VDT_AddData(content_group,"content")
 		-- call function to draw the various settings  on the right
 		O:DrawOptions(content_group, uniquevalue)
 	end
 	tree:SetCallback("OnGroupSelected", GroupSelected)
-
 	container:AddChild(tree)
 end
 
@@ -78,7 +77,7 @@ function O:DrawOptions(container, uniquevalue)
 	if lvl1 == "profiles" then O:DrawProfileOptions(container)
 		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
 		elseif lvl1 == "info" then O:DrawInfoOptions(container)
-		elseif lvl1 == "events" then O:DrawTest(container)
+		--elseif lvl1 == "events" then O:DrawTest(container)
 		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
 	end
 end
@@ -91,24 +90,24 @@ function O:DrawGeneralOptions(container)
 	O:AttachHeader(container, "General Settings")
 	-- zones
 	local zones = O:AttachGroup(container, "Addon is enabled in", true)
-	local cb1 = O:AttachCheckBox(zones, "Battlegrounds", P.general.zones, "bg", 150)
-	local cb2 = O:AttachCheckBox(zones, "World", P.general.zones, "world")
+	local cb1 = O:AttachCheckBox(zones, "Battlegrounds", P.general.zones.bg, 150)
+	local cb2 = O:AttachCheckBox(zones, "World", P.general.zones.world)
 	-- chat frames
-	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat wibdows", true)
+	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat windows", true)
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
-			O:AttachCheckBox(chat_frames, name, P.general.chat_frames, "ChatFrame"..i, 150)
+			O:AttachCheckBox(chat_frames, name, P.general.chat_frames["ChatFrame"..i], 150)
 		end
 	end
-	O:AttachCheckBox(container, "Test", P.general, "test")
+	O:AttachCheckBox(container, "Test", P.general.test)
 end
 
 -- creates the info tab
 function O:DrawInfoOptions(container)
 	O:AttachHeader(container, "Addon Info")
 	local text = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR
-	local description = O:AttachInteractiveLabel(container, text, "large")
+	local description = O:AttachLabel(container, text, GameFontHighlight)
 end
 
 -- creates / refreshes the profiles tab
@@ -123,41 +122,37 @@ end
 
 --*******************************************************************************************************************************************
 -- helper function for AceGUI
-function O:AttachHeader(container, name)
+function O:AttachHeader(container, text)
 	local header = A.Libs.AceGUI:Create("Heading")
-	header:SetText(name)
+	header:SetText(text)
 	header.width = "fill"
 	container:AddChild(header)
 	return header
 end
 
-function O:AttachGroup(container, name, inline)
+function O:AttachGroup(container, title, inline)
 	local group = {}
 	if inline == true then
 		group = A.Libs.AceGUI:Create("InlineGroup")
-		group:SetTitle(name)
+		group:SetTitle(title)
 	else
 		group = A.Libs.AceGUI:Create("SimpleGroup")
 	end
-	group.width = "fill"
+	group:SetRelativeWidth(1)
 	group:SetLayout("Flow")
 	container:AddChild(group)
 	return group
 end
 
-function O:AttachInteractiveLabel(container, text, fontSize)
-	local control = A.Libs.AceGUI:Create("InteractiveLabel")
-	control:SetText(text)
-	control.width = "fill"
-	if fontSize == "medium" then
-		control:SetFontObject(GameFontHighlight)
-	elseif fontSize == "large" then
-		control:SetFontObject(GameFontHighlightLarge)
-	else -- small or invalid
-		control:SetFontObject(GameFontHighlightSmall)
-	end
-	container:AddChild(control)
-	return control
+function O:AttachLabel(container, text, font_object, color, relative_width)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relative_width or 1)
+	if font_object == nil then font_object = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(font_object)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
 end
 
 function O:AttachSpacer(container, width)
@@ -168,20 +163,33 @@ function O:AttachSpacer(container, width)
 	return control
 end
 
-function O:AttachCheckBox(container, name, path, key, width)
+function O:AttachCheckBox(container, label, db, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
-	control:SetValue(path[key])
-	control:SetUserData("path", path)
-	control:SetUserData("key", key)
-	control:SetCallback("OnValueChanged", function(widget, event) O:CheckBoxOnChange(widget, event) end)
-	control:SetLabel(name)
+	control:SetValue(db)
+	control:SetCallback("OnValueChanged", function(widget, event, value) db = value end)
+	control:SetLabel(label)
 	if width then control:SetWidth(width) end
 	container:AddChild(control)
 	return control
 end
 
-function O:CheckBoxOnChange(widget, event)
-	local path = widget:GetUserData("path")
-	local key = widget:GetUserData("key")
-	path[key] = widget.checked
+function O:AttachDropdown(container, label, db, key, list, width)
+	local dropdown = A.Libs.AceGUI:Create("Dropdown")
+	dropdown:SetLabel(label)
+	dropdown:SetMultiselect(false)
+	dropdown:SetWidth(width)
+	dropdown:SetList(list)
+	dropdown:SetValue(db[key])
+	dropdown:SetCallback("OnValueChanged", function(_, _, value) db[key] = value end)
+	container:AddChild(dropdown)
+	return dropdown
+end
+
+function O:AttachIcon(container, image, size)
+	local icon = A.Libs.AceGUI:Create("Icon")
+	icon:SetImage(image)
+	icon:SetImageSize(size, size)
+	icon:SetWidth(size)
+	container:AddChild(icon)
+	return icon
 end

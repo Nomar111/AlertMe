@@ -15,12 +15,12 @@ D.profile = {
 		},
 		test = false,
 	},
-	alerts_db = {
+	alerts = {
 		["**"] = {
-			selected_alert = nil,
-			alerts = {
+			alert_dd_value = "",
+			alert_dd_list = {},
+			alert_details = {
 				['*'] = {
-					name = "New Alert",
 					active = true,
 					spell_names = {
 						['*'] = ""

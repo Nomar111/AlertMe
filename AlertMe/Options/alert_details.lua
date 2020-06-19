@@ -98,33 +98,10 @@ function O:MultiLineEditBoxOnEnter(widget, text)
 	path[key] = widget:GetText()
 end
 
-function O:AttachDropdown(container, path, key, label, list, width)
-	local dropdown = A.Libs.AceGUI:Create("Dropdown")
-	dropdown:SetLabel(label)
-	dropdown:SetMultiselect(false)
-	dropdown:SetWidth(width)
-	dropdown:SetList(list)
-	dropdown:SetValue(path[key])
-	dropdown:SetUserData("path", path)
-	dropdown:SetUserData("key", key)
-	dropdown:SetCallback("OnValueChanged", function(widget) O:DropDownOnChange(widget) end)
-	container:AddChild(dropdown)
-	return dropdown
-end
+
 
 function O:DropDownOnChange(widget, event)
 	local path = widget:GetUserData("path")
 	local key = widget:GetUserData("key")
 	path[key] = widget.value
-end
-
-function O:AttachLabel(container, text, font_object, color, relative_width)
-	local label = A.Libs.AceGUI:Create("Label")
-	label:SetText(text)
-	label:SetRelativeWidth(relative_width or 1)
-	if font_object == nil then font_object = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
-	label:SetFontObject(font_object)
-	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
-	container:AddChild(label)
-	return label
 end
