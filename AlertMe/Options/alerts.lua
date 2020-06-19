@@ -1,6 +1,6 @@
 dprint(2, "alerts.lua")
 -- upvalues
-local _G, dprint, type, unpack, pairs, time, tostring = _G, dprint, type, unpack, pairs, time, tostring
+local _G, dprint, type, unpack, pairs, time, tostring, xpcall = _G, dprint, type, unpack, pairs, time, tostring, xpcall
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -10,111 +10,100 @@ setfenv(1, _G.AlertMe)
 function O:DrawAlertsOptions(container, event)
 	dprint(1, "O:DrawAlertsOptions", event)
 	VDT_AddData(container, "alerts")
+	-- set path to db for this event
+	local path = P.alerts_db[event]
 	-- header
 	O:AttachHeader(container, "Alert settings "..event)
-	-- set path to profile db for this event
-	local path = P.alerts_db[event]
+	-- alerts dropdown
+	O:AttachAlertsDropdown(container, path, 250)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- add icon
+	local icon_add = O:AttachIcon(container, path, "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga", 18)
+	icon_add:SetCallback("OnClick", function(widget, event, button) O:CreateAlert(widget, event, button) end)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- delete icon
+	local icon_delete = O:AttachIcon(container, path, "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga", 18)
+	icon_delete:SetCallback("OnClick", function(widget, event, button) O:DeleteAlert(widget, event, button) end)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- editbox for alertname
+	O:AttachNameEdit(container, path, 240)
+end
+
+function O:AttachAlertsDropdown(container, path, width)
 	local dropdown = A.Libs.AceGUI:Create("Dropdown")
 	dropdown:SetLabel("Alerts")
 	dropdown:SetMultiselect(false)
+	dropdown:SetWidth(width)
+	-- get list of alerts and some valid entry
 	local list, uid = O:GetAlertList(path)
 	dropdown:SetList(list)
 	dropdown:SetValue(uid)
-	path["select_alert"] = uid
+	-- set currently selected alert (redundant info, but needed for the control to remember its last state)
+	path["selected_alert"] = uid
 	dropdown:SetUserData("path", path)
-	dropdown:SetCallback("OnValueChanged", function(widget) O:DropDownOnChange(widget) end)
-	dropdown:SetWidth(250)
-	path.dropdown = dropdown
-	container:AddChild(dropdown)
-	VDT_AddData(dropdown,"dropdown")
-	-- spacer
-	O:AttachSpacer(container, 10)
-	-- icon
-	local icon = A.Libs.AceGUI:Create("Icon")
-	icon:SetImage("Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga")
-	icon:SetImageSize(18,18)
-	icon:SetUserData("path", path)
-	icon:SetCallback("OnClick", function(widget) O:CreateAlert(widget) end)
-	icon:SetWidth(18)
-	container:AddChild(icon)
-
-	O:AttachSpacer(container, 10)
-
-	icon = A.Libs.AceGUI:Create("Icon")
-	icon:SetImage("Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga")
-	icon:SetImageSize(18,18)
-	icon:SetUserData("path", path)
-	icon:SetCallback("OnClick", function(widget) O:DeleteAlert(widget) end)
-	icon:SetWidth(18)
-	container:AddChild(icon)
-
-	O:AttachSpacer(container, 10)
-
-	local edit = A.Libs.AceGUI:Create("EditBox")
-	edit:SetText(path.dropdown.text:GetText())
-	edit:SetLabel("Name of the alert")
-	edit:SetUserData("path", path)
-	edit:SetCallback("OnEnterPressed", function(widget, event, text) O:OnEnter(widget, event, text) end)
-	edit:SetWidth(240)
-	path.edit = edit
-	container:AddChild(edit)
-	--GetText() - Get the text in the edit box.
-
---SetDisabled(flag) - Disable the widget.
---DisableButton(flag) - True to disable the "Okay" button, false to enable it again.
---SetMaxLetters(num) - Set the maximum number of letters that can be entered (0 for unlimited).
---SetFocus() - Set the focus to the editbox.
---HighlightText(start, end) - Highlight the text in the editbox (see Blizzard EditBox Widget documentation for details)
--- OnTextChanged(text) - Fires on every text change.
--- OnEnterPressed(text) - Fires when the new text was confirmed and should be saved.
--- OnEnter() - Fires when the cursor enters the widget.
--- OnLeave() - Fires when the cursor leaves the widget.
+	dropdown:SetCallback("OnValueChanged", function(widget) O:AlertsDropDownOnChange(widget) end)
+	path.alerts_dropdown = dropdown
+	container:AddChild(dropdown)	--VDT_AddData(dropdown,"dropdown")
+	return dropdown
 end
 
-function O:OnEnter(widget, event, text)
+function O:AlertsDropDownOnChange(widget, event)
+	dprint(1,"AlertsDropDownOnChange")
 	local path = widget:GetUserData("path")
-	local uid = path["select_alert"]
-	if path.alerts[uid] ~= nil then
-		path.alerts[uid].name = text
-		local list = O:GetAlertList(path)
-		path.dropdown:SetList(list)
-		path.dropdown:SetValue(uid)
-	end
+	path["selected_alert"] = widget.value
+	-- keep editbox in synch
+	path.name_edit:SetText(path.alerts_dropdown.text:GetText())
 end
 
-function O:CreateAlert(widget, event)
+function O:AttachIcon(container, path, image, size)
+	local icon = A.Libs.AceGUI:Create("Icon")
+	--local CreateAlert = O.CreateAlert
+	VDT_AddData(icon, "icon")
+	--icon:SetImage("Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga")
+	icon:SetImage(image)
+	icon:SetImageSize(size, size)
+	icon:SetUserData("path", path)
+	icon:SetWidth(size)
+	container:AddChild(icon)
+	return icon
+end
+
+function O:CreateAlert(widget, event, button)
+	dprint(1, "CreateAlert", widget, event, button)
+	-- get unique (time) id
 	local uid = tostring(time())
 	local path = widget:GetUserData("path")
-	path.alerts[uid] = {name="New alert"}
+	-- create new entry in the table
+	path.alerts[uid] = {name = "New alert", active = true}
+	-- get updated alerts list and set it to dropdown
 	local list = O:GetAlertList(path)
-	path.dropdown:SetList(list)
-	path["select_alert"] = uid
-	path.dropdown:SetValue(uid)
-	path.edit:SetText(path.dropdown.text:GetText())
+	path.alerts_dropdown:SetList(list)
+	-- set dropdown to the new alert uid
+	path["selected_alert"] = uid
+	path.alerts_dropdown:SetValue(uid)
+	-- keep editbox in synch
+	path.name_edit:SetText(path.alerts_dropdown.text:GetText())
 end
 
-function O:DeleteAlert(widget, event)
-	dprint(1,"O:DeleteAlert")
+function O:DeleteAlert(widget, event, button)
+	dprint(1,"O:DeleteAlert", widget, event, button)
 	local path = widget:GetUserData("path")
-	local uid = path["select_alert"]
-	--dprint(1,"uidtodlete", uid)
+	local uid = path["selected_alert"]
+	-- delete uid from alerts table
 	if path.alerts[uid] ~= nil then
 		path.alerts[uid] = nil
-		local list, newuid = O:GetAlertList(path)
-		path.dropdown:SetList(list)
-		path["select_alert"] = newuid
-		path.dropdown:SetValue(newuid)
-		path.edit:SetText(path.dropdown.text:GetText())
+		-- get and assign new alerts list and maybe some valid uid if there is one left
+		local list, someuid = O:GetAlertList(path)
+		path.alerts_dropdown:SetList(list)
+		path["selected_alert"] = someuid
+		path.alerts_dropdown:SetValue(someuid)
+		-- keep editbox in synch
+		path.name_edit:SetText(path.alerts_dropdown.text:GetText())
 	end
 end
-
-function O:DropDownOnChange(widget, event)
-	dprint(1,"ddonchange")
-	local path = widget:GetUserData("path")
-	path["select_alert"] = widget.value
-	path.edit:SetText(path.dropdown.text:GetText())
-end
-
 
 function O:GetAlertList(path)
 	local list = {}
@@ -124,4 +113,27 @@ function O:GetAlertList(path)
 		last_uid = uid
 	end
 	return list, last_uid
+end
+
+function O:AttachNameEdit(container, path, width)
+	local edit = A.Libs.AceGUI:Create("EditBox")
+	edit:SetText(path.alerts_dropdown.text:GetText())
+	edit:SetLabel("Name of the selected alert")
+	edit:SetUserData("path", path)
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) O:OnNameEditEnter(widget, event, text) end)
+	edit:SetWidth(width)
+	path.name_edit = edit
+	container:AddChild(edit)
+	return edit
+end
+
+function O:OnNameEditEnter(widget, event, text)
+	local path = widget:GetUserData("path")
+	local uid = path["selected_alert"]
+	if path.alerts[uid] ~= nil then
+		path.alerts[uid].name = text
+		local list = O:GetAlertList(path)
+		path.alerts_dropdown:SetList(list)
+		path.alerts_dropdown:SetValue(uid)
+	end
 end

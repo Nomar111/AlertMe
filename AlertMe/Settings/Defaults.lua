@@ -17,7 +17,7 @@ D.profile = {
 	},
 	alerts_db = {
 		["*"] = {
-			select_alert = nil,
+			selected_alert = nil,
 			alerts = {
 				["*"] = {
 					name = "New alert",
