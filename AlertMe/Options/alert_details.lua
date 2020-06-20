@@ -41,31 +41,6 @@ function O:DrawAlertDetails(container, event)
 
 end
 
-function O:AttachEditBox(container, path, key, label)
-	local edit = A.Libs.AceGUI:Create("EditBox")
-	edit:SetLabel(label)
-	edit:SetRelativeWidth(1)
-	edit:SetText(path[key])
-	edit:SetUserData("path", path)
-	edit:SetUserData("key", key)
-	edit:SetCallback("OnEnterPressed", function(widget, event, text) O:EditBoxOnEnter(widget, event, text) end)
-	container:AddChild(edit)
-	return edit
-end
-
-function O:EditBoxOnEnter(widget, event, text)
-	dprint(1, "EditBoxOnEnter", widget, event, text)
-	--if S.cache[text] == nil then dprint(1, "No such spellname found") end
-	local path = widget:GetUserData("path")
-	local key = widget:GetUserData("key")
-	dprint(1, key)
-	if key == "spell_add" then
-		O:UpdateSpellNames(text, path)
-		widget:SetText("")
-	else
-		path[key] = text
-	end
-end
 
 function O:UpdateSpellNames(text, path)
 	dprint(1, "UpdateSpellNames", text, path)

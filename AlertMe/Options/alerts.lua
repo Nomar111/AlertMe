@@ -18,6 +18,8 @@ function O:DrawAlertsOptions(container, event_short)
 	O.alert_dropdown = O:AttachDropdown(container, label, db, "alert_dd_value", db.alert_dd_list, 270)
 	O.alert_dropdown:SetCallback("OnValueChanged", function(widget, event, value)
 		db["alert_dd_value"] = value
+		O.alert_name:SetText(O.alert_dropdown.list[value])
+		if value == "" then O.alert_name:SetDisabled(true) else O.alert_name:SetDisabled(false) end
 		-- Draw Alert Options !!!!!!!!
 	end)
 	-- spacer
@@ -30,6 +32,7 @@ function O:DrawAlertsOptions(container, event_short)
 		O.alert_dropdown:SetList(O.alert_dropdown.list)
 		O.alert_dropdown:SetValue(uid) -- set dropdown to new value
 		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
+		O.alert_name:SetText("New alert")
 		db.alert_details[uid].dummy = 5 -- create entry in alert_details db
 	end)
 	-- spacer
@@ -51,11 +54,17 @@ function O:DrawAlertsOptions(container, event_short)
 	-- spacer
 	O:AttachSpacer(container, 10)
 	-- editbox for alertname
-	--O:AttachNameEdit(container, db, 250)
+	O.alert_name = O:AttachEditBox(container, "Name of the selected alert", O.alert_dropdown.list, O.alert_dropdown.value, 250)
+	O.alert_name:SetCallback("OnEnterPressed", function(widget, event, text)
+		O.alert_dropdown.list[O.alert_dropdown.value] = text
+		O.alert_dropdown:SetList(O.alert_dropdown.list)
+		O.alert_dropdown:SetText(text)
+	end)
+	if O.alert_dropdown.value == nil or O.alert_dropdown.value == "" then O.alert_name:SetDisabled(true) else O.alert_name:SetDisabled(false) end
 	-- spacer
 	O:AttachSpacer(container, 10)
 	-- active checkbox
-	O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
+	--O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
 	-- create details group
 	--O.alert_details = O:AttachGroup(container, "", false)
 	-- draw alert details
@@ -70,7 +79,29 @@ function O:GetLastAlert(list)
 	return last_uid
 end
 
+function O:AttachEditBox(container, label, path, key, width)
+	local edit = A.Libs.AceGUI:Create("EditBox")
+	edit:SetLabel(label)
+	if width ~= nil then edit:SetWidth(width) end
+	edit:SetText(path[key])
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
+	container:AddChild(edit)
+	return edit
+end
 
+function O:EditBoxOnEnter(widget, event, text)
+	dprint(1, "EditBoxOnEnter", widget, event, text)
+	--if S.cache[text] == nil then dprint(1, "No such spellname found") end
+	local path = widget:GetUserData("path")
+	local key = widget:GetUserData("key")
+	dprint(1, key)
+	if key == "spell_add" then
+		O:UpdateSpellNames(text, path)
+		widget:SetText("")
+	else
+		path[key] = text
+	end
+end
 
 
 
