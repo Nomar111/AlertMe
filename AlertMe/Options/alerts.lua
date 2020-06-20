@@ -89,19 +89,6 @@ function O:AttachEditBox(container, label, path, key, width)
 	return edit
 end
 
-function O:EditBoxOnEnter(widget, event, text)
-	dprint(1, "EditBoxOnEnter", widget, event, text)
-	--if S.cache[text] == nil then dprint(1, "No such spellname found") end
-	local path = widget:GetUserData("path")
-	local key = widget:GetUserData("key")
-	dprint(1, key)
-	if key == "spell_add" then
-		O:UpdateSpellNames(text, path)
-		widget:SetText("")
-	else
-		path[key] = text
-	end
-end
 
 
 
@@ -109,33 +96,6 @@ end
 
 
 
-
-
-function O:AttachNameEdit(container, db, width)
-	local edit = A.Libs.AceGUI:Create("EditBox")
-	edit:SetText(O.alerts_dropdown.text:GetText())
-	if O.alerts_dropdown.text:GetText() == nil or O.alerts_dropdown.text:GetText() == "" then
-		edit:SetDisabled(true)
-	end
-	edit:SetLabel("Name of the selected alert")
-	edit:SetUserData("db", db)
-	edit:SetCallback("OnEnterPressed", function(widget, event, text) O:OnNameEditEnter(widget, event, text) end)
-	edit:SetWidth(width)
-	O.name_edit = edit
-	container:AddChild(edit)
-	return edit
-end
-
-function O:OnNameEditEnter(widget, event, text)
-	local db = widget:GetUserData("db")
-	local uid = db["selected_alert"]
-	if db.alerts[uid] ~= nil then
-		db.alerts[uid].name = text
-		local list = O:GetAlertList(db)
-		O.alerts_dropdown:SetList(list)
-		O.alerts_dropdown:SetValue(uid)
-	end
-end
 
 function O:AttachAlertSettingCheckBox(container, name, db, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")

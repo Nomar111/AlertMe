@@ -13,4 +13,6 @@
 	<Include file="AceComm-3.0\AceComm-3.0.xml"/>
 	<Include file="AceSerializer-3.0\AceSerializer-3.0.xml"/>
 	<Include file="LibSharedMedia-3.0\lib.xml"/>
+	<Include file="Lib-EditBox-AutoComplete\Lib-EditBox-AutoComplete.xml"/>
+	<Include file="lib-st\lib-st.xml"/>
 </Ui>

@@ -53,6 +53,7 @@ A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
+A.Libs.ScrollingTable = LibStub("ScrollingTable")
 
 -- addon initialized
 function A:OnInitialize()
