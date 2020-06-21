@@ -58,6 +58,7 @@ function O:CreateNavTree(container)
 	local function GroupSelected(widget, event, uniquevalue)
 		-- delete whatever is shown on the right side
 		widget:ReleaseChildren()
+		if O.scrollTable ~= nil then O.scrollTable:Hide() end
 		-- create new content container
 		local content_group = A.Libs.AceGUI:Create("SimpleGroup")
 		content_group:SetLayout("Flow")

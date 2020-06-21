@@ -33,7 +33,7 @@ function StdUi:ResetConfig()
 
 		backdrop    = {
 			texture        = [[Interface\Buttons\WHITE8X8]],
-			panel          = { r = 0.0588, g = 0.0588, b = 0, a = 0.8 },
+			panel          = { r = 40/255, g = 40/255, b = 40/255, a = 0.8 },
 			slider         = { r = 0.15, g = 0.15, b = 0.15, a = 1 },
 
 			highlight      = { r = 0.40, g = 0.40, b = 0, a = 0.5 },
@@ -49,7 +49,7 @@ function StdUi:ResetConfig()
 		},
 
 		highlight   = {
-			color = { r = 1, g = 0.9, b = 0, a = 0.4 },
+			color = { r = 1, g = 0.9, b = 0, a = 0 },
 			blank = { r = 0, g = 0, b = 0, a = 0 }
 		},
 

@@ -6,10 +6,10 @@ do
 	local PREDICTION_ROWS = 10
 	local totalSpellsLoaded, spellLoader = 0
 	local spells, indexedSpells, visiblePredicters = {}, {}, {}
-	
+
 	-- Defined blew
 	local searchSpells
-	
+
 	-- Spells have to gradually be loaded in to prevent the client from lagging, this starts as soon as one widget is shown
 	-- as of 3.1 the spellID goes up to ~66,000 which means it'll take around 5 - 10 seconds for it to load them all
 	-- Given users have to actually move the mouse, type what they want etc
@@ -36,30 +36,30 @@ do
 			local spellsLoaded = totalSpellsLoaded
 			for i=spellLoader.index + 1, spellLoader.index + 500 do
 				local name, _, icon = GetSpellInfo(i)
-				
+
 				-- The majority of spells that use the engineer gear icon are actually invalid spells that we can easily ignore
 				-- since there are ~12000 not counting duplicate names that use this icon it's worthwhile to filter out these spells
 				self.totalInvalid = self.totalInvalid + 1
 				if( name and icon ~= "Interface\\Icons\\Trade_Engineering" ) then
 					name = string.lower(name)
-					
+
 					if( not spells[name] ) then
 						spells[string.lower(name)] = i
 						table.insert(indexedSpells, name)
-						
+
 						totalSpellsLoaded = totalSpellsLoaded + 1
 						self.totalInvalid = 0
 					end
 				end
 			end
-			
+
 			-- Every ~1 second it will update any visible predicters to make up for the fact that the data is delay loaded
 			if( spellLoader.index % 5000 == 0 ) then
 				for predicter in pairs(visiblePredicters) do
 					searchSpells(predicter, predicter.lastQuery)
 				end
 			end
-						
+
 			-- Increment and do it all over!
 			spellLoader.index = spellLoader.index + 500
 		end)
@@ -80,7 +80,7 @@ do
 				button.spellID = spells[name]
 				button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
 				button:Show()
-				
+
 				if( usedButtons ~= self.selectedButton ) then
 					button:UnlockHighlight()
 
@@ -88,23 +88,23 @@ do
 						GameTooltip:Hide()
 					end
 				end
-				
+
 				-- Ran out of text to suggest :<
 				if( usedButtons >= PREDICTION_ROWS ) then break end
 			end
 		end
-		
+
 		if( usedButtons > 0 ) then
 			self:SetHeight(15 + usedButtons * 17)
 			self:Show()
 		else
 			self:Hide()
 		end
-		
+
 		self.lastQuery = query
 		self.usedButtons = usedButtons
 	end
-	
+
 	local function OnAcquire(self)
 		self:SetHeight(26)
 		self:SetWidth(200)
@@ -112,7 +112,7 @@ do
 		self:SetLabel()
 		self.showbutton = true
 	end
-	
+
 	local function OnRelease(self)
 		self.frame:ClearAllPoints()
 		self.frame:Hide()
@@ -120,19 +120,19 @@ do
 
 		self:SetDisabled(false)
 	end
-			
+
 	local function Control_OnEnter(this)
 		this.obj:Fire("OnEnter")
 	end
-	
+
 	local function Control_OnLeave(this)
 		this.obj:Fire("OnLeave")
 	end
-		
+
 	local function EditBox_OnEscapePressed(this)
 		this:ClearFocus()
 	end
-		
+
 	local function ShowButton(self)
 		if( self.lasttext ~= "" ) then
 			self.editbox.predictFrame.selectedButton = nil
@@ -140,26 +140,26 @@ do
 		else
 			self.editbox.predictFrame:Hide()
 		end
-			
+
 		if( self.showbutton ) then
 			self.button:Show()
 			self.editbox:SetTextInsets(0,20,3,3)
 		end
 	end
-	
+
 	local function HideButton(self)
 		self.button:Hide()
 		self.editbox:SetTextInsets(0,0,3,3)
 		self.editbox.predictFrame:Hide()
 	end
-	
+
 	local function EditBox_OnEnterPressed(this)
 		if( this.predictFrame.selectedButton ) then
 			this.predictFrame.buttons[this.predictFrame.selectedButton]:Click()
 			this.predictFrame.selectedButton = nil
 			return
 		end
-	
+
 		local self = this.obj
 		local value = this:GetText()
 		local cancel = self:Fire("OnEnterPressed", value)
@@ -170,10 +170,10 @@ do
 		-- Reactivate the cursor, odds are if you're adding auras you're adding multiple auras
 		self.editbox:SetFocus()
 	end
-	
+
 	local function Button_OnClick(this)
 		local editbox = this.obj.editbox
-		
+
 		editbox:ClearFocus()
 		EditBox_OnEnterPressed(editbox)
 	end
@@ -183,17 +183,17 @@ do
 		self.editbox:SetAltArrowKeyMode(false)
 
 		visiblePredicters[self] = nil
-		
+
 		ClearOverrideBindings(self)
 	end
 
 	local function Predicter_OnShow(self)
 		-- I'm pretty sure this is completely against what you are supposed to actually do :>
 		visiblePredicters[self] = true
-		
+
 		-- User doesn't need arrow keys, and by doing this the override binding for up/down arrows will work properly
 		self.editbox:SetAltArrowKeyMode(true)
-		
+
 		SetOverrideBindingClick(self, true, "DOWN", self:GetName(), 1)
 		SetOverrideBindingClick(self, true, "UP", self:GetName(), -1)
 		SetOverrideBindingClick(self, true, "LEFT", self:GetName(), "LEFT")
@@ -205,7 +205,7 @@ do
 	local function EditBox_FixCursorPosition(self, direction)
 		self:SetCursorPosition(self:GetCursorPosition() + (direction == "RIGHT" and 1 or -1))
 	end
-	
+
 	local function EditBox_OnReceiveDrag(this)
 		local self = this.obj
 		local type, id, info = GetCursorInfo()
@@ -218,7 +218,7 @@ do
 		HideButton(self)
 		AceGUI:ClearFocus()
 	end
-	
+
 	local function EditBox_OnTextChanged(this)
 		local self = this.obj
 		local value = this:GetText()
@@ -232,13 +232,13 @@ do
 	local function EditBox_OnEditFocusLost(self)
 		Predicter_OnHide(self.predictFrame)
 	end
-	
+
 	local function EditBox_OnEditFocusGained(self)
 		if( self.predictFrame:IsVisible() ) then
 			Predicter_OnShow(self.predictFrame)
 		end
 	end
-	
+
 	local function SetDisabled(self, disabled)
 		self.disabled = disabled
 		if( disabled ) then
@@ -252,7 +252,7 @@ do
 			self.label:SetTextColor(1, 0.82, 0)
 		end
 	end
-	
+
 	local function SetText(self, text, cursor)
 		self.lasttext = text or ""
 		self.editbox:SetText(self.lasttext)
@@ -260,7 +260,7 @@ do
 
 		HideButton(self)
 	end
-	
+
 	local function SetLabel(self, text)
 		if( text and text ~= "" ) then
 			self.label:SetText(text)
@@ -276,52 +276,51 @@ do
 			self.alignoffset = 12
 		end
 	end
-	
+
 	local function Predicter_OnMouseDown(self, direction)
 		if( direction == "LEFT" or direction == "RIGHT" ) then
 			EditBox_FixCursorPosition(self.editbox, direction)
 			return
 		end
-		
+
 		self.selectedButton = (self.selectedButton or 0) + direction
 		if( self.selectedButton > self.usedButtons ) then
 			self.selectedButton = 1
 		elseif( self.selectedButton <= 0 ) then
 			self.selectedButton = self.usedButtons
 		end
-		
+
 		for i=1, self.usedButtons do
 			local button = self.buttons[i]
 			if( i == self.selectedButton ) then
 				button:LockHighlight()
-				
+
 				GameTooltip:SetOwner(button, "ANCHOR_BOTTOMRIGHT")
 				GameTooltip:SetHyperlink("spell:" .. button.spellID)
 			else
 				button:UnlockHighlight()
-				
+
 				if( GameTooltip:IsOwned(button) ) then
 					GameTooltip:Hide()
 				end
 			end
 		end
 	end
-				
+
 	local function Spell_OnClick(self)
 		local name = GetSpellInfo(self.spellID)
-		
 		SetText(self.parent.obj, name, string.len(name))
 		self.parent.obj:Fire("OnEnterPressed", name)
 	end
-	
+
 	local function Spell_OnEnter(self)
 		self.parent.selectedButton = nil
 		self:LockHighlight()
-		
+
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
 		GameTooltip:SetHyperlink("spell:" .. self.spellID)
 	end
-	
+
 	local function Spell_OnLeave(self)
 		self:UnlockHighlight()
 		GameTooltip:Hide()
@@ -338,7 +337,7 @@ do
 		local num  = AceGUI:GetNextWidgetNum(Type)
 		local frame = CreateFrame("Frame", nil, UIParent)
 		local editbox = CreateFrame("EditBox", "AceGUI30SpellEditBox" .. num, frame, "InputBoxTemplate")
-	
+
 		-- Don't feel like looking up the specific callbacks for when a widget resizes, so going to be creative with SetPoint instead!
 		local predictFrame = CreateFrame("Frame", "AceGUI30SpellEditBox" .. num .. "Predicter", UIParent)
 		predictFrame:SetBackdrop(predicterBackdrop)
@@ -349,7 +348,7 @@ do
 		predictFrame:SetPoint("TOPRIGHT", editbox, "BOTTOMRIGHT", 0, 0)
 		predictFrame:SetFrameStrata("TOOLTIP")
 		predictFrame:Hide()
-		
+
 		predictFrame.buttons = {}
 
 		for i=1, PREDICTION_ROWS do
@@ -363,7 +362,7 @@ do
 			button.parent = predictFrame
 			button.editbox = editbox
 			button:Hide()
-			
+
 			if( i > 1 ) then
 				button:SetPoint("TOPLEFT", predictFrame.buttons[i - 1], "BOTTOMLEFT", 0, 0)
 				button:SetPoint("TOPRIGHT", predictFrame.buttons[i - 1], "BOTTOMRIGHT", 0, 0)
@@ -391,9 +390,9 @@ do
 			button:SetHighlightTexture(texture)
 			button:SetHighlightFontObject(GameFontHighlight)
 			button:SetNormalFontObject(GameFontNormal)
-			
+
 			table.insert(predictFrame.buttons, button)
-		end		
+		end
 
 		local self = {}
 		self.type = Type
@@ -405,7 +404,7 @@ do
 		self.SetDisabled = SetDisabled
 		self.SetText = SetText
 		self.SetLabel = SetLabel
-		
+
 		frame.obj = self
 		self.frame = frame
 
@@ -416,9 +415,9 @@ do
 		self.predictFrame = predictFrame
 		predictFrame.editbox = editbox
 		predictFrame.obj = self
-		
+
 		self.alignoffset = 30
-		
+
 		frame:SetHeight(44)
 		frame:SetWidth(200)
 
@@ -427,11 +426,11 @@ do
 		predictFrame:SetScript("OnMouseDown", Predicter_OnMouseDown)
 		predictFrame:SetScript("OnHide", Predicter_OnHide)
 		predictFrame:SetScript("OnShow", Predicter_OnShow)
-		
+
 		editbox:SetScript("OnShow", startLoading)
 		editbox:SetScript("OnEnter", Control_OnEnter)
 		editbox:SetScript("OnLeave", Control_OnLeave)
-		
+
 		editbox:SetAutoFocus(false)
 		editbox:SetFontObject(ChatFontNormal)
 		editbox:SetScript("OnEscapePressed", EditBox_OnEscapePressed)
@@ -444,18 +443,18 @@ do
 
 		editbox:SetTextInsets(0, 0, 3, 3)
 		editbox:SetMaxLetters(256)
-		
+
 		editbox:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
 		editbox:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
 		editbox:SetHeight(19)
-		
+
 		local label = frame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
 		label:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -2)
 		label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -2)
 		label:SetJustifyH("LEFT")
 		label:SetHeight(18)
 		self.label = label
-		
+
 		local button = CreateFrame("Button",nil,editbox,"UIPanelButtonTemplate")
 		button:SetWidth(40)
 		button:SetHeight(20)
@@ -463,13 +462,13 @@ do
 		button:SetText(OKAY)
 		button:SetScript("OnClick", Button_OnClick)
 		button:Hide()
-		
+
 		self.button = button
 		button.obj = self
 
 		AceGUI:RegisterAsWidget(self)
 		return self
 	end
-	
+
 	AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

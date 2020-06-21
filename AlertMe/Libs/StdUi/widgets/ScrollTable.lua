@@ -576,15 +576,16 @@ local methods = {
 			local col = self.head.columns[i];
 			if col then
 				if i == sortBy then
-					local column = self.columns[sortBy];
-					local direction = column.sort or column.defaultSort or 'asc';
-					if direction == 'asc' then
-						col.arrow:SetTexCoord(0, 0.5625, 0, 1);
-					else
-						col.arrow:SetTexCoord(0, 0.5625, 1, 0);
-					end
-
-					col.arrow:Show();
+					-- local column = self.columns[sortBy];
+					-- local direction = column.sort or column.defaultSort or 'asc';
+					-- if direction == 'asc' then
+					-- 	col.arrow:SetTexCoord(0, 0.5625, 0, 1);
+					-- else
+					-- 	col.arrow:SetTexCoord(0, 0.5625, 1, 0);
+					-- end
+					--
+					-- col.arrow:Show();
+					col.arrow:Hide();
 				else
 					col.arrow:Hide();
 				end
@@ -704,32 +705,32 @@ local cellEvents = {
 
 local headerEvents = {
 	OnClick = function(table, columnFrame, columnHeadFrame, columnIndex, button, ...)
-		if button == 'LeftButton' then
-
-			local columns = table.columns;
-			local column = columns[columnIndex];
-
-			-- clear sort for other columns
-			for i, _ in ipairs(columnHeadFrame.columns) do
-				if i ~= columnIndex then
-					columns[i].sort = nil;
-				end
-			end
-
-			local sortOrder = 'asc';
-
-			if not column.sort and column.defaultSort then
-				-- sort by columns default sort first;
-				sortOrder = column.defaultSort;
-			elseif column.sort and column.sort:lower() == 'asc' then
-				sortOrder = 'dsc';
-			end
-
-			column.sort = sortOrder;
-			table:SortData();
-
-			return true;
-		end
+		-- if button == 'LeftButton' then
+		--
+		-- 	local columns = table.columns;
+		-- 	local column = columns[columnIndex];
+		--
+		-- 	-- clear sort for other columns
+		-- 	for i, _ in ipairs(columnHeadFrame.columns) do
+		-- 		if i ~= columnIndex then
+		-- 			columns[i].sort = nil;
+		-- 		end
+		-- 	end
+		--
+		-- 	local sortOrder = 'asc';
+		--
+		-- 	if not column.sort and column.defaultSort then
+		-- 		-- sort by columns default sort first;
+		-- 		sortOrder = column.defaultSort;
+		-- 	elseif column.sort and column.sort:lower() == 'asc' then
+		-- 		sortOrder = 'dsc';
+		-- 	end
+		--
+		-- 	column.sort = sortOrder;
+		-- 	table:SortData();
+		--
+		-- 	return true;
+		-- end
 	end
 };
 
