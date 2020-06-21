@@ -155,6 +155,18 @@ function O:AttachLabel(container, text, font_object, color, relative_width)
 	return label
 end
 
+function O:AttachInteractiveLabel(container, text, font_object, color, relative_width)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relative_width or 1)
+	if font_object == nil then font_object = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(font_object)
+	--label:SetHighlight(0.7,0.7,0.7,1)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
+end
+
 function O:AttachSpacer(container, width)
 	local control = A.Libs.AceGUI:Create("InteractiveLabel")
 	control:SetText("")
