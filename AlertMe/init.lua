@@ -45,7 +45,7 @@ LibStub = LibStub
 dprint = dprint
 
 -- libraries
-A.Libs = {AceGUI={}, AceConfig={}, AceConfigDialog={}, AceConfigRegistry={}, AceDBOptions={}}
+A.Libs = {}
 A.Libs.AceGUI = LibStub("AceGUI-3.0")
 A.Libs.AceConfig = LibStub("AceConfig-3.0")
 A.Libs.AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
@@ -53,7 +53,8 @@ A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
-A.Libs.ScrollingTable = LibStub("ScrollingTable")
+A.Libs.StdUi = LibStub("StdUi")
+--A.Libs.ScrollingTable = LibStub("ScrollingTable")
 
 -- addon initialized
 function A:OnInitialize()
