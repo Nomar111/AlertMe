@@ -1,6 +1,6 @@
 dprint(3,"core.lua")
 -- upvalues
-local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs
+local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -12,6 +12,18 @@ function A:Initialize()
 	A:ScrollingTextInitOrUpdate()
 	-- init options
 	A:InitSpellOptions()
+	-- register for events
+	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+end
+
+function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
+	-- Assign all the data from current event
+	local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags,
+	destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool,
+	arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24  = CombatLogGetCurrentEventInfo()
+	if A.Events[subevent] then
+		dprint(1, timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24)
+	end
 end
 
 function A:InitSpellOptions()
