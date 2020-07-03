@@ -7,6 +7,13 @@ local A, _, _ = unpack(select(2, ...)); --Import: Engine, Defaults
 setfenv(1, _G.AlertMe)
 A.LSM = A.Libs.LibSharedMedia
 local LSM = A.LSM
+-- fonts
+LSM:Register("font", "Roboto Condensed Bold", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-Bold.ttf]])
+LSM:Register("font", "Roboto Condensed BoldItalic", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-BoldItalic.ttf]])
+LSM:Register("font", "Roboto Condensed Light", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-Light.ttf]])
+LSM:Register("font", "Roboto Condensed LightItalic", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-LightItalic.ttf]])
+LSM:Register("font", "Roboto Condensed Regular", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-Regular.ttf]])
+LSM:Register("font", "Roboto Condensed RegularItalic", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-RegularItalic.ttf]])
 -- sounds
 LSM:Register("sound", "Adrenaline Rush", [[Interface\AddOns\AlertMe\Media\Sounds\Adrenaline Rush.ogg]])
 LSM:Register("sound", "Aimed Shot", [[Interface\AddOns\AlertMe\Media\Sounds\Aimed Shot.ogg]])

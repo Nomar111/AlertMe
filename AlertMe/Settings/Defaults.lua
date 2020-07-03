@@ -10,8 +10,26 @@ D.profile = {
 		zones = {
 			["*"] = true,
 		},
-		chat_frames ={
+		chat_frames = {
 			["*"] = true,
+		},
+		scrolling_text = {
+			use = true,
+			width = 400,
+			height = 42,
+			align = "CENTER",
+			fading = true,
+			point = "CENTER",
+			point_x = 0,
+			point_y = -130,
+			maxlines = 200,
+			timevisible = 10,
+			bg_aplpha = 0.1
+			-- --aura_env.scrollframe:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE, MONOCHROME")
+		    --font = ("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Regular.ttf", 14)
+			    -- --aura_env.scrollframe:SetFontObject("GameFontWhite")
+			    -- f:SetMaxLines(200)
+
 		},
 		test = false,
 	},

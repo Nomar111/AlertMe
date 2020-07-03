@@ -101,49 +101,17 @@ function O:DrawGeneralOptions(container)
 			O:AttachCheckBox(chat_frames, name, P.general.chat_frames["ChatFrame"..i], 150)
 		end
 	end
-	O:AttachCheckBox(container, "Test", P.general.test)
-	-- -- initScrollingText
-	--
-    -- -- check for options
-    -- if aura_env.config.createScrollingText == false then return end
-    -- -- create Frame
-    -- if not _G["PVPMONScrollingText"] then
-    --     _G["PVPMONScrollingText"] = CreateFrame("ScrollingMessageFrame", "PVPMONScrollingText", UIParent)
-    -- end
-    -- local f = _G["PVPMONScrollingText"]
-    -- if not f:IsVisible() then f:Show() end
-    -- f:SetWidth(400)
-    -- f:SetHeight(42)
-    -- f:SetJustifyH("CENTER")
-    -- f:SetFading(true)
-    -- f:SetPoint("CENTER", 0, -130)
-    -- f:SetFrameStrata("LOW")
-    -- --aura_env.scrollframe:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE, MONOCHROME")
-    -- --f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Bold.ttf", 13)
-    -- f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Regular.ttf", 14)
-    -- --aura_env.scrollframe:SetFontObject("GameFontWhite")
-    -- f:SetMaxLines(200)
-    -- --f:EnableMouse(true)
-    -- --f:EnableMouseWheel(true)
-    -- --f:SetMovable(true)
-    -- --f:RegisterForDrag("LeftButton")
-    -- --f:SetScript("OnDragStart", f.StartMoving)
-    -- --f:SetScript("OnDragStop", f.StopMovingOrSizing)
-    -- --f:SetScript("OnMouseUp", function (self, button)
-    -- --       if button == "RightButton" then self:Hide() end
-    -- --end)
-    -- f:SetTimeVisible(10)
-	--
-    -- --f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true,tileSize=32,edgeSize=32,insets={left=0,right=0,top=0,bottom=0}})
-    -- --f:SetBackdropColor(0, 0, 0, 0.1)
-    -- --f:SetScript("OnMouseWheel", function(self, delta)
-    -- --      if delta == 1 then
-    -- --        self:ScrollUp()
-    -- --  elseif delta == -1 then
-    -- --    self:ScrollDown()
-    -- -- end
-    -- --end)
-    -- table.insert(aura_env.chatFrames, _G["PVPMONScrollingText"])
+	--O:AttachCheckBox(container, "Test", P.general.test)
+	O:AttachHeader(container, "AlertMe scrolling text")
+	local btn_show = A.Libs.AceGUI:Create("Button")
+	btn_show:SetText("Show Frame")
+	btn_show:SetCallback("OnClick", function() A:InitScrollingText(true) end)
+	container:AddChild(btn_show)
+	O:AttachSpacer(container, 20)
+	local btn_hide = A.Libs.AceGUI:Create("Button")
+	btn_hide:SetText("Hide Frame")
+	btn_hide:SetCallback("OnClick", function() A.ScrollingText:Hide() end)
+	container:AddChild(btn_hide)
 
 end
 
