@@ -1,4 +1,4 @@
--- This is basically the main portion of the predictor, the other files handle 
+-- This is basically the main portion of the predictor, the other files handle
 local AceGUI = LibStub("AceGUI-3.0")
 do
 	local Type = "Predictor_Base"
@@ -20,11 +20,11 @@ do
 		self:SetDisabled(false)
 		self:SetLabel()
 		self.showButton = true
-		
+
 		SpellData:RegisterPredictor(self.predictFrame)
 		SpellData:StartLoading()
 	end
-	
+
 	local function OnRelease(self)
 		self.frame:ClearAllPoints()
 		self.frame:Hide()
@@ -35,21 +35,21 @@ do
 
 		SpellData:UnregisterPredictor(self.predictFrame)
 	end
-			
+
 	local function Control_OnEnter(this)
 		this.obj:Fire("OnEnter")
 	end
-	
+
 	local function Control_OnLeave(this)
 		this.obj:Fire("OnLeave")
 	end
-		
+
 	local function Predictor_Query(self)
 		for _, button in pairs(self.buttons) do button:Hide() end
 		for k in pairs(alreadyAdded) do alreadyAdded[k] = nil end
-		
+
 		local query = "^" .. string.lower(self.obj.editBox:GetText())
-		
+
 		local activeButtons = 0
 		for spellID, name in pairs(SpellData.spellList) do
 			if( not alreadyAdded[name] and string.match(name, query) and ( not self.obj.spellFilter or self.obj.spellFilter(self.obj, spellID) ) ) then
@@ -57,19 +57,20 @@ do
 
 				local button = self.buttons[activeButtons]
 				local spellName, spellRank, spellIcon = GetSpellInfo(spellID)
+				if spellIcon == nil then return end
 				if( self.obj.useRanks and spellRank and spellRank ~= "" ) then
 					button:SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
 				else
 					button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
 				end
-				
+
 				if( not self.obj.useRanks ) then
 					alreadyAdded[name] = true
 				end
-				
+
 				button.spellID = spellID
 				button:Show()
-				
+
 				-- Highlight if needed
 				if( activeButtons ~= self.selectedButton ) then
 					button:UnlockHighlight()
@@ -78,22 +79,22 @@ do
 						GameTooltip:Hide()
 					end
 				end
-				
+
 				-- Ran out of text to suggest :<
 				if( activeButtons >= PREDICTOR_ROWS ) then break end
 			end
 		end
-		
+
 		if( activeButtons > 0 ) then
 			self:SetHeight(15 + activeButtons * 17)
 			self:Show()
 		else
 			self:Hide()
 		end
-		
+
 		self.activeButtons = activeButtons
 	end
-				
+
 	local function ShowButton(self)
 		if( self.lastText ~= "" ) then
 			self.predictFrame.selectedButton = nil
@@ -101,13 +102,13 @@ do
 		else
 			self.predictFrame:Hide()
 		end
-			
+
 		if( self.showButton ) then
 			self.button:Show()
 			self.editBox:SetTextInsets(0, 20, 3, 3)
 		end
 	end
-	
+
 	local function HideButton(self)
 		self.button:Hide()
 		self.editBox:SetTextInsets(0, 0, 3, 3)
@@ -119,14 +120,14 @@ do
 	local function Predictor_OnHide(self)
 		-- Allow users to use arrows to go back and forth again without the fix
 		self.obj.editBox:SetAltArrowKeyMode(false)
-		
+
 		-- Make sure the tooltip isn't kept open if one of the buttons was using it
 		for _, button in pairs(self.buttons) do
 			if( GameTooltip:IsOwned(button) ) then
 				GameTooltip:Hide()
 			end
 		end
-		
+
 		-- Reset all bindings set on this predictor
 		ClearOverrideBindings(self)
 	end
@@ -135,14 +136,14 @@ do
 		-- If the user is using an edit box in a configuration, they will live without arrow keys while the predictor
 		-- is opened, this also is the only way of getting up/down arrow for browsing the predictor to work.
 		self.obj.editBox:SetAltArrowKeyMode(true)
-		
+
 		local name = self:GetName()
 		SetOverrideBindingClick(self, true, "DOWN", name, 1)
 		SetOverrideBindingClick(self, true, "UP", name, -1)
 		SetOverrideBindingClick(self, true, "LEFT", name, "LEFT")
 		SetOverrideBindingClick(self, true, "RIGHT", name, "RIGHT")
 	end
-	
+
 	local function EditBox_OnEnterPressed(this)
 		local self = this.obj
 
@@ -151,7 +152,7 @@ do
 			self.predictFrame.buttons[self.predictFrame.selectedButton]:Click()
 			return
 		end
-	
+
 		local cancel = self:Fire("OnEnterPressed", this:GetText())
 		if( not cancel ) then
 			HideButton(self)
@@ -171,7 +172,7 @@ do
 	local function EditBox_FixCursorPosition(self, direction)
 		self:SetCursorPosition(self:GetCursorPosition() + (direction == "RIGHT" and 1 or -1))
 	end
-	
+
 	local function EditBox_OnReceiveDrag(this)
 		local self = this.obj
 		local type, id, info = GetCursorInfo()
@@ -180,23 +181,23 @@ do
 			if( self.useRanks and rank and rank ~= "" ) then
 				name = string.format("%s (%s)", name, rank)
 			end
-			
+
 			self:SetText(name)
 			self:Fire("OnEnterPressed", name)
 			ClearCursor()
 		end
-		
+
 		HideButton(self)
 		AceGUI:ClearFocus()
 	end
-	
+
 	local function EditBox_OnTextChanged(this)
 		local self = this.obj
 		local value = this:GetText()
 		if( value ~= self.lastText ) then
 			self:Fire("OnTextChanged", value)
 			self.lastText = value
-			
+
 			ShowButton(self)
 		end
 	end
@@ -204,22 +205,22 @@ do
 	local function EditBox_OnEditFocusLost(self)
 		Predictor_OnHide(self.obj.predictFrame)
 	end
-	
+
 	local function EditBox_OnEditFocusGained(self)
 		if( self.obj.predictFrame:IsVisible() ) then
 			Predictor_OnShow(self.obj.predictFrame)
 		end
 	end
-	
+
 	local function Button_OnClick(this)
 		EditBox_OnEnterPressed(this.obj.editBox)
 	end
-	
+
 	-- API calls
 	local function SetUseRanks(self, enabled)
 		self.useRanks = enabled
 	end
-		
+
 	local function SetDisabled(self, disabled)
 		self.disabled = disabled
 		if( disabled ) then
@@ -233,7 +234,7 @@ do
 			self.label:SetTextColor(1, 0.82, 0)
 		end
 	end
-	
+
 	local function SetText(self, text, cursor)
 		self.lastText = text or ""
 		self.editBox:SetText(self.lastText)
@@ -241,7 +242,7 @@ do
 
 		HideButton(self)
 	end
-	
+
 	local function SetLabel(self, text)
 		if( text and text ~= "" ) then
 			self.label:SetText(text)
@@ -257,59 +258,59 @@ do
 			self.alignoffset = 12
 		end
 	end
-	
+
 	local function Predictor_OnMouseDown(self, direction)
 		-- Fix the cursor positioning if left or right arrow key was used
 		if( direction == "LEFT" or direction == "RIGHT" ) then
 			EditBox_FixCursorPosition(self.editBox, direction)
 			return
 		end
-		
+
 		self.selectedButton = (self.selectedButton or 0) + direction
 		if( self.selectedButton > self.activeButtons ) then
 			self.selectedButton = 1
 		elseif( self.selectedButton <= 0 ) then
 			self.selectedButton = self.activeButtons
 		end
-		
+
 		-- Figure out what to highlight and show the spell tooltip while we're at it
 		for i=1, self.activeButtons do
 			local button = self.buttons[i]
 			if( i == self.selectedButton ) then
 				button:LockHighlight()
-				
+
 				GameTooltip:SetOwner(button, "ANCHOR_BOTTOMRIGHT", 3)
 				GameTooltip:SetHyperlink("spell:" .. button.spellID)
 			else
 				button:UnlockHighlight()
-				
+
 				if( GameTooltip:IsOwned(button) ) then
 					GameTooltip:Hide()
 				end
 			end
 		end
 	end
-				
+
 	local function Spell_OnClick(self)
 		local name, rank = GetSpellInfo(self.spellID)
 		if( self.useRanks and rank and rank ~= "" ) then
 			name = string.format("%s (%s)", name, rank)
 		end
-		
+
 		SetText(self.parent.obj, name, string.len(name))
-		
+
 		self.parent.selectedButton = nil
 		self.parent.obj:Fire("OnEnterPressed", name)
 	end
-	
+
 	local function Spell_OnEnter(self)
 		self.parent.selectedButton = nil
 		self:LockHighlight()
-		
+
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 3)
 		GameTooltip:SetHyperlink("spell:" .. self.spellID)
 	end
-	
+
 	local function Spell_OnLeave(self)
 		self:UnlockHighlight()
 		GameTooltip:Hide()
@@ -319,7 +320,7 @@ do
 		local num  = AceGUI:GetNextWidgetNum(Type)
 		local frame = CreateFrame("Frame", nil, UIParent)
 		local editBox = CreateFrame("EditBox", "AceGUI30SpellEditBox" .. num, frame, "InputBoxTemplate")
-	
+
 		-- Don't feel like looking up the specific callbacks for when a widget resizes, so going to be creative with SetPoint instead!
 		local predictFrame = CreateFrame("Frame", "AceGUI30SpellEditBox" .. num .. "Predictor", UIParent)
 		predictFrame:SetBackdrop(predictorBackdrop)
@@ -332,7 +333,7 @@ do
 		predictFrame.buttons = {}
 		predictFrame.Query = Predictor_Query
 		predictFrame:Hide()
-			
+
 		-- Create the mass of predictor rows
 		for i=1, PREDICTOR_ROWS do
 			local button = CreateFrame("Button", nil, predictFrame)
@@ -345,7 +346,7 @@ do
 			button.parent = predictFrame
 			button.editBox = editBox
 			button:Hide()
-			
+
 			if( i > 1 ) then
 				button:SetPoint("TOPLEFT", predictFrame.buttons[i - 1], "BOTTOMLEFT", 0, 0)
 				button:SetPoint("TOPRIGHT", predictFrame.buttons[i - 1], "BOTTOMRIGHT", 0, 0)
@@ -373,10 +374,10 @@ do
 			button:SetHighlightTexture(texture)
 			button:SetHighlightFontObject(GameFontHighlight)
 			button:SetNormalFontObject(GameFontNormal)
-			
+
 			table.insert(predictFrame.buttons, button)
-		end	
-		
+		end
+
 		-- Set the main info things for this thingy
 		local self = {}
 		self.type = Type
@@ -388,20 +389,20 @@ do
 		self.SetDisabled = SetDisabled
 		self.SetText = SetText
 		self.SetLabel = SetLabel
-		
+
 		self.frame = frame
 		self.predictFrame = predictFrame
 		self.editBox = editBox
 
 		self.alignoffset = 30
-		
+
 		frame:SetHeight(44)
 		frame:SetWidth(200)
 
 		frame.obj = self
 		editBox.obj = self
 		predictFrame.obj = self
-		
+
 		-- Purely meant for a single tooltip for doing scanning
 		if( not tooltip ) then
 			tooltip = CreateFrame("GameTooltip")
@@ -412,7 +413,7 @@ do
 				tooltip:AddFontStrings(tooltip["TextLeft" .. i], tooltip["TextRight" .. i])
 			end
 		end
-		
+
 		self.tooltip = tooltip
 
 		-- EditBoxes override the OnKeyUp/OnKeyDown events so that they can function, meaning in order to make up and down
@@ -420,10 +421,10 @@ do
 		predictFrame:SetScript("OnMouseDown", Predictor_OnMouseDown)
 		predictFrame:SetScript("OnHide", Predictor_OnHide)
 		predictFrame:SetScript("OnShow", Predictor_OnShow)
-		
+
 		editBox:SetScript("OnEnter", Control_OnEnter)
 		editBox:SetScript("OnLeave", Control_OnLeave)
-		
+
 		editBox:SetAutoFocus(false)
 		editBox:SetFontObject(ChatFontNormal)
 		editBox:SetScript("OnEscapePressed", EditBox_OnEscapePressed)
@@ -436,11 +437,11 @@ do
 
 		editBox:SetTextInsets(0, 0, 3, 3)
 		editBox:SetMaxLetters(256)
-		
+
 		editBox:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
 		editBox:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
 		editBox:SetHeight(19)
-		
+
 		local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 		label:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -2)
 		label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -2)
@@ -448,7 +449,7 @@ do
 		label:SetHeight(18)
 
 		self.label = label
-		
+
 		local button = CreateFrame("Button", nil, editBox, "UIPanelButtonTemplate")
 		button:SetPoint("RIGHT", editBox, "RIGHT", -2, 0)
 		button:SetScript("OnClick", Button_OnClick)
@@ -456,13 +457,13 @@ do
 		button:SetHeight(20)
 		button:SetText(OKAY)
 		button:Hide()
-		
+
 		self.button = button
 		button.obj = self
 
 		AceGUI:RegisterAsWidget(self)
 		return self
 	end
-	
+
 	AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

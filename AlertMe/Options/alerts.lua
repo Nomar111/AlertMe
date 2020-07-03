@@ -8,7 +8,7 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:DrawAlertsOptions(container, event_short)
-	dprint(1, "O:DrawAlertsOptions", event_short)
+	dprint(2, "O:DrawAlertsOptions", event_short)
 	VDT_AddData(container, "alerts")
 	container:ReleaseChildren()
 	-- set db to db for this event
