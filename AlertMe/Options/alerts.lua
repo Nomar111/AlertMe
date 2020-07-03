@@ -16,12 +16,6 @@ function O:DrawAlertsOptions(container, event_short)
 	-- alerts dropdown
 	local label = "Alerts - "..A:GetEventSettingByShort(event_short, "options_name")
 	O.alert_dropdown = O:AttachDropdown(container, label, db, "alert_dd_value", db.alert_dd_list, 270)
-	O.alert_dropdown:SetCallback("OnValueChanged", function(widget, event, value)
-		db["alert_dd_value"] = value
-		O.alert_name:SetText(O.alert_dropdown.list[value])
-		if value == "" then O.alert_name:SetDisabled(true) else O.alert_name:SetDisabled(false) end
-		-- Draw Alert Options !!!!!!!!
-	end)
 	-- spacer
 	O:AttachSpacer(container, 10)
 	-- add alert
@@ -31,9 +25,10 @@ function O:DrawAlertsOptions(container, event_short)
 		O.alert_dropdown:AddItem(uid, "New alert") -- add new entry to the dropdown list (automatically saved in db)
 		O.alert_dropdown:SetList(O.alert_dropdown.list)
 		O.alert_dropdown:SetValue(uid) -- set dropdown to new value
-		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
-		O.alert_name:SetText("New alert")
 		db.alert_details[uid].dummy = 5 -- create entry in alert_details db
+		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
 	end)
 	-- spacer
 	O:AttachSpacer(container, 10)
@@ -50,25 +45,50 @@ function O:DrawAlertsOptions(container, event_short)
 			O.alert_dropdown:Fire("OnValueChanged", new_uid) -- fire onchanged to save in db
 		end
 		if db.alert_details[uid] ~= nil then db.alert_details[uid] = nil end -- delete alert details also
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
 	end)
 	-- spacer
 	O:AttachSpacer(container, 10)
 	-- editbox for alertname
 	O.alert_name = O:AttachEditBox(container, "Name of the selected alert", O.alert_dropdown.list, O.alert_dropdown.value, 250)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- active checkbox
+	O.alert_active = O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
+	-- set callbacks for dropdown now that all controls exist
+	O.alert_dropdown:SetCallback("OnValueChanged", function(widget, event, value)
+		local uid = value
+		db["alert_dd_value"] = uid
+		O.alert_name:SetText(O.alert_dropdown.list[uid])
+		O.alert_active:SetValue(db.alert_details[uid].active)
+		if uid == "" then
+			O.alert_name:SetDisabled(true)
+			O.alert_active:SetDisabled(true)
+		else
+			O.alert_name:SetDisabled(false)
+			O.alert_active:SetDisabled(false)
+		end
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
+	end)
+	-- callback for editbox
 	O.alert_name:SetCallback("OnEnterPressed", function(widget, event, text)
 		O.alert_dropdown.list[O.alert_dropdown.value] = text
 		O.alert_dropdown:SetList(O.alert_dropdown.list)
 		O.alert_dropdown:SetText(text)
 	end)
-	if O.alert_dropdown.value == nil or O.alert_dropdown.value == "" then O.alert_name:SetDisabled(true) else O.alert_name:SetDisabled(false) end
-	-- spacer
-	O:AttachSpacer(container, 10)
-	-- active checkbox
-	--O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
+	if O.alert_dropdown.value == nil or O.alert_dropdown.value == "" then
+		O.alert_name:SetDisabled(true)
+		O.alert_active:SetDisabled(true)
+	else
+		O.alert_name:SetDisabled(false)
+		O.alert_active:SetDisabled(false)
+	end
 	-- create details group
-	--O.alert_details = O:AttachGroup(container, "", false)
+	O.alert_details = O:AttachGroup(container, "", false)
 	-- draw alert details
-	--O:DrawAlertDetails(O.alert_details, O.event)
+	O:DrawAlertDetails(O.alert_details, event_short, db)
 end
 
 function O:GetLastAlert(list)
@@ -89,19 +109,12 @@ function O:AttachEditBox(container, label, path, key, width)
 	return edit
 end
 
-
-
-
-
-
-
-
-
 function O:AttachAlertSettingCheckBox(container, name, db, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
 	local uid = db["selected_alert"]
 	if uid ~= nil then
-		control:SetValue(db.alerts[uid][key])
+		control:SetValue(db.alert_details[uid][key])
+		control:SetDisabled(false)
 	else
 		control:SetDisabled(true)
 	end
@@ -111,13 +124,13 @@ function O:AttachAlertSettingCheckBox(container, name, db, key, width)
 	control:SetLabel(name)
 	if width then control:SetWidth(width) end
 	container:AddChild(control)
-	O.alert_active = control
 	return control
+
 end
 
 function O:AlertSettingCheckBoxOnChange(widget, event)
 	local db = widget:GetUserData("db")
 	local key = widget:GetUserData("key")
-	local uid = db["selected_alert"]
-	db.alerts[uid][key] = widget.checked
+	local uid = db["alert_dd_value"]
+	db.alert_details[uid][key] = widget.checked
 end

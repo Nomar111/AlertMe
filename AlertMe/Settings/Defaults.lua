@@ -22,14 +22,24 @@ D.profile = {
 			alert_details = {
 				['*'] = {
 					active = true,
-					spell_names = {
-						['*'] = ""
+					spells = {
+						['*'] = {
+							icon = "",
+							sound = "",
+						}
 					},
 					source_units = 5,
 					source_exclude = 1,
 					target_units = 5,
 					target_exclude = 1,
 					dummy = 1,
+					show_bar = true,
+					chat_channels = 1,
+					system_messages = 2,
+					whisper_destination = 1,
+					scrolling_text = true,
+					sound_selection = 1,
+					sound_file = "",
 				},
 			},
 		},

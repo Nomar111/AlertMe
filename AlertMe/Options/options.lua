@@ -78,7 +78,7 @@ function O:DrawOptions(container, uniquevalue)
 	if lvl1 == "profiles" then O:DrawProfileOptions(container)
 		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
 		elseif lvl1 == "info" then O:DrawInfoOptions(container)
-		elseif lvl1 == "events" then O:DrawTest(container)
+		--elseif lvl1 == "events" then O:DrawTest(container)
 		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
 	end
 end
@@ -102,6 +102,49 @@ function O:DrawGeneralOptions(container)
 		end
 	end
 	O:AttachCheckBox(container, "Test", P.general.test)
+	-- -- initScrollingText
+	--
+    -- -- check for options
+    -- if aura_env.config.createScrollingText == false then return end
+    -- -- create Frame
+    -- if not _G["PVPMONScrollingText"] then
+    --     _G["PVPMONScrollingText"] = CreateFrame("ScrollingMessageFrame", "PVPMONScrollingText", UIParent)
+    -- end
+    -- local f = _G["PVPMONScrollingText"]
+    -- if not f:IsVisible() then f:Show() end
+    -- f:SetWidth(400)
+    -- f:SetHeight(42)
+    -- f:SetJustifyH("CENTER")
+    -- f:SetFading(true)
+    -- f:SetPoint("CENTER", 0, -130)
+    -- f:SetFrameStrata("LOW")
+    -- --aura_env.scrollframe:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE, MONOCHROME")
+    -- --f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Bold.ttf", 13)
+    -- f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Regular.ttf", 14)
+    -- --aura_env.scrollframe:SetFontObject("GameFontWhite")
+    -- f:SetMaxLines(200)
+    -- --f:EnableMouse(true)
+    -- --f:EnableMouseWheel(true)
+    -- --f:SetMovable(true)
+    -- --f:RegisterForDrag("LeftButton")
+    -- --f:SetScript("OnDragStart", f.StartMoving)
+    -- --f:SetScript("OnDragStop", f.StopMovingOrSizing)
+    -- --f:SetScript("OnMouseUp", function (self, button)
+    -- --       if button == "RightButton" then self:Hide() end
+    -- --end)
+    -- f:SetTimeVisible(10)
+	--
+    -- --f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true,tileSize=32,edgeSize=32,insets={left=0,right=0,top=0,bottom=0}})
+    -- --f:SetBackdropColor(0, 0, 0, 0.1)
+    -- --f:SetScript("OnMouseWheel", function(self, delta)
+    -- --      if delta == 1 then
+    -- --        self:ScrollUp()
+    -- --  elseif delta == -1 then
+    -- --    self:ScrollDown()
+    -- -- end
+    -- --end)
+    -- table.insert(aura_env.chatFrames, _G["PVPMONScrollingText"])
+
 end
 
 -- creates the info tab
@@ -205,4 +248,23 @@ function O:AttachIcon(container, image, size)
 	icon:SetWidth(size)
 	container:AddChild(icon)
 	return icon
+end
+
+function O:AttachMultiLineEditBox(container, path, key, label, lines)
+	local edit = A.Libs.AceGUI:Create("MultiLineEditBox")
+	edit:SetLabel(label)
+	edit:SetNumLines(lines)
+	edit:SetRelativeWidth(1)
+	edit:SetText(path[key])
+	edit:SetUserData("path", path)
+	edit:SetUserData("key", key)
+	edit:SetCallback("OnEnterPressed", function(widget, text) O:MultiLineEditBoxOnEnter(widget, text) end)
+	container:AddChild(edit)
+	return edit
+end
+
+function O:MultiLineEditBoxOnEnter(widget, text)
+	local path = widget:GetUserData("path")
+	local key = widget:GetUserData("key")
+	path[key] = widget:GetText()
 end
