@@ -81,7 +81,7 @@ end
 function A:OnEnable()
 	dprint(2, "Ace Event: OnEnable")
 	A:Initialize()
-	A.Options:OpenOptions()
+	--A.Options:OpenOptions()
 end
 
 -- addon disabled

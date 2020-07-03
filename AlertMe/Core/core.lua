@@ -11,35 +11,52 @@ function A:Initialize()
 	-- init scrolling text frame
 	A:ScrollingTextInitOrUpdate()
 	-- init options
+	A:InitSpellOptions()
 end
 
 function A:InitSpellOptions()
-    dprint(1, "A:InitSpellOptions")
-    -- loop through evens
-	for i,v in pairs(P.alerts) do
-		dprint(1, i, v)
-		for m,k in pairs(v.alert_dd_list) do
-			dprint(1,m,k)
+	dprint(2, "A:InitSpellOptions")
+	A.AlertOptions = {}
+	A.SpellOptions = {}
+	VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	-- loop through events/alerts
+	for event, alert_lvl_1 in pairs(P.alerts) do
+		--dprint(1, "Level 1: ", event, alert_lvl_1)
+		A.AlertOptions[event] = {}
+		-- alert uids and names
+		for uid, alert_name in pairs(alert_lvl_1.alert_dd_list) do
+			--dprint(1, "Level 2: ", uid, alert_name)
+			A.AlertOptions[event][uid] = {["name"] = alert_name}
 		end
-		for m,k in pairs(v.alert_details) do
-			dprint(1,m,k)
+		-- alert details
+		for uid, alert_lvl_2 in pairs(alert_lvl_1.alert_details) do
+			--dprint(1, "Level 2: ", uid, alert_lvl_2)
+			-- alert details sublevel
+			for i, alert_lvl_3 in pairs(alert_lvl_2) do
+				--dprint(1, "Level 3: ", uid, i, alert_lvl_3)
+				if i ~= "spells" then
+					A.AlertOptions[event][uid][i] = alert_lvl_3
+				else -- spells
+					for spellName, spellOptionsTable in pairs(alert_lvl_3) do
+						if A.SpellOptions[spellName] == nil then A.SpellOptions[spellName] = {}	end
+						if A.SpellOptions[spellName][event] == nil then A.SpellOptions[spellName][event] = {}end
+						if A.SpellOptions[spellName][event][uid] == nil then
+							A.SpellOptions[spellName][event][uid] = {
+								uid = uid,
+								event = event,
+								options = A.AlertOptions[event][uid]
+							}
+						end
+						for spellOption, value in pairs(spellOptionsTable) do
+							--dprint(1, "Level 4/spells: ", uid, spellName, spellOption, value)
+							A.SpellOptions[spellName][event][uid][spellOption] = value
+						end
+					end
+				end
+			end
 		end
 	end
-    --     for i,og in pairs(optionGroups) do
-    --         -- only process active option groups
-    --         if og.active then
-    --             -- loop over spells (string split)
-    --             for i, spellName in pairs(aura_env.parseCSL(og.spellNames)) do
-    --                 -- create table for each spellName/eventName
-    --                 if not spellOptions[spellName] then spellOptions[spellName] = {} end
-    --                 if not spellOptions[spellName][eventName] then spellOptions[spellName][eventName] = {} end
-    --                 -- create entry for each spell/event/eoptiongroup
-    --                 table.insert(spellOptions[spellName][eventName], {optionGroup = og, optionGroupName = og.name})
-    --             end
-    --         end
-    --     end
-    -- end
-
 end
 
 
