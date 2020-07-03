@@ -19,7 +19,7 @@ function O:DrawAlertDetails(container, event, db)
 	if uid == nil or uid == "" then return end
 	-- set path to db for this event
 	db = P.alerts[event].alert_details[uid]
-	VDT_AddData(db, "db")
+	--VDT_AddData(db, "db")
 	-- spell selection
 	if A:GetEventSettingByShort(event, "spell_selection") == true then
 		O:AttachHeader(container, "Spell/Aura settings")
@@ -43,7 +43,7 @@ function O:DrawAlertDetails(container, event, db)
 	-- display settings
 	if A:GetEventSettingByShort(event, "display_settings") == true then
 		O:AttachHeader(container, "Display settings")
-		O:AttachCheckBox(container, "Show progress bar", db.show_bar, 150)
+		O:AttachCheckBox(container, "Show progress bar", db, "show_bar", 150)
 	end
 	-- announce settings
 	O:AttachHeader(container, "Chat announcements, Addon messages, AlertMe Text")
@@ -69,7 +69,7 @@ function O:DrawAlertDetails(container, event, db)
 		local whisper_destination = {[1] = "Don't whisper", [2] = "Whisper if spell is cast by me",  [3] = "Whisper"}
 		O:AttachDropdown(container, "Whisper destination unit (if friendly)", db, "whisper_destination", whisper_destination, 200)
 	end
-	local scrolling_text_cb = O:AttachCheckBox(container, "Post messages in AlertMe's scrolling text frame", db.scrolling_text, 300)
+	local scrolling_text_cb = O:AttachCheckBox(container, "Post messages in scrolling text frame", db ,"scrolling_text", 350)
 	scrolling_text_cb:SetCallback("OnEnter", function(widget)
 		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")

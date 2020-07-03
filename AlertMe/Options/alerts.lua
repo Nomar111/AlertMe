@@ -111,7 +111,7 @@ end
 
 function O:AttachAlertSettingCheckBox(container, name, db, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
-	local uid = db["selected_alert"]
+	local uid = db["alert_dd_value"]
 	if uid ~= nil then
 		control:SetValue(db.alert_details[uid][key])
 		control:SetDisabled(false)

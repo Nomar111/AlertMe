@@ -14,22 +14,18 @@ D.profile = {
 			["*"] = true,
 		},
 		scrolling_text = {
-			use = true,
-			width = 400,
-			height = 42,
-			align = "CENTER",
+			enabled = true,
+			width = 600,
+			align = 1,
 			fading = true,
 			point = "CENTER",
 			point_x = 0,
-			point_y = -130,
-			maxlines = 200,
+			point_y = -150,
+			maxlines = 300,
+			visible_lines = 3,
+			font_size = 13,
 			timevisible = 10,
-			bg_aplpha = 0.1
-			-- --aura_env.scrollframe:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE, MONOCHROME")
-		    --font = ("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Regular.ttf", 14)
-			    -- --aura_env.scrollframe:SetFontObject("GameFontWhite")
-			    -- f:SetMaxLines(200)
-
+			alpha = 0.1
 		},
 		test = false,
 	},
