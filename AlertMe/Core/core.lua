@@ -16,6 +16,13 @@ A.Events = {
 		options_display = true,
 		options_name = "On aura gain or refresh",
 		options_order = 1,
+		spell_aura = "Aura",
+		spell_selection = true,
+		unit_selection = true,
+		source_units = true,
+		target_units = true,
+		display_settings = true,
+		whisper_destination = true,
 	},
 	["SPELL_AURA_REFRESH"] = {
 		short = "gain",
@@ -30,23 +37,59 @@ A.Events = {
 		options_display = true,
 		options_name = "On dispel",
 		options_order = 2,
+		spell_aura = "Spell",
+		spell_selection = true,
+		unit_selection = true,
+		source_units = true,
+		target_units = true,
+		display_settings = false,
+		whisper_destination = false,
 	},
 	["SPELL_CAST_START"] = {
 		short = "start",
 		options_display = true,
 		options_name = "On cast start",
 		options_order = 3,
+		spell_aura = "Spell",
+		spell_selection = true,
+		unit_selection = true,
+		source_units = true,
+		display_settings = true,
+		whisper_destination = false,
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		short = "success",
 		options_display = true,
 		options_name = "On cast success",
 		options_order = 4,
+		spell_aura = "Spell",
+		spell_selection = true,
+		unit_selection = true,
+		source_units = true,
+		target_units = true,
+		display_settings = false,
+		whisper_destination = true,
 	},
 	["SPELL_INTERRUPT"] = {
 		short = "interrupt",
 		options_display = true,
 		options_name = "On interrupt",
 		options_order = 5,
+		spell_aura = "Spell",
+		spell_selection = false,
+		unit_selection = true,
+		source_units = true,
+		target_units = true,
+		display_settings = false,
+		whisper_destination = false,
 	},
 }
+
+function A:GetEventSettingByShort(short, setting)
+	for i,v in pairs(A.Events) do
+		--dprint(1, v.short, "short", short)
+		if v.short == short and v[setting] ~= nil then
+			return v[setting]
+		end
+	end
+end

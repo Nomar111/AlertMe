@@ -1,172 +1,136 @@
 dprint(2, "alerts.lua")
 -- upvalues
-local _G = _G
-local dprint, tinsert, pairs, GetTime, time, date, tostring = dprint, table.insert, pairs, GetTime, time, date, tostring
-local type, unpack = type, unpack
+local _G, dprint, type, unpack, pairs, time, tostring, xpcall = _G, dprint, type, unpack, pairs, time, tostring, xpcall
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
--- creates sub-entries for each event ** alerts - dispel
-function O:CreateAlertOptions(o)
-	-- loop over events that need to be displayed
-	for _, tbl in pairs(A.Events) do
-		if tbl.options_display ~= nil and tbl.options_display == true then
-			O:DrawAlertOptions(o, tbl.short, tbl.options_name, tbl.options_order)
+-- creates the general options tab
+function O:DrawAlertsOptions(container, event_short)
+	dprint(1, "O:DrawAlertsOptions", event_short)
+	VDT_AddData(container, "alerts")
+	container:ReleaseChildren()
+	-- set db to db for this event
+	local db = P.alerts[event_short]
+	-- alerts dropdown
+	local label = "Alerts - "..A:GetEventSettingByShort(event_short, "options_name")
+	O.alert_dropdown = O:AttachDropdown(container, label, db, "alert_dd_value", db.alert_dd_list, 270)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- add alert
+	local icon_add = O:AttachIcon(container, "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga", 18)
+	icon_add:SetCallback("OnClick", function(widget, event, value)
+		local uid = tostring(time()) -- create uid (time)
+		O.alert_dropdown:AddItem(uid, "New alert") -- add new entry to the dropdown list (automatically saved in db)
+		O.alert_dropdown:SetList(O.alert_dropdown.list)
+		O.alert_dropdown:SetValue(uid) -- set dropdown to new value
+		db.alert_details[uid].dummy = 5 -- create entry in alert_details db
+		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
+	end)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- delete alert
+	local icon_delete = O:AttachIcon(container, "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga", 18)
+	icon_delete:SetCallback("OnClick", function()
+		--dprint(1,"O:DeleteAlert", widget, event, button)
+		local uid = db["alert_dd_value"]
+		if O.alert_dropdown.list[uid] ~= nil and O.alert_dropdown.list[uid] ~= "" then
+			O.alert_dropdown.list[uid] = nil
+			O.alert_dropdown:SetList(O.alert_dropdown.list)
+			local new_uid = O:GetLastAlert(O.alert_dropdown.list) -- get another uid
+			O.alert_dropdown:SetValue(new_uid) -- and set it in dd
+			O.alert_dropdown:Fire("OnValueChanged", new_uid) -- fire onchanged to save in db
 		end
-	end
-end
-
-function O:DrawAlertOptions(o, event, name, order)	--O.options.args.alerts_main.args
-	-- create groups for each display event * handle = gain, dispel....
-	o[event] = O:CreateGroup(name, nil, order)
-	-- add alert control widgets
-	O:AttachAlertControl(o[event].args, name)
-	-- create group for alert settings
-	o[event].args.alert_settings = O:CreateGroup("", nil, 50)
-	o[event].args.alert_settings.inline = true
-	o[event].args.alert_settings.get = "GetAlertSetting"
-	o[event].args.alert_settings.set = "SetAlertSetting"
-	o[event].args.alert_settings.disabled = "DisableAlertSettings"
-	O:AttachAlertSettings(o[event].args.alert_settings.args)
-end
-
-function O:AttachAlertControl(o, name)	-- O.options.args.alerts_main.args.handle.args
-	o.header = O:CreateHeader(name, nil, order)
-	o.select_alert = {
-		type = "select",
-		name = "Alert",
-		desc = "Select alert",
-		style = "dropdown",
-		order = 2,
-		width = 1.7,
-		values = "GetAlerts",
-		get = "GetSelectedAlert",
-		set = "SetSelectedAlert"
-
-	}
-	o.spacer1 = O:CreateSpacer(3, 0.7)
-	o.reset_alert = {
-		type = "execute",
-		name = "Reset",
-		desc = "current selection",
-		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\reset.tga",
-		imageWidth = 18,
-		imageHeight = 18,
-		width = O:GetWidth(18),
-		func = function(info) dprint(1, "reset") end,
-		order = 4,
-		confirm = true,
-		confirmText = "Do you really want to reset this alert?",
-		dialogControl = "WeakAurasIcon",
-	}
-	o.spacer2 = O:CreateSpacer(5, 0.5)
-	o.add_alert = {
-		type = "execute",
-		name = "Create",
-		desc = "a new alert",
-		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga",
-		imageWidth = 18,
-		imageHeight = 18,
-		width = O:GetWidth(18),
-		func = "CreateAlert",
-		order = 6,
-		dialogControl = "WeakAurasIcon",
-	}
-	o.spacer3 = O:CreateSpacer(7, 0.4)
-	o.delete_alert = {
-		type = "execute",
-		name = "Delete",
-		desc = "current selection",
-		image = "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga",
-		imageWidth = 18,
-		imageHeight = 18,
-		width = O:GetWidth(18),
-		func = "DeleteAlert",
-		order = 8,
-		confirm = true,
-		confirmText = "Do you really want to delete this alert?",
-		dialogControl = "WeakAurasIcon",
-	}
-	o.spacer4 = O:CreateSpacer(9, 0.4)
-	o.name = {
-		type = "input",
-		name = "Alert name",
-		order = 10,
-		width = 1.5,
-		get = "GetAlertSetting",
-		set = "SetAlertSetting",
-		disabled = "DisableAlertSettings",
-	}
-	o.active = {
-		type = "toggle",
-		name = "Active?",
-		width = 0.5,
-		order = 11,
-		get = "GetAlertSetting",
-		set = "SetAlertSetting",
-		disabled = "DisableAlertSettings",
-	}
-end
-
-function O:GetAlerts(info)
-	local event = info[O.elvl]
-	local values = {}
-	-- loop over events table
-	for uid, set in pairs(P.alerts_db[event].alerts) do
-		values[uid] = set.name
-	end
-	return values
-end
-
-function O:CreateAlert(info)
-	local event = info[O.elvl]
-	-- create new entry in alert_settings
-	local uid = tostring(time())
-	P.alerts_db[event].alerts[uid] = {}--name = "New Alert", active = true} --..date("%m/%d/%y %H:%M:%S")
-	-- set the dropwdown to the new element
-	P.alerts_db[event].select_alert = uid
-end
-
-function O:DeleteAlert(info)
-	dprint(1, "delete", unpack(info))
-	local event = info[O.elvl]
-	local uid = P.alerts_db[event].select_alert
-	-- if nothing is selected in dropwdown, abort
-	if uid == nil then return end
-	P.alerts_db[event].select_alert = nil
-	P.alerts_db[event].alerts[uid] = nil
-	local someuid = O:GetAnyValidAlert(P.alerts_db[event].alerts)
-	if someuid ~= nil then
-		P.alerts_db[event].select_alert = someuid
-	end
-end
-
-function O:GetSelectedAlert(info)
-	--dprint(1,unpack(info))
-	local event = info[O.elvl]
-	local selection = P.alerts_db[event].select_alert
-	-- if selection is nil or doesnt exists in the alerts table try to get another one
-	if selection == nil or P.alerts_db[event].alerts[selection] == nil then
-		return O:GetAnyValidAlert(P.alerts_db[event].alerts)
+		if db.alert_details[uid] ~= nil then db.alert_details[uid] = nil end -- delete alert details also
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
+	end)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- editbox for alertname
+	O.alert_name = O:AttachEditBox(container, "Name of the selected alert", O.alert_dropdown.list, O.alert_dropdown.value, 250)
+	-- spacer
+	O:AttachSpacer(container, 10)
+	-- active checkbox
+	O.alert_active = O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
+	-- set callbacks for dropdown now that all controls exist
+	O.alert_dropdown:SetCallback("OnValueChanged", function(widget, event, value)
+		local uid = value
+		db["alert_dd_value"] = uid
+		O.alert_name:SetText(O.alert_dropdown.list[uid])
+		O.alert_active:SetValue(db.alert_details[uid].active)
+		if uid == "" then
+			O.alert_name:SetDisabled(true)
+			O.alert_active:SetDisabled(true)
+		else
+			O.alert_name:SetDisabled(false)
+			O.alert_active:SetDisabled(false)
+		end
+		-- alert details
+		O:DrawAlertDetails(O.alert_details, event_short, db)
+	end)
+	-- callback for editbox
+	O.alert_name:SetCallback("OnEnterPressed", function(widget, event, text)
+		O.alert_dropdown.list[O.alert_dropdown.value] = text
+		O.alert_dropdown:SetList(O.alert_dropdown.list)
+		O.alert_dropdown:SetText(text)
+	end)
+	if O.alert_dropdown.value == nil or O.alert_dropdown.value == "" then
+		O.alert_name:SetDisabled(true)
+		O.alert_active:SetDisabled(true)
 	else
-		return selection
+		O.alert_name:SetDisabled(false)
+		O.alert_active:SetDisabled(false)
 	end
+	-- create details group
+	O.alert_details = O:AttachGroup(container, "", false)
+	-- draw alert details
+	O:DrawAlertDetails(O.alert_details, event_short, db)
 end
 
-function O:SetSelectedAlert(info, val)
-	local event = info[O.elvl]
-	P.alerts_db[event].select_alert = val
+function O:GetLastAlert(list)
+	local last_uid = ""
+	for uid, v in pairs(list) do
+		last_uid = uid
+	end
+	return last_uid
 end
 
-function O:GetAnyValidAlert(alerts)
-	-- set the dropdown to the first found alert (if there is one left)
-	n, t = pairs(alerts)
-	local someuid,_ = n(t)
-	return someuid
+function O:AttachEditBox(container, label, path, key, width)
+	local edit = A.Libs.AceGUI:Create("EditBox")
+	edit:SetLabel(label)
+	if width ~= nil then edit:SetWidth(width) end
+	edit:SetText(path[key])
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
+	container:AddChild(edit)
+	return edit
 end
 
-function O:GetWidth(pixel)
-	return (1/170*pixel)
+function O:AttachAlertSettingCheckBox(container, name, db, key, width)
+	local control = A.Libs.AceGUI:Create("CheckBox")
+	local uid = db["selected_alert"]
+	if uid ~= nil then
+		control:SetValue(db.alert_details[uid][key])
+		control:SetDisabled(false)
+	else
+		control:SetDisabled(true)
+	end
+	control:SetUserData("db", db)
+	control:SetUserData("key", key)
+	control:SetCallback("OnValueChanged", function(widget, event) O:AlertSettingCheckBoxOnChange(widget, event) end)
+	control:SetLabel(name)
+	if width then control:SetWidth(width) end
+	container:AddChild(control)
+	return control
+
+end
+
+function O:AlertSettingCheckBoxOnChange(widget, event)
+	local db = widget:GetUserData("db")
+	local key = widget:GetUserData("key")
+	local uid = db["alert_dd_value"]
+	db.alert_details[uid][key] = widget.checked
 end

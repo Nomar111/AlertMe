@@ -1,212 +1,270 @@
 dprint(2, "options.lua")
 -- upvalues
-local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack
+local _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, tcopy, strsplit = _G, dprint, FCF_GetNumActiveChatFrames, type, unpack, pairs, print, table.copy, strsplit
+local GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall
 -- get engine environment
 local A, _, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 -- (re)set some variables
-O.options = nil
-O.order = 1
-O.elvl = 2 -- That's the level functions assume the events to be
+O.config = {}
 
 -- *************************************************************************************
 -- open the options window
-function O:OpenOptions(tab)
+function O:OpenOptions()
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
-	if O.Frame == nil then
-		O.Frame = A.Libs.AceGUI:Create("Frame")
-		O.Frame:SetTitle("AlertMe Options")
-		--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
-		O.Frame:EnableResize(true)
-		O.Frame:SetLayout("Flow")
-		O.Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget)	end)
-	else
-		O.Frame:Show()
-	end
-	-- create options table
-	O:CreateOptions()
-	-- register options table and assign to frame
-	A.Libs.AceConfig:RegisterOptionsTable("AlertMeOptions", O.options)
-	A.Libs.AceConfigDialog:SetDefaultSize("AlertMeOptions", 950, 680)
-	-- open the options window at a certainn group/tab
-	if tab == nil then tab = "general" end
-	A.Libs.AceConfigDialog:SelectGroup("AlertMeOptions", tab)
-	A.Libs.AceConfigDialog:Open("AlertMeOptions", O.Frame)
+	O.Frame = A.Libs.AceGUI:Create("Frame")
+	O.Frame:SetTitle("AlertMe Options")
+	--Frame:SetStatusText("Version: "..ADDON_VERSION.." created by "..ADDON_AUTHOR)
+	O.Frame:EnableResize(true)
+	O.Frame:SetLayout("Flow")
+	O.Frame:SetCallback("OnClose", function(widget) A.Libs.AceGUI:Release(widget) end)
+	O.Frame:SetWidth(900)
+	O.Frame:SetHeight(650)
+	VDT_AddData(O.Frame, "OptionsFrame")
+	-- create navigation
+	O:CreateNavTree(O.Frame)
 end
 
 -- *************************************************************************************
--- creates the options table
-function O:CreateOptions()
-	dprint(2, "O:CreateOptions")
-	-- if table was already initialized, abort
-	if O.options ~= nil then
-		dprint(1, "options table not nil!")
-		return
+-- creates navigation tree
+function O:CreateNavTree(container)
+	dprint(2, "O:CreateNavTree")
+	-- function to draw the groupd
+	local tree_structure = {}
+	tree_structure[1] = {value = "general", text = "General"}
+	tree_structure[2] = {value = "events", text = "Events"}
+	tree_structure[3] = {value = "alerts", text = "Alerts", children = {}}
+	tree_structure[4] = {value = "profiles", text = "Profiles"}
+	tree_structure[5] = {value = "info", text = "Info"}
+	-- loop over events and add them as children of alerts
+	for _, tbl in pairs(A.Events) do
+		if tbl.options_display ~= nil and tbl.options_display == true then
+			tree_structure[3].children[tbl.options_order]  = {
+				value = tbl.short,
+				text = tbl.options_name
+			}
+		end
 	end
-	-- create first and second level (main tabs) here
-	O.options = O:CreateGroup("AlertMeOptions", "", 1, "tree")
-	-- set handler and standard get/set functions
-	O.options.handler = O
-	O.options.get = "GetOption"
-	O.options.set = "SetOption"
-	VDT_AddData(O.options, "options")
-	-- second level
-	O.options.args.general = O:CreateGroup("General", "", 1)
-	O.options.args.events = O:CreateGroup("Event")
-	O.options.args.alerts = O:CreateGroup("Alerts", "Create your alerts")
-	O.options.args.profiles = O:CreateGroup("Profiles")
-	O.options.args.info = O:CreateGroup("Info")
-	-- general_main
-	O:CreateGeneralOptions(O.options.args.general.args)
-	-- profiles
-	O:CreateProfileOptions()
-	-- info
-	O:CreateInfoOptions(O.options.args.info.args)
-	-- alerts
-	O:CreateAlertOptions(O.options.args.alerts.args)
+	-- create the tree group
+	local tree = A.Libs.AceGUI:Create("TreeGroup")
+	tree:EnableButtonTooltips(false)
+	tree.width = "fill"
+	tree.height = "fill"
+	tree:SetTree(tree_structure)
 
+	-- callbacks
+	local function GroupSelected(widget, event, uniquevalue)
+		-- delete whatever is shown on the right side
+		widget:ReleaseChildren()
+		if O.scrollTable ~= nil then O.scrollTable:Hide() end
+		-- create new content container
+		local content_group = A.Libs.AceGUI:Create("SimpleGroup")
+		content_group:SetLayout("Flow")
+		content_group.width = "fill"
+		widget:AddChild(content_group)
+		-- call function to draw the various settings  on the right
+		O:DrawOptions(content_group, uniquevalue)
+	end
+	tree:SetCallback("OnGroupSelected", GroupSelected)
+	container:AddChild(tree)
+end
+
+function O:DrawOptions(container, uniquevalue)
+	dprint(2, "clicked on", uniquevalue)
+	local delim = "\001"
+	local lvl1, lvl2 = strsplit(delim, uniquevalue)
+	if lvl1 == "profiles" then O:DrawProfileOptions(container)
+		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
+		elseif lvl1 == "info" then O:DrawInfoOptions(container)
+		--elseif lvl1 == "events" then O:DrawTest(container)
+		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
+	end
 end
 
 -- creates the general options tab
-function O:CreateGeneralOptions(o)
-	-- some local tables for populating dropdowns etc.
-	local zone_types = {bg = "Battlegrounds", world = "World", raid = "Raid Instances"}
+function O:DrawGeneralOptions(container)
+	dprint(2, "O:DrawGeneralOptions")
+	--VDT_AddData(container, "General")
 	-- header
-	o.header = O:CreateHeader("General Options")
-	-- zones multi
-	o.zones = {
-		type = 'multiselect',
-		name = "Addon is enabled in",
-		order = 1,
-		values = zone_types,
-	}
-	-- chat frames multi
-	o.chat_frames = {
-		type = 'multiselect',
-		name = "Display addon messages in the following chat windows",
-		order = 10,
-		values = O:GetChatFrameInfo(),
-	}
-	o.test = {
-		type = "toggle",
-		name = "test",
-		order = 99,
-	}
-end
-
--- creates the info tab
-function O:CreateInfoOptions(o)
-	o.header = O:CreateHeader("Addon Info")
-	o.addonInfo = {
-		type = "description",
-		name = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR,
-		fontSize = "medium",
-		order = 2
-	}
-end
-
--- creates / refreshes the profiles tab
-function O:CreateProfileOptions()
-	-- check if options table is initialized - this function may get called by other functions too
-	if not O.options then return end
-	-- get options table and override order
-	O.options.args.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	O.options.args.profiles.order = 4
-end
-
--- return a table reference and key from info
-function O:GetInfoPath(info, relative, num)
-	--dprint(1, unpack(info))
-	--dprint(1, "rel", relative, "num", num)
-	local count = num
-	if relative == true then count = (#info + num) end
-	local path = P
-	-- loop until lvl
-	for i = 1, count do
-		dprint(1, info[i])
-		path = path[info[i]]
-	end
-	--dprint(1, "ofs", num, "returned path", path)
-	return path
-end
-
--- standard get
-function O:GetOption(info, key)
-	--dprint(1, "GetOption", "key", key, unpack(info))
-	local offset = 0
-	-- get parent object
-	if key == nil then
-		key = info[#info]
-		offset = -1
-	end
-	local parent = O:GetInfoPath(info, true, offset)
-	return parent[key]
-end
-
--- standard set
-function O:SetOption(info, arg2, value)
-	--dprint(1, "SetOption", unpack(info))
-	local offset = 0
-	-- get parent object
-	if value == nil then
-		key = info[#info]
-		offset = -1
-		value = arg2
-	else
-		key = arg2
-	end
-	local parent = O:GetInfoPath(info, true, offset)
-	parent[key] = value
-end
-
--- create standard header
-function O:CreateHeader(name, order)
-	local header = {
-		type = "header",
-		name = name,
-		order = (order ~= nil) and order or 1,
-	}
-	return header
-end
-
--- create standard groups with order
-function O:CreateGroup(name, desc, order, childGroups)
-	-- increase order numbers automatically if not provided
-	if order == nil then
-		order = O.order
-	end
-	local group = {
-		type = "group",
-		name = name,
-		desc = desc,
-		childGroups = childGroups,
-		order = order,
-		args = {}
-	}
-	O.order = order + 1
-	return group
-end
-
-function O:CreateSpacer(order, width)
-	local spacer = {
-		name = '',
-		type = 'description',
-		order = order,
-		cmdHidden = true,
-		width = width/10,
-	}
-	return spacer
-end
-
-function O:GetChatFrameInfo()
-	local chat_frames = {}
+	O:AttachHeader(container, "General Settings")
+	-- zones
+	local zones = O:AttachGroup(container, "Addon is enabled in", true)
+	local cb1 = O:AttachCheckBox(zones, "Battlegrounds", P.general.zones.bg, 150)
+	local cb2 = O:AttachCheckBox(zones, "World", P.general.zones.world)
+	-- chat frames
+	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat windows", true)
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
-			chat_frames["ChatFrame"..i] = name
+			O:AttachCheckBox(chat_frames, name, P.general.chat_frames["ChatFrame"..i], 150)
 		end
 	end
-	return chat_frames
+	O:AttachCheckBox(container, "Test", P.general.test)
+	-- -- initScrollingText
+	--
+    -- -- check for options
+    -- if aura_env.config.createScrollingText == false then return end
+    -- -- create Frame
+    -- if not _G["PVPMONScrollingText"] then
+    --     _G["PVPMONScrollingText"] = CreateFrame("ScrollingMessageFrame", "PVPMONScrollingText", UIParent)
+    -- end
+    -- local f = _G["PVPMONScrollingText"]
+    -- if not f:IsVisible() then f:Show() end
+    -- f:SetWidth(400)
+    -- f:SetHeight(42)
+    -- f:SetJustifyH("CENTER")
+    -- f:SetFading(true)
+    -- f:SetPoint("CENTER", 0, -130)
+    -- f:SetFrameStrata("LOW")
+    -- --aura_env.scrollframe:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE, MONOCHROME")
+    -- --f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Bold.ttf", 13)
+    -- f:SetFont("Interface\\AddOns\\SharedMedia\\Fonts\\Roboto_Condensed\\RobotoCondensed-Regular.ttf", 14)
+    -- --aura_env.scrollframe:SetFontObject("GameFontWhite")
+    -- f:SetMaxLines(200)
+    -- --f:EnableMouse(true)
+    -- --f:EnableMouseWheel(true)
+    -- --f:SetMovable(true)
+    -- --f:RegisterForDrag("LeftButton")
+    -- --f:SetScript("OnDragStart", f.StartMoving)
+    -- --f:SetScript("OnDragStop", f.StopMovingOrSizing)
+    -- --f:SetScript("OnMouseUp", function (self, button)
+    -- --       if button == "RightButton" then self:Hide() end
+    -- --end)
+    -- f:SetTimeVisible(10)
+	--
+    -- --f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true,tileSize=32,edgeSize=32,insets={left=0,right=0,top=0,bottom=0}})
+    -- --f:SetBackdropColor(0, 0, 0, 0.1)
+    -- --f:SetScript("OnMouseWheel", function(self, delta)
+    -- --      if delta == 1 then
+    -- --        self:ScrollUp()
+    -- --  elseif delta == -1 then
+    -- --    self:ScrollDown()
+    -- -- end
+    -- --end)
+    -- table.insert(aura_env.chatFrames, _G["PVPMONScrollingText"])
+
+end
+
+-- creates the info tab
+function O:DrawInfoOptions(container)
+	O:AttachHeader(container, "Addon Info")
+	local text = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR
+	local description = O:AttachLabel(container, text, GameFontHighlight)
+end
+
+-- creates / refreshes the profiles tab
+function O:DrawProfileOptions(container)
+	dprint(2, "O:CreateProfileOptions", container)
+	-- get options table and override order
+	O.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	-- register options table and assign to frame
+	A.Libs.AceConfig:RegisterOptionsTable("AlertMeProfile", O.config.profiles)
+	A.Libs.AceConfigDialog:Open("AlertMeProfile", container)
+end
+
+--*******************************************************************************************************************************************
+-- helper function for AceGUI
+function O:AttachHeader(container, text)
+	local header = A.Libs.AceGUI:Create("Heading")
+	header:SetText(text)
+	header.width = "fill"
+	container:AddChild(header)
+	return header
+end
+
+function O:AttachGroup(container, title, inline)
+	local group = {}
+	if inline == true then
+		group = A.Libs.AceGUI:Create("InlineGroup")
+		group:SetTitle(title)
+	else
+		group = A.Libs.AceGUI:Create("SimpleGroup")
+	end
+	group:SetRelativeWidth(1)
+	group:SetLayout("Flow")
+	container:AddChild(group)
+	return group
+end
+
+function O:AttachLabel(container, text, font_object, color, relative_width)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relative_width or 1)
+	if font_object == nil then font_object = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(font_object)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
+end
+
+function O:AttachInteractiveLabel(container, text, font_object, color, relative_width)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relative_width or 1)
+	if font_object == nil then font_object = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(font_object)
+	--label:SetHighlight(0.7,0.7,0.7,1)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
+end
+
+function O:AttachSpacer(container, width)
+	local control = A.Libs.AceGUI:Create("InteractiveLabel")
+	control:SetText("")
+	control:SetWidth(width)
+	container:AddChild(control)
+	return control
+end
+
+function O:AttachCheckBox(container, label, db, width)
+	local control = A.Libs.AceGUI:Create("CheckBox")
+	control:SetValue(db)
+	control:SetCallback("OnValueChanged", function(widget, event, value) db = value end)
+	control:SetLabel(label)
+	if width then control:SetWidth(width) end
+	container:AddChild(control)
+	return control
+end
+
+function O:AttachDropdown(container, label, db, key, list, width)
+	local dropdown = A.Libs.AceGUI:Create("Dropdown")
+	dropdown:SetLabel(label)
+	dropdown:SetMultiselect(false)
+	dropdown:SetWidth(width)
+	dropdown:SetList(list)
+	dropdown:SetValue(db[key])
+	dropdown:SetCallback("OnValueChanged", function(_, _, value) db[key] = value end)
+	container:AddChild(dropdown)
+	return dropdown
+end
+
+function O:AttachIcon(container, image, size)
+	local icon = A.Libs.AceGUI:Create("Icon")
+	icon:SetImage(image)
+	icon:SetImageSize(size, size)
+	icon:SetWidth(size)
+	container:AddChild(icon)
+	return icon
+end
+
+function O:AttachMultiLineEditBox(container, path, key, label, lines)
+	local edit = A.Libs.AceGUI:Create("MultiLineEditBox")
+	edit:SetLabel(label)
+	edit:SetNumLines(lines)
+	edit:SetRelativeWidth(1)
+	edit:SetText(path[key])
+	edit:SetUserData("path", path)
+	edit:SetUserData("key", key)
+	edit:SetCallback("OnEnterPressed", function(widget, text) O:MultiLineEditBoxOnEnter(widget, text) end)
+	container:AddChild(edit)
+	return edit
+end
+
+function O:MultiLineEditBoxOnEnter(widget, text)
+	local path = widget:GetUserData("path")
+	local key = widget:GetUserData("key")
+	path[key] = widget:GetText()
 end

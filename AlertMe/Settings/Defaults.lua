@@ -13,36 +13,39 @@ D.profile = {
 		chat_frames ={
 			["*"] = true,
 		},
-		test = true,
+		test = false,
 	},
-	alerts_db = {
-		gain = {
-			alerts = {
-				["*"] = {
-					name = "New gain alert",
-					active = "false",
-					src_units = 5,
-					src_units_exclude = 1,
-					dst_units = 5,
-					dst_units_exclude = 1,
+	alerts = {
+		["**"] = {
+			alert_dd_value = "",
+			alert_dd_list = {},
+			alert_details = {
+				['*'] = {
+					active = true,
+					spells = {
+						['*'] = {
+							icon = "",
+							sound = "",
+						}
+					},
+					source_units = 5,
+					source_exclude = 1,
+					target_units = 5,
+					target_exclude = 1,
+					dummy = 1,
+					show_bar = true,
+					chat_channels = 1,
+					system_messages = 2,
+					whisper_destination = 1,
+					scrolling_text = true,
+					sound_selection = 1,
+					sound_file = "",
 				},
-			}
-		},
-		dispel = {
-			alerts = {
-			}
-		},
-		start = {
-			alerts = {
-			}
-		},
-		success = {
-			alerts = {
-			}
-		},
-		interrupt = {
-			alerts = {
-			}
+			},
 		},
 	},
+	events = {
+		dd_value = 3,
+		dd_items = {[1] = "Eins", [2] = "Zwei"},
+	}
 }
