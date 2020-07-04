@@ -31,13 +31,13 @@ function O:DrawAlertDetails(container, event, db)
 		local units_list = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself"}
 		local exclude_list = {[1] = "---", [2] = "Myself", [3] = "Target"}
 		if A:GetEventSettingByShort(event, "source_units") == true then
-			O:AttachDropdown(container, "Source units", db, "source_units", units_list, 160)
-			O:AttachDropdown(container, "excluding", db, "source_exclude", exclude_list, 100)
+			O:AttachDropdown(container, "Source units", db, "srcUnits", units_list, 160)
+			O:AttachDropdown(container, "excluding", db, "srcExclude", exclude_list, 100)
 		end
 		if A:GetEventSettingByShort(event, "target_units") == true then
 			O:AttachSpacer(container, 80)
-			O:AttachDropdown(container, "Target units", db, "target_units", units_list, 160)
-			O:AttachDropdown(container, "excluding", db, "target_exclude", exclude_list, 100)
+			O:AttachDropdown(container, "Target units", db, "dstUnits", units_list, 160)
+			O:AttachDropdown(container, "excluding", db, "dstExclude", exclude_list, 100)
 		end
 	end
 	-- display settings

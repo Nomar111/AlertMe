@@ -21,14 +21,26 @@ A.Events = {
 		target_units = true,
 		display_settings = true,
 		whisper_destination = true,
+		optionalArgs = {"auraType"},
+		relSpellName = "spellName",
+		checkedUnits = {"src","dst"},
+		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
 	["SPELL_AURA_REFRESH"] = {
 		short = "gain",
 		options_display = false,
+		optionalArgs = {"auraType"},
+		relSpellName = "spellName",
+		checkedUnits = {"src","dst"},
+		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
 	["SPELL_AURA_REMOVED"] = {
 		short = "removed",
 		options_display = false,
+		optionalArgs = {"auraType"},
+		relSpellName = "spellName",
+		checkedUnits = {},
+		--actions = {A:HideBar()},
 	},
 	["SPELL_DISPEL"] = {
 		short = "dispel",
@@ -42,6 +54,10 @@ A.Events = {
 		target_units = true,
 		display_settings = false,
 		whisper_destination = false,
+		optionalArgs = {"extraSpellId","extraSpellName","extraSchool","auraType"},
+		relSpellName = "extraSpellName",
+		checkedUnits = {"src","dst"},
+		--actions = {A:ChatAnnounce(), A:PlaySound(), A:HideAuraBar()},
 	},
 	["SPELL_CAST_START"] = {
 		short = "start",
@@ -54,6 +70,9 @@ A.Events = {
 		source_units = true,
 		display_settings = true,
 		whisper_destination = false,
+		relSpellName = "spellName",
+		checkedUnits = {"src"},
+		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowCastBar()},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		short = "success",
@@ -67,6 +86,9 @@ A.Events = {
 		target_units = true,
 		display_settings = false,
 		whisper_destination = true,
+		relSpellName = "spellName",
+		checkedUnits = {"src","dst"},
+		--actions = {A:ChatAnnounce(), A:PlaySound()},
 	},
 	["SPELL_INTERRUPT"] = {
 		short = "interrupt",
@@ -80,6 +102,10 @@ A.Events = {
 		target_units = true,
 		display_settings = false,
 		whisper_destination = false,
+		optionalArgs = {"extraSpellId","extraSpellName","extraSchool"},
+		relSpellName = "spellName",
+		checkedUnits = {"src","dst"},
+		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
 	},
 }
 

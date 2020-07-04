@@ -1,6 +1,7 @@
 dprint(3,"core.lua")
 -- upvalues
-local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo
+local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, tinsert, UnitGUID, bit = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, table.insert, UnitGUID, bit
+local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -17,13 +18,136 @@ function A:Initialize()
 end
 
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
-	-- Assign all the data from current event
-	local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags,
-	destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool,
-	arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24  = CombatLogGetCurrentEventInfo()
-	if A.Events[subevent] then
-		dprint(1, timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24)
+	local arg = {}
+	arg = {CombatLogGetCurrentEventInfo()}
+	VDT_AddData(arg,"arg")
+	local ti = {
+	    ts = arg[1],
+	    event = arg[2],
+	    srcGUID = arg[4],
+	    srcName = arg[5],
+	    srcFlags = arg[6],
+	    dstGUID = arg[8],
+	    dstName = arg[9],
+	    dstFlags = arg[10],
+	    spellName = arg[13],
+	    spellSchool = arg[14]
+	}
+	--dprint(1,ti.event)
+	-- check if trigger event exists in events table, if not abort
+    local eventInfo = A.Events[ti.event]
+    if eventInfo == nil then return end
+    -- get optional arguments if there are any
+    if eventInfo.optionalArgs then
+        for i,v in pairs(eventInfo.optionalArgs) do
+            ti[v] = arg[i+14]
+        end
+    end
+	VDT_AddData(ti,"ti")
+    -- set relevant spell name
+    ti.relSpellName = ti[A.Events[ti.event].relSpellName]
+    -- call processTriggerInfo
+    A:ProcessTriggerInfo(ti, eventInfo)
+end
+
+function A:ProcessTriggerInfo(ti, eventInfo)
+	 -- get spell options for the processed spell
+	local spellOptions = {}
+    if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
+		dprint(1, "No combination found in options for ", ti.relSpellName, eventInfo.short)
+		return
+	else
+		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
 	end
+	--VDT_AddData(spellOptions,"spellOptions")
+    -- create table of relevant alert settings
+    local alerts = {}
+    for uid, tbl in pairs(spellOptions) do
+        tinsert(alerts, tbl.options)
+    end
+	--VDT_AddData(relevantAlerts,"relevantAlerts")
+    -- check units
+    alerts = A:CheckUnits(ti, alerts, eventInfo)
+	VDT_AddData(alerts,"alerts")
+    if alerts == nil then
+		dprint(2, "Unit checks failed for", ti.spellName, ti.event, ti.srcName, ti.dstName)
+		return
+	end
+    -- do the specified actions for this event
+    for _, action in pairs(eventInfo.actions) do
+         action(ti, alerts, eventInfo)
+    end
+end
+
+
+-- checkUnits: check source, destination units of trigger event vs. relevant options
+function A:CheckUnits(ti, alerts_in, eventInfo)
+    -- set some local variables
+    local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
+    -- create return table
+    local alerts_out = {}
+    -- loop over the option groups
+    for _, alert in pairs(alerts_in) do
+        -- variable to hold the check result for this og
+        local checkFailed = false
+        -- do the relevant checks (src, dst)
+        for _, pre in pairs (eventInfo.checkedUnits) do
+            -- set local variables
+            local name, GUID, flags = ti[pre.."Name"], ti[pre.."GUID"], ti[pre.."Flags"]
+            local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
+            local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
+            local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
+            local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
+            local isPlayer = (GUID == playerGUID)
+            local isTarget = (GUID == targetGUID)
+			-- write some useful info into ti for later use
+            ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
+            -- player controlled check
+            if not playerControlled then
+                dprint(2, pre, "unit not player controlled")
+                checkFailed = true
+                break
+            end
+            -- exclude check -- 1 = none, 2 = tmyself, 3 = target
+            if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
+                dprint(2, pre, "exclude check failed for", alert.name)
+                checkFailed = true
+                break
+            end
+            -- do other checks
+            if units == 4 then -- target check
+                if not isTarget then
+                    dprint(2, pre, "target check failed for", alert.name)
+                    checkFailed = true
+                    break
+                end
+            elseif units == 5 then  -- player check
+                if not isPlayer then
+                    dprint(2, pre, "player check failed for", alert.name)
+                    checkFailed = true
+                    break
+                end
+            elseif units == 2 then -- friendly player check
+                if not isFriendly then
+                    dprint(2, pre, "friendly player check failed for", alert.name)
+                    checkFailed = true
+                    break
+                end
+            elseif units == 3 then -- hostile player check
+                if not isHostile then
+                    dprint(2, pre, "hostile player check failed for", alert.name)
+                    checkFailed = true
+                    break
+                end
+            end
+        end
+        if not checkFailed then
+            --dprint(2, "unit checks positive for", alert.name)
+            tinsert(alerts_out, alert)
+        end
+    end
+    -- return
+    if #alerts_out == 0 then return else return alerts_out end
 end
 
 function A:InitSpellOptions()
