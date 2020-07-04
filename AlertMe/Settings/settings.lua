@@ -24,6 +24,7 @@ A.Events = {
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
 		checkedUnits = {"src","dst"},
+		--msg = P.events.msgAuraGain,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
 	["SPELL_AURA_REFRESH"] = {
@@ -32,6 +33,7 @@ A.Events = {
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
 		checkedUnits = {"src","dst"},
+		--msg = P.events.msgAuraGain,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
 	["SPELL_AURA_REMOVED"] = {
@@ -40,6 +42,7 @@ A.Events = {
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
 		checkedUnits = {},
+		--msg = P.events.msgAuraGain,
 		--actions = {A:HideBar()},
 	},
 	["SPELL_DISPEL"] = {
@@ -57,6 +60,7 @@ A.Events = {
 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool","auraType"},
 		relSpellName = "extraSpellName",
 		checkedUnits = {"src","dst"},
+		--msg = P.events.msgAuraDispel,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:HideAuraBar()},
 	},
 	["SPELL_CAST_START"] = {
@@ -72,6 +76,7 @@ A.Events = {
 		whisper_destination = false,
 		relSpellName = "spellName",
 		checkedUnits = {"src"},
+		--msg = P.events.msgCastStart,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowCastBar()},
 	},
 	["SPELL_CAST_SUCCESS"] = {
@@ -88,6 +93,7 @@ A.Events = {
 		whisper_destination = true,
 		relSpellName = "spellName",
 		checkedUnits = {"src","dst"},
+		--msg = P.events.msgCastSuccess,
 		--actions = {A:ChatAnnounce(), A:PlaySound()},
 	},
 	["SPELL_INTERRUPT"] = {
@@ -105,6 +111,7 @@ A.Events = {
 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool"},
 		relSpellName = "spellName",
 		checkedUnits = {"src","dst"},
+		--msg = P.events.msgInterrupt,
 		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
 	},
 }

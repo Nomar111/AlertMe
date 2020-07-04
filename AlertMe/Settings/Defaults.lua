@@ -13,7 +13,7 @@ D.profile = {
 		chat_frames = {
 			["*"] = true,
 		},
-		scrolling_text = {
+			scrolling_text = {
 			enabled = true,
 			width = 600,
 			align = 1,
@@ -28,6 +28,15 @@ D.profile = {
 			alpha = 0.1
 		},
 		test = false,
+	},
+	events = {
+		msg_gain = "%dstName gained %spellName",
+		msg_dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
+		msg_start = "%srcName starts to cast %spellName",
+		msg_success = "%srcName casted %spellName on %dstName",
+		msg_interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+		chatPrefix = "** ",
+		chatPostfix = " **",
 	},
 	alerts = {
 		["**"] = {
@@ -54,12 +63,9 @@ D.profile = {
 					scrolling_text = true,
 					sound_selection = 1,
 					sound_file = "",
+					override = "",
 				},
 			},
 		},
 	},
-	events = {
-		dd_value = 3,
-		dd_items = {[1] = "Eins", [2] = "Zwei"},
-	}
 }

@@ -69,7 +69,7 @@ function O:DrawAlertDetails(container, event, db)
 		local whisper_destination = {[1] = "Don't whisper", [2] = "Whisper if spell is cast by me",  [3] = "Whisper"}
 		O:AttachDropdown(container, "Whisper destination unit (if friendly)", db, "whisper_destination", whisper_destination, 200)
 	end
-	local scrolling_text_cb = O:AttachCheckBox(container, "Post messages in scrolling text frame", db ,"scrolling_text", 350)
+	local scrolling_text_cb = O:AttachCheckBox(container, "Post in scrolling text frame", db ,"scrolling_text", 220)
 	scrolling_text_cb:SetCallback("OnEnter", function(widget)
 		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
@@ -81,6 +81,7 @@ function O:DrawAlertDetails(container, event, db)
 	scrolling_text_cb:SetCallback("OnLeave", function(widget)
 		O.tooltip:Hide()
 	end)
+	O:AttachEditBox(container, "Chat message override", db, "override", 420)
 	-- sound alerts
 	O:AttachHeader(container, "Sound alerts")
 	local sound_selection_list = {[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"}

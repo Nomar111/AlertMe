@@ -81,7 +81,7 @@ function O:DrawOptions(container, uniquevalue)
 	if lvl1 == "profiles" then O:DrawProfileOptions(container)
 		elseif lvl1 == "general" then O:DrawGeneralOptions(container)
 		elseif lvl1 == "info" then O:DrawInfoOptions(container)
-		--elseif lvl1 == "events" then O:DrawTest(container)
+		elseif lvl1 == "events" then O:DrawEventOptions(container)
 		elseif lvl1 == "alerts" and lvl2 ~= nil then O:DrawAlertsOptions(container, lvl2)
 	end
 end
@@ -97,7 +97,7 @@ function O:DrawGeneralOptions(container)
 	local cb1 = O:AttachCheckBox(zones, "Battlegrounds", P.general.zones, "bg", 150)
 	local cb2 = O:AttachCheckBox(zones, "World", P.general.zones, "world")
 	-- chat frames
-	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat windows", true)
+	local chat_frames = O:AttachGroup(container, "Post addon messages in the following chat windows (only visible for you)", true)
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
@@ -154,6 +154,18 @@ function O:DrawGeneralOptions(container)
 	O:AttachLabel(scrolling, text, GameFontHighlightSmall, nil, 1)
 end
 
+function O:DrawEventOptions(container)
+	O:AttachHeader(container, "Event specific settings")
+	O:AttachEditBox(container, "Message on aura gained/refreshed", P.events, "msg_gain", 660)
+	O:AttachEditBox(container, "Message on spell dispel", P.events, "msg_dispel", 660)
+	O:AttachEditBox(container, "Message on cast start", P.events, "msg_start", 660)
+	O:AttachEditBox(container, "Message on cast success", P.events, "msg_success", 660)
+	O:AttachEditBox(container, "Message on interrupt", P.events, "msg_interrupt", 660)
+	O:AttachEditBox(container, "Message prefix", P.events, "chatPrefix", 130)
+	O:AttachSpacer(container, 30)
+	O:AttachEditBox(container, "Message postfix", P.events, "chatPostfix", 130)
+end
+
 -- creates the info tab
 function O:DrawInfoOptions(container)
 	O:AttachHeader(container, "Addon Info")
@@ -188,6 +200,16 @@ function O:AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 	if width then slider:SetWidth(width) end
 	container:AddChild(slider)
 	return slider
+end
+
+function O:AttachEditBox(container, label, path, key, width)
+	local edit = A.Libs.AceGUI:Create("EditBox")
+	edit:SetLabel(label)
+	if width ~= nil then edit:SetWidth(width) end
+	edit:SetText(path[key])
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
+	container:AddChild(edit)
+	return edit
 end
 
 

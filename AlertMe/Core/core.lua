@@ -2,6 +2,7 @@ dprint(3,"core.lua")
 -- upvalues
 local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, tinsert, UnitGUID, bit = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, table.insert, UnitGUID, bit
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
+local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -13,6 +14,8 @@ function A:Initialize()
 	A:ScrollingTextInitOrUpdate()
 	-- init options
 	A:InitSpellOptions()
+	-- init Chatframes
+	A:InitChatFrames()
 	-- register for events
 	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
@@ -52,13 +55,15 @@ end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
 	 -- get spell options for the processed spell
-	local spellOptions = {}
-    if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
-		dprint(1, "No combination found in options for ", ti.relSpellName, eventInfo.short)
+	if A.SpellOptions[ti.relSpellName] == nil then
+		dprint(2, "Spell not found in options", ti.relSpellName)
 		return
-	else
-		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
 	end
+	 if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
+		dprint(2, "Spell/event combination not found in options ", ti.relSpellName, eventInfo.short)
+		return
+	end
+	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
 	--VDT_AddData(spellOptions,"spellOptions")
     -- create table of relevant alert settings
     local alerts = {}
@@ -73,12 +78,12 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		dprint(2, "Unit checks failed for", ti.spellName, ti.event, ti.srcName, ti.dstName)
 		return
 	end
-    -- do the specified actions for this event
-    for _, action in pairs(eventInfo.actions) do
-         action(ti, alerts, eventInfo)
-    end
+    -- -- do the specified actions for this event
+    -- for _, action in pairs(eventInfo.actions) do
+    --      action(ti, alerts, eventInfo)
+    -- end
+	A:ChatAnnounce(ti, alerts, eventInfo)
 end
-
 
 -- checkUnits: check source, destination units of trigger event vs. relevant options
 function A:CheckUnits(ti, alerts_in, eventInfo)
@@ -148,6 +153,125 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
     end
     -- return
     if #alerts_out == 0 then return else return alerts_out end
+end
+
+
+-- chatAnnounce
+function A:ChatAnnounce(ti, alerts, eventInfo)
+    dprint(2, "A:ChatAnnounce")
+    local prefix, postfix = P.events.chatPrefix, P.events.chatPostfix
+    -- check possible replacements for being nil
+    local srcName = (ti.srcName) and A:GetUnitName(ti.srcName) or ""
+    local dstName = (ti.dstName) and A:GetUnitName(ti.dstName) or ""
+    local spellName = (ti.spellName) and ti.spellName or ""
+    local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
+    local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
+    local lockout = (ti.lockout) and ti.lockout or ""
+    -- get possible channels
+    local inInstance, instanceType = IsInInstance()
+    local channel = nil
+    if GetNumGroupMembers() > 5 then
+        if inInstance then
+            channel = "INSTANCE_CHAT"
+        else
+            channel = "RAID"
+        end
+    elseif GetNumGroupMembers() > 0 then
+        channel = "Party"
+    end
+    -- create queue for messages
+    local msgQueue = {}
+    -- loop through option groups
+    for _, alert in pairs(alerts) do
+        -- get message from options
+        local msg = ""
+        if alert.override ~= nil and alert.override ~= "" then
+			msg = alert.override
+		else
+			msg = P.events["msg_"..eventInfo.short]
+		end
+        -- replace
+        msg = string.gsub(msg,"%%dstName", dstName)
+        msg = string.gsub(msg,"%%srcName", srcName)
+        msg = string.gsub(msg, "%%spellName", spellName)
+        msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
+        msg = string.gsub(msg, "%%extraSchool", extraSchool)
+        msg = string.gsub(msg, "%%lockout", lockout)
+        -- get reaction color
+        local color = A:GetReactionColor(ti)
+        local colmsg = WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+        msg = prefix..msg..postfix
+        -- bg/raid/party
+        if alert.chat_channels == 2 and channel then msgQueue[channel] = msg end
+        -- party
+        if alert.chat_channels == 3 and inInstance then msgQueue["PARTY"] = msg end
+        -- say
+        if alert.chat_channels == 4 and inInstance then msgQueue["SAY"] = msg end
+        -- system messages
+        if alert.system_messages == 1 or (alert.system_messages == 3 and not inInstance) then msgQueue["SYSTEM"] = colmsg end
+        -- whisper destination unit if source = player and destination is friendly and destination not player
+        if alert.whisper_destination and ti.srcIsPlayer and not ti.dstIsPlayer and ti.dstIsFriendly then msgQueue["WHISPER"] = msg end
+    end
+    -- loop through message queue and send messages
+    for chan, msg in pairs(msgQueue) do
+        if chan == "SYSTEM" then
+            A:SystemMessage(msg)
+        elseif chan == "WHISPER" then
+            SendChatMessage(string.gsub(msg, dstName, "You"), chan, nil, ti.dstName)
+        else
+            SendChatMessage(msg, chan, nil, nil)
+        end
+    end
+end
+
+function A:GetReactionColor(ti, rgb)
+    dprint(2, "A:GetReactionColor")
+    -- prepare return value
+    local color = "white"
+    -- aura applied/refresh
+    if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
+        if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+            color = "green"
+        else
+            color = "red"
+        end
+    end
+    -- spell dispel
+    if ti.event == "SPELL_DISPEL" then
+        if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+            color = "red"
+        else
+            color = "green"
+        end
+    end
+    -- spell cast start / success
+    if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
+        if ti.srcIsFriendly then
+            color =  "green"
+        else
+            color = "red"
+        end
+    end
+    -- return RGB or HEX
+    if rgb == "rgb" then
+		return unpack(A.Colors[color]["rgb"])
+	else return A.Colors[color]["hex"]
+	end
+end
+
+-- systemMessage: posts messages in various chat windows
+function A:SystemMessage(msg)
+    -- loop through chat frames and post messages
+    for i, name in pairs(A.ChatFrames) do
+		if P.general.chat_frames[name] == true then
+			local f = _G[name]
+			f:AddMessage(msg)
+		end
+	end
+	if P.general.scrolling_text.enabled == true then
+		A.ScrollingText:Show()
+		A.ScrollingText:AddMessage(msg)
+	end
 end
 
 function A:InitSpellOptions()
@@ -292,4 +416,17 @@ function A:ScrollingTextSetPosition(reset)
 	end
 	A.ScrollingText:ClearAllPoints()
 	A.ScrollingText:SetPoint(db.point, db.point_x, db.point_y)
+end
+
+function A:GetUnitName(name)
+	-- getUnitName: Returns Unitname without Realm
+    local short = gsub(name, "%-[^|]+", "")
+    return short
+end
+
+function A:InitChatFrames()
+	A.ChatFrames = {}
+	for i = 1, FCF_GetNumActiveChatFrames() do
+		A.ChatFrames[i] = "ChatFrame"..i
+	end
 end

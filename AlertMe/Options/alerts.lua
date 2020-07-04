@@ -99,16 +99,6 @@ function O:GetLastAlert(list)
 	return last_uid
 end
 
-function O:AttachEditBox(container, label, path, key, width)
-	local edit = A.Libs.AceGUI:Create("EditBox")
-	edit:SetLabel(label)
-	if width ~= nil then edit:SetWidth(width) end
-	edit:SetText(path[key])
-	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
-	container:AddChild(edit)
-	return edit
-end
-
 function O:AttachAlertSettingCheckBox(container, name, db, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
 	local uid = db["alert_dd_value"]

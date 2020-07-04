@@ -25,7 +25,7 @@ end
 -- debug handling
 local AddonName,_ = ...
 local ChatFrames = {ChatFrame1, ChatFrame3}
-local debug_level = tonumber(GetAddOnMetadata(AddonName, "X-DebugLevel"))
+local debug_level = 1--tonumber(GetAddOnMetadata(AddonName, "X-DebugLevel"))
 local color = "FFcfac67"
 local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
 local separator = WrapTextInColorCode(" ** ", color)
