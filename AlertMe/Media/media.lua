@@ -154,6 +154,7 @@ LSM:Register("sound", "War Stomp", [[Interface\AddOns\AlertMe\Media\Sounds\War S
 LSM:Register("sound", "Will of the Forsaken", [[Interface\AddOns\AlertMe\Media\Sounds\Will of the Forsaken.ogg]])
 LSM:Register("sound", "Wyvern Sting", [[Interface\AddOns\AlertMe\Media\Sounds\Wyvern Sting.ogg]])
 -- textures
-LSM:Register("background", "add", [[Interface\AddOns\AlertMe\MediaTextures\add.tga]])
-LSM:Register("background", "delete", [[Interface\AddOns\AlertMe\MediaTextures\delete.tga]])
-LSM:Register("background", "reset", [[Interface\AddOns\AlertMe\MediaTextures\reset.tga]])
+LSM:Register("background", "add", [[Interface\AddOns\AlertMe\Media\Textures\add.tga]])
+LSM:Register("background", "delete", [[Interface\AddOns\AlertMe\Media\Textures\delete.tga]])
+LSM:Register("background", "reset", [[Interface\AddOns\AlertMe\Media\Textures\reset.tga]])
+LSM:Register("background", "banto", [[Interface\AddOns\AlertMe\Media\Textures\BantoBar.blp]])

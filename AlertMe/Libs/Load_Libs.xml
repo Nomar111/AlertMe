@@ -16,4 +16,6 @@
 	<Include file="Lib-EditBox-AutoComplete\Lib-EditBox-AutoComplete.xml"/>
 	<Include file="StdUi\StdUi.xml"/>
 	<Include file="AceGUI-3.0-Spell-EditBox\AceGUI-3.0-Spell-EditBox.xml"/>
+	<Include file="LibClassicDurations\LibClassicDurations.xml"/>
+	<Include file="LibCandyBar-3.0\lib.xml"/>
 </Ui>

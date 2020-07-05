@@ -3,6 +3,7 @@ dprint(3,"core.lua")
 local _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, tinsert, UnitGUID, bit = _G, CreateFrame, date, dprint, IsShiftKeyDown, pairs, CombatLogGetCurrentEventInfo, table.insert, UnitGUID, bit
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
+local WA_GetUnitAura, GetTime, GetSpellInfo = WA_GetUnitAura, GetTime, GetSpellInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -83,7 +84,87 @@ function A:ProcessTriggerInfo(ti, eventInfo)
     --      action(ti, alerts, eventInfo)
     -- end
 	A:ChatAnnounce(ti, alerts, eventInfo)
+	A:ShowBar(ti, alerts, eventInfo)
 end
+
+function A:ShowBar(ti, alerts, eventInfo)
+	 dprint(2, "A:ShowBar")
+    -- loop through alerts
+    for _, alert in pairs(alerts) do
+        -- check bar option
+        if alert.show_bar ~= true then return end
+        -- get spell info
+        --local spellId, icon, duration, expirationTime = A:GetAuraInfo(ti)
+        --if not duration then return false end
+
+		local textures = A.LSM:HashTable("background")
+		local texture = textures["Solid"]
+		dprint(1, texture)
+		VDT_AddData(textures, "textures")
+		--local texture = "Interface\\AddOns\\MyAddOn\\statusbar"
+		local mybar = A.Libs.LCB:New(texture, 100, 16)
+		mybar:SetLabel("Yay!")
+		mybar:SetDuration(60)
+		mybar:Start()
+		mybar:SetPoint("CENTER", UIParent)
+		VDT_AddData(mybar, "mybar")
+        -- -- set id for display
+        -- local id = ti.dstGUID.."_"..ti.relSpellName
+        -- -- show bar
+        -- allstates[id] = {
+        --     show = true,
+        --     changed = true,
+        --     name = aura_env.getUnitName(ti.dstName),
+        --     icon = icon,
+        --     progressType = "timed",
+        --     duration = duration,
+        --     expirationTime = expirationTime,
+        --     spellId = spellId,
+        --     autoHide = true
+        -- }
+        -- -- color bar
+        -- local f = WeakAuras.GetRegion(aura_env.id, id)
+        -- f:Color(aura_env.getReactionColor(ti, "rgb"))
+        -- return true
+    end
+end
+
+-- getAuraInfo: try to get correct spellId and duration or guess
+function A:GetAuraInfo(ti)
+
+-- local WA_GetUnitAura = function(unit, spell, filter)
+--   if filter and not filter:upper():find("FUL") then
+--       filter = filter.."|HELPFUL"
+--   end
+--   for i = 1, 255 do
+--     local name, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, filter)
+--     if not name then return end
+--     if spell == spellId or spell == name then
+--       return UnitAura(unit, i, filter)
+--     end
+--   end
+-- end
+
+    dprint(2, "A:GetAuraInfo")
+    -- try to call the "standard" WA function
+    local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = WA_GetUnitAura(ti.dstName, ti.relSpellName)
+    -- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
+    if duration == nil then
+        dprint(2, "No spell info available, using LibClassicDuration")
+        spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+        duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+        expirationTime = GetTime() + duration
+        _,_,icon = GetSpellInfo(spellId)
+    end
+    -- check for relevant values
+    if spellId == nil or duration == nil then
+        dprint(2, "No spell info available, abort")
+        return false
+    end
+    --return
+    return spellId, icon, duration, expirationTime
+end
+
 
 -- checkUnits: check source, destination units of trigger event vs. relevant options
 function A:CheckUnits(ti, alerts_in, eventInfo)
@@ -291,26 +372,29 @@ function A:InitSpellOptions()
 		end
 		-- alert details
 		for uid, alert_lvl_2 in pairs(alert_lvl_1.alert_details) do
-			--dprint(1, "Level 2: ", uid, alert_lvl_2)
-			-- alert details sublevel
-			for i, alert_lvl_3 in pairs(alert_lvl_2) do
-				--dprint(1, "Level 3: ", uid, i, alert_lvl_3)
-				if i ~= "spells" then
-					A.AlertOptions[event][uid][i] = alert_lvl_3
-				else -- spells
-					for spellName, spellOptionsTable in pairs(alert_lvl_3) do
-						if A.SpellOptions[spellName] == nil then A.SpellOptions[spellName] = {}	end
-						if A.SpellOptions[spellName][event] == nil then A.SpellOptions[spellName][event] = {}end
-						if A.SpellOptions[spellName][event][uid] == nil then
-							A.SpellOptions[spellName][event][uid] = {
-								uid = uid,
-								event = event,
-								options = A.AlertOptions[event][uid]
-							}
-						end
-						for spellOption, value in pairs(spellOptionsTable) do
-							--dprint(1, "Level 4/spells: ", uid, spellName, spellOption, value)
-							A.SpellOptions[spellName][event][uid][spellOption] = value
+			if uid ~= nil and uid ~= "" then
+				--dprint(1, "Level 2: ", uid, alert_lvl_2)
+				-- alert details sublevel
+				for i, alert_lvl_3 in pairs(alert_lvl_2) do
+					--dprint(1, "Level 3: ", uid, i, alert_lvl_3)
+					if i ~= "spells" then
+						dprint(1,event,uid,i)
+						A.AlertOptions[event][uid][i] = alert_lvl_3
+					else -- spells
+						for spellName, spellOptionsTable in pairs(alert_lvl_3) do
+							if A.SpellOptions[spellName] == nil then A.SpellOptions[spellName] = {}	end
+							if A.SpellOptions[spellName][event] == nil then A.SpellOptions[spellName][event] = {}end
+							if A.SpellOptions[spellName][event][uid] == nil then
+								A.SpellOptions[spellName][event][uid] = {
+									uid = uid,
+									event = event,
+									options = A.AlertOptions[event][uid]
+								}
+							end
+							for spellOption, value in pairs(spellOptionsTable) do
+								--dprint(1, "Level 4/spells: ", uid, spellName, spellOption, value)
+								A.SpellOptions[spellName][event][uid][spellOption] = value
+							end
 						end
 					end
 				end
