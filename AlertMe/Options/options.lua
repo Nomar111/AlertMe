@@ -15,7 +15,7 @@ function O:OpenOptions()
 	-- create main frame for options
 	O.Frame = A.Libs.AceGUI:Create("Frame")
 	O.Frame:SetTitle("AlertMe Options")
-	O.Frame:EnableResize(false)
+	O.Frame:EnableResize(true)
 	O.Frame:SetLayout("Flow")
 	O.Frame:SetCallback("OnClose", function(widget)
 		A:InitSpellOptions()

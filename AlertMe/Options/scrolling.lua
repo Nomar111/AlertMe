@@ -6,6 +6,7 @@ setfenv(1, _G.AlertMe)
 
 function O:ShowScrollingText(container)
 	dprint(2, "O:ShowcontainerText")
+	local sliderWidth = 156
 	-- header
 	O:AttachHeader(container, "Scrolling Text Settings")
 	local db = P.scrolling
@@ -25,8 +26,17 @@ function O:ShowScrollingText(container)
 	O:AttachSpacer(container, 50)
 	-- width
 	local width = O:AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 317, true)
-	O:AttachSpacer(container, 200)
-	local sliderWidth = 156
+	O:AttachSpacer(container, 20)
+	-- fading
+	local cbFading = O:AttachCheckBox(container, "Enable fading", db, "fading", 100)
+	cbFading:SetCallback("OnValueChanged", function(widget, event, value)
+		db["fading"] = value
+		A:ScrollingTextInitOrUpdate()
+	end)
+	O:AttachSpacer(container, 5)
+	-- time visible
+	O:AttachSlider(container, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, true)
+	O:AttachSpacer(container, 1)
 	-- background alpha
 	local alpha = O:AttachSlider(container, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, true)
 	O:AttachSpacer(container, 5)
@@ -38,16 +48,6 @@ function O:ShowScrollingText(container)
 	O:AttachSpacer(container, 5)
 	-- max lines
 	O:AttachSlider(container, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, true)
-	-- fading
-	local cbFading = O:AttachCheckBox(container, "Enable fading", db, "fading", sliderWidth)
-	cbFading:SetCallback("OnValueChanged", function(widget, event, value)
-		db["fading"] = value
-		A:ScrollingTextInitOrUpdate()
-	end)
-	O:AttachSpacer(container, 5)
-	-- time visible
-	O:AttachSlider(container, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, true)
-	O:AttachSpacer(container, 250)
 	-- align
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
 	O:AttachDropdown(container, "Alignment", db, "align", list, sliderWidth)
