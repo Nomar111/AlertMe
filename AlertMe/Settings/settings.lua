@@ -1,11 +1,8 @@
 dprint(3,"settings.lua")
--- upvalues
-local _G, CreateFrame, date, dprint, pairs = _G, CreateFrame, date, dprint, pairs
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
-
 
 -- central table with event options
 A.Events = {
@@ -115,15 +112,6 @@ A.Events = {
 		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
 	},
 }
-
-function A:GetEventSettingByShort(short, setting)
-	for i,v in pairs(A.Events) do
-		--dprint(1, v.short, "short", short)
-		if v.short == short and v[setting] ~= nil then
-			return v[setting]
-		end
-	end
-end
 
 -- lockouts
 A.Lockouts = {

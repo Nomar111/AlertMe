@@ -9,34 +9,33 @@ D.profile = {
 	general = {
 		zones = {
 			["*"] = true,
-		},
-		chat_frames = {
+		}
+	},
+	scrolling = {
+		enabled = true,
+		width = 600,
+		align = 1,
+		fading = true,
+		point = "CENTER",
+		ofs_x = 0,
+		ofs_y = -150,
+		maxLines = 300,
+		visibleLines = 3,
+		fontSize = 13,
+		timeVisible = 10,
+		alpha = 0.1
+	},
+	messages = {
+		msgGain = "%dstName gained %spellName",
+		msgDispel = "%extraSpellName dispelled on %dstName -- by %srcName",
+		msgStart = "%srcName starts to cast %spellName",
+		msgSuccess = "%srcName casted %spellName on %dstName",
+		msgInterrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+		msgPrefix = "** ",
+		msgPostfix = " **",
+		chatFrames = {
 			["*"] = true,
 		},
-			scrolling_text = {
-			enabled = true,
-			width = 600,
-			align = 1,
-			fading = true,
-			point = "CENTER",
-			point_x = 0,
-			point_y = -150,
-			maxlines = 300,
-			visible_lines = 3,
-			font_size = 13,
-			timevisible = 10,
-			alpha = 0.1
-		},
-		test = false,
-	},
-	events = {
-		msg_gain = "%dstName gained %spellName",
-		msg_dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
-		msg_start = "%srcName starts to cast %spellName",
-		msg_success = "%srcName casted %spellName on %dstName",
-		msg_interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
-		chatPrefix = "** ",
-		chatPostfix = " **",
 	},
 	alerts = {
 		["**"] = {

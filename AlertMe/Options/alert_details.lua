@@ -9,7 +9,7 @@ local A, D, O, S = unpack(select(2, ...))
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:DrawAlertDetails(container, event, db)
+function O:ShowAlertDetails(container, event, db)
 	dprint(2, "O:DrawAlertDetails", event)
 	VDT_AddData(container, "alert_details")
 	-- release old widgets

@@ -7,7 +7,7 @@ local A, _, O = unpack(select(2, ...))
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:DrawAlertsOptions(container, event_short)
+function O:ShowAlerts(container, event_short)
 	dprint(2, "O:DrawAlertsOptions", event_short)
 	VDT_AddData(container, "alerts")
 	container:ReleaseChildren()
@@ -28,7 +28,7 @@ function O:DrawAlertsOptions(container, event_short)
 		db.alert_details[uid].dummy = 5 -- create entry in alert_details db
 		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
 		-- alert details
-		O:DrawAlertDetails(O.alert_details, event_short, db)
+		O:ShowAlertDetails(O.alert_details, event_short, db)
 	end)
 	-- spacer
 	O:AttachSpacer(container, 10)
@@ -46,7 +46,7 @@ function O:DrawAlertsOptions(container, event_short)
 		end
 		if db.alert_details[uid] ~= nil then db.alert_details[uid] = nil end -- delete alert details also
 		-- alert details
-		O:DrawAlertDetails(O.alert_details, event_short, db)
+		O:ShowAlertDetails(O.alert_details, event_short, db)
 	end)
 	-- spacer
 	O:AttachSpacer(container, 10)
@@ -70,7 +70,7 @@ function O:DrawAlertsOptions(container, event_short)
 			O.alert_active:SetDisabled(false)
 		end
 		-- alert details
-		O:DrawAlertDetails(O.alert_details, event_short, db)
+		O:ShowAlertDetails(O.alert_details, event_short, db)
 	end)
 	-- callback for editbox
 	O.alert_name:SetCallback("OnEnterPressed", function(widget, event, text)
@@ -88,7 +88,7 @@ function O:DrawAlertsOptions(container, event_short)
 	-- create details group
 	O.alert_details = O:AttachGroup(container, "", false)
 	-- draw alert details
-	O:DrawAlertDetails(O.alert_details, event_short, db)
+	O:ShowAlertDetails(O.alert_details, event_short, db)
 end
 
 function O:GetLastAlert(list)

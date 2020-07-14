@@ -1,6 +1,6 @@
-dprint(2, "init.lua")
+dprint(3, "init.lua")
 -- upvalues
-local _G, dprint = _G, dprint
+local _G = _G
 local tostring, unpack  = tostring, unpack
 local LibStub, GetAddOnMetadata = LibStub, GetAddOnMetadata
 local UnitName, GetRealmName = UnitName, GetRealmName
@@ -34,15 +34,17 @@ VDT_AddData(A.Defaults, "D")
 VDT_AddData(A.Options, "O")
 VDT_AddData(A.Spells, "S")
 
--- addon globls
+-- addon globals
 ADDON_NAME = AddonName
 ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
 ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
 PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
-LibStub = LibStub
-dprint = dprint
+
+-- addon upvalues
+dprint, pairs, unpack, strsplit, type, tcopy = _G.dprint, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy
+GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 
 -- libraries
 A.Libs = {}
@@ -56,11 +58,10 @@ A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
 A.Libs.StdUi = LibStub("StdUi")
 A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
---A.Libs.ScrollingTable = LibStub("ScrollingTable")
 
 -- addon initialized
 function A:OnInitialize()
-	dprint(2, "Ace Event: OnInitialize")
+	dprint(2, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -76,24 +77,25 @@ function A:OnInitialize()
 end
 
 function A:OpenOptions()
+	dprint(2, "A:OpenOptions")
 	A.Options:OpenOptions()
 end
 
 -- addon enabled
 function A:OnEnable()
-	dprint(2, "Ace Event: OnEnable")
+	dprint(2, "A:OnEnable")
 	A:Initialize()
 	--A.Options:OpenOptions()
 end
 
 -- addon disabled
 function A:OnDisable()
-	dprint(2, "Ace Event: OnDisable")
+	dprint(2, "A:OnDisable")
 end
 
 -- automatically called on profile copy/delete/etc.
 function A:OnProfileEvent(event)
-	dprint(2, "OnProfileEvent", event)
+	dprint(2, "A:OnProfileEvent", event)
 	-- set global P again
 	P = A.db.profile
 	-- update options table

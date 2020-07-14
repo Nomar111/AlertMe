@@ -34,7 +34,7 @@ function O:CreateSelection(name, order, values, width)
 end
 
 function O:GetAlertSetting(info)
-	dprint(1, "GetAlertSetting", unpack(info))
+	dprint(2, "GetAlertSetting", unpack(info))
 	local event = info[O.elvl]
 	local uid = P.alerts_db[event].select_alert
 	if uid ~= nil then
@@ -43,7 +43,7 @@ function O:GetAlertSetting(info)
 end
 
 function O:SetAlertSetting(info, value)
-	dprint(1, "SetAlertSetting", unpack(info))
+	dprint(2, "SetAlertSetting", unpack(info))
 	local event = info[O.elvl]
 	local uid = P.alerts_db[event].select_alert
 	-- if select is set to an item, set the new text ** text is not directly set to select, but to its feeder table

@@ -36,9 +36,10 @@ function dprint(lvl,...)
 	-- check lvl argument
 	if not lvl or type(lvl) ~= "number" then
 		msg = "Provided lvl arg is invalid: "..tostring(lvl)
+		lvl_check = false
 	end
 	-- check level vs debug_level
-	if lvl > debug_level then
+	if  lvl_check ~= false and lvl > debug_level then
 		return
 	end
 	-- check args

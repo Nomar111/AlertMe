@@ -1,0 +1,154 @@
+dprint(3, "attach_widgets.lua")
+-- get engine environment
+local A, D, O, S = unpack(select(2, ...))
+-- set engine as new global environment
+setfenv(1, _G.AlertMe)
+
+--**********************************************************************************************************************************
+-- attach AceGUI widgets
+--**********************************************************************************************************************************
+function O:AttachHeader(container, text)
+	dprint(3, "O:AttachHeader", container, text)
+	local header = A.Libs.AceGUI:Create("Heading")
+	header:SetText(text)
+	header.width = "fill"
+	container:AddChild(header)
+	return header
+end
+
+function O:AttachSlider(container, label, db, key, min, max, step, isPercent, width, scrolling)
+	dprint(3, "O:AttachSlider", container, label, db, key, min, max, step, isPercent, width, scrolling)
+	local slider = A.Libs.AceGUI:Create("Slider")
+	slider:SetLabel(label)
+	slider:SetSliderValues(min, max, step)
+	slider:SetIsPercent(isPercent)
+	slider:SetValue(db[key])
+	slider:SetCallback("OnMouseUp", function(widget, event, value)
+		--dprint(1, widget, event, value)
+		--VDT_AddData(db,"dbslider")
+		db[key] = value
+		if scrolling == true then A:ScrollingTextInitOrUpdate() end
+	end)
+	if width then slider:SetWidth(width) end
+	container:AddChild(slider)
+	return slider
+end
+
+function O:AttachEditBox(container, label, path, key, width)
+	dprint(3, "O:AttachEditBox", container, label, path, key, width)
+	local edit = A.Libs.AceGUI:Create("EditBox")
+	edit:SetLabel(label)
+	if width ~= nil then edit:SetWidth(width) end
+	edit:SetText(path[key])
+	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
+	container:AddChild(edit)
+	return edit
+end
+
+function O:AttachButton(container, text, width)
+	dprint(3, "O:AttachButton", container, text, width)
+	local button = A.Libs.AceGUI:Create("Button")
+	button:SetText(text)
+	if width then button:SetWidth(width) end
+	container:AddChild(button)
+	return button
+end
+
+function O:AttachGroup(container, title, inline)
+	dprint(3, "O:AttachGroup", container, title, inline)
+	local group = {}
+	if inline == true then
+		group = A.Libs.AceGUI:Create("InlineGroup")
+		group:SetTitle(title)
+	else
+		group = A.Libs.AceGUI:Create("SimpleGroup")
+	end
+	group:SetRelativeWidth(1)
+	group:SetLayout("Flow")
+	container:AddChild(group)
+	return group
+end
+
+function O:AttachLabel(container, text, fontObject, color, relWidth)
+	dprint(3, "O:AttachLabel", container, text, font_object, color, relWidth)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relWidth or 1)
+	if fontObject == nil then fontObject = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(fontObject)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
+end
+
+function O:AttachInteractiveLabel(container, text, fontObject, color, relWidth)
+	dprint(3, "O:AttachInteractiveLabel", container, text, fontObject, color, relWidth)
+	local label = A.Libs.AceGUI:Create("Label")
+	label:SetText(text)
+	label:SetRelativeWidth(relWidth or 1)
+	if fontObject == nil then fontObject = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	label:SetFontObject(fontObject)
+	--label:SetHighlight(0.7,0.7,0.7,1)
+	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(label)
+	return label
+end
+
+function O:AttachSpacer(container, width)
+	dprint(3, "O:AttachSpacer", container, width)
+	local control = A.Libs.AceGUI:Create("InteractiveLabel")
+	control:SetText("")
+	control:SetWidth(width)
+	container:AddChild(control)
+	return control
+end
+
+function O:AttachCheckBox(container, label, db, key, width)
+	dprint(3, "O:AttachCheckBox", container, label, db, key, width)
+	local control = A.Libs.AceGUI:Create("CheckBox")
+	control:SetValue(db[key])
+	control:SetCallback("OnValueChanged", function(widget, event, value) db[key] = value end)
+	control:SetLabel(label)
+	if width then control:SetWidth(width) end
+	container:AddChild(control)
+	return control
+end
+
+function O:AttachDropdown(container, label, db, key, list, width)
+	dprint(3, "O:AttachDropdown", container, label, db, key, list, width)
+	local dropdown = A.Libs.AceGUI:Create("Dropdown")
+	dropdown:SetLabel(label)
+	dropdown:SetMultiselect(false)
+	dropdown:SetWidth(width)
+	dropdown:SetList(list)
+	dropdown:SetValue(db[key])
+	dropdown:SetCallback("OnValueChanged", function(_, _, value) db[key] = value end)
+	container:AddChild(dropdown)
+	return dropdown
+end
+
+function O:AttachIcon(container, image, size)
+	dprint(3, "O:AttachIcon", container, image, size)
+	local icon = A.Libs.AceGUI:Create("Icon")
+	icon:SetImage(image)
+	icon:SetImageSize(size, size)
+	icon:SetWidth(size)
+	container:AddChild(icon)
+	return icon
+end
+
+function O:AttachMultiLineEditBox(container, path, key, label, lines)
+	dprint(3, "O:AttachMultiLineEditBox", container, path, key, label, lines)
+	local edit = A.Libs.AceGUI:Create("MultiLineEditBox")
+	edit:SetLabel(label)
+	edit:SetNumLines(lines)
+	edit:SetRelativeWidth(1)
+	edit:SetText(path[key])
+	edit:SetUserData("path", path)
+	edit:SetUserData("key", key)
+	edit:SetCallback("OnEnterPressed", function(widget, text)
+		path[key] = text
+	end)
+	container:AddChild(edit)
+	return edit
+end
