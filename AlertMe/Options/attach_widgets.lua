@@ -16,6 +16,35 @@ function O:AttachHeader(container, text)
 	return header
 end
 
+function O:AttachGroup(container, title, inline, width, height, layout)
+	dprint(3, "O:AttachGroup", container, title, inline, width, height, layout)
+	local group = {}
+	layout = layout or "Flow"
+
+	if inline == true then
+		group = A.Libs.AceGUI:Create("InlineGroup")
+		group:SetTitle(title)
+	else
+		group = A.Libs.AceGUI:Create("SimpleGroup")
+	end
+
+	if width ~= nil and width <= 1 then
+		group:SetRelativeWidth(width)
+	elseif width ~= nil and width > 1 then
+		group:SetWidth(width)
+	end
+
+	if height ~= nil and height == 1 then
+		group:SetFullHeight(true)
+	elseif height ~= nil and height > 1 then
+		group:SetHeight(height)
+	end
+
+	group:SetLayout(layout)
+	container:AddChild(group)
+	return group
+end
+
 function O:AttachSlider(container, label, db, key, min, max, step, isPercent, width, scrolling)
 	dprint(3, "O:AttachSlider", container, label, db, key, min, max, step, isPercent, width, scrolling)
 	local slider = A.Libs.AceGUI:Create("Slider")
@@ -54,20 +83,7 @@ function O:AttachButton(container, text, width)
 	return button
 end
 
-function O:AttachGroup(container, title, inline)
-	dprint(3, "O:AttachGroup", container, title, inline)
-	local group = {}
-	if inline == true then
-		group = A.Libs.AceGUI:Create("InlineGroup")
-		group:SetTitle(title)
-	else
-		group = A.Libs.AceGUI:Create("SimpleGroup")
-	end
-	group:SetRelativeWidth(1)
-	group:SetLayout("Flow")
-	container:AddChild(group)
-	return group
-end
+
 
 function O:AttachLabel(container, text, fontObject, color, relWidth)
 	dprint(3, "O:AttachLabel", container, text, font_object, color, relWidth)
@@ -94,11 +110,18 @@ function O:AttachInteractiveLabel(container, text, fontObject, color, relWidth)
 	return label
 end
 
-function O:AttachSpacer(container, width)
-	dprint(3, "O:AttachSpacer", container, width)
+function O:AttachSpacer(container, width, height)
+	dprint(3, "O:AttachSpacer", container, width, height)
 	local control = A.Libs.AceGUI:Create("InteractiveLabel")
-	control:SetText("")
-	control:SetWidth(width)
+	if width then control:SetWidth(width) end
+	if height then
+		if height == "small" then control:SetFontObject(GameFontHighlightSmall) end
+		if height == "large" then control:SetFontObject(GameFontHighlightLarge) end
+		if height == "medium" then control:SetFontObject(GameFontHighlight) end
+		control:SetText(" ")
+	else
+		control:SetText("")
+	end
 	container:AddChild(control)
 	return control
 end

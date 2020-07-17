@@ -6,53 +6,57 @@ setfenv(1, _G.AlertMe)
 
 function O:ShowScrollingText(container)
 	dprint(2, "O:ShowcontainerText")
+		local db = P.scrolling
 	local sliderWidth = 156
+	local scrollingGroup = O:AttachGroup(container, _, _, 1, 1, "List")
 	-- header
-	O:AttachHeader(container, "Scrolling Text Settings")
-	local db = P.scrolling
+	O:AttachHeader(scrollingGroup, "Scrolling Text Settings")
 	-- enable
-	O:AttachCheckBox(container, "Enable Scrolling Text", db ,"enabled", 600)
+	O:AttachCheckBox(scrollingGroup, "Enable Scrolling Text", db ,"enabled", 300)
+	O:AttachSpacer(scrollingGroup, 10, "small")
+	-- buttons
+	local buttonGroup = O:AttachGroup(scrollingGroup, _, _, 1, _, "Flow")
 	-- show
-	local btnShow = O:AttachButton(container, "Show frame", 120)
+	local btnShow = O:AttachButton(buttonGroup, "Show frame", 120)
 	btnShow:SetCallback("OnClick", function() A:ScrollingTextShow(true) end)
 	-- hide
-	O:AttachSpacer(container, 10)
-	local btnHide = O:AttachButton(container, "Hide frame", 120)
+	O:AttachSpacer(buttonGroup, 20)
+	local btnHide = O:AttachButton(buttonGroup, "Hide frame", 120)
 	btnHide:SetCallback("OnClick", function() A:ScrollingTextHide() end)
 	-- reset
-	O:AttachSpacer(container, 10)
-	local btnReset = O:AttachButton(container, "Reset position", 120)
+	O:AttachSpacer(buttonGroup, 20)
+	local btnReset = O:AttachButton(buttonGroup, "Reset position", 120)
 	btnReset:SetCallback("OnClick", function() A:ScrollingTextSetPosition(true) end)
-	O:AttachSpacer(container, 50)
+	O:AttachSpacer(scrollingGroup, 10, "small")
 	-- width
-	local width = O:AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 317, true)
-	O:AttachSpacer(container, 20)
+	local width = O:AttachSlider(scrollingGroup, "Set width", db, "width", 300, 1000, 20, false, 317, true)
+	O:AttachSpacer(scrollingGroup, _, "small")
 	-- fading
-	local cbFading = O:AttachCheckBox(container, "Enable fading", db, "fading", 100)
+	local cbFading = O:AttachCheckBox(scrollingGroup, "Enable fading", db, "fading", 200)
 	cbFading:SetCallback("OnValueChanged", function(widget, event, value)
 		db["fading"] = value
 		A:ScrollingTextInitOrUpdate()
 	end)
-	O:AttachSpacer(container, 5)
+	O:AttachSpacer(scrollingGroup, 5)
 	-- time visible
-	O:AttachSlider(container, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, true)
-	O:AttachSpacer(container, 1)
+	O:AttachSlider(scrollingGroup, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, true)
+	O:AttachSpacer(scrollingGroup, 1)
 	-- background alpha
-	local alpha = O:AttachSlider(container, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, true)
-	O:AttachSpacer(container, 5)
+	local alpha = O:AttachSlider(scrollingGroup, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, true)
+	O:AttachSpacer(scrollingGroup, 5)
 	-- font size
-	O:AttachSlider(container, "Font size", db, "fontSize", 8, 22, 1, false, sliderWidth, true)
-	O:AttachSpacer(container, 5)
+	O:AttachSlider(scrollingGroup, "Font size", db, "fontSize", 8, 22, 1, false, sliderWidth, true)
+	O:AttachSpacer(scrollingGroup, 5)
 	-- visible lines
-	O:AttachSlider(container, "Visible lines", db, "visibleLines", 1, 12, 1, false, sliderWidth, true)
-	O:AttachSpacer(container, 5)
+	O:AttachSlider(scrollingGroup, "Visible lines", db, "visibleLines", 1, 12, 1, false, sliderWidth, true)
+	O:AttachSpacer(scrollingGroup, 5)
 	-- max lines
-	O:AttachSlider(container, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, true)
+	O:AttachSlider(scrollingGroup, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, true)
 	-- align
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
-	O:AttachDropdown(container, "Alignment", db, "align", list, sliderWidth)
+	O:AttachDropdown(scrollingGroup, "Alignment", db, "align", list, sliderWidth)
 	-- inline docu
-	O:AttachLabel(container, " ", GameFontHighlightSmall, nil, 1)
+	O:AttachLabel(scrollingGroup, " ", GameFontHighlightSmall, nil, 1)
 	local text = "Shift + Left Click for moving the frame. Right Click for closing the frame. Mousewheel to scroll through the text."
-	O:AttachLabel(container, text, GameFontHighlightSmall, nil, 1)
+	O:AttachLabel(scrollingGroup, text, GameFontHighlightSmall, nil, 1)
 end
