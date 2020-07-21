@@ -18,7 +18,7 @@ function A:Initialize()
 	-- init Chatframes
 	A:InitChatFrames()
 	-- register for events
-	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	--A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 
@@ -421,7 +421,12 @@ end
 
 function A:InitChatFrames()
 	A.ChatFrames = {}
+	-- loop through chat frames
 	for i = 1, FCF_GetNumActiveChatFrames() do
-		A.ChatFrames[i] = "ChatFrame"..i
+		-- get name
+		local name = _G["ChatFrame"..i.."Tab"]:GetText()
+		if name ~= "Combat Log" then
+			A.ChatFrames[name] = "ChatFrame"..i
+		end
 	end
 end

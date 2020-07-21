@@ -8,25 +8,25 @@ setfenv(1, _G.AlertMe)
 
 function O:ShowMessages(container)
 	dprint(2, "O:ShowMessages")
-	-- header
-	O:AttachHeader(container, "Message Settings")
 	local db = P.messages
+	local messagesGroup = O:AttachGroup(container, _, _, 1, 1, "List")
+	-- header
+	O:AttachHeader(messagesGroup, "Message Settings")
+
 	-- chat frames
-	local chatFramesGroup = O:AttachGroup(container, "Post addon messages in the following chat windows (only visible for you)", true)
-	for i = 1, FCF_GetNumActiveChatFrames() do
-		local name = _G["ChatFrame"..i.."Tab"]:GetText()
-		if name ~= "Combat Log" then
-			O:AttachCheckBox(chatFramesGroup, name, db.chatFrames, "ChatFrame"..i, 150)
-		end
+	local title = "Post addon messages in the following chat windows (only visible for you)"
+	local chatFramesGroup = O:AttachGroup(messagesGroup, title, true, 1)
+	for name, frame in pairs(A.ChatFrames) do
+			O:AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
+
 	-- event specific messages
-	O:AttachHeader(container, "Event specific settings")
-	O:AttachEditBox(container, "Message on aura gained/refreshed", db, "msgGain", 660)
-	O:AttachEditBox(container, "Message on spell dispel", db, "msgDispel", 660)
-	O:AttachEditBox(container, "Message on cast start", db, "msgStart", 660)
-	O:AttachEditBox(container, "Message on cast success", db, "msgSuccess", 660)
-	O:AttachEditBox(container, "Message on interrupt", db, "msgInterrupt", 660)
-	O:AttachEditBox(container, "Message prefix", db, "msgPrefix", 130)
-	O:AttachSpacer(container, 30)
-	O:AttachEditBox(container, "Message postfix", db, "msgPostfix", 130)
+	O:AttachHeader(messagesGroup, "Event specific settings")
+	O:AttachEditBox(messagesGroup, "Message on aura gained/refreshed", db, "msgGain", 1)
+	O:AttachEditBox(messagesGroup, "Message on spell dispel", db, "msgDispel", 1)
+	O:AttachEditBox(messagesGroup, "Message on cast start", db, "msgStart", 1)
+	O:AttachEditBox(messagesGroup, "Message on cast success", db, "msgSuccess", 1)
+	O:AttachEditBox(messagesGroup, "Message on interrupt", db, "msgInterrupt", 1)
+	O:AttachEditBox(messagesGroup, "Message prefix", db, "msgPrefix", 200)
+	O:AttachEditBox(messagesGroup, "Message postfix", db, "msgPostfix", 200)
 end

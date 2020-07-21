@@ -158,3 +158,8 @@ LSM:Register("background", "add", [[Interface\AddOns\AlertMe\Media\Textures\add.
 LSM:Register("background", "delete", [[Interface\AddOns\AlertMe\Media\Textures\delete.tga]])
 LSM:Register("background", "reset", [[Interface\AddOns\AlertMe\Media\Textures\reset.tga]])
 LSM:Register("background", "banto", [[Interface\AddOns\AlertMe\Media\Textures\BantoBar.blp]])
+
+-- Hashtables
+A.LSM.Sounds = A.LSM:HashTable("sound")
+A.LSM.Textures = A.LSM:HashTable("background")
+A.LSM.Fonts = A.LSM:HashTable("font")

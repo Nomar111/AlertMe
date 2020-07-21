@@ -53,8 +53,6 @@ function O:AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 	slider:SetIsPercent(isPercent)
 	slider:SetValue(db[key])
 	slider:SetCallback("OnMouseUp", function(widget, event, value)
-		--dprint(1, widget, event, value)
-		--VDT_AddData(db,"dbslider")
 		db[key] = value
 		if scrolling == true then A:ScrollingTextInitOrUpdate() end
 	end)
@@ -67,7 +65,13 @@ function O:AttachEditBox(container, label, path, key, width)
 	dprint(3, "O:AttachEditBox", container, label, path, key, width)
 	local edit = A.Libs.AceGUI:Create("EditBox")
 	edit:SetLabel(label)
-	if width ~= nil then edit:SetWidth(width) end
+	if width then
+		if width <= 1 then
+			edit:SetRelativeWidth(width)
+		else
+			edit:SetWidth(width)
+		end
+	end
 	edit:SetText(path[key])
 	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
 	container:AddChild(edit)
@@ -82,8 +86,6 @@ function O:AttachButton(container, text, width)
 	container:AddChild(button)
 	return button
 end
-
-
 
 function O:AttachLabel(container, text, fontObject, color, relWidth)
 	dprint(3, "O:AttachLabel", container, text, font_object, color, relWidth)

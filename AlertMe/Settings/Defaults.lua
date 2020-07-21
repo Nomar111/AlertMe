@@ -21,9 +21,21 @@ D.profile = {
 		ofs_y = -150,
 		maxLines = 300,
 		visibleLines = 3,
-		fontSize = 13,
+		fontSize = 14,
 		timeVisible = 10,
 		alpha = 0.1
+	},
+	bars = {
+		auras = {
+			enabled = true,
+			width = 180,
+			height = 20,
+			alpha = 0.7,
+			texture = "Solid",
+			point = "CENTER",
+			ofs_x = 0,
+			ofs_y = 300,
+		}
 	},
 	messages = {
 		msgGain = "%dstName gained %spellName",

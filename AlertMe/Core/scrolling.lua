@@ -16,7 +16,7 @@ function A:ScrollingTextInitOrUpdate()
 	if A.ScrollingText == nil then
 		local f = CreateFrame("ScrollingMessageFrame", "AlertMeScrollingText", UIParent)
 		f:SetFrameStrata("LOW")
-		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true,tileSize=32,edgeSize=32,insets={left=0,right=0,top=0,bottom=0}})
+		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true,tileSize=16,})
 		-- enable mousewheel scrolling
 		f:EnableMouse(true)
 		f:EnableMouseWheel(true)
