@@ -12,9 +12,15 @@ function O:ShowBars(container)
 	local db = P.bars.auras
 	-- header
 	O:AttachHeader(barsGroup, "Aura bars")
+	local enableGroup = O:AttachGroup(barsGroup, _, _, 1)
 	-- enable
-	O:AttachCheckBox(barsGroup, "Enable aura bars", db ,"enabled", 300)
-	O:AttachSpacer(barsGroup, _, "small")
+	O:AttachCheckBox(enableGroup, "Enable aura bars", db ,"enabled", 140)
+	local cbLocked = O:AttachCheckBox(enableGroup, "Unlock bars", db ,"unlocked", 140)
+	cbLocked:SetCallback("OnValueChanged", function(widget, event, value)
+		db.unlocked = value
+		A:ToggleLockBarContainer()
+	end)
+	O:AttachSpacer(enableGroup, _, "large")
 
 	-- buttons
 	local buttonGroup = O:AttachGroup(barsGroup, _, _, 1)
@@ -28,7 +34,20 @@ function O:ShowBars(container)
 	-- reset
 	O:AttachSpacer(buttonGroup, 20)
 	local btnReset = O:AttachButton(buttonGroup, "Reset position", 120)
-	btnReset:SetCallback("OnClick", function() A:ResetTestBar(true) end)
+	btnReset:SetCallback("OnClick", function() A:ResetBarContainer() end)
 	O:AttachSpacer(barsGroup, _, "small")
+
+	-- texture
+	local ddTexture = A.Libs.AceGUI:Create("LSM30_Background")
+	ddTexture:SetList(A.LSM.Textures)
+	ddTexture:SetCallback("OnValueChanged", function(widget, _, value)
+		widget:SetValue(value)
+		db.texture = value
+		A:StopTestBar()
+		A:ShowTestBar()
+	end)
+	ddTexture:SetValue(db.texture)
+	barsGroup:AddChild(ddTexture)
+
 
 end

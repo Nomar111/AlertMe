@@ -28,13 +28,14 @@ D.profile = {
 	bars = {
 		auras = {
 			enabled = true,
-			width = 180,
-			height = 20,
+			unlocked = false,
+			width = 160,
+			height = 18,
 			alpha = 0.7,
 			texture = "Solid",
 			point = "CENTER",
 			ofs_x = 0,
-			ofs_y = 300,
+			ofs_y = 150,
 		}
 	},
 	messages = {
