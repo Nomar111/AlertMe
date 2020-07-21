@@ -42,7 +42,7 @@ REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 
 -- addon upvalues
-dprint, pairs, unpack, strsplit, type, tcopy, unpack = _G.dprint, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.unpack
+dprint, pairs, unpack, strsplit, type, tcopy, tinsert, unpack = _G.dprint, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.table.insert, _G.unpack
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 
 -- libraries

@@ -24,7 +24,7 @@ end
 
 function A:GetEventSettingByShort(short, setting)
 	for i,v in pairs(A.Events) do
-		--dprint(1, v.short, "short", short)
+		--dprint(1, v.short, "short", short, setting, v[setting])
 		if v.short == short and v[setting] ~= nil then
 			return v[setting]
 		end

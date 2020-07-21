@@ -10,6 +10,7 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowAlertDetails(container, event, db)
+	if container ~= nil then return end
 	dprint(2, "O:DrawAlertDetails", event)
 	VDT_AddData(container, "alert_details")
 	-- release old widgets

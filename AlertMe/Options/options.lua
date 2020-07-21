@@ -18,7 +18,7 @@ function O:OpenOptions()
 	O.Frame:EnableResize(true)
 	O.Frame:SetLayout("Flow")
 	O.Frame:SetCallback("OnClose", function(widget)
-		A:InitSpellOptions()
+		--A:InitSpellOptions()
 		A.Libs.AceGUI:Release(widget)
 	end)
 	O.Frame:SetWidth(900)
@@ -43,10 +43,10 @@ function O:CreateNavTree(container)
 	tree_structure[7] = {value = "info", text = "Info"}
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
-		if tbl.options_display ~= nil and tbl.options_display == true then
-			tree_structure[5].children[tbl.options_order]  = {
+		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
+			tree_structure[5].children[tbl.optionsOrder]  = {
 				value = tbl.short,
-				text = tbl.options_name
+				text = tbl.optionsText
 			}
 		end
 	end

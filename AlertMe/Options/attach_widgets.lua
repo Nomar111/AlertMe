@@ -62,7 +62,7 @@ function O:AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 	return slider
 end
 
-function O:AttachEditBox(container, label, path, key, width)
+function O:AttachEditBox(container, label, path, key, width, func)
 	dprint(3, "O:AttachEditBox", container, label, path, key, width)
 	local edit = A.Libs.AceGUI:Create("EditBox")
 	edit:SetLabel(label)
@@ -74,7 +74,10 @@ function O:AttachEditBox(container, label, path, key, width)
 		end
 	end
 	edit:SetText(path[key])
-	edit:SetCallback("OnEnterPressed", function(widget, event, text) path[key] = text end)
+	edit:SetCallback("OnEnterPressed", function(widget, event, text)
+		path[key] = text
+		if func ~= nil then func() end
+	end)
 	container:AddChild(edit)
 	return edit
 end
