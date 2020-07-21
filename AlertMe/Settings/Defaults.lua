@@ -44,7 +44,7 @@ D.profile = {
 			textColor = {1, 1, 1, 1},
 			backgroundColor = {0, 0, 0, 0.4}
 		},
-		spell = {
+		spells = {
 			point = "CENTER",
 			ofs_x = 200,
 			ofs_y = 150,
