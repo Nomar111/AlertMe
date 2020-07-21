@@ -13,6 +13,7 @@ D.profile = {
 	},
 	scrolling = {
 		enabled = true,
+		interactive = true,
 		width = 600,
 		align = 1,
 		fading = true,

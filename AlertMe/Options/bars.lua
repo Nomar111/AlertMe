@@ -78,15 +78,4 @@ function O:ShowBars(container)
 	O:AttachColorPicker(barsGroup, "Text color", db, "textColor", true, _, updateTestBar)
 	O:AttachSpacer(barsGroup, _, "small")
 	O:AttachColorPicker(barsGroup, "Text shadow", db, "shadowColor", true, _, updateTestBar)
-	-- local control = A.Libs.AceGUI:Create("ColorPicker")
-	-- control:SetColor(1, 0, 0, 1)
-	-- control:SetLabel("Background color")
-	-- control:SetHasAlpha(true)
-	-- control:SetCallback("OnValueConfirmed", function(widget, _, r, g, b, a)
-	--
-	-- 	--db[key] = value
-	-- 	--if func ~= nil then func() end
-	-- 	--OnValueConfirmed
-	-- end)
-	-- barsGroup:AddChild(control)
 end

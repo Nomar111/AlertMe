@@ -147,19 +147,3 @@ function A:HideBar(barType, id)
 		A.Bars[barType][id]:Stop()
 	end
 end
-
---bar:Stop(...) This will stop the bar, fire the LibCandyBar_Stop c
---[[
-candy.RegisterCallback(API, "LibCandyBar_Stop", function(_, bar)
-if activeBars[bar] then
-activeBars[bar] = nil
-RearrangeBars()
-end
-end)
-endallback, and recycle the bar into the candybar pool. Note: make sure you remove all references to the bar in your addon upon receiving the LibCandyBar_Stop callback.
-
-local function barstopped( callback, bar )
-print( bar.candybarLabel:GetText(), "stopped")
-end
-LibStub("LibCandyBar-3.0"):RegisterCallback(myaddonobject, "LibCandyBar_Stop", barstopped)
-]]
