@@ -11,5 +11,6 @@ function O:ShowProfiles(container)
 	O.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
 	-- register options table and assign to frame
 	A.Libs.AceConfig:RegisterOptionsTable("AlertMeProfile", O.config.profiles)
-	A.Libs.AceConfigDialog:Open("AlertMeProfile", container)
+	local profilesGroup = O:AttachGroup(container, _, false, 1, 1, "Flow")
+	A.Libs.AceConfigDialog:Open("AlertMeProfile", profilesGroup)
 end

@@ -64,8 +64,16 @@ function O:CreateNavTree(container)
 		-- hide scrollTable (not an Ace widget)
 		if O.scrollTable ~= nil then O.scrollTable:Hide() end
 		-- create new content container
-		local contentGroup = O:AttachGroup(widget, _, _, 1, 1, "List")
-		O:ShowOptions(contentGroup, uniqueValue)
+		local contentGroup = A.Libs.AceGUI:Create("SimpleGroup")
+		contentGroup:SetFullWidth(true)
+		contentGroup:SetFullHeight(true)
+		widget:AddChild(contentGroup)
+		local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
+		scrollGroup:SetLayout("List")
+		scrollGroup:SetFullHeight(true)
+		scrollGroup:SetFullWidth(true)
+		contentGroup:AddChild(scrollGroup)
+		O:ShowOptions(scrollGroup, uniqueValue)
 	end
 	tree:SetCallback("OnGroupSelected", GroupSelected)
 	container:AddChild(tree)
