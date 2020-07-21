@@ -153,13 +153,14 @@ LSM:Register("sound", "Vanish", [[Interface\AddOns\AlertMe\Media\Sounds\Vanish.o
 LSM:Register("sound", "War Stomp", [[Interface\AddOns\AlertMe\Media\Sounds\War Stomp.ogg]])
 LSM:Register("sound", "Will of the Forsaken", [[Interface\AddOns\AlertMe\Media\Sounds\Will of the Forsaken.ogg]])
 LSM:Register("sound", "Wyvern Sting", [[Interface\AddOns\AlertMe\Media\Sounds\Wyvern Sting.ogg]])
--- textures
+-- backgrounds
 LSM:Register("background", "add", [[Interface\AddOns\AlertMe\Media\Textures\add.tga]])
 LSM:Register("background", "delete", [[Interface\AddOns\AlertMe\Media\Textures\delete.tga]])
 LSM:Register("background", "reset", [[Interface\AddOns\AlertMe\Media\Textures\reset.tga]])
-LSM:Register("background", "banto", [[Interface\AddOns\AlertMe\Media\Textures\BantoBar.blp]])
+-- statusbars
+LSM:Register("statusbar", "Banto", [[Interface\AddOns\AlertMe\Media\Textures\BantoBar.blp]])
 
 -- Hashtables
-A.LSM.Sounds = A.LSM:HashTable("sound")
-A.LSM.Textures = A.LSM:HashTable("background")
-A.LSM.Fonts = A.LSM:HashTable("font")
+--A.LSM.Sounds = A.LSM:HashTable("sound")
+--A.LSM.Textures = A.LSM:HashTable("background")
+--A.LSM.Fonts = A.LSM:HashTable("font")

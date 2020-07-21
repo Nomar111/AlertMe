@@ -45,8 +45,8 @@ function O:AttachGroup(container, title, inline, width, height, layout)
 	return group
 end
 
-function O:AttachSlider(container, label, db, key, min, max, step, isPercent, width, scrolling)
-	dprint(3, "O:AttachSlider", container, label, db, key, min, max, step, isPercent, width, scrolling)
+function O:AttachSlider(container, label, db, key, min, max, step, isPercent, width, func)
+	dprint(3, "O:AttachSlider", container, label, db, key, min, max, step, isPercent, width, func)
 	local slider = A.Libs.AceGUI:Create("Slider")
 	slider:SetLabel(label)
 	slider:SetSliderValues(min, max, step)
@@ -54,7 +54,8 @@ function O:AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 	slider:SetValue(db[key])
 	slider:SetCallback("OnMouseUp", function(widget, event, value)
 		db[key] = value
-		if scrolling == true then A:ScrollingTextInitOrUpdate() end
+		if func ~= nil then func() end
+		--if scrolling == true then A:ScrollingTextInitOrUpdate() end
 	end)
 	if width then slider:SetWidth(width) end
 	container:AddChild(slider)
@@ -128,11 +129,14 @@ function O:AttachSpacer(container, width, height)
 	return control
 end
 
-function O:AttachCheckBox(container, label, db, key, width)
+function O:AttachCheckBox(container, label, db, key, width, func)
 	dprint(3, "O:AttachCheckBox", container, label, db, key, width)
 	local control = A.Libs.AceGUI:Create("CheckBox")
 	control:SetValue(db[key])
-	control:SetCallback("OnValueChanged", function(widget, event, value) db[key] = value end)
+	control:SetCallback("OnValueChanged", function(widget, event, value)
+		db[key] = value
+		if func ~= nil then func() end
+	end)
 	control:SetLabel(label)
 	if width then control:SetWidth(width) end
 	container:AddChild(control)
@@ -176,4 +180,42 @@ function O:AttachMultiLineEditBox(container, path, key, label, lines)
 	end)
 	container:AddChild(edit)
 	return edit
+end
+
+local LSMWidgets = {
+	sound = "LSM30_Sound",
+	statusbar = "LSM30_Statusbar",
+	font = "LSM30_Font",
+	sound = "LSM30_Sound",
+	background = "LSM30_Background",
+	border = "LSM30_Border"
+}
+
+function O:AttachLSM(container, type, label, db, key, width, func)
+	dprint(3, "O:AttachLSM", container, type, label, db, key, width, func)
+	local control = {}
+	control = A.Libs.AceGUI:Create(LSMWidgets[type])
+	control:SetList(A.LSM:HashTable(type))
+	control:SetLabel(label)
+	control:SetCallback("OnValueChanged", function(widget, _, value)
+		widget:SetValue(value)
+		db[key] = value
+		if func ~= nil then func() end
+	end)
+	if width ~= nil then control:SetWidth(width) end
+	control:SetValue(db[key])
+	container:AddChild(control)
+end
+
+function O:AttachColorPicker(container, label, db, key, alpha, width, func)
+	dprint(3, "O:AttachLSM", container, label, db, key, alpha, width, func)
+	local control = A.Libs.AceGUI:Create("ColorPicker")
+	control:SetColor(unpack(db[key]))
+	control:SetLabel(label)
+	control:SetHasAlpha(alpha)
+	control:SetCallback("OnValueConfirmed", function(widget, _, r, g, b, a)
+		db[key] = {r,g,b,a}
+		if func ~= nil then func() end
+	end)
+	container:AddChild(control)
 end

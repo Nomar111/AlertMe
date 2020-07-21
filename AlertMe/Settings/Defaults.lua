@@ -26,13 +26,28 @@ D.profile = {
 		alpha = 0.1
 	},
 	bars = {
-		auras = {
+		["**"] = {
 			enabled = true,
 			unlocked = false,
+			showIcon = true,
 			width = 160,
-			height = 18,
+			height = 17,
 			alpha = 0.7,
-			texture = "Solid",
+			fill = false,
+			timeVisible = true,
+			texture = "Banto",
+			shadowColor = {0, 0, 0, 0.1},
+			goodColor = {0, 1, 0, 0.7},
+			badColor = {1, 0, 0, 0.7},
+			textColor = {1, 1, 1, 1},
+			backgroundColor = {0, 0, 0, 0.4}
+		},
+		spell = {
+			point = "CENTER",
+			ofs_x = 200,
+			ofs_y = 150,
+		},
+		auras = {
 			point = "CENTER",
 			ofs_x = 0,
 			ofs_y = 150,

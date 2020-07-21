@@ -1,8 +1,7 @@
 dprint(3, "init.lua")
 -- upvalues
 local _G = _G
-local tostring, unpack  = tostring, unpack
-local LibStub, GetAddOnMetadata = LibStub, GetAddOnMetadata
+local LibStub, GetAddOnMetadata, tostring = LibStub, GetAddOnMetadata, tostring
 local UnitName, GetRealmName = UnitName, GetRealmName
 
 -- get engine/addon environment
