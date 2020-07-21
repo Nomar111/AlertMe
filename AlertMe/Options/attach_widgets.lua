@@ -143,15 +143,18 @@ function O:AttachCheckBox(container, label, db, key, width, func)
 	return control
 end
 
-function O:AttachDropdown(container, label, db, key, list, width)
-	dprint(3, "O:AttachDropdown", container, label, db, key, list, width)
+function O:AttachDropdown(container, label, db, key, list, width, func)
+	dprint(3, "O:AttachDropdown", container, label, db, key, list, width, func)
 	local dropdown = A.Libs.AceGUI:Create("Dropdown")
 	dropdown:SetLabel(label)
 	dropdown:SetMultiselect(false)
 	dropdown:SetWidth(width)
 	dropdown:SetList(list)
 	dropdown:SetValue(db[key])
-	dropdown:SetCallback("OnValueChanged", function(_, _, value) db[key] = value end)
+	dropdown:SetCallback("OnValueChanged", function(_, _, value)
+		db[key] = value
+		if func ~= nil then func() end
+	end)
 	container:AddChild(dropdown)
 	return dropdown
 end

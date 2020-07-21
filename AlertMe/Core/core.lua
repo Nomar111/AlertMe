@@ -12,7 +12,7 @@ setfenv(1, _G.AlertMe)
 -- init function
 function A:Initialize()
 	-- init scrolling text frame
-	A:ScrollingTextInitOrUpdate()
+	A:UpdateScrolling()
 	-- init options
 	A:InitSpellOptions()
 	-- init Chatframes

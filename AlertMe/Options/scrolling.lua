@@ -8,80 +8,76 @@ function O:ShowScrollingText(container)
 	dprint(2, "O:ShowcontainerText")
 	local db = P.scrolling
 	local sliderWidth = 190
-	local scrollingGroup = O:AttachGroup(container, _, _, 1, 1, "List")
+	-- local function
+	local function updateScrolling()
+		A:UpdateScrolling()
+	end
+	local function toggleInteractive()
+		A:ToggleScrollingInteractive()
+	end
 
 	-- header
-	O:AttachHeader(scrollingGroup, "Scrolling Text Settings")
+	O:AttachHeader(container, "Scrolling Text Settings")
 
 	-- enable
-	O:AttachCheckBox(scrollingGroup, "Enable Scrolling Text", db ,"enabled", 300)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	local enableGroup = O:AttachGroup(container, _, _, 1)
+	O:AttachCheckBox(enableGroup, "Enable Scrolling Text", db ,"enabled", 170)
+	O:AttachCheckBox(enableGroup, "Movable", db ,"interactive", 250, toggleInteractive)
+	O:AttachSpacer(container, _, "small")
 
 	-- buttons
-	local buttonGroup = O:AttachGroup(scrollingGroup, _, _, 1)
-	-- show
+	local buttonGroup = O:AttachGroup(container, _, _, 1)
 	local btnShow = O:AttachButton(buttonGroup, "Show frame", 120)
-	btnShow:SetCallback("OnClick", function() A:ScrollingTextShow(true) end)
-	-- hide
+	btnShow:SetCallback("OnClick", function() A:ShowScrolling(true) end)
 	O:AttachSpacer(buttonGroup, 20)
 	local btnHide = O:AttachButton(buttonGroup, "Hide frame", 120)
-	btnHide:SetCallback("OnClick", function() A:ScrollingTextHide() end)
-	-- reset
+	btnHide:SetCallback("OnClick", function() A:HideScrolling() end)
 	O:AttachSpacer(buttonGroup, 20)
 	local btnReset = O:AttachButton(buttonGroup, "Reset position", 120)
-	btnReset:SetCallback("OnClick", function() A:ScrollingTextSetPosition(true) end)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	btnReset:SetCallback("OnClick", function() A:SetScrollingPosition(true) end)
+	O:AttachSpacer(container, _, "small")
 
 	-- width
-	local width = O:AttachSlider(scrollingGroup, "Set width", db, "width", 300, 1000, 20, false, 400, true)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	local width = O:AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 400, updateScrolling)
+	O:AttachSpacer(container, _, "small")
 
 	-- fading
-	local fadingGroup = O:AttachGroup(scrollingGroup, _, _, 1)
-	local cbFading = O:AttachCheckBox(fadingGroup, "Enable fading", db, "fading", sliderWidth)
-	cbFading:SetCallback("OnValueChanged", function(widget, event, value)
-		db["fading"] = value
-		A:ScrollingTextInitOrUpdate()
-	end)
+	local fadingGroup = O:AttachGroup(container, _, _, 1)
+	local cbFading = O:AttachCheckBox(fadingGroup, "Enable fading", db, "fading", sliderWidth, updateScrolling)
 	O:AttachSpacer(fadingGroup, 20)
 	-- time visible
-	O:AttachSlider(fadingGroup, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, true)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	O:AttachSlider(fadingGroup, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, updateScrolling)
+	O:AttachSpacer(container, _, "small")
 
 	-- font size
-	local alphaGroup = O:AttachGroup(scrollingGroup, _, _, 1)
-	O:AttachSlider(alphaGroup, "Font size", db, "fontSize", 8, 22, 1, false, sliderWidth, true)
+	local alphaGroup = O:AttachGroup(container, _, _, 1)
+	O:AttachSlider(alphaGroup, "Font size", db, "fontSize", 8, 22, 1, false, sliderWidth, updateScrolling)
 	O:AttachSpacer(alphaGroup, 20)
 	-- background alpha
-	O:AttachSlider(alphaGroup, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, true)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	O:AttachSlider(alphaGroup, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, updateScrolling)
+	O:AttachSpacer(container, _, "small")
 
-	local linesGroup = O:AttachGroup(scrollingGroup, _, _, 1)
+	local linesGroup = O:AttachGroup(container, _, _, 1)
 	-- visible lines
-	O:AttachSlider(linesGroup, "Visible lines", db, "visibleLines", 1, 12, 1, false, sliderWidth, true)
+	O:AttachSlider(linesGroup, "Visible lines", db, "visibleLines", 1, 12, 1, false, sliderWidth, updateScrolling)
 	O:AttachSpacer(linesGroup, 20)
 	-- max lines
-	O:AttachSlider(linesGroup, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, true)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	O:AttachSlider(linesGroup, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, updateScrolling)
+	O:AttachSpacer(container, _, "small")
 
 	-- align
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
-	local ddAlign = O:AttachDropdown(scrollingGroup, "Alignment", db, "align", list, sliderWidth)
-	ddAlign:SetCallback("OnValueChanged", function(_, _, value)
-		db["align"] = value
-		A:ScrollingTextInitOrUpdate()
-	end)
-	O:AttachSpacer(scrollingGroup, _, "large")
-	O:AttachSpacer(scrollingGroup, _, "large")
+	local ddAlign = O:AttachDropdown(container, "Alignment", db, "align", list, sliderWidth, updateScrolling)
+	O:AttachSpacer(container, _, "large")
 
 	-- inline docu
-	local text1 = "Shift + Left-Click for moving the frame."
-	local text2 = "Right-Click for closing the frame."
+	local text1 = "Left-Click for moving the frame (if set to movable)."
+	local text2 = "Right-Click for closing the frame (if set to movable)."
 	local text3 = "Mousewheel to scroll through the text."
-	O:AttachLabel(scrollingGroup, text1, GameFontHighlight)
-	O:AttachSpacer(scrollingGroup, _, "small")
-	O:AttachLabel(scrollingGroup, text2, GameFontHighlight)
-	O:AttachSpacer(scrollingGroup, _, "small")
-	O:AttachLabel(scrollingGroup, text3, GameFontHighlight)
-	O:AttachSpacer(scrollingGroup, _, "small")
+	O:AttachLabel(container, text1, GameFontHighlight)
+	O:AttachSpacer(container, _, "small")
+	O:AttachLabel(container, text2, GameFontHighlight)
+	O:AttachSpacer(container, _, "small")
+	O:AttachLabel(container, text3, GameFontHighlight)
+	O:AttachSpacer(container, _, "small")
 end

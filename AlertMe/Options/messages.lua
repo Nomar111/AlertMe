@@ -9,24 +9,21 @@ setfenv(1, _G.AlertMe)
 function O:ShowMessages(container)
 	dprint(2, "O:ShowMessages")
 	local db = P.messages
-	local messagesGroup = O:AttachGroup(container, _, _, 1, 1, "List")
 	-- header
-	O:AttachHeader(messagesGroup, "Message Settings")
-
+	O:AttachHeader(container, "Message Settings")
 	-- chat frames
 	local title = "Post addon messages in the following chat windows (only visible for you)"
-	local chatFramesGroup = O:AttachGroup(messagesGroup, title, true, 1)
+	local chatFramesGroup = O:AttachGroup(container, title, true, 1)
 	for name, frame in pairs(A.ChatFrames) do
 			O:AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
-
 	-- event specific messages
-	O:AttachHeader(messagesGroup, "Event specific settings")
-	O:AttachEditBox(messagesGroup, "Message on aura gained/refreshed", db, "msgGain", 1)
-	O:AttachEditBox(messagesGroup, "Message on spell dispel", db, "msgDispel", 1)
-	O:AttachEditBox(messagesGroup, "Message on cast start", db, "msgStart", 1)
-	O:AttachEditBox(messagesGroup, "Message on cast success", db, "msgSuccess", 1)
-	O:AttachEditBox(messagesGroup, "Message on interrupt", db, "msgInterrupt", 1)
-	O:AttachEditBox(messagesGroup, "Message prefix", db, "msgPrefix", 200)
-	O:AttachEditBox(messagesGroup, "Message postfix", db, "msgPostfix", 200)
+	O:AttachHeader(container, "Event specific settings")
+	O:AttachEditBox(container, "Message on aura gained/refreshed", db, "msgGain", 1)
+	O:AttachEditBox(container, "Message on spell dispel", db, "msgDispel", 1)
+	O:AttachEditBox(container, "Message on cast start", db, "msgStart", 1)
+	O:AttachEditBox(container, "Message on cast success", db, "msgSuccess", 1)
+	O:AttachEditBox(container, "Message on interrupt", db, "msgInterrupt", 1)
+	O:AttachEditBox(container, "Message prefix", db, "msgPrefix", 200)
+	O:AttachEditBox(container, "Message postfix", db, "msgPostfix", 200)
 end

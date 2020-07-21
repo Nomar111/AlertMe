@@ -13,7 +13,7 @@ D.profile = {
 	},
 	scrolling = {
 		enabled = true,
-		interactive = true,
+		movable = false,
 		width = 600,
 		align = 1,
 		fading = true,
@@ -23,8 +23,9 @@ D.profile = {
 		maxLines = 300,
 		visibleLines = 3,
 		fontSize = 14,
+		font = "Roboto Condensed Regular",
 		timeVisible = 10,
-		alpha = 0.1
+		alpha = 0.1,
 	},
 	bars = {
 		["**"] = {
