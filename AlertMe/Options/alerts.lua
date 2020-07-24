@@ -24,7 +24,7 @@ function O:ShowAlerts(container, eventShort)
 	local topGroup = O:AttachGroup(container, _, _, 1)
 
 	-- alert dropdown
-	local label = "Alerts - "..A:GetEventSettingByShort(eventShort, "optionsText")
+	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
 	local ddAlert = O:AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
 	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
 	O:AttachSpacer(topGroup, 10)
@@ -70,11 +70,11 @@ function O:ShowAlerts(container, eventShort)
 		cbActive:SetValue(nil)
 		cbActive:SetDisabled(true)
 	end
-	--O:AttachCheckBox(container, "Active", db, "active", 70)
-	-- -- create details group
-	-- O.Alert.DetailsGroup = O:AttachGroup(container, "", false)
-	-- -- draw alert details
-	-- O:ShowAlertDetails(O.Alert.DetailsGroup, eventShort, db)
+
+	-- show alert details
+	if uid ~= nil and uid ~= "" then
+		O:ShowAlertDetails(container, eventShort, uid)
+	end
 end
 
 function O:GetSomeAlert(eventShort)

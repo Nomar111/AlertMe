@@ -91,26 +91,33 @@ function O:AttachButton(container, text, width)
 	return button
 end
 
-function O:AttachLabel(container, text, fontObject, color, relWidth)
-	dprint(3, "O:AttachLabel", container, text, font_object, color, relWidth)
+function O:AttachLabel(container, text, fontObject, color, absWidth, relWidth)
+	dprint(3, "O:AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
 	local label = A.Libs.AceGUI:Create("Label")
 	label:SetText(text)
-	label:SetRelativeWidth(relWidth or 1)
-	if fontObject == nil then fontObject = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	if absWidth ~= nil then
+		label:SetWidth(absWidth)
+	else
+		label:SetRelativeWidth(relWidth or 1)
+	end
+	if fontObject == nil then fontObject = GameFontHighlight end
 	label:SetFontObject(fontObject)
 	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
 	container:AddChild(label)
 	return label
 end
 
-function O:AttachInteractiveLabel(container, text, fontObject, color, relWidth)
-	dprint(3, "O:AttachInteractiveLabel", container, text, fontObject, color, relWidth)
+function O:AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth)
+	dprint(3, "O:AttachInteractiveLabel", container, text, fontObject, color,  absWidth, relWidth)
 	local label = A.Libs.AceGUI:Create("Label")
 	label:SetText(text)
-	label:SetRelativeWidth(relWidth or 1)
-	if fontObject == nil then fontObject = GameFontHighlight end -- GameFontHighlightLarge, GameFontHighlightSmall
+	if absWidth ~= nil then
+		label:SetWidth(absWidth)
+	else
+		label:SetRelativeWidth(relWidth or 1)
+	end
+	if fontObject == nil then fontObject = GameFontHighlight end
 	label:SetFontObject(fontObject)
-	--label:SetHighlight(0.7,0.7,0.7,1)
 	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
 	container:AddChild(label)
 	return label
@@ -168,6 +175,8 @@ function O:AttachIcon(container, image, size)
 	icon:SetImage(image)
 	icon:SetImageSize(size, size)
 	icon:SetWidth(size)
+	icon:SetHeight(size)
+	icon.image:SetPoint("TOP", 0, 0)
 	container:AddChild(icon)
 	return icon
 end

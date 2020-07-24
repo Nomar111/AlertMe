@@ -78,7 +78,7 @@ D.profile = {
 					spells = {
 						['*'] = {
 							icon = "",
-							sound = "",
+							soundFile = "",
 						}
 					},
 					srcUnits = 5,
@@ -89,7 +89,7 @@ D.profile = {
 					showBar = true,
 					chatChannels = 1,
 					systemMessages = 2,
-					whisperDestination = 1,
+					dstwhispert = 1,
 					showInScrolling = true,
 					soundSelection = 1,
 					soundFile = "",

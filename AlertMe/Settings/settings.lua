@@ -6,12 +6,13 @@ setfenv(1, _G.AlertMe)
 
 -- central table with event options
 A.Events = {
-	["type_APPLIED"] = {
+	["SPELL_AURA_APPLIED"] = {
 		short = "gain",
+		checkedSettings = "gain",
 		optionsDisplay = true,
 		optionsText = "On aura gain or refresh",
 		optionsOrder = 1,
-		type = "Aura",
+		type = "aura",
 		spellSelection = true,
 		unitSelection = true,
 		srcUnits = true,
@@ -24,8 +25,9 @@ A.Events = {
 		--msg = P.events.msgAuraGain,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
-	["type_REFRESH"] = {
-		short = "gain",
+	["SPELL_AURA_REFRESH"] = {
+		short = "refresh",
+		checkedSettings = "gain",
 		optionsDisplay = false,
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
@@ -33,8 +35,9 @@ A.Events = {
 		--msg = P.events.msgAuraGain,
 		--actions = {A:ChatAnnounce(), A:PlaySound(), A:ShowAuraBar()},
 	},
-	["type_REMOVED"] = {
+	["SPELL_AURA_REMOVED"] = {
 		short = "removed",
+		checkedSettings = "removed",
 		optionsDisplay = false,
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
@@ -44,10 +47,11 @@ A.Events = {
 	},
 	["SPELL_DISPEL"] = {
 		short = "dispel",
+		checkedSettings = "dispel",
 		optionsDisplay = true,
 		optionsText = "On dispel",
 		optionsOrder = 2,
-		type = "Spell",
+		type = "spell",
 		spellSelection = true,
 		unitSelection = true,
 		srcUnits = true,
@@ -62,10 +66,11 @@ A.Events = {
 	},
 	["SPELL_CAST_START"] = {
 		short = "start",
+		checkedSettings = "start",
 		optionsDisplay = true,
 		optionsText = "On cast start",
 		optionsOrder = 3,
-		type = "Spell",
+		type = "spell",
 		spellSelection = true,
 		unitSelection = true,
 		srcUnits = true,
@@ -78,10 +83,11 @@ A.Events = {
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		short = "success",
+		checkedSettings = "success",
 		optionsDisplay = true,
 		optionsText = "On cast success",
 		optionsOrder = 4,
-		type = "Spell",
+		type = "spell",
 		spellSelection = true,
 		unitSelection = true,
 		srcUnits = true,
@@ -95,10 +101,11 @@ A.Events = {
 	},
 	["SPELL_INTERRUPT"] = {
 		short = "interrupt",
+		checkedSettings = "interrupt",
 		optionsDisplay = true,
 		optionsText = "On interrupt",
 		optionsOrder = 5,
-		type = "Spell",
+		type = "spell",
 		spellSelection = false,
 		unitSelection = true,
 		srcUnits = true,
@@ -112,6 +119,27 @@ A.Events = {
 		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
 	},
 }
+
+A.EventsShort = {}
+for event, tbl in pairs(A.Events) do
+	A.EventsShort[tbl.short] = {
+		event = event,
+		checkedSettings = tbl.checkedSettings,
+		optionsDisplay = tbl.optionsDisplay,
+		optionsText = tbl.optionsText,
+		optionsOrder = tbl.optionsOrder,
+		type = tbl.type,
+		spellSelection = tbl.spellSelection,
+		unitSelection = tbl.unitSelection,
+		srcUnits = tbl.srcUnits,
+		dstUnits = tbl.dstUnits,
+		displaySettings = tbl.displaySettings,
+		dstwhisper = tbl.dstwhisper,
+		optionalArgs = tbl.optionalArgs,
+		relSpellName = tbl.relSpellName,
+		checkedUnits = tbl.checkedUnits,
+	}
+end
 
 -- lockouts
 A.Lockouts = {

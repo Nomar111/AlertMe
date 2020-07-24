@@ -14,21 +14,11 @@ function A:Initialize()
 	-- init scrolling text frame
 	A:UpdateScrolling()
 	-- init options
-	A:InitSpellOptions()
+	--A:InitSpellOptions()
 	-- init Chatframes
 	A:InitChatFrames()
 	-- register for events
 	--A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-end
-
-
-function A:GetEventSettingByShort(short, setting)
-	for i,v in pairs(A.Events) do
-		--dprint(1, v.short, "short", short, setting, v[setting])
-		if v.short == short and v[setting] ~= nil then
-			return v[setting]
-		end
-	end
 end
 
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)

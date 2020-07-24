@@ -1,31 +1,24 @@
 dprint(3, "alert_details.lua")
 -- upvalues
-local _G, dprint, type, unpack, pairs, time, tostring, xpcall, tinsert = _G, dprint, type, unpack, pairs, time, tostring, xpcall, table.insert
-local GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall, CreateFrame = GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall, CreateFrame
-local GameTooltip, GetSpellInfo, LibStub = GameTooltip, GetSpellInfo, LibStub
+local _G, GetItemIcon, GetSpellInfo = _G, GetItemIcon, GetSpellInfo
+--local GameTooltip, GetSpellInfo, LibStub = GameTooltip, GetSpellInfo, LibStub
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:ShowAlertDetails(container, event, db)
-	if container ~= nil then return end
-	dprint(2, "O:DrawAlertDetails", event)
-	VDT_AddData(container, "alert_details")
-	-- release old widgets
-	container:ReleaseChildren()
-	-- abort if no alert is selected
-	local uid = db["alert_dd_value"]
-	if uid == nil or uid == "" then return end
-	-- set path to db for this event
-	db = P.alerts[event].alert_details[uid]
-	--VDT_AddData(db, "db")
+function O:ShowAlertDetails(container, eventShort, uid)
+	dprint(1, "O:DrawAlertDetails", container, eventShort, uid)
+	--VDT_AddData(container, "container")
+	local db = P.alerts[eventShort].alertDetails[uid]
 	-- spell selection
-	if A:GetEventSettingByShort(event, "spell_selection") == true then
+	if A.EventsShort[eventShort].spellSelection == true then
 		O:AttachHeader(container, "Spell/Aura settings")
-		O:AttachSpellSelection(container, db, uid)
+		O:AttachSpellSelection(container, eventShort, uid, db)
+		O:AttachSpellTable(container, eventShort, uid, db)
 	end
+	--[[
 	-- unit selection
 	if A:GetEventSettingByShort(event, "unit_selection") == true then
 		O:AttachHeader(container, "Unit selection")
@@ -107,9 +100,58 @@ function O:ShowAlertDetails(container, event, db)
 	end)
 	if db.sound_file ~= "" then sound_file_dd:SetValue(db.sound_file) end
 	container:AddChild(sound_file_dd)
+	]]
 end
 
-function O:AttachSpellSelection(container, db, uid)
+function O:AttachSpellSelection(container, eventShort, uid, db)
+	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
+	editBox:SetLabel("Add "..A.EventsShort[eventShort].type.." to be tracked")
+	editBox:SetWidth(230)
+	editBox:SetCallback("OnEnterPressed", function(widget, event, text)
+		for i,v in pairs(editBox.predictFrame.buttons) do
+			local name, _, icon = GetSpellInfo(v.spellID)
+			if name ~= nil and name == text then
+				db.spells[text]["icon"] = icon
+				--db.spells[text]["id"] = v.spellID
+			end
+		end
+		--O:UpdateScrollTableData()
+		editBox:SetText("")
+	end)
+	container:AddChild(editBox)
+end
+
+function O:AttachSpellTable(container, eventShort, uid, db)
+	local spellTableGroup = A.Libs.AceGUI:Create("SimpleGroup")
+	spellTableGroup:SetFullWidth(true)
+	spellTableGroup:SetHeight(300)
+	--spellTableGroup:SetTitle("Spell/Aura table")
+	container:AddChild(spellTableGroup)
+	local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
+	scrollGroup:SetLayout("List")
+	scrollGroup:SetFullHeight(true)
+	scrollGroup:SetFullWidth(true)
+	scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
+	spellTableGroup:AddChild(scrollGroup)
+
+	local iconAdd = A.LSM:HashTable("background")["Add"]
+	local iconDelete = A.LSM:HashTable("background")["Delete"]
+
+	for spellName, tbl in pairs(db.spells) do
+		local rowGroup = O:AttachGroup(scrollGroup, _, _, 1, _, "Flow")
+		--VDT_AddData(rowGroup, "rowGroup")
+		O:AttachIcon(rowGroup, iconDelete, 18)
+		O:AttachSpacer(rowGroup, 10)
+		O:AttachIcon(rowGroup, tbl.icon, 18)
+		O:AttachSpacer(rowGroup, 5)
+		O:AttachInteractiveLabel(rowGroup, spellName, _, _, 150)
+		O:AttachSpacer(rowGroup, 10)
+		--O:AttachLSM(rowGroup, "sound", _, db.spells, "soundFile", 100)
+		--O:AttachIcon(rowGroup, iconAdd, 18)
+	end
+end
+
+function O:AttachSpellSelection_OLD(container, db, uid)
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
 	editBox:SetLabel("Add spell/aura to be tracked")
 	editBox:SetWidth(320)
