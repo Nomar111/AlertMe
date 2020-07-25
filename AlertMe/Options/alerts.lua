@@ -27,6 +27,16 @@ function O:ShowAlerts(container, eventShort)
 	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
 	local ddAlert = O:AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
 	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
+	O:AttachSpacer(topGroup, 20)
+
+	-- editbox for alertname
+	local editBox = O:AttachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
+	if db.alertDetails[uid].created == true then
+		editBox:SetText(db.alertDetails[uid].name)
+	else
+		editBox:SetText("")
+		editBox:SetDisabled(true)
+	end
 	O:AttachSpacer(topGroup, 10)
 
 	-- add alert
@@ -50,16 +60,6 @@ function O:ShowAlerts(container, eventShort)
 		db.selectedAlert = O:GetSomeAlert(eventShort) -- get another uid
 		refresh()
 	end)
-	O:AttachSpacer(topGroup, 10)
-
-	-- editbox for alertname
-	local editBox = O:AttachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
-	if db.alertDetails[uid].created == true then
-		editBox:SetText(db.alertDetails[uid].name)
-	else
-		editBox:SetText("")
-		editBox:SetDisabled(true)
-	end
 	O:AttachSpacer(topGroup, 10)
 
 	-- active checkbox
