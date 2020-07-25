@@ -220,6 +220,7 @@ function O:AttachLSM(container, type, label, db, key, width, func)
 	if width ~= nil then control:SetWidth(width) end
 	control:SetValue(db[key])
 	container:AddChild(control)
+	return control
 end
 
 function O:AttachColorPicker(container, label, db, key, alpha, width, func)

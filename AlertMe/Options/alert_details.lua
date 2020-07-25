@@ -9,14 +9,15 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowAlertDetails(container, eventShort, uid)
-	dprint(1, "O:DrawAlertDetails", container, eventShort, uid)
+	dprint(2, "O:DrawAlertDetails", container, eventShort, uid)
 	--VDT_AddData(container, "container")
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- spell selection
 	if A.EventsShort[eventShort].spellSelection == true then
 		O:AttachHeader(container, "Spell/Aura settings")
 		O:AttachSpellSelection(container, eventShort, uid, db)
-		O:AttachSpellTable(container, eventShort, uid, db)
+		O:InitSpellTable(container, eventShort, uid, db)
+		--O:UpdateSpellTable(container,m eventShort, uid, db)
 	end
 	--[[
 	-- unit selection
@@ -104,6 +105,9 @@ function O:ShowAlertDetails(container, eventShort, uid)
 end
 
 function O:AttachSpellSelection(container, eventShort, uid, db)
+	dprint(2, "O:AttachSpellSelection", container, eventShort, uid, db)
+
+	-- spell edit box
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
 	editBox:SetLabel("Add "..A.EventsShort[eventShort].type.." to be tracked")
 	editBox:SetWidth(230)
@@ -112,6 +116,7 @@ function O:AttachSpellSelection(container, eventShort, uid, db)
 			local name, _, icon = GetSpellInfo(v.spellID)
 			if name ~= nil and name == text then
 				db.spells[text]["icon"] = icon
+				O:UpdateSpellTable(eventShort, uid, db)
 				--db.spells[text]["id"] = v.spellID
 			end
 		end
@@ -119,33 +124,83 @@ function O:AttachSpellSelection(container, eventShort, uid, db)
 		editBox:SetText("")
 	end)
 	container:AddChild(editBox)
+
+	-- sound selection per spell
+	local soundSelection = O:AttachLSM(container, "sound", _, db, "dummy", 200)
+	soundSelection:SetCallback("OnValueChanged", function(widget, _, value)
+		local _db = widget:GetUserData("db")
+		local _key = widget:GetUserData("key")
+		_db[_key] = value
+		O:UpdateSpellTable(eventShort, uid, db)
+	end)
+	soundSelection:SetDisabled(true)
+	O.SoundSelection = soundSelection
 end
 
-function O:AttachSpellTable(container, eventShort, uid, db)
-	local spellTableGroup = A.Libs.AceGUI:Create("SimpleGroup")
-	spellTableGroup:SetFullWidth(true)
-	spellTableGroup:SetHeight(300)
+function O:InitSpellTable(container, eventShort, uid, db)
+	dprint(2, "O:InitSpellTable", container)
+	local spellTable = A.Libs.AceGUI:Create("SimpleGroup")
+	spellTable = A.Libs.AceGUI:Create("SimpleGroup")
+	spellTable:SetFullWidth(true)
+	spellTable:SetHeight(300)
+	container:AddChild(spellTable)
+	O.SpellTable = spellTable
+	O:UpdateSpellTable(eventShort, uid, db)
+end
+
+function O:UpdateSpellTable(eventShort, uid, db)
+	dprint(2, "O:UpdateSpellTable", eventShort, uid, db)
+	VDT_AddData(db, "db")
+	O.SpellTable:ReleaseChildren()
 	--spellTableGroup:SetTitle("Spell/Aura table")
-	container:AddChild(spellTableGroup)
+
 	local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
+	--scrollGroup:SetRelativeWidth(0.5)
+	--VDT_AddData(scrollGroup,"scrollGroup")
 	scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
-	spellTableGroup:AddChild(scrollGroup)
+	O.SpellTable:AddChild(scrollGroup)
 
 	local iconAdd = A.LSM:HashTable("background")["Add"]
 	local iconDelete = A.LSM:HashTable("background")["Delete"]
 
 	for spellName, tbl in pairs(db.spells) do
+		-- rowGroup
 		local rowGroup = O:AttachGroup(scrollGroup, _, _, 1, _, "Flow")
-		--VDT_AddData(rowGroup, "rowGroup")
-		O:AttachIcon(rowGroup, iconDelete, 18)
+
+		-- delete
+		local btnDeleteSpell = O:AttachIcon(rowGroup, iconDelete, 18)
+		btnDeleteSpell:SetUserData("spell", spellName)
+		btnDeleteSpell:SetUserData("db", db)
+		btnDeleteSpell:SetCallback("OnClick", function(widget, event, value)
+			local spell = widget:GetUserData("spell")
+			local _db = widget:GetUserData("db")
+			_db.spells[spell] = nil
+			O:UpdateSpellTable(eventShort, uid, _db)
+		end)
 		O:AttachSpacer(rowGroup, 10)
+
+		-- icon & spellname
 		O:AttachIcon(rowGroup, tbl.icon, 18)
 		O:AttachSpacer(rowGroup, 5)
 		O:AttachInteractiveLabel(rowGroup, spellName, _, _, 150)
 		O:AttachSpacer(rowGroup, 10)
+
+		-- add sound
+		local btnAddSound = O:AttachIcon(rowGroup, iconAdd, 16)
+		btnAddSound:SetUserData("spell", spellName)
+		btnAddSound:SetUserData("db", db)
+		btnAddSound:SetCallback("OnClick", function(widget, event, value)
+			local spell = widget:GetUserData("spell")
+			local _db = widget:GetUserData("db")
+			O.SoundSelection:SetUserData("db", _db.spells[spell])
+			O.SoundSelection:SetUserData("key", "soundFile")
+			O.SoundSelection:SetDisabled(false)
+		end)
+
+		-- local btnDeleteSpell = O:AttachIcon(rowGroup, iconDelete, 18)
 		--O:AttachLSM(rowGroup, "sound", _, db.spells, "soundFile", 100)
 		--O:AttachIcon(rowGroup, iconAdd, 18)
 	end

@@ -13,19 +13,18 @@ O.config = {}
 function O:OpenOptions()
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
-	O.Frame = A.Libs.AceGUI:Create("Frame")
-	O.Frame:SetTitle("AlertMe Options")
-	O.Frame:EnableResize(true)
-	O.Frame:SetLayout("Flow")
-	O.Frame:SetCallback("OnClose", function(widget)
+	local frame = A.Libs.AceGUI:Create("Frame")
+	frame:SetTitle("AlertMe Options")
+	frame:EnableResize(true)
+	frame:SetLayout("Flow")
+	frame:SetCallback("OnClose", function(widget)
 		--A:InitSpellOptions()
 		A.Libs.AceGUI:Release(widget)
 	end)
-	O.Frame:SetWidth(900)
-	O.Frame:SetHeight(680)
-	VDT_AddData(O.Frame, "OptionsFrame")
+	frame:SetWidth(900)
+	frame:SetHeight(680)
 	-- create navigation
-	O:CreateNavTree(O.Frame)
+	O:CreateNavTree(frame)
 end
 
 -- *************************************************************************************
@@ -59,10 +58,10 @@ function O:CreateNavTree(container)
 
 	-- callbacks
 	local function GroupSelected(widget, event, uniqueValue)
-		-- delete whatever is shown on the right side
+		dprint(2, widget, event, uniqueValue)
+		-- release content
 		widget:ReleaseChildren()
-		-- hide scrollTable (not an Ace widget)
-		if O.scrollTable ~= nil then O.scrollTable:Hide() end
+
 		-- create new content container
 		local contentGroup = A.Libs.AceGUI:Create("SimpleGroup")
 		contentGroup:SetFullWidth(true)
@@ -72,6 +71,7 @@ function O:CreateNavTree(container)
 		scrollGroup:SetLayout("List")
 		scrollGroup:SetFullHeight(true)
 		scrollGroup:SetFullWidth(true)
+		scrollGroup.frame:SetBackdrop(nil)
 		contentGroup:AddChild(scrollGroup)
 		O:ShowOptions(scrollGroup, uniqueValue)
 	end
