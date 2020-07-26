@@ -21,6 +21,7 @@ function O:ShowAlerts(container, eventShort)
 
 	-- local functions
 	local function refresh()
+		drpint(2, "refresh")
 		O:ShowAlerts(container, eventShort)
 	end
 
