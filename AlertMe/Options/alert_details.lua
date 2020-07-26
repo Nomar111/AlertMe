@@ -1,7 +1,7 @@
 dprint(3, "alert_details.lua")
 -- upvalues
 local _G, GetItemIcon, GetSpellInfo = _G, GetItemIcon, GetSpellInfo
---local GameTooltip, GetSpellInfo, LibStub = GameTooltip, GetSpellInfo, LibStub
+--local GameTooltip, GetSpellInfo = GameTooltip, GetSpellInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -104,8 +104,11 @@ function O:ShowAlertDetails(container, eventShort, uid)
 	]]
 end
 
-function O:AttachSpellSelection(container, eventShort, uid, db)
-	dprint(2, "O:AttachSpellSelection", container, eventShort, uid, db)
+function O:AttachSpellSelection(container, eventShort, uid)
+	dprint(2, "O:AttachSpellSelection", container, eventShort, uid)
+
+	-- local variables & functions
+	local db = P.alerts[eventShort].alertDetails[uid]
 
 	local spellGroup = O:AttachGroup(container, _, _, 1, _, "Flow")
 
@@ -130,15 +133,17 @@ function O:AttachSpellSelection(container, eventShort, uid, db)
 	-- sound selection per spell
 	local soundSelection = O:AttachLSM(spellGroup, "sound", "Set sound alert per spell", db, "dummy", 207)
 	soundSelection:SetCallback("OnValueChanged", function(widget, _, value)
-		local _db = widget:GetUserData("db")
+		local spellName = widget:GetUserData("spellName")
+		local _db = db.spellNames[spellName]
 		local _key = widget:GetUserData("key")
 		_db[_key] = value
 		widget:SetDisabled(true)
 		widget:SetValue("")
-		O:UpdateSpellTable(eventShort, uid, db)
+		O:UpdateSpellTable(eventShort, uid)
 	end)
 	soundSelection:SetDisabled(true)
 	O.SoundSelection = soundSelection
+	O.SoundSelection:SetUserData("key", "soundFile")
 end
 
 function O:InitSpellTable(container, eventShort, uid, db)
@@ -151,11 +156,33 @@ function O:InitSpellTable(container, eventShort, uid, db)
 	O.SpellTable = spellTable
 end
 
-function O:UpdateSpellTable(eventShort, uid, db)
-	dprint(2, "O:UpdateSpellTable", eventShort, uid, db)
+function O:UpdateSpellTable(eventShort, uid)
+	dprint(2, "O:UpdateSpellTable", eventShort, uid)
 	--VDT_AddData(db, "db")
 	O.SpellTable:ReleaseChildren()
-	--spellTableGroup:SetTitle("Spell/Aura table")
+
+	-- local variables and functions
+	local db = P.alerts[eventShort].alertDetails[uid]
+	local iconAdd = A.LSM:HashTable("background")["Add"]
+	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local btnDelSpellToolTip = {lines={"Delete spell/aura"}}
+	local btnAddSoundToolTip = {lines={"Set an individual sound alert"}}
+
+	local function btnDelSpellOnClick(self)
+		dprint(2, "btnDelSpellOnClick", self)
+		local spellName = self:GetUserData("spellName")
+		db.spellNames[spellName] = nil
+		O:UpdateSpellTable(eventShort, uid)
+	end
+
+	local function btnAddSoundOnClick(self)
+		dprint(2, "btnAddSoundOnClick", self)
+		local spellName = self:GetUserData("spellName")
+		O.SoundSelection:SetUserData("spellName", spellName)
+		local soundFile = db.spellNames[spellName].soundFile
+		if soundFile ~= "" then O.SoundSelection:SetValue(soundFile) end
+		O.SoundSelection:SetDisabled(false)
+	end
 
 	local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
 	scrollGroup:SetLayout("List")
@@ -164,50 +191,31 @@ function O:UpdateSpellTable(eventShort, uid, db)
 	scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
 	O.SpellTable:AddChild(scrollGroup)
 
-	local iconAdd = A.LSM:HashTable("background")["Add"]
-	local iconDelete = A.LSM:HashTable("background")["Delete"]
-
+	-- loop over all tracked spells/auras
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
 		local rowGroup = O:AttachGroup(scrollGroup, _, _, 1, _, "Flow")
 
-		-- delete
-		local btnDeleteSpell = O:AttachIcon(rowGroup, iconDelete, 18)
-		btnDeleteSpell:SetUserData("spellName", spellName)
-		btnDeleteSpell:SetUserData("db", db)
-		btnDeleteSpell:SetCallback("OnClick", function(widget, event, value)
-			local _spellName = widget:GetUserData("spellName")
-			local _db = widget:GetUserData("db")
-			_db.spellNames[_spellName] = nil
-			O:UpdateSpellTable(eventShort, uid, _db)
-		end)
+		-- delete spell icon
+		local btnDelSpell = O.AttachIcon(rowGroup, iconDel, 18, btnDelSpellOnClick, btnDelSpellToolTip, btnDelSpellUserData)
+		btnDelSpell:SetUserData("spellName", spellName)
 		O:AttachSpacer(rowGroup, 10)
 
-		-- icon & spellname
-		O:AttachIcon(rowGroup, tbl.icon, 18)
+		-- spell/aura icon & spellname
+		O.AttachIcon(rowGroup, tbl.icon, 18)
 		O:AttachSpacer(rowGroup, 5)
+
+		-- spell/aura name
 		O:AttachInteractiveLabel(rowGroup, spellName, _, _, 190)
 		O:AttachSpacer(rowGroup, 12)
 
 		-- add sound
-		local btnAddSound = O:AttachIcon(rowGroup, iconAdd, 16)
+		local btnAddSound = O.AttachIcon(rowGroup, iconAdd, 16, btnAddSoundOnClick, btnAddSoundToolTip)
 		btnAddSound:SetUserData("spellName", spellName)
-		btnAddSound:SetUserData("db", db)
-		btnAddSound:SetCallback("OnClick", function(widget, event, value)
-			local _spellName = widget:GetUserData("spellName")
-			local _db = widget:GetUserData("db")
-			O.SoundSelection:SetUserData("db", _db.spellNames[_spellName])
-			O.SoundSelection:SetUserData("key", "soundFile")
-			if tbl.soundFile ~= "" then O.SoundSelection:SetValue(tbl.soundFile) end
-			O.SoundSelection:SetDisabled(false)
-		end)
 		O:AttachSpacer(rowGroup, 10)
 
 		-- sound label
 		O:AttachInteractiveLabel(rowGroup, tbl.soundFile, _, _, 200)
 
-		-- local btnDeleteSpell = O:AttachIcon(rowGroup, iconDelete, 18)
-		--O:AttachLSM(rowGroup, "sound", _, db.spells, "soundFile", 100)
-		--O:AttachIcon(rowGroup, iconAdd, 18)
 	end
 end

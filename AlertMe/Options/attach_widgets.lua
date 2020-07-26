@@ -1,6 +1,8 @@
 dprint(3, "attach_widgets.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
+-- upvalues
+local GameTooltip, CreateFrame = GameTooltip, CreateFrame
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -127,16 +129,26 @@ function O:AttachHeader(container, text)
 	return header
 end
 
-function O:AttachIcon(container, image, size)
-	dprint(3, "O:AttachIcon", container, image, size)
-	local icon = A.Libs.AceGUI:Create("Icon")
-	icon:SetImage(image)
-	icon:SetImageSize(size, size)
-	icon:SetWidth(size)
-	icon:SetHeight(size)
-	icon.image:SetPoint("TOP", 0, 0)
-	container:AddChild(icon)
-	return icon
+function O.AttachIcon(container, image, size, onClick, toolTip, ofs_y)
+	dprint(3, "O.AttachIcon", container, image, size, onClick, toolTip, ofs_y)
+	-- standards
+	ofs_y = ofs_y or 0
+	size = size or 16
+	-- create
+	local widget = A.Libs.AceGUI:Create("Icon")
+	widget:SetImage(image)
+	widget:SetImageSize(size, size)
+	widget:SetWidth(size)
+	widget:SetHeight(size)
+	widget.image:SetPoint("TOP", ofs_y, 0)
+	-- callbacks
+	if onClick ~= nil then widget:SetCallback("OnClick", onClick) end
+	if toolTip ~= nil then
+		O.SetToolTip(widget, toolTip)
+	end
+	-- add and return
+	container:AddChild(widget)
+	return widget
 end
 
 function O:AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth)
@@ -235,4 +247,27 @@ function O:AttachSpacer(container, width, height)
 	end
 	container:AddChild(control)
 	return control
+end
+
+function O.SetToolTip(widget, toolTip)
+	dprint(3, "O.Tooltip", widget, toolTip)
+	-- show
+	widget:SetCallback("OnEnter", function()
+		O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+		O.ToolTip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+		if toolTip.header then
+			dprint(1, toolTip.header)
+			O.ToolTip:SetText(toolTip.header, 1, 1, 1, true)
+		end
+		if toolTip.lines then
+			for _, line in pairs(toolTip.lines) do
+				O.ToolTip:AddLine(line, 1, .82, 0, true)
+			end
+		end
+		O.ToolTip:Show()
+	end)
+	-- hide
+	widget:SetCallback("OnLeave", function()
+		if O.ToolTip then O.ToolTip:Hide() end
+	end)
 end

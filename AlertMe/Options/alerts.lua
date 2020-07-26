@@ -12,15 +12,38 @@ function O:ShowAlerts(container, eventShort)
 	-- clear container so it can call itself
 	container:ReleaseChildren()
 	-- some local variables
-	local iconAdd = A.LSM:HashTable("background")["Add"]
-	local iconDelete = A.LSM:HashTable("background")["Delete"]
 	local db = P.alerts[eventShort]
 	local uid = db.selectedAlert
+	local iconAdd = A.LSM:HashTable("background")["Add"]
+	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local btnAddToolTip = {lines = {"Add new alert"}}
+	local btnDelToolTip = {lines = {"Delete selected alert"}}
+
+	-- local functions
 	local function refresh()
 		O:ShowAlerts(container, eventShort)
 	end
 
-	-- top group
+	local function btnAddOnClick()
+		dprint(2, "btnAddOnClick")
+		local _uid = tostring(time()) -- create uid (time)
+		db.alertDetails[_uid].created = true -- create entry in alert details
+		db.selectedAlert = _uid
+		refresh()
+	end
+
+	local function btnDeleteOnClick()
+		dprint(2, "btnDeleteOnClick")
+		local _uid = db.selectedAlert
+		if db.alertDetails[_uid] ~= nil then
+			db.alertDetails[_uid] = nil
+		end
+		db.selectedAlert = O:GetSomeAlert(eventShort) -- get another uid
+		refresh()
+	end
+
+	-- *************************************************************************************
+	-- Top of page
 	local topGroup = O:AttachGroup(container, _, _, 1)
 
 	-- alert dropdown
@@ -40,26 +63,10 @@ function O:ShowAlerts(container, eventShort)
 	O:AttachSpacer(topGroup, 10)
 
 	-- add alert
-	local btnAdd = O:AttachIcon(topGroup, iconAdd, 18)
-	btnAdd:SetCallback("OnClick", function(widget, event, value)
-		local _uid = tostring(time()) -- create uid (time)
-		db.alertDetails[_uid].created = true -- create entry in alert details
-		db.selectedAlert = _uid
-		refresh()
-	end)
+	O.AttachIcon(topGroup, iconAdd, 18, btnAddOnClick, btnAddToolTip)
 	O:AttachSpacer(topGroup, 10)
-
 	-- delete alert
-	local btnDelete = O:AttachIcon(topGroup, iconDelete, 18)
-	btnDelete:SetCallback("OnClick", function()
-		--dprint(1,"O:DeleteAlert", widget, event, button)
-		local _uid = db.selectedAlert
-		if db.alertDetails[_uid] ~= nil then
-			db.alertDetails[_uid] = nil
-		end
-		db.selectedAlert = O:GetSomeAlert(eventShort) -- get another uid
-		refresh()
-	end)
+	O.AttachIcon(topGroup, iconDel, 18, btnDelOnClick, btnDelToolTip)
 	O:AttachSpacer(topGroup, 10)
 
 	-- active checkbox
