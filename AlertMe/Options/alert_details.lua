@@ -153,7 +153,7 @@ end
 
 function O:UpdateSpellTable(eventShort, uid, db)
 	dprint(2, "O:UpdateSpellTable", eventShort, uid, db)
-	VDT_AddData(db, "db")
+	--VDT_AddData(db, "db")
 	O.SpellTable:ReleaseChildren()
 	--spellTableGroup:SetTitle("Spell/Aura table")
 

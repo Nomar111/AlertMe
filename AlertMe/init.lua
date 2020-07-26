@@ -54,7 +54,6 @@ A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
-A.Libs.StdUi = LibStub("StdUi")
 A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
 
