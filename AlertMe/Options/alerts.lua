@@ -45,33 +45,33 @@ function O:ShowAlerts(container, eventShort)
 
 	-- *************************************************************************************
 	-- Top of page
-	local topGroup = O:AttachGroup(container, _, _, 1)
+	local topGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 
 	-- alert dropdown
 	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
-	local ddAlert = O:AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
+	local ddAlert = O.AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
 	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
-	O:AttachSpacer(topGroup, 20)
+	O.AttachSpacer(topGroup, 20)
 
 	-- editbox for alertname
-	local editBox = O:AttachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
+	local editBox = O.AttachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
 	if db.alertDetails[uid].created == true then
 		editBox:SetText(db.alertDetails[uid].name)
 	else
 		editBox:SetText("")
 		editBox:SetDisabled(true)
 	end
-	O:AttachSpacer(topGroup, 10)
+	O.AttachSpacer(topGroup, 10)
 
 	-- add alert
 	O.AttachIcon(topGroup, iconAdd, 18, btnAddOnClick, btnAddToolTip)
-	O:AttachSpacer(topGroup, 10)
+	O.AttachSpacer(topGroup, 10)
 	-- delete alert
 	O.AttachIcon(topGroup, iconDel, 18, btnDelOnClick, btnDelToolTip)
-	O:AttachSpacer(topGroup, 10)
+	O.AttachSpacer(topGroup, 10)
 
 	-- active checkbox
-	local cbActive = O:AttachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 70)
+	local cbActive = O.AttachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 70)
 	if db.alertDetails[uid].created == true then
 		cbActive:SetValue(db.alertDetails[uid].active)
 	else

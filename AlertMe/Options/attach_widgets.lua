@@ -19,114 +19,123 @@ local LSMWidgets = {
 --**********************************************************************************************************************************
 -- attach AceGUI widgets
 --**********************************************************************************************************************************
-function O:AttachButton(container, text, width)
-	dprint(3, "O:AttachButton", container, text, width)
-	local button = A.Libs.AceGUI:Create("Button")
-	button:SetText(text)
-	if width then button:SetWidth(width) end
-	container:AddChild(button)
-	return button
+function O.AttachButton(container, text, width)
+	dprint(3, "O.AttachButton", container, text, width)
+	local widget = A.Libs.AceGUI:Create("Button")
+	widget:SetText(text)
+	if width then widget:SetWidth(width) end
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachCheckBox(container, label, db, key, width, func)
-	dprint(3, "O:AttachCheckBox", container, label, db, key, width)
-	local control = A.Libs.AceGUI:Create("CheckBox")
-	control:SetValue(db[key])
-	control:SetCallback("OnValueChanged", function(widget, event, value)
+function O.AttachCheckBox(container, label, db, key, width, func)
+	dprint(3, "O.AttachCheckBox", container, label, db, key, width)
+	local widget = A.Libs.AceGUI:Create("CheckBox")
+	widget:SetValue(db[key])
+	widget:SetCallback("OnValueChanged", function(_, _, value)
 		db[key] = value
 		if func ~= nil then func() end
 	end)
-	control:SetLabel(label)
-	if width then control:SetWidth(width) end
-	container:AddChild(control)
-	return control
+	widget:SetLabel(label)
+	if width then widget:SetWidth(width) end
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachColorPicker(container, label, db, key, alpha, width, func)
-	dprint(3, "O:AttachLSM", container, label, db, key, alpha, width, func)
-	local control = A.Libs.AceGUI:Create("ColorPicker")
-	control:SetColor(unpack(db[key]))
-	control:SetLabel(label)
-	control:SetHasAlpha(alpha)
-	control:SetCallback("OnValueConfirmed", function(widget, _, r, g, b, a)
+function O.AttachColorPicker(container, label, db, key, alpha, width, func)
+	dprint(3, "O.AttachLSM", container, label, db, key, alpha, width, func)
+	local widget = A.Libs.AceGUI:Create("ColorPicker")
+	widget:SetColor(unpack(db[key]))
+	widget:SetLabel(label)
+	widget:SetHasAlpha(alpha)
+	widget:SetCallback("OnValueConfirmed", function(_, _, r, g, b, a)
 		db[key] = {r,g,b,a}
 		if func ~= nil then func() end
 	end)
-	container:AddChild(control)
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachDropdown(container, label, db, key, list, width, func)
-	dprint(3, "O:AttachDropdown", container, label, db, key, list, width, func)
-	local dropdown = A.Libs.AceGUI:Create("Dropdown")
-	dropdown:SetLabel(label)
-	dropdown:SetMultiselect(false)
-	dropdown:SetWidth(width)
-	dropdown:SetList(list)
-	dropdown:SetValue(db[key])
-	dropdown:SetCallback("OnValueChanged", function(_, _, value)
+function O.AttachDropdown(container, label, db, key, list, width, func)
+	dprint(3, "O.AttachDropdown", container, label, db, key, list, width, func)
+	local widget = A.Libs.AceGUI:Create("Dropdown")
+	if label then widget:SetLabel(label) end
+	widget:SetMultiselect(false)
+	if width then widget:SetWidth(width) end
+	if list then widget:SetList(list) end
+	widget:SetValue(db[key])
+	widget:SetCallback("OnValueChanged", function(_, _, value)
 		db[key] = value
 		if func ~= nil then func() end
 	end)
-	container:AddChild(dropdown)
-	return dropdown
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachEditBox(container, label, path, key, width, func)
-	dprint(3, "O:AttachEditBox", container, label, path, key, width)
-	local edit = A.Libs.AceGUI:Create("EditBox")
-	edit:SetLabel(label)
+function O.AttachEditBox(container, label, path, key, width, func)
+	dprint(3, "O.AttachEditBox", container, label, path, key, width)
+	local widget = A.Libs.AceGUI:Create("EditBox")
+	if label then widget:SetLabel(label) end
 	if width then
 		if width <= 1 then
-			edit:SetRelativeWidth(width)
+			widget:SetRelativeWidth(width)
 		else
-			edit:SetWidth(width)
+			widget:SetWidth(width)
 		end
 	end
-	edit:SetText(path[key])
-	edit:SetCallback("OnEnterPressed", function(widget, event, text)
+	widget:SetText(path[key])
+	widget:SetCallback("OnEnterPressed", function(_, event, text)
 		path[key] = text
 		if func ~= nil then func() end
 	end)
-	container:AddChild(edit)
-	return edit
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachGroup(container, title, inline, width, height, layout)
-	dprint(3, "O:AttachGroup", container, title, inline, width, height, layout)
-	local group = {}
-	layout = layout or "Flow"
-
-	if inline == true then
-		group = A.Libs.AceGUI:Create("InlineGroup")
-		group:SetTitle(title)
+function O.AttachGroup(container, type, title, format)
+	dprint(3, "O.AttachGroupNew", container, type, title, format)
+	type = type or "simple"
+	local layout = ""
+	if format == nil or format.layout == nil then
+		layout ="Flow"
 	else
-		group = A.Libs.AceGUI:Create("SimpleGroup")
+		layout = format.layout
 	end
 
-	if width ~= nil and width <= 1 then
-		group:SetRelativeWidth(width)
-	elseif width ~= nil and width > 1 then
-		group:SetWidth(width)
+	-- create group
+	local widget = {}
+	if type == "inline" then
+		widget = A.Libs.AceGUI:Create("InlineGroup")
+		widget:SetTitle(title)
+	elseif type == "simple" then
+		widget = A.Libs.AceGUI:Create("SimpleGroup")
 	end
 
-	if height ~= nil and height == 1 then
-		group:SetFullHeight(true)
-	elseif height ~= nil and height > 1 then
-		group:SetHeight(height)
+	-- format
+	if format then
+		if format.fullWidth == true then widget:SetFullWidth(true) end
+		if format.fullHeight == true then widget:SetFullHeight(true) end
+		if format.autoHeight == false then widget:SetAutoAdjustHeight(false) end
+		if format.relWidth ~= nil then widget:SetRelativeWidth(format.relWidth) end
+		if format.width ~= nil then widget:SetWidth(format.width) end
+		if format.height ~= nil then widget:SetHeight(format.height) end
 	end
+	if layout ~= "none" then
+		widget:SetLayout(layout)
+	 end
 
-	group:SetLayout(layout)
-	container:AddChild(group)
-	return group
+	-- attach & return
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachHeader(container, text)
-	dprint(3, "O:AttachHeader", container, text)
-	local header = A.Libs.AceGUI:Create("Heading")
-	header:SetText(text)
-	header.width = "fill"
-	container:AddChild(header)
-	return header
+function O.AttachHeader(container, text)
+	dprint(3, ".:AttachHeader", container, text)
+	local widget = A.Libs.AceGUI:Create("Heading")
+	widget:SetText(text)
+	widget.width = "fill"
+	container:AddChild(widget)
+	return widget
 end
 
 function O.AttachIcon(container, image, size, onClick, toolTip, ofs_y)
@@ -151,102 +160,86 @@ function O.AttachIcon(container, image, size, onClick, toolTip, ofs_y)
 	return widget
 end
 
-function O:AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth)
-	dprint(3, "O:AttachInteractiveLabel", container, text, fontObject, color,  absWidth, relWidth)
-	local label = A.Libs.AceGUI:Create("Label")
-	label:SetText(text)
+function O.AttachLabel(container, text, fontObject, color, absWidth, relWidth)
+	dprint(3, "O.AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
+	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
+	widget:SetText(text)
 	if absWidth ~= nil then
-		label:SetWidth(absWidth)
+		widget:SetWidth(absWidth)
 	else
-		label:SetRelativeWidth(relWidth or 1)
+		widget:SetRelativeWidth(relWidth or 1)
 	end
 	if fontObject == nil then fontObject = GameFontHighlight end
-	label:SetFontObject(fontObject)
-	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
-	container:AddChild(label)
-	return label
+	widget:SetFontObject(fontObject)
+	if color ~= nil then widget:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachLabel(container, text, fontObject, color, absWidth, relWidth)
-	dprint(3, "O:AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
-	local label = A.Libs.AceGUI:Create("Label")
-	label:SetText(text)
-	if absWidth ~= nil then
-		label:SetWidth(absWidth)
-	else
-		label:SetRelativeWidth(relWidth or 1)
-	end
-	if fontObject == nil then fontObject = GameFontHighlight end
-	label:SetFontObject(fontObject)
-	if color ~= nil then label:SetColor(color[1], color[2], color[3]) end
-	container:AddChild(label)
-	return label
-end
-
-function O:AttachLSM(container, type, label, db, key, width, func)
-	dprint(3, "O:AttachLSM", container, type, label, db, key, width, func)
-	local control = {}
-	control = A.Libs.AceGUI:Create(LSMWidgets[type])
-	control:SetList(A.LSM:HashTable(type))
-	control:SetLabel(label)
-	control:SetCallback("OnValueChanged", function(widget, _, value)
-		widget:SetValue(value)
+function O.AttachLSM(container, type, label, db, key, width, func)
+	dprint(3, "O.AttachLSM", container, type, label, db, key, width, func)
+	local widget = {}
+	widget = A.Libs.AceGUI:Create(LSMWidgets[type])
+	widget:SetList(A.LSM:HashTable(type))
+	if label then widget:SetLabel(label) end
+	widget:SetCallback("OnValueChanged", function(_widget, _, value)
+		_widget:SetValue(value)
 		db[key] = value
 		if func ~= nil then func() end
 	end)
-	if width ~= nil then control:SetWidth(width) end
-	control:SetValue(db[key])
-	container:AddChild(control)
-	return control
+	if width ~= nil then widget:SetWidth(width) end
+	widget:SetValue(db[key])
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachMultiLineEditBox(container, path, key, label, lines)
-	dprint(3, "O:AttachMultiLineEditBox", container, path, key, label, lines)
-	local edit = A.Libs.AceGUI:Create("MultiLineEditBox")
-	edit:SetLabel(label)
-	edit:SetNumLines(lines)
-	edit:SetRelativeWidth(1)
-	edit:SetText(path[key])
-	edit:SetUserData("path", path)
-	edit:SetUserData("key", key)
-	edit:SetCallback("OnEnterPressed", function(widget, text)
-		path[key] = text
-	end)
-	container:AddChild(edit)
-	return edit
-end
+-- function O.AttachMultiLineEditBox(container, path, key, label, lines)
+-- 	dprint(3, "O:AttachMultiLineEditBox", container, path, key, label, lines)
+-- 	local edit = A.Libs.AceGUI:Create("MultiLineEditBox")
+-- 	edit:SetLabel(label)
+-- 	edit:SetNumLines(lines)
+-- 	edit:SetRelativeWidth(1)
+-- 	edit:SetText(path[key])
+-- 	edit:SetUserData("path", path)
+-- 	edit:SetUserData("key", key)
+-- 	edit:SetCallback("OnEnterPressed", function(widget, text)
+-- 		path[key] = text
+-- 	end)
+-- 	container:AddChild(edit)
+-- 	return edit
+-- end
 
-function O:AttachSlider(container, label, db, key, min, max, step, isPercent, width, func)
-	dprint(3, "O:AttachSlider", container, label, db, key, min, max, step, isPercent, width, func)
-	local slider = A.Libs.AceGUI:Create("Slider")
-	slider:SetLabel(label)
-	slider:SetSliderValues(min, max, step)
-	slider:SetIsPercent(isPercent)
-	slider:SetValue(db[key])
-	slider:SetCallback("OnMouseUp", function(widget, event, value)
+function O.AttachSlider(container, label, db, key, min, max, step, isPercent, width, func)
+	dprint(3, "O.AttachSlider", container, label, db, key, min, max, step, isPercent, width, func)
+	local widget = A.Libs.AceGUI:Create("Slider")
+	if label then widget:SetLabel(label) end
+	widget:SetSliderValues(min, max, step)
+	widget:SetIsPercent(isPercent)
+	widget:SetValue(db[key])
+	widget:SetCallback("OnMouseUp", function(_, _, value)
 		db[key] = value
 		if func ~= nil then func() end
 		--if scrolling == true then A:ScrollingTextInitOrUpdate() end
 	end)
-	if width then slider:SetWidth(width) end
-	container:AddChild(slider)
-	return slider
+	if width then widget:SetWidth(width) end
+	container:AddChild(widget)
+	return widget
 end
 
-function O:AttachSpacer(container, width, height)
-	dprint(3, "O:AttachSpacer", container, width, height)
-	local control = A.Libs.AceGUI:Create("InteractiveLabel")
-	if width then control:SetWidth(width) end
+function O.AttachSpacer(container, width, height)
+	dprint(3, "O.AttachSpacer", container, width, height)
+	local widget = A.Libs.AceGUI:Create("Label")
+	if width then widget:SetWidth(width) end
 	if height then
-		if height == "small" then control:SetFontObject(GameFontHighlightSmall) end
-		if height == "large" then control:SetFontObject(GameFontHighlightLarge) end
-		if height == "medium" then control:SetFontObject(GameFontHighlight) end
-		control:SetText(" ")
+		if height == "small" then widget:SetFontObject(GameFontHighlightSmall) end
+		if height == "large" then widget:SetFontObject(GameFontHighlightLarge) end
+		if height == "medium" then widget:SetFontObject(GameFontHighlight) end
+		widget:SetText(" ")
 	else
-		control:SetText("")
+		widget:SetText("")
 	end
-	container:AddChild(control)
-	return control
+	container:AddChild(widget)
+	return widget
 end
 
 function O.SetToolTip(widget, toolTip)

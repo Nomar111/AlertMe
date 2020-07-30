@@ -9,9 +9,9 @@ function O:ShowGeneral(container)
 	--VDT_AddData(container,"cnt")
 	dprint(2, "O:ShowGeneral")
 	-- header
-	O:AttachHeader(container, "General Settings")
+	O.AttachHeader(container, "General Settings")
 	-- zones
-	local zonesGroup = O:AttachGroup(container, "Addon is enabled in", true, 1)
-	O:AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 150)
-	O:AttachCheckBox(zonesGroup, "World", P.general.zones, "world")
+	local zonesGroup = O.AttachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
+	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 150)
+	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world")
 end
