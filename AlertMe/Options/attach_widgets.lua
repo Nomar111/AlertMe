@@ -6,7 +6,6 @@ local GameTooltip, CreateFrame = GameTooltip, CreateFrame
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
--- local variables/tables
 local LSMWidgets = {
 	sound = "LSM30_Sound",
 	statusbar = "LSM30_Statusbar",
@@ -56,8 +55,8 @@ function O.AttachColorPicker(container, label, db, key, alpha, width, func)
 	return widget
 end
 
-function O.AttachDropdown(container, label, db, key, list, width, func)
-	dprint(3, "O.AttachDropdown", container, label, db, key, list, width, func)
+function O.AttachDropdown(container, label, db, key, list, width, func, toolTip)
+	dprint(3, "O.AttachDropdown", container, label, db, key, list, width, func, toolTip)
 	local widget = A.Libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
@@ -68,11 +67,14 @@ function O.AttachDropdown(container, label, db, key, list, width, func)
 		db[key] = value
 		if func ~= nil then func() end
 	end)
+	if toolTip ~= nil then
+		O.SetToolTip(widget, toolTip)
+	end
 	container:AddChild(widget)
 	return widget
 end
 
-function O.AttachEditBox(container, label, path, key, width, func)
+function O.AttachEditBox(container, label, path, key, width, func, toolTip)
 	dprint(3, "O.AttachEditBox", container, label, path, key, width)
 	local widget = A.Libs.AceGUI:Create("EditBox")
 	if label then widget:SetLabel(label) end
@@ -88,6 +90,9 @@ function O.AttachEditBox(container, label, path, key, width, func)
 		path[key] = text
 		if func ~= nil then func() end
 	end)
+	if toolTip ~= nil then
+		O.SetToolTip(widget, toolTip)
+	end
 	container:AddChild(widget)
 	return widget
 end
@@ -118,7 +123,10 @@ function O.AttachGroup(container, type, title, format)
 		if format.autoHeight == false then widget:SetAutoAdjustHeight(false) end
 		if format.relWidth ~= nil then widget:SetRelativeWidth(format.relWidth) end
 		if format.width ~= nil then widget:SetWidth(format.width) end
-		if format.height ~= nil then widget:SetHeight(format.height) end
+		if format.height ~= nil then
+			widget:SetAutoAdjustHeight(false)
+			widget:SetHeight(format.height)
+		end
 	end
 	if layout ~= "none" then
 		widget:SetLayout(layout)
@@ -178,8 +186,8 @@ end
 
 function O.AttachLSM(container, type, label, db, key, width, func)
 	dprint(3, "O.AttachLSM", container, type, label, db, key, width, func)
-	local widget = {}
-	widget = A.Libs.AceGUI:Create(LSMWidgets[type])
+	-- local variables/tables
+	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(A.LSM:HashTable(type))
 	if label then widget:SetLabel(label) end
 	widget:SetCallback("OnValueChanged", function(_widget, _, value)
@@ -243,18 +251,20 @@ function O.AttachSpacer(container, width, height)
 end
 
 function O.SetToolTip(widget, toolTip)
-	dprint(3, "O.Tooltip", widget, toolTip)
+	dprint(3, "O.Tooltip", widget, toolTip, toolTip.wrap)
 	-- show
+	local wrap = true
+	if toolTip.wrap ~= nil then	wrap = toolTip.wrap	end
+	--dprint(1, "wrap", wrap)
 	widget:SetCallback("OnEnter", function()
 		O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 		O.ToolTip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
 		if toolTip.header then
-			dprint(1, toolTip.header)
-			O.ToolTip:SetText(toolTip.header, 1, 1, 1, true)
+			O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
 		end
 		if toolTip.lines then
 			for _, line in pairs(toolTip.lines) do
-				O.ToolTip:AddLine(line, 1, .82, 0, true)
+				O.ToolTip:AddLine(line, 1, .82, 0, wrap)
 			end
 		end
 		O.ToolTip:Show()

@@ -12,6 +12,7 @@ function O:ShowAlertDetails(container, eventShort, uid)
 	dprint(2, "O:DrawAlertDetails", container, eventShort, uid)
 	--VDT_AddData(container, "container")
 	local db = P.alerts[eventShort].alertDetails[uid]
+
 	-- spell selection
 	if A.EventsShort[eventShort].spellSelection == true then
 		O.AttachHeader(container, "Spell/Aura settings")
@@ -20,89 +21,133 @@ function O:ShowAlertDetails(container, eventShort, uid)
 		O:UpdateSpellTable(eventShort, uid, db)
 	end
 
-	--[[
 	-- unit selection
-	if A:GetEventSettingByShort(event, "unit_selection") == true then
-		O.AttachHeader(container, "Unit selection")
-		local units_list = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself"}
-		local exclude_list = {[1] = "---", [2] = "Myself", [3] = "Target"}
-		if A:GetEventSettingByShort(event, "source_units") == true then
-			O.AttachDropdown(container, "Source units", db, "srcUnits", units_list, 160)
-			O.AttachDropdown(container, "excluding", db, "srcExclude", exclude_list, 100)
-		end
-		if A:GetEventSettingByShort(event, "target_units") == true then
-			O.AttachSpacer(container, 80)
-			O.AttachDropdown(container, "Target units", db, "dstUnits", units_list, 160)
-			O.AttachDropdown(container, "excluding", db, "dstExclude", exclude_list, 100)
-		end
-	end
+	O:AttachUnitSelection(container, eventShort, uid)
+
 	-- display settings
-	if A:GetEventSettingByShort(event, "display_settings") == true then
-		O.AttachHeader(container, "Display settings")
-		O.AttachCheckBox(container, "Show progress bar", db, "show_bar", 150)
-	end
+	O:AttachDisplaySettings(container, eventShort, uid)
+
 	-- announce settings
-	O.AttachHeader(container, "Chat announcements, Addon messages, AlertMe Text")
-	local chat_channels = {[1] = "Don't announce", [2] = "BG > Raid > Party", [3] = "Party", [4] = "Say"}
-	O.AttachDropdown(container, "Announce in chat channel", db, "chat_channels", chat_channels, 160)
-	O.AttachSpacer(container, 30)
-	local system_messages = {[1] = "Always", [2] = "Never", [3] = "If BG/Raid/Party/Say not available"}
-	local addon_messages_dd = O.AttachDropdown(container, "Post addon messages", db, "system_messages", system_messages, 230)
-	addon_messages_dd:SetCallback("OnEnter", function(widget)
-		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
-		--O.tooltip:SetText("Addon messages will be posted in configured chat frames", 1, .82, 0, true)
-		O.tooltip:AddLine("Addon messages will be posted in configured chat frames", 1, .82, 0, true)
-		O.tooltip:AddLine("See General Options", 1, 1, 1, true)
-		--O.tooltip:SetFontObject(GameFontHighlightSmall)
-		O.tooltip:Show()
-	end)
-	addon_messages_dd:SetCallback("OnLeave", function(widget)
-		O.tooltip:Hide()
-	end)
-	if A:GetEventSettingByShort(event, "whisper_destination") == true then
-		O.AttachSpacer(container, 30)
-		local whisper_destination = {[1] = "Don't whisper", [2] = "Whisper if spell is cast by me",  [3] = "Whisper"}
-		O.AttachDropdown(container, "Whisper destination unit (if friendly)", db, "whisper_destination", whisper_destination, 200)
-	end
-	local scrolling_text_cb = O.AttachCheckBox(container, "Post in scrolling text frame", db ,"scrolling_text", 220)
-	scrolling_text_cb:SetCallback("OnEnter", function(widget)
-		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
-		--O.tooltip:SetText("Addon messages will be posted in configured chat frames", 1, .82, 0, true)
-		O.tooltip:AddLine("See General Options for scrolling text setup", 1, .82, 0, true)
-		--O.tooltip:SetFontObject(GameFontHighlightSmall)
-		O.tooltip:Show()
-	end)
-	scrolling_text_cb:SetCallback("OnLeave", function(widget)
-		O.tooltip:Hide()
-	end)
-	O.AttachEditBox(container, "Chat message override", db, "override", 420)
+	O:AttachAnnounceSettings(container, eventShort, uid)
+
 	-- sound alerts
-	O.AttachHeader(container, "Sound alerts")
-	local sound_selection_list = {[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"}
-	local sound_selection_dd = O.AttachDropdown(container, "Sound alert", db, "sound_selection", sound_selection_list, 250)
-	sound_selection_dd:SetCallback("OnEnter", function(widget)
-		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
-		--O.tooltip:SetText("Addon messages will be posted in configured chat frames", 1, .82, 0, true)
-		O.tooltip:AddLine("Set alerts per spell by clicking on the spell name in the above table", 1, .82, 0, true)
-		--O.tooltip:SetFontObject(GameFontHighlightSmall)
-		O.tooltip:Show()
-	end)
-	sound_selection_dd:SetCallback("OnLeave", function(widget)
-		O.tooltip:Hide()
-	end)
-	O.AttachSpacer(container, 92)
-	local sound_file_dd = A.Libs.AceGUI:Create("LSM30_Sound")
-	sound_file_dd:SetList(A.LSM:HashTable("sound"))
-	sound_file_dd:SetCallback("OnValueChanged", function(widget, _, value)
-		widget:SetValue(value)
-		db.sound_file = value
-	end)
-	if db.sound_file ~= "" then sound_file_dd:SetValue(db.sound_file) end
-	container:AddChild(sound_file_dd)
-	]]
+	O:AttachSoundSettings(container, eventShort, uid)
+
+end
+
+function O:AttachUnitSelection(container, eventShort, uid)
+	dprint(2, "O:AttachUnitSelection", container, eventShort, uid)
+
+	-- local variables & functions
+	local db = P.alerts[eventShort].alertDetails[uid]
+
+	-- unit selection
+	if A.EventsShort[eventShort].unitSelection == true then
+		O.AttachHeader(container, "Unit selection")
+		local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself"}
+		local excludeList = {[1] = "---", [2] = "Myself", [3] = "Target"}
+		local unitsGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+		if A.EventsShort[eventShort].units[1] == "src" then
+			--local srcUnitGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+			O.AttachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
+			O.AttachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
+		end
+		if A.EventsShort[eventShort].units[2] ~= nil and A.EventsShort[eventShort].units[2] == "dst" then
+			--local dstUnitGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+			O.AttachSpacer(unitsGroup, 20)
+			O.AttachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
+			O.AttachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
+		end
+	end
+end
+
+function O:AttachDisplaySettings(container, eventShort, uid)
+	dprint(2, "O:AttachDisplaySettings", container, eventShort, uid)
+
+	-- local variables & functions
+	local db = P.alerts[eventShort].alertDetails[uid]
+
+	-- display settings
+	if A.EventsShort[eventShort].displaySettings == true then
+		O.AttachHeader(container, "Display settings")
+		O.AttachCheckBox(container, "Show progress bar", db, "showBar", 150)
+	end
+end
+
+function O:AttachAnnounceSettings(container, eventShort, uid)
+	dprint(2, "O:AttachAnnounceSettings", container, eventShort, uid)
+
+	-- local variables & functions
+	local db = P.alerts[eventShort].alertDetails[uid]
+
+	-- announce settings
+	O.AttachHeader(container, "Text alerts")
+	local announceGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+	local channelList = {[1] = "Don't announce", [2] = "BG > Raid > Party", [3] = "Party", [4] = "Say"}
+
+	-- chat channels
+	O.AttachDropdown(announceGroup, "Announce in channel", db, "chatChannels", channelList, 140)
+	O.AttachSpacer(announceGroup, 20)
+
+	-- addon messages
+	local systemList = {[1] = "Always", [2] = "Never", [3] = "If channel not available"}
+	local toolTip = {
+		header = "Addon messages",
+		lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"},
+		wrap = false
+	}
+	O.AttachDropdown(announceGroup, "Post addon messages", db, "addonMessages", systemList, 170, _, toolTip)
+
+	-- dstwhisper
+	if A.EventsShort[eventShort].dstWhisper == true then
+		local whisperList = {[1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper"}
+		O.AttachSpacer(announceGroup, 20)
+		O.AttachDropdown(announceGroup, "Whisper destination unit", db, "dstWhisper", whisperList, 160)
+	end
+
+	-- scrolling text
+	toolTip = {
+		header = "Scrolling Text",
+		lines = {"Post messages to Scrolling Text"},
+		wrap = false
+	}
+	O.AttachSpacer(container, _, "small")
+	O.AttachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180, _, toolTip)
+	O.AttachSpacer(container, _, "small")
+
+	-- message override
+	toolTip = {
+		header = "Message override",
+		lines = {"Set an alternative chat message","If empty, (event) standard will be used"},
+		wrap = false
+	}
+	O.AttachEditBox(container, "Chat message override", db, "msgOverride", 1, _, toolTip)
+
+end
+
+function O:AttachSoundSettings(container, eventShort, uid)
+	dprint(2, "O:AttachSoundSettings", container, eventShort, uid)
+
+	-- local variables & functions
+	local db = P.alerts[eventShort].alertDetails[uid]
+	local soundGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+
+	local function updateState()
+		if O.SoundSelectionDefault:GetValue() ~= 2 then
+			O.SoundFile:SetDisabled(true)
+		else
+			O.SoundFile:SetDisabled(false)
+		end
+	end
+
+	-- sound alerts
+	O.AttachHeader(soundGroup, "Sound alerts")
+	local list = {[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"}
+	local toolTip = {lines = {"Set alerts per spell in the spell table"}, wrap = false}
+	O.SoundSelectionDefault = O.AttachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, toolTip)
+	O.AttachSpacer(soundGroup, 20)
+	O.SoundFile = O.AttachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
+	updateState()
 end
 
 function O:AttachSpellSelection(container, eventShort, uid)
@@ -150,17 +195,12 @@ end
 
 function O:InitSpellTable(container, eventShort, uid, db)
 	dprint(2, "O:InitSpellTable", container)
-	local spellTable = A.Libs.AceGUI:Create("SimpleGroup")
-	spellTable = A.Libs.AceGUI:Create("SimpleGroup")
-	spellTable:SetFullWidth(true)
-	spellTable:SetHeight(300)
-	container:AddChild(spellTable)
-	O.SpellTable = spellTable
+	O.SpellTable = O.AttachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
 end
 
 function O:UpdateSpellTable(eventShort, uid)
 	dprint(2, "O:UpdateSpellTable", eventShort, uid)
-	--VDT_AddData(db, "db")
+
 	O.SpellTable:ReleaseChildren()
 
 	-- local variables and functions

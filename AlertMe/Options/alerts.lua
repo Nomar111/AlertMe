@@ -21,7 +21,7 @@ function O:ShowAlerts(container, eventShort)
 
 	-- local functions
 	local function refresh()
-		drpint(2, "refresh")
+		dprint(2, "refresh")
 		O:ShowAlerts(container, eventShort)
 	end
 
@@ -33,8 +33,8 @@ function O:ShowAlerts(container, eventShort)
 		refresh()
 	end
 
-	local function btnDeleteOnClick()
-		dprint(2, "btnDeleteOnClick")
+	local function btnDelOnClick()
+		dprint(2, "btnDelOnClick")
 		local _uid = db.selectedAlert
 		if db.alertDetails[_uid] ~= nil then
 			db.alertDetails[_uid] = nil
