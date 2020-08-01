@@ -9,34 +9,34 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowAlertDetails(container, eventShort, uid)
-	dprint(2, "O:DrawAlertDetails", container, eventShort, uid)
+	dprint(2, "O:ShowAlertDetails", container, eventShort, uid)
 	--VDT_AddData(container, "container")
 	local db = P.alerts[eventShort].alertDetails[uid]
 
 	-- spell selection
 	if A.EventsShort[eventShort].spellSelection == true then
 		O.AttachHeader(container, "Spell/Aura settings")
-		O:AttachSpellSelection(container, eventShort, uid, db)
+		O:ShowSpellSelection(container, eventShort, uid, db)
 		O:InitSpellTable(container, eventShort, uid, db)
 		O:UpdateSpellTable(eventShort, uid, db)
 	end
 
 	-- unit selection
-	O:AttachUnitSelection(container, eventShort, uid)
+	O:ShowUnitSelection(container, eventShort, uid)
 
 	-- display settings
-	O:AttachDisplaySettings(container, eventShort, uid)
+	O:ShowDisplaySettings(container, eventShort, uid)
 
 	-- announce settings
-	O:AttachAnnounceSettings(container, eventShort, uid)
+	O:ShowAnnounceSettings(container, eventShort, uid)
 
 	-- sound alerts
-	O:AttachSoundSettings(container, eventShort, uid)
+	O:ShowSoundSettings(container, eventShort, uid)
 
 end
 
-function O:AttachUnitSelection(container, eventShort, uid)
-	dprint(2, "O:AttachUnitSelection", container, eventShort, uid)
+function O:ShowUnitSelection(container, eventShort, uid)
+	dprint(2, "O:ShowUnitSelection", container, eventShort, uid)
 
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
@@ -61,8 +61,8 @@ function O:AttachUnitSelection(container, eventShort, uid)
 	end
 end
 
-function O:AttachDisplaySettings(container, eventShort, uid)
-	dprint(2, "O:AttachDisplaySettings", container, eventShort, uid)
+function O:ShowDisplaySettings(container, eventShort, uid)
+	dprint(2, "O:ShowDisplaySettings", container, eventShort, uid)
 
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
@@ -74,8 +74,8 @@ function O:AttachDisplaySettings(container, eventShort, uid)
 	end
 end
 
-function O:AttachAnnounceSettings(container, eventShort, uid)
-	dprint(2, "O:AttachAnnounceSettings", container, eventShort, uid)
+function O:ShowAnnounceSettings(container, eventShort, uid)
+	dprint(2, "O:ShowAnnounceSettings", container, eventShort, uid)
 
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
@@ -125,8 +125,8 @@ function O:AttachAnnounceSettings(container, eventShort, uid)
 
 end
 
-function O:AttachSoundSettings(container, eventShort, uid)
-	dprint(2, "O:AttachSoundSettings", container, eventShort, uid)
+function O:ShowSoundSettings(container, eventShort, uid)
+	dprint(2, "O:ShowSoundSettings", container, eventShort, uid)
 
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
@@ -150,8 +150,8 @@ function O:AttachSoundSettings(container, eventShort, uid)
 	updateState()
 end
 
-function O:AttachSpellSelection(container, eventShort, uid)
-	dprint(2, "O:AttachSpellSelection", container, eventShort, uid)
+function O:ShowSpellSelection(container, eventShort, uid)
+	dprint(2, "O:ShowSpellSelection", container, eventShort, uid)
 
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
