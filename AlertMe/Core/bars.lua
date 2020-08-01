@@ -146,3 +146,13 @@ function A:HideBar(barType, id)
 		A.Bars[barType][id]:Stop()
 	end
 end
+
+function A:HideAllBars()
+	dprint(2, "A:HideAllBars")
+	if A.Bars == nil then return end
+	for barType,ids in pairs(A.Bars) do
+		for id, _ in pairs(ids) do
+			A.Bars[barType][id]:Stop()
+		end
+	end
+end

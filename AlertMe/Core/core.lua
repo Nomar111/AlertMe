@@ -19,6 +19,23 @@ function A:Initialize()
 	A:InitChatFrames()
 	-- register for events
 	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	A:RegisterEvent("PLAYER_ENTERING_WORLD")
+	A:RegisterEvent("PLAYER_DEAD")
+	-- for reloadui
+	A.EnterWorld = GetTime()
+	A:HideAllBars()
+end
+
+function A:PLAYER_ENTERING_WORLD(eventName)
+	dprint(2, eventName)
+	A.EnterWorld = GetTime()
+	A:HideAllBars()
+end
+
+function A:PLAYER_DEAD(eventName)
+	dprint(2, eventName)
+	A.EnterWorld = GetTime()
+	A:HideAllBars()
 end
 
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
@@ -42,6 +59,12 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 	if A.Events[ti.event] == nil then
 		dprint(3, "Event not tracked")
 		return
+	end
+
+	-- to prevent logon events don't do anything in the first 2 seconds
+	if GetTime() - A.EnterWorld < 2 then
+		--return
+		dprint(1, "not blocked")
 	end
 
 	-- spell cast success sometimes has no destination data - take source data then
@@ -74,7 +97,6 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		dprint(2, "no alert", ti.spellName, ti.event)
 		return
 	end
-
 	-- check units
 	alerts = A:CheckUnits(ti, alerts, eventInfo)
 	if alerts == false or alerts == nil then
@@ -82,6 +104,8 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 
+	--dprint(2, "checks ok for", ti.event, ti.spellName, ti.srcName, ti.dstName)
+	--VDT_AddData(ti,"ti")
 	-- do whatever is defined in actions
 	if eventInfo.actions ~= nil then
 		for _, action in pairs(eventInfo.actions) do
@@ -96,6 +120,7 @@ function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	-- if no spells are checked for this event return true
 	if eventInfo.spellSelection == false then
+		--dprint(1, "ti.event.spellSelection", eventInfo.spellSelection)
 		return true
 	end
 	-- search for spell
@@ -121,10 +146,10 @@ function A:DisplayBars(ti, alerts, eventInfo)
 	dprint(2, "A:DisplayBars", ti, alerts, eventInfo)
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then
-			local spellId, icon, duration = A:GetAuraInfo(ti)
+			local spellId, icon, duration, remaining = A:GetAuraInfo(ti)
 			if duration ~= nil then
-				local id = ti.srcGUID..ti.spellName
-				A:ShowBar("auras", id, ti.spellName, icon, duration, true)
+				local id = ti.dstGUID..ti.spellName
+				A:ShowBar("auras", id, A:GetUnitName(ti.dstName), icon, remaining, true)
 			end
 			--A:ShowBar("auras", ti.srcGUID..ti.spellName, ti.spellName, spellOptions.icon, 60, true)
 		end
@@ -133,22 +158,22 @@ end
 
 function A:HideBars(ti, eventInfo)
 	dprint(2, "A:HideBars", ti, eventInfo)
-	local id = ti.srcGUID..ti.spellName
+	local id = ti.dstGUID..ti.spellName
 	A:HideBar("auras", id)
 end
 
 -- getAuraInfo: try to get correct spellId and duration or guess
 function A:GetAuraInfo(ti)
 	dprint(2, "A:GetAuraInfo")
-    -- try to call the "standard" WA function
     local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(ti.dstName, ti.relSpellName)
 
-    -- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
-    if duration == nil then
-        dprint(2, "No spell info available, using LibClassicDuration")
+	-- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
+    if expirationTime == nil then
+        dprint(1, "No spell info available, using LibClassicDuration")
         spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
         duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
         _,_,icon = GetSpellInfo(spellId)
+		expirationTime = GetTime() + duration
     end
     -- check for relevant values
     if spellId == nil or duration == nil then
@@ -156,7 +181,8 @@ function A:GetAuraInfo(ti)
         return false
     end
     --return
-    return spellId, icon, duration
+	local remaining = expirationTime - GetTime()
+    return spellId, icon, duration, remaining
 end
 
 function A:GetUnitAura(unit, spell)
@@ -195,6 +221,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
             local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
             local isPlayer = (GUID == playerGUID)
             local isTarget = (GUID == targetGUID)
+
 			-- write some useful info into ti for later use
             ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
             -- player controlled check
