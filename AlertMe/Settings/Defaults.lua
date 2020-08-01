@@ -69,30 +69,31 @@ D.profile = {
 	},
 	alerts = {
 		["**"] = {
-			alert_dd_value = "",
-			alert_dd_list = {},
-			alert_details = {
+			selectedAlert = "",
+			--alert_dd_list = {},
+			alertDetails = {
 				['*'] = {
+					name = "New alert",
 					active = true,
-					spells = {
+					spellNames = {
 						['*'] = {
 							icon = "",
-							sound = "",
+							soundFile = "",
 						}
 					},
 					srcUnits = 5,
 					srcExclude = 1,
 					dstUnits = 5,
 					dstExclude = 1,
-					dummy = 1,
-					show_bar = true,
-					chat_channels = 1,
-					system_messages = 2,
-					whisper_destination = 1,
-					scrolling_text = true,
-					sound_selection = 1,
-					sound_file = "",
-					override = "",
+					created = false,
+					showBar = true,
+					chatChannels = 1,
+					addonMessages = 2,
+					dstWhisper = 1,
+					scrollingText = true,
+					soundSelection = 1,
+					soundFile = "",
+					msgOverride = "",
 				},
 			},
 		},

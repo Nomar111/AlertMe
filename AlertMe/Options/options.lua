@@ -13,19 +13,19 @@ O.config = {}
 function O:OpenOptions()
 	dprint(2, "O:OpenOptions")
 	-- create main frame for options
-	O.Frame = A.Libs.AceGUI:Create("Frame")
-	O.Frame:SetTitle("AlertMe Options")
-	O.Frame:EnableResize(true)
-	O.Frame:SetLayout("Flow")
-	O.Frame:SetCallback("OnClose", function(widget)
-		A:InitSpellOptions()
+	local f = A.Libs.AceGUI:Create("Frame")
+	f:SetTitle("AlertMe Options")
+	f:EnableResize(true)
+	f:SetLayout("Flow")
+	f:SetCallback("OnClose", function(widget)
+		--A:InitSpellOptions()
 		A.Libs.AceGUI:Release(widget)
 	end)
-	O.Frame:SetWidth(900)
-	O.Frame:SetHeight(680)
-	VDT_AddData(O.Frame, "OptionsFrame")
+	f:SetWidth(900)
+	f:SetHeight(680)
+	VDT_AddData(f, "Options_Frame")
 	-- create navigation
-	O:CreateNavTree(O.Frame)
+	O:CreateNavTree(f)
 end
 
 -- *************************************************************************************
@@ -43,10 +43,10 @@ function O:CreateNavTree(container)
 	tree_structure[7] = {value = "info", text = "Info"}
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
-		if tbl.options_display ~= nil and tbl.options_display == true then
-			tree_structure[5].children[tbl.options_order]  = {
+		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
+			tree_structure[5].children[tbl.optionsOrder]  = {
 				value = tbl.short,
-				text = tbl.options_name
+				text = tbl.optionsText
 			}
 		end
 	end
@@ -59,19 +59,17 @@ function O:CreateNavTree(container)
 
 	-- callbacks
 	local function GroupSelected(widget, event, uniqueValue)
-		-- delete whatever is shown on the right side
+		dprint(2, widget, event, uniqueValue)
+		-- release content
 		widget:ReleaseChildren()
-		-- hide scrollTable (not an Ace widget)
-		if O.scrollTable ~= nil then O.scrollTable:Hide() end
+
 		-- create new content container
-		local contentGroup = A.Libs.AceGUI:Create("SimpleGroup")
-		contentGroup:SetFullWidth(true)
-		contentGroup:SetFullHeight(true)
-		widget:AddChild(contentGroup)
+		local  contentGroup =  O.AttachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
 		local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
 		scrollGroup:SetLayout("List")
 		scrollGroup:SetFullHeight(true)
 		scrollGroup:SetFullWidth(true)
+		scrollGroup.frame:SetBackdrop(nil)
 		contentGroup:AddChild(scrollGroup)
 		O:ShowOptions(scrollGroup, uniqueValue)
 	end

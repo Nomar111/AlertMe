@@ -1,126 +1,108 @@
-dprint(2, "alerts.lua")
+dprint(3, "alerts.lua")
 -- upvalues
-local _G, dprint, type, unpack, pairs, time, tostring, xpcall = _G, dprint, type, unpack, pairs, time, tostring, xpcall
+local _G, time, tostring = _G, time, tostring
 -- get engine environment
-local A, _, O = unpack(select(2, ...))
+local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:ShowAlerts(container, event_short)
-	dprint(2, "O:DrawAlertsOptions", event_short)
-	VDT_AddData(container, "alerts")
+function O:ShowAlerts(container, eventShort)
+	dprint(2, "O:ShowAlerts", eventShort)
+	-- clear container so it can call itself
 	container:ReleaseChildren()
-	-- set db to db for this event
-	local db = P.alerts[event_short]
-	-- alerts dropdown
-	local label = "Alerts - "..A:GetEventSettingByShort(event_short, "options_name")
-	O.alert_dropdown = O:AttachDropdown(container, label, db, "alert_dd_value", db.alert_dd_list, 270)
-	-- spacer
-	O:AttachSpacer(container, 10)
-	-- add alert
-	local icon_add = O:AttachIcon(container, "Interface\\AddOns\\AlertMe\\Media\\Textures\\add.tga", 18)
-	icon_add:SetCallback("OnClick", function(widget, event, value)
-		local uid = tostring(time()) -- create uid (time)
-		O.alert_dropdown:AddItem(uid, "New alert") -- add new entry to the dropdown list (automatically saved in db)
-		O.alert_dropdown:SetList(O.alert_dropdown.list)
-		O.alert_dropdown:SetValue(uid) -- set dropdown to new value
-		db.alert_details[uid].dummy = 5 -- create entry in alert_details db
-		O.alert_dropdown:Fire("OnValueChanged", uid) -- fire changed event to save the value in the db
-		-- alert details
-		O:ShowAlertDetails(O.alert_details, event_short, db)
-	end)
-	-- spacer
-	O:AttachSpacer(container, 10)
-	-- delete alert
-	local icon_delete = O:AttachIcon(container, "Interface\\AddOns\\AlertMe\\Media\\Textures\\delete.tga", 18)
-	icon_delete:SetCallback("OnClick", function()
-		--dprint(1,"O:DeleteAlert", widget, event, button)
-		local uid = db["alert_dd_value"]
-		if O.alert_dropdown.list[uid] ~= nil and O.alert_dropdown.list[uid] ~= "" then
-			O.alert_dropdown.list[uid] = nil
-			O.alert_dropdown:SetList(O.alert_dropdown.list)
-			local new_uid = O:GetLastAlert(O.alert_dropdown.list) -- get another uid
-			O.alert_dropdown:SetValue(new_uid) -- and set it in dd
-			O.alert_dropdown:Fire("OnValueChanged", new_uid) -- fire onchanged to save in db
+	-- some local variables
+	local db = P.alerts[eventShort]
+	local uid = db.selectedAlert
+	local iconAdd = A.LSM:HashTable("background")["Add"]
+	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local btnAddToolTip = {lines = {"Add new alert"}}
+	local btnDelToolTip = {lines = {"Delete selected alert"}}
+
+	-- local functions
+	local function refresh()
+		dprint(2, "refresh")
+		O:ShowAlerts(container, eventShort)
+	end
+
+	local function btnAddOnClick()
+		dprint(2, "btnAddOnClick")
+		local _uid = tostring(time()) -- create uid (time)
+		db.alertDetails[_uid].created = true -- create entry in alert details
+		db.selectedAlert = _uid
+		refresh()
+	end
+
+	local function btnDelOnClick()
+		dprint(2, "btnDelOnClick")
+		local _uid = db.selectedAlert
+		if db.alertDetails[_uid] ~= nil then
+			db.alertDetails[_uid] = nil
 		end
-		if db.alert_details[uid] ~= nil then db.alert_details[uid] = nil end -- delete alert details also
-		-- alert details
-		O:ShowAlertDetails(O.alert_details, event_short, db)
-	end)
-	-- spacer
-	O:AttachSpacer(container, 10)
+		db.selectedAlert = O:GetSomeAlert(eventShort) -- get another uid
+		refresh()
+	end
+
+	-- *************************************************************************************
+	-- Top of page
+	local topGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
+
+	-- alert dropdown
+	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
+	local ddAlert = O.AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
+	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
+	O.AttachSpacer(topGroup, 20)
+
 	-- editbox for alertname
-	O.alert_name = O:AttachEditBox(container, "Name of the selected alert", O.alert_dropdown.list, O.alert_dropdown.value, 250)
-	-- spacer
-	O:AttachSpacer(container, 10)
+	local editBox = O.AttachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
+	if db.alertDetails[uid].created == true then
+		editBox:SetText(db.alertDetails[uid].name)
+	else
+		editBox:SetText("")
+		editBox:SetDisabled(true)
+	end
+	O.AttachSpacer(topGroup, 10)
+
+	-- add alert
+	O.AttachIcon(topGroup, iconAdd, 18, btnAddOnClick, btnAddToolTip)
+	O.AttachSpacer(topGroup, 10)
+	-- delete alert
+	O.AttachIcon(topGroup, iconDel, 18, btnDelOnClick, btnDelToolTip)
+	O.AttachSpacer(topGroup, 10)
+
 	-- active checkbox
-	O.alert_active = O:AttachAlertSettingCheckBox(container, "Active", db, "active", 70)
-	-- set callbacks for dropdown now that all controls exist
-	O.alert_dropdown:SetCallback("OnValueChanged", function(widget, event, value)
-		local uid = value
-		db["alert_dd_value"] = uid
-		O.alert_name:SetText(O.alert_dropdown.list[uid])
-		O.alert_active:SetValue(db.alert_details[uid].active)
-		if uid == "" then
-			O.alert_name:SetDisabled(true)
-			O.alert_active:SetDisabled(true)
-		else
-			O.alert_name:SetDisabled(false)
-			O.alert_active:SetDisabled(false)
+	local cbActive = O.AttachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 70)
+	if db.alertDetails[uid].created == true then
+		cbActive:SetValue(db.alertDetails[uid].active)
+	else
+		cbActive:SetValue(nil)
+		cbActive:SetDisabled(true)
+	end
+
+	-- show alert details
+	if uid ~= nil and uid ~= "" then
+		O:ShowAlertDetails(container, eventShort, uid)
+	end
+end
+
+function O:GetSomeAlert(eventShort)
+	dprint(2, "O:GetSomeAlert", eventShort)
+	local _uid = ""
+	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
+		if details.created == true then
+			_uid = uid
 		end
-		-- alert details
-		O:ShowAlertDetails(O.alert_details, event_short, db)
-	end)
-	-- callback for editbox
-	O.alert_name:SetCallback("OnEnterPressed", function(widget, event, text)
-		O.alert_dropdown.list[O.alert_dropdown.value] = text
-		O.alert_dropdown:SetList(O.alert_dropdown.list)
-		O.alert_dropdown:SetText(text)
-	end)
-	if O.alert_dropdown.value == nil or O.alert_dropdown.value == "" then
-		O.alert_name:SetDisabled(true)
-		O.alert_active:SetDisabled(true)
-	else
-		O.alert_name:SetDisabled(false)
-		O.alert_active:SetDisabled(false)
 	end
-	-- create details group
-	O.alert_details = O:AttachGroup(container, "", false)
-	-- draw alert details
-	O:ShowAlertDetails(O.alert_details, event_short, db)
+	return _uid
 end
 
-function O:GetLastAlert(list)
-	local last_uid = ""
-	for uid, v in pairs(list) do
-		last_uid = uid
+function O:CreateAlertList(eventShort)
+	dprint(2, "O:CreateAlertList", eventShort)
+	local list = {}
+	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
+		if details.created == true then
+			list[uid] = details.name
+		end
 	end
-	return last_uid
-end
-
-function O:AttachAlertSettingCheckBox(container, name, db, key, width)
-	local control = A.Libs.AceGUI:Create("CheckBox")
-	local uid = db["alert_dd_value"]
-	if uid ~= nil then
-		control:SetValue(db.alert_details[uid][key])
-		control:SetDisabled(false)
-	else
-		control:SetDisabled(true)
-	end
-	control:SetUserData("db", db)
-	control:SetUserData("key", key)
-	control:SetCallback("OnValueChanged", function(widget, event) O:AlertSettingCheckBoxOnChange(widget, event) end)
-	control:SetLabel(name)
-	if width then control:SetWidth(width) end
-	container:AddChild(control)
-	return control
-
-end
-
-function O:AlertSettingCheckBoxOnChange(widget, event)
-	local db = widget:GetUserData("db")
-	local key = widget:GetUserData("key")
-	local uid = db["alert_dd_value"]
-	db.alert_details[uid][key] = widget.checked
+	return list
 end
