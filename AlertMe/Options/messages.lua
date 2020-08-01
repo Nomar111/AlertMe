@@ -19,11 +19,11 @@ function O:ShowMessages(container)
 	end
 	-- event specific messages
 	O.AttachHeader(container, "Event specific settings")
-	O.AttachEditBox(container, "Message on aura gained/refreshed", db, "msgGain", 1)
-	O.AttachEditBox(container, "Message on spell dispel", db, "msgDispel", 1)
-	O.AttachEditBox(container, "Message on cast start", db, "msgStart", 1)
-	O.AttachEditBox(container, "Message on cast success", db, "msgSuccess", 1)
-	O.AttachEditBox(container, "Message on interrupt", db, "msgInterrupt", 1)
-	O.AttachEditBox(container, "Message prefix", db, "msgPrefix", 200)
-	O.AttachEditBox(container, "Message postfix", db, "msgPostfix", 200)
+	O.AttachEditBox(container, "Message on aura gained/refreshed", db, "gain", 1)
+	O.AttachEditBox(container, "Message on spell dispel", db, "dispel", 1)
+	O.AttachEditBox(container, "Message on cast start", db, "start", 1)
+	O.AttachEditBox(container, "Message on cast success", db, "success", 1)
+	O.AttachEditBox(container, "Message on interrupt", db, "interrupt", 1)
+	O.AttachEditBox(container, "Message prefix", db, "prefix", 200)
+	O.AttachEditBox(container, "Message postfix", db, "postfix", 200)
 end

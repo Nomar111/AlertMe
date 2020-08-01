@@ -42,7 +42,6 @@ function A:GetContainer(barType)
 			f.header:Hide()
 		end
 		A.Container[barType] = f
-		VDT_AddData(A.Container[barType], "Container_"..barType)
 	end
 	return A.Container[barType]
 end
@@ -94,7 +93,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
 		A.Bars[barType][id] = newBar
-		VDT_AddData(newBar, id)
+		--VDT_AddData(newBar, id)
 	else
 		A.Bars[barType][id]:Stop()
 		A:ShowBar(barType, id, label, icon, duration, color)

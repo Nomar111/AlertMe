@@ -56,13 +56,13 @@ D.profile = {
 		}
 	},
 	messages = {
-		msgGain = "%dstName gained %spellName",
-		msgDispel = "%extraSpellName dispelled on %dstName -- by %srcName",
-		msgStart = "%srcName starts to cast %spellName",
-		msgSuccess = "%srcName casted %spellName on %dstName",
-		msgInterrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
-		msgPrefix = "** ",
-		msgPostfix = " **",
+		gain = "%dstName gained %spellName",
+		dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
+		start = "%srcName starts to cast %spellName",
+		success = "%srcName has casted %spellName on %dstName",
+		interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+		prefix = "** ",
+		postfix = " **",
 		chatFrames = {
 			["*"] = true,
 		},
@@ -70,7 +70,6 @@ D.profile = {
 	alerts = {
 		["**"] = {
 			selectedAlert = "",
-			--alert_dd_list = {},
 			alertDetails = {
 				['*'] = {
 					name = "New alert",
@@ -97,5 +96,33 @@ D.profile = {
 				},
 			},
 		},
+		-- ["removed"] = {
+		-- 	selectedAlert = "",
+		-- 	alertDetails = {
+		-- 		[1] = {
+		-- 			name = "Dummy alert for removed auras",
+		-- 			active = true,
+		-- 			spellNames = {
+		-- 				['*'] = {
+		-- 					icon = "",
+		-- 					soundFile = "",
+		-- 				}
+		-- 			},
+		-- 			srcUnits = 1,
+		-- 			srcExclude = 1,
+		-- 			dstUnits = 1,
+		-- 			dstExclude = 1,
+		-- 			created = true,
+		-- 			showBar = true,
+		-- 			chatChannels = 1,
+		-- 			addonMessages = 2,
+		-- 			dstWhisper = 1,
+		-- 			scrollingText = true,
+		-- 			soundSelection = 1,
+		-- 			soundFile = "",
+		-- 			msgOverride = "",
+		-- 		},
+		-- 	},
+		-- },
 	},
 }
