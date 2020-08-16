@@ -21,6 +21,7 @@ function A:Initialize()
 	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	A:RegisterEvent("PLAYER_ENTERING_WORLD")
 	A:RegisterEvent("PLAYER_DEAD")
+	--A:RegisterEvent("UNIT_AURA")
 	-- for reloadui
 	A.EnterWorld = GetTime()
 	A:HideAllBars()
@@ -31,6 +32,11 @@ function A:PLAYER_ENTERING_WORLD(eventName)
 	A.EnterWorld = GetTime()
 	A:HideAllBars()
 end
+
+-- function A:UNIT_AURA(eventName,...)
+-- 	dprint(1, eventName,...)
+--
+-- end
 
 function A:PLAYER_DEAD(eventName)
 	dprint(2, eventName)
@@ -60,6 +66,8 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 		dprint(3, "Event not tracked")
 		return
 	end
+
+	dprint(1, ti.event, ti.spellName, ti.srcName, ti.dstName)
 
 	-- to prevent logon events don't do anything in the first 2 seconds
 	if GetTime() - A.EnterWorld < 2 then
