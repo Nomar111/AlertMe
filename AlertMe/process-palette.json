@@ -18,7 +18,7 @@
       "inputDialogs": [],
       "env": {},
       "keystroke": "ctr-alt-v",
-      "stream": true,
+      "stream": false,
       "outputTarget": "panel",
       "outputBufferSize": 80000,
       "maxCompleted": 3,
