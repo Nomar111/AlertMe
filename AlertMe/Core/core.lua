@@ -1,7 +1,7 @@
 dprint(3,"core.lua")
 -- upvalues
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
-local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
+local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
 local GetTime, GetSpellInfo = GetTime, GetSpellInfo
 -- get engine environment
@@ -89,7 +89,6 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 
-	--dprint(2, "checks ok for", ti.event, ti.spellName, ti.srcName, ti.dstName)
 	--VDT_AddData(ti,"ti")
 	-- do whatever is defined in actions
 	if eventInfo.actions ~= nil then
@@ -110,12 +109,12 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	-- search for spell
 	if A.SpellOptions[ti.relSpellName] == nil then
-		dprint(2, "Spell not found in options", ti.relSpellName)
+		dprint(2, "spell not found in options", ti.relSpellName)
 		return false
 	end
 	-- search for spell/event combination
 	if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
-		dprint(2, "Spell/event combination not found in options ", ti.relSpellName, eventInfo.short)
+		dprint(2, "spell/event combination not found in options", ti.relSpellName, eventInfo.short)
 		return false
 	end
 	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
@@ -135,8 +134,9 @@ function A:DisplayBars(ti, alerts, eventInfo)
 			if duration ~= nil then
 				local id = ti.dstGUID..ti.spellName
 				A:ShowBar("auras", id, A:GetUnitName(ti.dstName), icon, remaining, true)
+			else
+				dprint(1, "no spell duration available, abort bar display")
 			end
-			--A:ShowBar("auras", ti.srcGUID..ti.spellName, ti.spellName, spellOptions.icon, 60, true)
 		end
 	end
 end
@@ -150,56 +150,28 @@ end
 -- getAuraInfo: try to get correct spellId and duration or guess
 function A:GetAuraInfo(ti)
 	dprint(2, "A:GetAuraInfo")
-    local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(ti.dstName, ti.relSpellName)
-	dprint(1, name, duration, expirationTime, source, spellId)
-	-- -- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
-    -- if expirationTime == nil then
-    --     dprint(1, "No spell info available, using LibClassicDuration")
-    --     spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-    --     duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
-    --     _,_,icon = GetSpellInfo(spellId)
-	-- 	expirationTime = GetTime() + duration
-    -- end
-    -- check for relevant values
-    if spellId == nil or duration == nil then
-        dprint(1, "No spell info available, abort")
-        return false
-    end
+	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
+	--dprint(1, "unit", unit)
+    local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
     --return
-	local remaining = expirationTime - GetTime()
-    return spellId, icon, duration, remaining
+	if duration then
+		return spellId, icon, duration, expirationTime - GetTime()
+	end
 end
 
 function A:GetUnitAura(unit, spell)
 	dprint(2, "A:GetUnitAura", unit, spell)
 	for i = 1, 255 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i)
+		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
+		if not name then
+			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
+		end
 		if not name then return end
 		if spell == spellId or spell == name then
 			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
 		end
 	end
 end
-
-
--- function A:OnUnitBuff(event, unit, filter)
--- 	dprint(2, "A:OnUnitBuff", event, unit, filter)
--- 	local unitName = A:GetUnitName(UnitName(unit))
--- 	local unitAuras = {}
--- 	for i=1,100 do
--- 		local name, _, _, _, duration, expirationTime, _, _, _, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, filter)
--- 		if name then
--- 			--GetTime()+duration-expirationTime
--- 			unitAuras[i] = name
--- 		else
--- 			if #unitAuras > 0 then
--- 				dprint(2, unitName, unpack(unitAuras))
--- 			end
--- 			break
--- 		end
--- 	end
--- end
-
 
 -- checkUnits: check source, destination units of trigger event vs. relevant options
 function A:CheckUnits(ti, alerts_in, eventInfo)
@@ -224,6 +196,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 			local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
             local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
             local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
+			local isOutsider = (bit.band(flags, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER) > 0)
             local isPlayer = (GUID == playerGUID)
             local isTarget = (GUID == targetGUID)
 
@@ -235,7 +208,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
                 checkFailed = true
                 break
             end
-            -- exclude check -- 1 = none, 2 = tmyself, 3 = target
+            -- exclude check -- 1 = none, 2 = myself, 3 = target
             if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
                 dprint(2, pre, "exclude check failed for", alert.name)
                 checkFailed = true
@@ -259,7 +232,11 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
                     dprint(2, pre, "friendly player check failed for", alert.name)
                     checkFailed = true
                     break
-                end
+                elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
+					dprint(2, pre, "friendly player = outsider", alert.name)
+					checkFailed = true
+                    break
+				end
             elseif units == 3 then -- hostile player check
                 if not isHostile then
                     dprint(2, pre, "hostile player check failed for", alert.name)
