@@ -17,32 +17,15 @@ function A:Initialize()
 	A:InitSpellOptions()
 	-- init Chatframes
 	A:InitChatFrames()
+	-- init LCD
+	A:InitLCD()
 	-- register for events
 	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	A:RegisterEvent("PLAYER_ENTERING_WORLD")
-	A:RegisterEvent("PLAYER_DEAD")
 	--A:RegisterEvent("UNIT_AURA")
 	-- for reloadui
-	A.EnterWorld = GetTime()
 	A:HideAllBars()
 end
 
-function A:PLAYER_ENTERING_WORLD(eventName)
-	dprint(2, eventName)
-	A.EnterWorld = GetTime()
-	A:HideAllBars()
-end
-
--- function A:UNIT_AURA(eventName,...)
--- 	dprint(1, eventName,...)
---
--- end
-
-function A:PLAYER_DEAD(eventName)
-	dprint(2, eventName)
-	A.EnterWorld = GetTime()
-	A:HideAllBars()
-end
 
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 	local arg = {}
@@ -67,13 +50,7 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 		return
 	end
 
-	dprint(1, ti.event, ti.spellName, ti.srcName, ti.dstName)
-
-	-- to prevent logon events don't do anything in the first 2 seconds
-	if GetTime() - A.EnterWorld < 2 then
-		--return
-		dprint(1, "not blocked")
-	end
+	dprint(2, ti.event, ti.spellName, ti.srcName, ti.dstName)
 
 	-- spell cast success sometimes has no destination data - take source data then
 	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
@@ -174,18 +151,18 @@ end
 function A:GetAuraInfo(ti)
 	dprint(2, "A:GetAuraInfo")
     local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(ti.dstName, ti.relSpellName)
-
-	-- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
-    if expirationTime == nil then
-        dprint(1, "No spell info available, using LibClassicDuration")
-        spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-        duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
-        _,_,icon = GetSpellInfo(spellId)
-		expirationTime = GetTime() + duration
-    end
+	dprint(1, name, duration, expirationTime, source, spellId)
+	-- -- if WA_GetUnitAura returns nothing (enemy player...) use LibClassicDuration
+    -- if expirationTime == nil then
+    --     dprint(1, "No spell info available, using LibClassicDuration")
+    --     spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+    --     duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+    --     _,_,icon = GetSpellInfo(spellId)
+	-- 	expirationTime = GetTime() + duration
+    -- end
     -- check for relevant values
     if spellId == nil or duration == nil then
-        dprint(2, "No spell info available, abort")
+        dprint(1, "No spell info available, abort")
         return false
     end
     --return
@@ -196,13 +173,33 @@ end
 function A:GetUnitAura(unit, spell)
 	dprint(2, "A:GetUnitAura", unit, spell)
 	for i = 1, 255 do
-		local name, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i)
 		if not name then return end
 		if spell == spellId or spell == name then
-			return UnitAura(unit, i)
+			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
 		end
 	end
 end
+
+
+-- function A:OnUnitBuff(event, unit, filter)
+-- 	dprint(2, "A:OnUnitBuff", event, unit, filter)
+-- 	local unitName = A:GetUnitName(UnitName(unit))
+-- 	local unitAuras = {}
+-- 	for i=1,100 do
+-- 		local name, _, _, _, duration, expirationTime, _, _, _, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, filter)
+-- 		if name then
+-- 			--GetTime()+duration-expirationTime
+-- 			unitAuras[i] = name
+-- 		else
+-- 			if #unitAuras > 0 then
+-- 				dprint(2, unitName, unpack(unitAuras))
+-- 			end
+-- 			break
+-- 		end
+-- 	end
+-- end
+
 
 -- checkUnits: check source, destination units of trigger event vs. relevant options
 function A:CheckUnits(ti, alerts_in, eventInfo)
@@ -468,6 +465,13 @@ function A:GetUnitName(name)
 	-- getUnitName: Returns Unitname without Realm
     local short = gsub(name, "%-[^|]+", "")
     return short
+end
+
+function A:InitLCD()
+	dprint(2, "A:InitLCD")
+	A.Libs.LCD:Register("AlertMe")
+	A.Libs.LCD.enableEnemyBuffTracking = true
+	--A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit) end) --A:OnUnitBuff(event, unit, "HELPFUL")
 end
 
 function A:InitChatFrames()

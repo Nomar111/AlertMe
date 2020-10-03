@@ -17,7 +17,7 @@
       "cwd": null,
       "inputDialogs": [],
       "env": {},
-      "keystroke": "ctr-alt-v",
+      "keystroke": "ctrl-alt-v",
       "stream": false,
       "outputTarget": "panel",
       "outputBufferSize": 80000,
