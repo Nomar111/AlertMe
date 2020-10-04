@@ -3,7 +3,7 @@ dprint(3,"core.lua")
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo = GetTime, GetSpellInfo
+local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -20,14 +20,30 @@ function A:Initialize()
 	-- init LCD
 	A:InitLCD()
 	-- register for events
-	A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	--A:RegisterEvent("UNIT_AURA")
+	A:RegisterEvent("PLAYER_ENTERING_WORLD", A.ToggleAddon)
+	A:RegisterEvent("ZONE_CHANGED", A.ToggleAddon)
+	A:RegisterEvent("ZONE_CHANGED_INDOORS", A.ToggleAddon)
 	-- for reloadui
 	A:HideAllBars()
 end
 
+function A.ToggleAddon(event)
+	dprint(2, "A:ToggleAddon", event, "world",  P.general.zones.world)
+	local name, instanceType = GetInstanceInfo()
 
-function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
+	if instanceType ~= "pvp" and P.general.zones.world then
+		dprint(3, "register", instanceType, P.general.zones.world)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+	elseif instanceType == "pvp" and  P.general.zones.bg then
+		dprint(3, "register", instanceType, P.general.zones.bg)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+	else
+		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		A:HideAllBars()
+	end
+end
+
+function A:ParseCombatLog(eventName)
 	local arg = {}
 	arg = {CombatLogGetCurrentEventInfo()}
 	--VDT_AddData(arg,"arg")
@@ -87,6 +103,15 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	if alerts == false or alerts == nil then
 		dprint(2, "unit check failed", ti.spellName, ti.event)
 		return
+	end
+
+	-- check if aura_applied happened lately
+	if eventInfo.short == "gain" or eventInfo.short == "refresh" then
+		 local _, _, duration, remaining = A:GetAuraInfo(ti)
+		 if not duration or duration - remaining >= 2 or remaining <= 1 then
+			 dprint(2, "no aura duration, or not recently added", "dur", duration, "rem", remaining)
+			 return
+		 end
 	end
 
 	--VDT_AddData(ti,"ti")
@@ -151,11 +176,19 @@ end
 function A:GetAuraInfo(ti)
 	dprint(2, "A:GetAuraInfo")
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
+
 	--dprint(1, "unit", unit)
-    local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-    --return
+	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
+	if not name then
+		C_Timer.After(0.8, function()
+			name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
+		end)
+	end
+
+	--return
 	if duration then
-		return spellId, icon, duration, expirationTime - GetTime()
+		local remaining = expirationTime - GetTime()
+		return spellId, icon, duration, remaining
 	end
 end
 
@@ -232,10 +265,10 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
                     dprint(2, pre, "friendly player check failed for", alert.name)
                     checkFailed = true
                     break
-                elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
-					dprint(2, pre, "friendly player = outsider", alert.name)
-					checkFailed = true
-                    break
+                -- elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
+				-- 	dprint(2, pre, "friendly player = outsider", alert.name)
+				-- 	checkFailed = true
+                --     break
 				end
             elseif units == 3 then -- hostile player check
                 if not isHostile then
@@ -264,6 +297,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
+
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil

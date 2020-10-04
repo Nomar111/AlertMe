@@ -61,6 +61,7 @@ function A:UpdateScrolling()
 	--f:EnableMouse(db.interactive)
 	-- set position according to db
 	A:SetScrollingPosition(false)
+	A:ToggleScrollingInteractive()
 
 end
 
