@@ -3,7 +3,7 @@ dprint(3,"core.lua")
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo
+local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -19,6 +19,8 @@ function A:Initialize()
 	A:InitChatFrames()
 	-- init LCD
 	A:InitLCD()
+	-- init sounds
+	A.sounds = A.LSM:HashTable("sound")
 	-- register for events
 	A:RegisterEvent("PLAYER_ENTERING_WORLD", A.ToggleAddon)
 	A:RegisterEvent("ZONE_CHANGED", A.ToggleAddon)
@@ -101,17 +103,8 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- check units
 	alerts = A:CheckUnits(ti, alerts, eventInfo)
 	if alerts == false or alerts == nil then
-		dprint(2, "unit check failed", ti.spellName, ti.event)
+		dprint(2, "unit check failed", ti.spellName, ti.event, "srcfoe", ti.srcIsHostile, "dstfoe", ti.dstIsHostile)
 		return
-	end
-
-	-- check if aura_applied happened lately
-	if eventInfo.short == "gain" or eventInfo.short == "refresh" then
-		 local _, _, duration, remaining = A:GetAuraInfo(ti)
-		 if not duration or duration - remaining >= 2 or remaining <= 1 then
-			 dprint(2, "no aura duration, or not recently added", "dur", duration, "rem", remaining)
-			 return
-		 end
 	end
 
 	--VDT_AddData(ti,"ti")
@@ -121,6 +114,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo) end
 			if action == "hideBars" then A:HideBars(ti, eventInfo) end
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
+			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 		end
 	end
 end
@@ -179,9 +173,10 @@ function A:GetAuraInfo(ti)
 
 	--dprint(1, "unit", unit)
 	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-	if not name then
-		C_Timer.After(0.8, function()
+	if not duration then
+		C_Timer.After(2, function()
 			name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
+			dprint(1, "repeat", unit, ti.relSpellName, name, duration)
 		end)
 	end
 
@@ -243,26 +238,26 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
             end
             -- exclude check -- 1 = none, 2 = myself, 3 = target
             if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
-                dprint(2, pre, "exclude check failed for", alert.name)
+                dprint(1, pre, "exclude check failed for", alert.name)
                 checkFailed = true
                 break
             end
             -- do other checks
             if units == 4 then -- target check
                 if not isTarget then
-                    dprint(2, pre, "target check failed for", alert.name)
+                    dprint(1, pre, "target check failed for", ti.spellName, pre, "hostile", isHostile, name)
                     checkFailed = true
                     break
                 end
             elseif units == 5 then  -- player check
                 if not isPlayer then
-                    dprint(2, pre, "player check failed for", alert.name)
+                    dprint(1, pre, "player check failed for", ti.spellName, "hostile", isHostile, name)
                     checkFailed = true
                     break
                 end
             elseif units == 2 then -- friendly player check
                 if not isFriendly then
-                    dprint(2, pre, "friendly player check failed for", alert.name)
+                    dprint(1, pre, "friendly player check failed for", ti.spellName, pre, "hostile", isHostile, name)
                     checkFailed = true
                     break
                 -- elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
@@ -272,7 +267,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 				end
             elseif units == 3 then -- hostile player check
                 if not isHostile then
-                    dprint(2, pre, "hostile player check failed for", alert.name)
+                    dprint(1, pre, "hostile player check failed for", ti.spellName, pre, "foe", isHostile, name)
                     checkFailed = true
                     break
                 end
@@ -297,6 +292,15 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
+
+	-- check if aura_applied happened lately
+	if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
+		 local _, _, duration, remaining = A:GetAuraInfo(ti)
+		 if not duration or duration - remaining >= 2 or remaining <= 1 then
+			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration)
+			 return
+		 end
+	end
 
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
@@ -380,6 +384,63 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 		end
 	end
 end
+
+function A:PlaySound(ti, alerts, eventInfo)
+	dprint(2, "A:PlaySound")
+
+	-- check if aura_applied happened lately
+	if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
+		 local _, _, duration, remaining = A:GetAuraInfo(ti)
+		 if not duration or duration - remaining >= 2 or remaining <= 1 then
+			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration)
+			 return
+		 end
+	end
+
+	local sound
+				VDT_AddData(alerts,"alerts")
+	for _, alert in pairs(alerts) do
+		--{[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"
+		if alert.soundSelection == 1 then
+			break
+		elseif alert.soundSelection == 2 then
+			sound = alert.soundFile
+		elseif alert.soundSelection == 3 then
+			sound = alert.spellNames[ti.spellName].soundFile
+		end
+		--dprint(1,sound, A.sounds[sound])
+		if sound == nil or sound == "None" or sound == "" then
+			break
+		else
+			PlaySoundFile(A.sounds[sound], "Master")
+		end
+	end
+end
+-- -- play sound(s)
+-- aura_env.playSound = function(allstates, ti, ogs, eventInfo)
+--     aura_env.debug(2, "playSound")
+--     -- create queue for sounds
+--     local soundQueue = {}
+--     -- loop through option groups
+--     for _,og in pairs(ogs) do
+--         if og.playSound == 2 or og.playSound == 3 then
+--             local spellIndex = 0
+--             if og.playSound == 2 then spellIndex = 1 else spellIndex = aura_env.getIndexByValue(aura_env.parseCSL(og.spellNames) , ti.relSpellName) end
+--             local sound = aura_env.parseCSL(og.sounds)[spellIndex]
+--             if sound then soundQueue[sound] = true end
+--         end
+--     end
+--     -- loop through sound queue and play sounds
+--     for sound,_ in pairs(soundQueue) do
+--         soundToPlay = aura_env.sounds[sound]
+--         if soundToPlay then
+--             PlaySoundFile(soundToPlay, "Master")
+--         else
+--             aura_env.debug(1, "Sound not found", sound)
+--         end
+--     end
+-- end
+
 
 function A:GetReactionColor(ti, rgb)
     dprint(2, "A:GetReactionColor")

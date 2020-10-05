@@ -19,7 +19,7 @@ A.Events = {
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
 		units = {"src","dst"},
-		actions = {"chatAnnounce", "displayBars"},
+		actions = {"chatAnnounce", "displayBars", "playSound"},
 	},
 	["SPELL_AURA_REFRESH"] = {
 		short = "refresh",
@@ -50,7 +50,7 @@ A.Events = {
 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool","auraType"},
 		relSpellName = "extraSpellName",
 		units = {"src","dst"},
-		actions = {"chatAnnounce", "hideBars"},
+		actions = {"chatAnnounce", "hideBars", "playSound"},
 	},
 	["SPELL_CAST_START"] = {
 		short = "start",
@@ -65,7 +65,7 @@ A.Events = {
 		relSpellName = "spellName",
 		units = {"src"},
 		--msg = P.events.msgCastStart,
-		actions = {"chatAnnounce"},
+		actions = {"chatAnnounce", "playSound"},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		short = "success",
@@ -79,7 +79,7 @@ A.Events = {
 		dstWhisper = true,
 		relSpellName = "spellName",
 		units = {"src","dst"},
-		actions = {"chatAnnounce"},
+		actions = {"chatAnnounce", "playSound"},
 
 	},
 	["SPELL_INTERRUPT"] = {
@@ -95,7 +95,7 @@ A.Events = {
 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool"},
 		relSpellName = "spellName",
 		units = {"src","dst"},
-		actions = {"chatAnnounce"},
+		actions = {"chatAnnounce", "playSound"},
 		--msg = P.events.msgInterrupt,
 		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
 	},
