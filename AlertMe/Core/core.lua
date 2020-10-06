@@ -85,6 +85,7 @@ function A:ParseCombatLog(eventName)
             ti[v] = arg[i+14]
         end
     end
+	ti.delayed = false
     -- set relevant spell name
     ti.relSpellName = ti[eventInfo.relSpellName]
     -- call processTriggerInfo
@@ -107,14 +108,27 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 
+	-- check aura applied for friendly
+	if eventInfo.short == "gain" and ti.dstIsFriendly then
+		 local name, _, duration, remaining = A:GetAuraInfo(ti)
+		 if not name  then
+			 dprint(1, "no aura info", ti.spellName)
+			 return
+		 elseif duration and (remaining - duration >= 3 or remaining <= 2) then
+			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
+			 return
+		end
+	end
+	dprint(1, "startactions")
+
 	--VDT_AddData(ti,"ti")
 	-- do whatever is defined in actions
 	if eventInfo.actions ~= nil then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo) end
-			if action == "hideBars" then A:HideBars(ti, eventInfo) end
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
+			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo) end
+			if action == "hideBars" then A:HideBars(ti, eventInfo) end
 		end
 	end
 end
@@ -149,7 +163,7 @@ function A:DisplayBars(ti, alerts, eventInfo)
 	dprint(2, "A:DisplayBars", ti, alerts, eventInfo)
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then
-			local spellId, icon, duration, remaining = A:GetAuraInfo(ti)
+			local spellId, icon, duration, remaining = A:GetAuraInfo(ti, eventinfo)
 			if duration ~= nil then
 				local id = ti.dstGUID..ti.spellName
 				A:ShowBar("auras", id, A:GetUnitName(ti.dstName), icon, remaining, true)
@@ -167,16 +181,18 @@ function A:HideBars(ti, eventInfo)
 end
 
 -- getAuraInfo: try to get correct spellId and duration or guess
-function A:GetAuraInfo(ti)
+function A:GetAuraInfo(ti, eventinfo)
 	dprint(2, "A:GetAuraInfo")
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 
 	--dprint(1, "unit", unit)
 	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-	if not duration then
-		C_Timer.After(2, function()
-			name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-			dprint(1, "repeat", unit, ti.relSpellName, name, duration)
+	dprint(1, "xxxxxx", ti.delayed, name)
+	if not name and ti.delayed == false then
+		ti.delayed = true
+		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
+		C_Timer.After(1, function()
+			A:ProcessTriggerInfo(ti, eventInfo)
 		end)
 	end
 
@@ -284,6 +300,7 @@ end
 -- chatAnnounce
 function A:ChatAnnounce(ti, alerts, eventInfo)
 	dprint(2, "A:ChatAnnounce", ti, alerts, eventInfo)
+
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
 	local srcName = (ti.srcName) and A:GetUnitName(ti.srcName) or ""
@@ -292,15 +309,15 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
-
-	-- check if aura_applied happened lately
-	if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
-		 local _, _, duration, remaining = A:GetAuraInfo(ti)
-		 if not duration or duration - remaining >= 2 or remaining <= 1 then
-			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration)
-			 return
-		 end
-	end
+	--
+	-- -- check if aura_applied happened lately
+	-- if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
+	-- 	 local _, _, duration, remaining = A:GetAuraInfo(ti, eventinfo)
+	-- 	 if not duration or duration - remaining >= 3 or remaining <= 2 then
+	-- 		 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
+	-- 		 return
+	-- 	 end
+	-- end
 
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
@@ -390,9 +407,9 @@ function A:PlaySound(ti, alerts, eventInfo)
 
 	-- check if aura_applied happened lately
 	if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
-		 local _, _, duration, remaining = A:GetAuraInfo(ti)
-		 if not duration or duration - remaining >= 2 or remaining <= 1 then
-			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration)
+		 local _, _, duration, remaining = A:GetAuraInfo(ti, eventinfo)
+		 if not duration or duration - remaining >= 3 or remaining <= 2 then
+			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
 			 return
 		 end
 	end
