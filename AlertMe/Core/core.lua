@@ -242,11 +242,11 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 			-- write some useful info into ti for later use
             ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
             -- player controlled check
-            -- if not playerControlled then
-            --     dprint(2, pre, "unit not player controlled")
-            --     checkFailed = true
-            --     break
-            -- end
+            if not playerControlled then
+                dprint(2, pre, "unit not player controlled")
+                checkFailed = true
+                break
+            end
             -- exclude check -- 1 = none, 2 = myself, 3 = target
             if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
                 dprint(1, pre, "exclude check failed for", alert.name)
