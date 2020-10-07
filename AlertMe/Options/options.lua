@@ -12,19 +12,26 @@ O.config = {}
 -- open the options window
 function O:OpenOptions()
 	dprint(2, "O:OpenOptions")
+	local function close()
+		A:InitSpellOptions()
+		A.ToggleAddon("Initialize")
+		A.Libs.AceGUI:Release(O.OptionsFrame)
+		O.OptionsFrame = nil
+	end
+	-- check if already open
+	if O.OptionsFrame ~= nil then
+		close()
+		return
+	end
 	-- create main frame for options
 	local f = A.Libs.AceGUI:Create("Frame")
 	f:SetTitle("AlertMe Options")
 	f:EnableResize(true)
 	f:SetLayout("Flow")
-	f:SetCallback("OnClose", function(widget)
-		A:InitSpellOptions()
-		A.ToggleAddon("Initialize")
-		A.Libs.AceGUI:Release(widget)
-	end)
+	f:SetCallback("OnClose", close)
 	f:SetWidth(900)
 	f:SetHeight(680)
-	--VDT_AddData(f, "Options_Frame")
+	O.OptionsFrame = f
 	-- create navigation
 	O:CreateNavTree(f)
 end

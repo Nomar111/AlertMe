@@ -13,6 +13,9 @@
 	<Include file="AceGUI-3.0-Spell-EditBox\AceGUI-3.0-Spell-EditBox.xml"/>
 	<Include file="LibClassicDurations\LibClassicDurations.xml"/>
 	<Include file="LibCandyBar-3.0\lib.xml"/>
+	<script file="LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
+	<Include file="LibDBIcon-1.0\lib.xml"/>
+
 	<!--
 	<Include file="AceComm-3.0\AceComm-3.0.xml"/>
 	<Include file="AceTimer-3.0\AceTimer-3.0.xml"/>

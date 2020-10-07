@@ -3,7 +3,7 @@ dprint(3,"core.lua")
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound
+local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -21,7 +21,8 @@ function A:Initialize()
 	A:InitChatFrames()
 	-- init LCD
 	A:InitLCD()
-
+	-- init LDB
+	A:InitLDB()
 	-- register for events
 	A:RegisterEvent("PLAYER_ENTERING_WORLD", A.ToggleAddon)
 	A:RegisterEvent("ZONE_CHANGED", A.ToggleAddon)
@@ -51,16 +52,16 @@ function A:ParseCombatLog(eventName)
 	arg = {CombatLogGetCurrentEventInfo()}
 	--VDT_AddData(arg,"arg")
 	local ti = {
-	    ts = arg[1],
-	    event = arg[2],
-	    srcGUID = arg[4],
-	    srcName = arg[5],
-	    srcFlags = arg[6],
-	    dstGUID = arg[8],
-	    dstName = arg[9],
-	    dstFlags = arg[10],
-	    spellName = arg[13],
-	    spellSchool = arg[14]
+		ts = arg[1],
+		event = arg[2],
+		srcGUID = arg[4],
+		srcName = arg[5],
+		srcFlags = arg[6],
+		dstGUID = arg[8],
+		dstName = arg[9],
+		dstFlags = arg[10],
+		spellName = arg[13],
+		spellSchool = arg[14]
 	}
 
 	-- check if trigger event exists in events table, if not abort
@@ -80,17 +81,17 @@ function A:ParseCombatLog(eventName)
 	local masterEvent = A.Events[ti.event].masterEvent
 	local eventInfo = A.Events[masterEvent] or A.Events[ti.event]
 
-    -- get optional arguments if there are any
-    if eventInfo.optionalArgs then
-        for i,v in pairs(eventInfo.optionalArgs) do
-            ti[v] = arg[i+14]
-        end
-    end
+	-- get optional arguments if there are any
+	if eventInfo.optionalArgs then
+		for i,v in pairs(eventInfo.optionalArgs) do
+			ti[v] = arg[i+14]
+		end
+	end
 	ti.delayed = false
-    -- set relevant spell name
-    ti.relSpellName = ti[eventInfo.relSpellName]
-    -- call processTriggerInfo
-    A:ProcessTriggerInfo(ti, eventInfo)
+	-- set relevant spell name
+	ti.relSpellName = ti[eventInfo.relSpellName]
+	-- call processTriggerInfo
+	A:ProcessTriggerInfo(ti, eventInfo)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
@@ -104,22 +105,22 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- check units
 	local alerts, errorMessages = A:CheckUnits(ti, alerts, eventInfo)
-	if errorMessages then
-		for i, errorMessage in pairs(errorMessages) do
-			dprint(1, errorMessage, ti.alertname, ti.relSpellName, "srcFriendly", ti.srcIsFriendly, "dstFriendly", ti.dstIsFriendly)
-		end
-	end
 	if alerts == false or alerts == nil then
-		dprint(1, "unit check failed", ti.alertname, ti.relSpellName)
+		--dprint(1, "unit check failed", ti.alertname, ti.relSpellName)
+		if errorMessages then
+			for i, errorMessage in pairs(errorMessages) do
+				dprint(1, errorMessage, ti.relSpellName, "srcFriendly", ti.srcIsFriendly, "dstFriendly", ti.dstIsFriendly)
+			end
+		end
 		return
 	end
 
 	-- check aura applied for friendly
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
-		 local name, _, duration, remaining = A:GetAuraInfo(ti)
-		 if not name  or (duration and remaining - duration >= 3 or remaining <= 2) then
-			 dprint(1, "aura info missing", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
-			 return
+		local name, _, duration, remaining = A:GetAuraInfo(ti)
+		if not name  or (duration and remaining - duration >= 3 or remaining <= 2) then
+			dprint(1, "aura info missing", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
+			return
 		end
 	end
 
@@ -153,11 +154,11 @@ function A:GetAlerts(ti, eventInfo)
 		return false
 	end
 	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
-    -- create table of relevant alert settings
+	-- create table of relevant alert settings
 	local alerts = {}
-    for uid, tbl in pairs(spellOptions) do
-        tinsert(alerts, tbl.options)
-    end
+	for uid, tbl in pairs(spellOptions) do
+		tinsert(alerts, tbl.options)
+	end
 	return alerts
 end
 
@@ -192,17 +193,17 @@ function A:GetAuraInfo(ti, eventinfo)
 	if not name and ti.delayed == false then
 		ti.delayed = true
 		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
-		C_Timer.After(1, function()
-			A:ProcessTriggerInfo(ti, eventInfo)
-		end)
+			C_Timer.After(1, function()
+				A:ProcessTriggerInfo(ti, eventInfo)
+			end)
 	end
-
-	--return
+		--return
 	if name then
 		local remaining = expirationTime - GetTime()
 		return spellId, icon, duration, remaining
 	end
 end
+
 
 function A:GetUnitAura(unit, spell)
 	dprint(2, "A:GetUnitAura", unit, spell)
@@ -225,84 +226,85 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 	if eventInfo.unitSelection == false or alerts_in == true then
 		return alerts_in
 	end
-    -- set some local variables
-    local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
-    -- create return table
-    local alerts_out = {}
+	-- set some local variables
+	local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
+	-- create return table
+	local alerts_out = {}
 	local errorMessages = {}
-    -- loop over the option groups
-    for _, alert in pairs(alerts_in) do
-        -- variable to hold the check result for this og
-        local checkFailed = false
-        -- do the relevant checks (src, dst)
-        for _, pre in pairs (eventInfo.units) do
-            -- set local variables
+	-- loop over the option groups
+	for _, alert in pairs(alerts_in) do
+		-- variable to hold the check result for this og
+		local checkFailed = false
+		-- do the relevant checks (src, dst)
+		for _, pre in pairs (eventInfo.units) do
+			-- set local variables
 			local name, GUID, flags = ti[pre.."Name"], ti[pre.."GUID"], ti[pre.."Flags"]
-            local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
+			local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
 			local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
-            local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
-            local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
+			local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
+			local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
 			--local isOutsider = (bit.band(flags, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER) > 0)
-            local isPlayer = (GUID == playerGUID)
-            local isTarget = (GUID == targetGUID)
+			local isPlayer = (GUID == playerGUID)
+			local isTarget = (GUID == targetGUID)
 
 			-- write some useful info into ti for later use
-            ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
-            -- player controlled check
-            if not playerControlled then
-                --dprint(2, pre, "unit not player controlled")
+			ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
+			-- player controlled check
+			if not playerControlled then
+				--dprint(2, pre, "unit not player controlled")
 				tinsert(errorMessages, pre..", ".."unit not player controlled")
-                checkFailed = true
-                break
-            end
-            -- exclude check -- 1 = none, 2 = myself, 3 = target
-            if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
-                --dprint(1, pre, "exclude check failed for", alert.name)
+				checkFailed = true
+				break
+			end
+			-- exclude check -- 1 = none, 2 = myself, 3 = target
+			if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
+				--dprint(1, pre, "exclude check failed for", alert.name)
 				tinsert(errorMessages, pre..", ".."exclude check failed")
-                checkFailed = true
-                break
-            end
-            -- do other checks
-            if units == 4 then -- target check
-                if not isTarget then
-                    --dprint(1, pre, "target check failed for", ti.spellName, pre, "hostile", isHostile, name)
+				checkFailed = true
+				break
+			end
+			-- do other checks
+			if units == 4 then -- target check
+				if not isTarget then
+					--dprint(1, pre, "target check failed for", ti.spellName, pre, "hostile", isHostile, name)
 					tinsert(errorMessages, pre..", ".."target check failed")
-                    checkFailed = true
-                    break
-                end
-            elseif units == 5 then  -- player check
-                if not isPlayer then
-                    --dprint(1, pre, "player check failed for", ti.spellName, "hostile", isHostile, name)
-					tinsert(errorMessages, pre..", ".."player check failed")
-                    checkFailed = true
-                    break
-                end
-            elseif units == 2 then -- friendly player check
-                if not isFriendly then
-                    --dprint(1, pre, "friendly player check failed for", ti.spellName, pre, "hostile", isHostile, name)
-					tinsert(errorMessages, pre..", ".."friendly player check failed")
-                    checkFailed = true
-                    break
-                -- elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
-				-- 	dprint(2, pre, "friendly player = outsider", alert.name)
-				-- 	checkFailed = true
-                --     break
+					checkFailed = true
+					break
 				end
-            elseif units == 3 then -- hostile player check
-                if not isHostile then
-                    --dprint(1, pre, "hostile player check failed for", ti.spellName, pre, "foe", isHostile, name)
+			elseif units == 5 then  -- player check
+				if not isPlayer then
+					--dprint(1, pre, "player check failed for", ti.spellName, "hostile", isHostile, name)
+					tinsert(errorMessages, pre..", ".."player check failed")
+					checkFailed = true
+					break
+				end
+			elseif units == 2 then -- friendly player check
+				if not isFriendly then
+					--dprint(1, pre, "friendly player check failed for", ti.spellName, pre, "hostile", isHostile, name)
 					tinsert(errorMessages, pre..", ".."friendly player check failed")
-                    checkFailed = true
-                    break
-                end
-            end
-        end
-        if not checkFailed then
-            tinsert(alerts_out, alert)
-        end
-    end
-    -- return
-    if #alerts_out == 0 then
+					checkFailed = true
+					break
+					-- elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
+					-- 	dprint(2, pre, "friendly player = outsider", alert.name)
+					-- 	checkFailed = true
+					--     break
+				end
+			elseif units == 3 then -- hostile player check
+				if not isHostile then
+					--dprint(1, pre, "hostile player check failed for", ti.spellName, pre, "foe", isHostile, name)
+					tinsert(errorMessages, pre..", ".."friendly player check failed")
+					checkFailed = true
+					break
+				end
+			end
+		end
+		if not checkFailed then
+			tinsert(alerts_out, alert)
+		end
+	end
+	VDT_AddData(errorMessages, "errorMessages")
+	-- return
+	if #alerts_out == 0 then
 		return false, errorMessages
 	else
 		return alerts_out, errorMessages
@@ -458,35 +460,35 @@ function A:PlaySound(ti, alerts, eventInfo)
 end
 
 function A:GetReactionColor(ti, rgb)
-    dprint(2, "A:GetReactionColor")
-    -- prepare return value
-    local color = "white"
-    -- aura applied/refresh
-    if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
-        if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
-            color = "green"
-        else
-            color = "red"
-        end
-    end
-    -- spell dispel
-    if ti.event == "SPELL_DISPEL" then
-        if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
-            color = "red"
-        else
-            color = "green"
-        end
-    end
-    -- spell cast start / success
-    if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
-        if ti.srcIsFriendly then
-            color =  "green"
-        else
-            color = "red"
-        end
-    end
-    -- return RGB or HEX
-    if rgb == "rgb" then
+	dprint(2, "A:GetReactionColor")
+	-- prepare return value
+	local color = "white"
+	-- aura applied/refresh
+	if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
+		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+			color = "green"
+		else
+			color = "red"
+		end
+	end
+	-- spell dispel
+	if ti.event == "SPELL_DISPEL" then
+		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+			color = "red"
+		else
+			color = "green"
+		end
+	end
+	-- spell cast start / success
+	if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
+		if ti.srcIsFriendly then
+			color =  "green"
+		else
+			color = "red"
+		end
+	end
+	-- return RGB or HEX
+	if rgb == "rgb" then
 		return unpack(A.Colors[color]["rgb"])
 	else return A.Colors[color]["hex"]
 	end
@@ -495,14 +497,13 @@ end
 -- systemMessage: posts messages in various chat windows
 function A:SystemMessage(msg)
 	dprint(2, "A:SystemMessage", msg)
-    -- loop through chat frames and post messages
-    for i, name in pairs(A.ChatFrames) do
+	-- loop through chat frames and post messages
+	for i, name in pairs(A.ChatFrames) do
 		if P.messages.chatFrames[name] == true then
 			local f = _G[name]
 			f:AddMessage(msg)
 		end
 	end
-
 end
 
 function A:PostInScrolling(msg)
@@ -550,8 +551,8 @@ end
 
 function A:GetUnitName(name)
 	-- getUnitName: Returns Unitname without Realm
-    local short = gsub(name, "%-[^|]+", "")
-    return short
+	local short = gsub(name, "%-[^|]+", "")
+	return short
 end
 
 function A:InitLCD()
@@ -582,3 +583,92 @@ function A:InitLSM()
 	A.Fonts = A.Libs.LSM:HashTable("font")
 	A.Borders = {}
 end
+
+-- function copied from LibDBIcon-1.0.lua
+local function getAnchors(frame)
+	local x, y = frame:GetCenter()
+	if not x or not y then return "CENTER" end
+	local hHalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
+	local vHalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
+	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
+end
+
+function A:InitLDB()
+	dprint(2, "A:InitLDB")
+	local toolTip = {
+		header = "AlertMe "..ADDON_VERSION,
+		lines = {"Left-Click: Show Options"},
+		wrap = false
+	}
+
+	local AlertMeBroker
+	AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
+		type = "launcher",
+		text = "AlertMe",
+		icon = A.Backgrounds["AlertMe"],
+		tocname = "AlertMe",
+		OnClick = function(self, button)
+			if button == "LeftButton" then
+				O:OpenOptions()
+			end
+		end,
+		OnEnter = function(self)
+			O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+			O.ToolTip:SetOwner(self, "ANCHOR_NONE")
+			if toolTip.header then
+				O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
+			end
+			if toolTip.lines then
+				for _, line in pairs(toolTip.lines) do
+					O.ToolTip:AddLine(line, 1, .82, 0, wrap)
+				end
+			end
+			O.ToolTip:Show()
+			O.ToolTip:SetPoint(getAnchors(self))
+		end,
+		OnLeave = function()
+			if O.ToolTip then O.ToolTip:Hide() end
+		end,
+	})
+	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap);
+end
+
+function A.ToggleMinimap(toggle)
+	if toggle then P.general.showMinimap = not P.general.showMinimap end
+	if P.general.showMinimap then
+		A.Libs.LDBI:Show("AlertMe")
+	else
+		A.Libs.LDBI:Hide("AlertMe")
+	end
+end
+
+-- OnClick = function(self, button)
+-- 	if button == 'LeftButton' then
+-- 		if(IsShiftKeyDown()) then
+-- 			if not(WeakAuras.IsOptionsOpen()) then
+-- 				WeakAuras.Toggle();
+-- 			end
+-- 		else
+-- 			WeakAuras.OpenOptions();
+-- 		end
+-- 	elseif(button == 'MiddleButton') then
+-- 		WeakAuras.ToggleMinimap();
+-- 	else
+-- 		WeakAuras.RealTimeProfilingWindow:Toggle()
+-- 	end
+-- 	tooltip_draw()
+-- end,
+
+-- local dataObject = A.Libs.LDB:NewDataObject("AlertMe", {
+-- 	type = "data source",
+-- 	label = "AlertMe",
+-- 	text = "AlertMe",
+-- 	icon = A.Backgrounds["alertme"], --"Interface\\Icons\\inv_bannerpvp_01",
+-- 	OnClick = function(clickedframe, button)
+-- 		if button == "RightButton" then
+-- 			O:OpenOptions()
+-- 		elseif button == "LeftButton" then
+-- 		end
+-- 	end
+-- })
+-- A.Libs.LDBI:Register("AlertMe", dataObject, A.MinimapIcon)

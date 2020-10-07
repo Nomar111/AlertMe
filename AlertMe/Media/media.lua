@@ -119,7 +119,6 @@ LSM:Register("sound", "Wyvern Sting", [[Interface\AddOns\AlertMe\Media\Sounds\Wy
 LSM:Register("background", "Add", [[Interface\AddOns\AlertMe\Media\Textures\add.tga]])
 LSM:Register("background", "Delete", [[Interface\AddOns\AlertMe\Media\Textures\delete.tga]])
 LSM:Register("background", "Reset", [[Interface\AddOns\AlertMe\Media\Textures\reset.tga]])
+LSM:Register("background", "AlertMe", [[Interface\AddOns\AlertMe\Media\Textures\alertme.tga]])
 -- statusbars
 LSM:Register("statusbar", "Banto", [[Interface\AddOns\AlertMe\Media\Textures\bantobar.blp]])
-LSM:Register("statusbar", "AlertMe", [[Interface\AddOns\AlertMe\Media\Textures\alertme.blp]])
-LSM:Register("statusbar", "AlertMe2", [[Interface\AddOns\AlertMe\Media\Textures\alertme2.blp]])

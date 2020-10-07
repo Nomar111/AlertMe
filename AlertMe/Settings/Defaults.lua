@@ -9,7 +9,11 @@ D.profile = {
 	general = {
 		zones = {
 			["*"] = true,
-		}
+		},
+		showMinimap = true,
+		minimap = {
+			dummy = true,
+		},
 	},
 	scrolling = {
 		enabled = true,
