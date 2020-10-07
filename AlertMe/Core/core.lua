@@ -427,7 +427,7 @@ function A:PlaySound(ti, alerts, eventInfo)
 		end
 
 		for sound, _ in pairs(queue) do
-			local isPlaying, handle = PlaySoundFile(A.sounds[sound], "Master")
+			local isPlaying, handle = PlaySoundFile(A.sounds[sound])
 			queue[sound] = nil
 			if TableEmpty(queue) == false then
 				C_Timer.After(delay, function()
