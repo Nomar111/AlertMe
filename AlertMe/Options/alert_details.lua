@@ -10,7 +10,6 @@ setfenv(1, _G.AlertMe)
 -- creates the general options tab
 function O:ShowAlertDetails(container, eventShort, uid)
 	dprint(2, "O:ShowAlertDetails", container, eventShort, uid)
-	--VDT_AddData(container, "container")
 	local db = P.alerts[eventShort].alertDetails[uid]
 
 	-- spell selection

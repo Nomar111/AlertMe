@@ -103,10 +103,11 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 	-- check units
-	local errorMessages
-	alerts, errorMessages = A:CheckUnits(ti, alerts, eventInfo)
-	for i, errorMessage in pairs(errorMessages) do
-		dprint(1, errorMessage, ti.alertname, ti.relSpellName, "srcFriendly", ti.srcIsFriendly, "dstFriendly", ti.dstIsFriendly)
+	local alerts, errorMessages = A:CheckUnits(ti, alerts, eventInfo)
+	if errorMessages then
+		for i, errorMessage in pairs(errorMessages) do
+			dprint(1, errorMessage, ti.alertname, ti.relSpellName, "srcFriendly", ti.srcIsFriendly, "dstFriendly", ti.dstIsFriendly)
+		end
 	end
 	if alerts == false or alerts == nil then
 		dprint(1, "unit check failed", ti.alertname, ti.relSpellName)
@@ -575,9 +576,9 @@ end
 
 function A:InitLSM()
 	dprint(2, "A:InitLSM")
-	A.Sounds = A.LSM:HashTable("sound")
-	A.Statusbars = A.LSM:HashTable("statusbar")
-	A.Backgrounds = A.LSM:HashTable("background")
-	A.Fonts = A.LSM:HashTable("font")
+	A.Sounds = A.Libs.LSM:HashTable("sound")
+	A.Statusbars = A.Libs.LSM:HashTable("statusbar")
+	A.Backgrounds = A.Libs.LSM:HashTable("background")
+	A.Fonts = A.Libs.LSM:HashTable("font")
 	A.Borders = {}
 end

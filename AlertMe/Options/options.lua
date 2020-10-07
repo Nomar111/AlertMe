@@ -24,7 +24,7 @@ function O:OpenOptions()
 	end)
 	f:SetWidth(900)
 	f:SetHeight(680)
-	VDT_AddData(f, "Options_Frame")
+	--VDT_AddData(f, "Options_Frame")
 	-- create navigation
 	O:CreateNavTree(f)
 end
