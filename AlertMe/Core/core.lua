@@ -3,7 +3,7 @@ dprint(3,"core.lua")
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile
+local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -111,15 +111,11 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- check aura applied for friendly
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
 		 local name, _, duration, remaining = A:GetAuraInfo(ti)
-		 if not name  then
-			 dprint(1, "no aura info", ti.spellName)
-			 return
-		 elseif duration and (remaining - duration >= 3 or remaining <= 2) then
-			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
+		 if not name  or (duration and remaining - duration >= 3 or remaining <= 2) then
+			 dprint(1, "aura info missing", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
 			 return
 		end
 	end
-	dprint(1, "startactions")
 
 	--VDT_AddData(ti,"ti")
 	-- do whatever is defined in actions
@@ -187,7 +183,6 @@ function A:GetAuraInfo(ti, eventinfo)
 
 	--dprint(1, "unit", unit)
 	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-	dprint(1, "xxxxxx", ti.delayed, name)
 	if not name and ti.delayed == false then
 		ti.delayed = true
 		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
@@ -197,7 +192,7 @@ function A:GetAuraInfo(ti, eventinfo)
 	end
 
 	--return
-	if duration then
+	if name then
 		local remaining = expirationTime - GetTime()
 		return spellId, icon, duration, remaining
 	end
@@ -247,11 +242,11 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 			-- write some useful info into ti for later use
             ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
             -- player controlled check
-            if not playerControlled then
-                dprint(2, pre, "unit not player controlled")
-                checkFailed = true
-                break
-            end
+            -- if not playerControlled then
+            --     dprint(2, pre, "unit not player controlled")
+            --     checkFailed = true
+            --     break
+            -- end
             -- exclude check -- 1 = none, 2 = myself, 3 = target
             if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
                 dprint(1, pre, "exclude check failed for", alert.name)
@@ -309,15 +304,6 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
-	--
-	-- -- check if aura_applied happened lately
-	-- if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
-	-- 	 local _, _, duration, remaining = A:GetAuraInfo(ti, eventinfo)
-	-- 	 if not duration or duration - remaining >= 3 or remaining <= 2 then
-	-- 		 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
-	-- 		 return
-	-- 	 end
-	-- end
 
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
@@ -404,18 +390,37 @@ end
 
 function A:PlaySound(ti, alerts, eventInfo)
 	dprint(2, "A:PlaySound")
+	local soundQueue = {}
+	local delay = 1.3
 
-	-- check if aura_applied happened lately
-	if eventInfo.short == "gain" or eventInfo.short == "refresh" and ti.dstIsFriendly then
-		 local _, _, duration, remaining = A:GetAuraInfo(ti, eventinfo)
-		 if not duration or duration - remaining >= 3 or remaining <= 2 then
-			 dprint(1, "no aura duration, or not recently added", ti.spellName, "friend", ti.dstIsFriendly, "dur", duration, "rem", remaining)
-			 return
-		 end
+	local function TableEmpty(table)
+		for i,v in pairs(table) do
+			if i then
+				return false
+			end
+		end
+		return true
 	end
 
-	local sound
-				VDT_AddData(alerts,"alerts")
+	local function PlaySoundQueue(queue, oldIsIsplaying, oldHandle)
+		dprint(2, "PlaySoundQueue", queue, oldIsIsplaying, oldHandle)
+
+		if oldIsIsplaying and oldHandle then
+			StopSound(oldHandle)
+		end
+
+		for sound, _ in pairs(queue) do
+			local isPlaying, handle = PlaySoundFile(A.sounds[sound], "Master")
+			queue[sound] = nil
+			if TableEmpty(queue) == false then
+				C_Timer.After(delay, function()
+					PlaySoundQueue(queue, isPlaying, handle)
+				end)
+			end
+			break
+		end
+	end
+
 	for _, alert in pairs(alerts) do
 		--{[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"
 		if alert.soundSelection == 1 then
@@ -429,34 +434,12 @@ function A:PlaySound(ti, alerts, eventInfo)
 		if sound == nil or sound == "None" or sound == "" then
 			break
 		else
-			PlaySoundFile(A.sounds[sound], "Master")
+			soundQueue[sound] = true
 		end
 	end
+	PlaySoundQueue(soundQueue)
 end
--- -- play sound(s)
--- aura_env.playSound = function(allstates, ti, ogs, eventInfo)
---     aura_env.debug(2, "playSound")
---     -- create queue for sounds
---     local soundQueue = {}
---     -- loop through option groups
---     for _,og in pairs(ogs) do
---         if og.playSound == 2 or og.playSound == 3 then
---             local spellIndex = 0
---             if og.playSound == 2 then spellIndex = 1 else spellIndex = aura_env.getIndexByValue(aura_env.parseCSL(og.spellNames) , ti.relSpellName) end
---             local sound = aura_env.parseCSL(og.sounds)[spellIndex]
---             if sound then soundQueue[sound] = true end
---         end
---     end
---     -- loop through sound queue and play sounds
---     for sound,_ in pairs(soundQueue) do
---         soundToPlay = aura_env.sounds[sound]
---         if soundToPlay then
---             PlaySoundFile(soundToPlay, "Master")
---         else
---             aura_env.debug(1, "Sound not found", sound)
---         end
---     end
--- end
+
 
 
 function A:GetReactionColor(ti, rgb)

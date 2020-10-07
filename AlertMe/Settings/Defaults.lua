@@ -90,7 +90,7 @@ D.profile = {
 					addonMessages = 2,
 					dstWhisper = 1,
 					scrollingText = true,
-					soundSelection = 1,
+					soundSelection = 3,
 					soundFile = "",
 					msgOverride = "",
 				},
