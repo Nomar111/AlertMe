@@ -205,8 +205,8 @@ function O:UpdateSpellTable(eventShort, uid)
 
 	-- local variables and functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local iconAdd = A.LSM:HashTable("background")["Add"]
-	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local iconAdd = A.Backgrounds["Add"]
+	local iconDel =  A.Backgrounds["Delete"]
 	local btnDelSpellToolTip = {lines={"Delete spell/aura"}}
 	local btnAddSoundToolTip = {lines={"Set an individual sound alert"}}
 

@@ -11,6 +11,8 @@ setfenv(1, _G.AlertMe)
 
 -- init function
 function A:Initialize()
+	-- init LSM
+	A:InitLSM()
 	-- init scrolling text frame
 	A:UpdateScrolling()
 	-- init options
@@ -19,8 +21,7 @@ function A:Initialize()
 	A:InitChatFrames()
 	-- init LCD
 	A:InitLCD()
-	-- init sounds
-	A.sounds = A.LSM:HashTable("sound")
+
 	-- register for events
 	A:RegisterEvent("PLAYER_ENTERING_WORLD", A.ToggleAddon)
 	A:RegisterEvent("ZONE_CHANGED", A.ToggleAddon)
@@ -102,9 +103,13 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 	-- check units
-	alerts = A:CheckUnits(ti, alerts, eventInfo)
+	local errorMessages
+	alerts, errorMessages = A:CheckUnits(ti, alerts, eventInfo)
+	for i, errorMessage in pairs(errorMessages) do
+		dprint(1, errorMessage, ti.alertname, ti.relSpellName, "srcFriendly", ti.srcIsFriendly, "dstFriendly", ti.dstIsFriendly)
+	end
 	if alerts == false or alerts == nil then
-		dprint(2, "unit check failed", ti.spellName, ti.event, "srcfoe", ti.srcIsHostile, "dstfoe", ti.dstIsHostile)
+		dprint(1, "unit check failed", ti.alertname, ti.relSpellName)
 		return
 	end
 
@@ -133,17 +138,17 @@ function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	-- if no spells are checked for this event return true
 	if eventInfo.spellSelection == false then
-		--dprint(1, "ti.event.spellSelection", eventInfo.spellSelection)
+		dprint(3, "ti.event.spellSelection", eventInfo.spellSelection)
 		return true
 	end
 	-- search for spell
 	if A.SpellOptions[ti.relSpellName] == nil then
-		dprint(2, "spell not found in options", ti.relSpellName)
+		dprint(3, "spell not found in options", ti.relSpellName)
 		return false
 	end
 	-- search for spell/event combination
 	if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
-		dprint(2, "spell/event combination not found in options", ti.relSpellName, eventInfo.short)
+		dprint(3, "spell/event combination not found in options", ti.relSpellName, eventInfo.short)
 		return false
 	end
 	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
@@ -223,6 +228,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
     local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
     -- create return table
     local alerts_out = {}
+	local errorMessages = {}
     -- loop over the option groups
     for _, alert in pairs(alerts_in) do
         -- variable to hold the check result for this og
@@ -235,7 +241,7 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 			local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
             local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
             local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
-			local isOutsider = (bit.band(flags, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER) > 0)
+			--local isOutsider = (bit.band(flags, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER) > 0)
             local isPlayer = (GUID == playerGUID)
             local isTarget = (GUID == targetGUID)
 
@@ -243,32 +249,37 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
             ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
             -- player controlled check
             if not playerControlled then
-                dprint(2, pre, "unit not player controlled")
+                --dprint(2, pre, "unit not player controlled")
+				tinsert(errorMessages, pre..", ".."unit not player controlled")
                 checkFailed = true
                 break
             end
             -- exclude check -- 1 = none, 2 = myself, 3 = target
             if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
-                dprint(1, pre, "exclude check failed for", alert.name)
+                --dprint(1, pre, "exclude check failed for", alert.name)
+				tinsert(errorMessages, pre..", ".."exclude check failed")
                 checkFailed = true
                 break
             end
             -- do other checks
             if units == 4 then -- target check
                 if not isTarget then
-                    dprint(1, pre, "target check failed for", ti.spellName, pre, "hostile", isHostile, name)
+                    --dprint(1, pre, "target check failed for", ti.spellName, pre, "hostile", isHostile, name)
+					tinsert(errorMessages, pre..", ".."target check failed")
                     checkFailed = true
                     break
                 end
             elseif units == 5 then  -- player check
                 if not isPlayer then
-                    dprint(1, pre, "player check failed for", ti.spellName, "hostile", isHostile, name)
+                    --dprint(1, pre, "player check failed for", ti.spellName, "hostile", isHostile, name)
+					tinsert(errorMessages, pre..", ".."player check failed")
                     checkFailed = true
                     break
                 end
             elseif units == 2 then -- friendly player check
                 if not isFriendly then
-                    dprint(1, pre, "friendly player check failed for", ti.spellName, pre, "hostile", isHostile, name)
+                    --dprint(1, pre, "friendly player check failed for", ti.spellName, pre, "hostile", isHostile, name)
+					tinsert(errorMessages, pre..", ".."friendly player check failed")
                     checkFailed = true
                     break
                 -- elseif pre == "dst" and isOutsider and not isTarget and not isPlayer then
@@ -278,7 +289,8 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 				end
             elseif units == 3 then -- hostile player check
                 if not isHostile then
-                    dprint(1, pre, "hostile player check failed for", ti.spellName, pre, "foe", isHostile, name)
+                    --dprint(1, pre, "hostile player check failed for", ti.spellName, pre, "foe", isHostile, name)
+					tinsert(errorMessages, pre..", ".."friendly player check failed")
                     checkFailed = true
                     break
                 end
@@ -289,7 +301,11 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
         end
     end
     -- return
-    if #alerts_out == 0 then return else return alerts_out end
+    if #alerts_out == 0 then
+		return false, errorMessages
+	else
+		return alerts_out, errorMessages
+	end
 end
 
 -- chatAnnounce
@@ -367,7 +383,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			end
 		end
 		-- scrolling messages
-		if alert.scrollingText == true then
+		if alert.scrollingText == true and P.scrolling.enabled then
 			if msgQueue["SCROLLING"] == nil then msgQueue["SCROLLING"] = {} end
 			msgQueue["SCROLLING"][msg] = colmsg
 		end
@@ -430,7 +446,7 @@ function A:PlaySound(ti, alerts, eventInfo)
 		elseif alert.soundSelection == 3 then
 			sound = alert.spellNames[ti.spellName].soundFile
 		end
-		--dprint(1,sound, A.sounds[sound])
+
 		if sound == nil or sound == "None" or sound == "" then
 			break
 		else
@@ -439,8 +455,6 @@ function A:PlaySound(ti, alerts, eventInfo)
 	end
 	PlaySoundQueue(soundQueue)
 end
-
-
 
 function A:GetReactionColor(ti, rgb)
     dprint(2, "A:GetReactionColor")
@@ -506,13 +520,13 @@ function A:InitSpellOptions()
 	VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
-		--dprint(1, "Loop1: ", event, alert)
+		--dprint(3, "Loop1: ", event, alert)
 		A.AlertOptions[event] = {}
 		-- alert details
 		for uid, alertDetails in pairs(alert.alertDetails) do
 			-- check if alert is active and not default value
 			if alertDetails.active == true and alertDetails.created == true then
-				--dprint(1, "Loop2: ", uid, alertDetails)
+				--dprint(3, "Loop2: ", uid, alertDetails)
 				A.AlertOptions[event][uid] = alertDetails
 				-- spells
 				for spellName, spellDetails in pairs(alertDetails.spellNames) do
@@ -547,6 +561,7 @@ function A:InitLCD()
 end
 
 function A:InitChatFrames()
+	dprint(2, "A:InitChatFrames")
 	A.ChatFrames = {}
 	-- loop through chat frames
 	for i = 1, FCF_GetNumActiveChatFrames() do
@@ -556,4 +571,13 @@ function A:InitChatFrames()
 			A.ChatFrames[name] = "ChatFrame"..i
 		end
 	end
+end
+
+function A:InitLSM()
+	dprint(2, "A:InitLSM")
+	A.Sounds = A.LSM:HashTable("sound")
+	A.Statusbars = A.LSM:HashTable("statusbar")
+	A.Backgrounds = A.LSM:HashTable("background")
+	A.Fonts = A.LSM:HashTable("font")
+	A.Borders = {}
 end

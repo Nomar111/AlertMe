@@ -10,9 +10,16 @@ local LSMWidgets = {
 	sound = "LSM30_Sound",
 	statusbar = "LSM30_Statusbar",
 	font = "LSM30_Font",
-	sound = "LSM30_Sound",
 	background = "LSM30_Background",
 	border = "LSM30_Border"
+}
+
+local LSMTables = {
+	sound = A.Sounds,
+	statusbar = A.Statusbars,
+	font = A.Fonts,
+	background = A.Backgrounds,
+	border = A.Borders
 }
 
 --**********************************************************************************************************************************
@@ -188,7 +195,7 @@ function O.AttachLSM(container, type, label, db, key, width, func)
 	dprint(3, "O.AttachLSM", container, type, label, db, key, width, func)
 	-- local variables/tables
 	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
-	widget:SetList(A.LSM:HashTable(type))
+	widget:SetList(LSMTables[type])
 	if label then widget:SetLabel(label) end
 	widget:SetCallback("OnValueChanged", function(_widget, _, value)
 		_widget:SetValue(value)

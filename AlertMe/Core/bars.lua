@@ -89,7 +89,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	end
 	-- check if already exists
 	if A.Bars[barType][id] == nil then
-		local newBar = A.Libs.LCB:New(A.LSM:HashTable("statusbar")[db.texture], db.width, db.height)
+		local newBar = A.Libs.LCB:New(A.Statusbars[db.texture], db.width, db.height)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
 		A.Bars[barType][id] = newBar

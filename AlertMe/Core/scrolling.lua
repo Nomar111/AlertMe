@@ -52,7 +52,7 @@ function A:UpdateScrolling()
 	local align = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
 	f:SetJustifyH(align[db.align])
 	f:SetFading(db.fading)
-	f:SetFont(A.LSM:HashTable("font")[db.font], db.fontSize)
+	f:SetFont(A.Fonts[db.font], db.fontSize)
 	f:SetMaxLines(db.maxLines)
 	f:SetTimeVisible(db.timeVisible)
 	f:SetBackdropColor(0, 0, 0, db.alpha)
