@@ -11,9 +11,7 @@ D.profile = {
 			["*"] = true,
 		},
 		showMinimap = true,
-		minimap = {
-			dummy = true,
-		},
+		enabled = true,
 	},
 	scrolling = {
 		enabled = true,

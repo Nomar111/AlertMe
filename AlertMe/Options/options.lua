@@ -14,7 +14,7 @@ function O:OpenOptions()
 	dprint(2, "O:OpenOptions")
 	local function close()
 		A:InitSpellOptions()
-		A.ToggleAddon("Initialize")
+		A.RegisterCLEU("Options")
 		A.Libs.AceGUI:Release(O.OptionsFrame)
 		O.OptionsFrame = nil
 	end

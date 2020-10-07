@@ -3,7 +3,7 @@ dprint(3,"core.lua")
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
 local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent
+local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent, IsShiftKeyDown = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent, IsShiftKeyDown
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -23,16 +23,30 @@ function A:Initialize()
 	A:InitLCD()
 	-- init LDB
 	A:InitLDB()
-	-- register for events
-	A:RegisterEvent("PLAYER_ENTERING_WORLD", A.ToggleAddon)
-	A:RegisterEvent("ZONE_CHANGED", A.ToggleAddon)
-	A:RegisterEvent("ZONE_CHANGED_INDOORS", A.ToggleAddon)
 	-- for reloadui
 	A:HideAllBars()
+	-- register for events
+	A.ToggleAddon()
 end
 
-function A.ToggleAddon(event)
-	dprint(2, "A:ToggleAddon", event, "world",  P.general.zones.world)
+function A.ToggleAddon()
+	dprint(2, "A.ToggleAddon", P.general.enabled)
+	if P.general.enabled == true then
+		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
+		A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
+		A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
+		A.RegisterCLEU("Toggle")
+	else
+		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		A:UnregisterEvent("ZONE_CHANGED")
+		A:UnregisterEvent("ZONE_CHANGED_INDOORS")
+		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		A:HideAllBars()
+	end
+end
+
+function A.RegisterCLEU(event)
+	dprint(2, "A.RegisterCLEU", event)
 	local name, instanceType = GetInstanceInfo()
 
 	if instanceType ~= "pvp" and P.general.zones.world then
@@ -595,11 +609,7 @@ end
 
 function A:InitLDB()
 	dprint(2, "A:InitLDB")
-	local toolTip = {
-		header = "AlertMe "..ADDON_VERSION,
-		lines = {"Left-Click: Toggle options", "Middle-Click: Toggle minimap"},
-		wrap = false
-	}
+
 
 	local AlertMeBroker
 	AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
@@ -609,7 +619,13 @@ function A:InitLDB()
 		tocname = "AlertMe",
 		OnClick = function(self, button)
 			if button == "LeftButton" then
-				O:OpenOptions()
+				if(IsShiftKeyDown()) then
+					P.general.enabled = not P.general.enabled
+					A.UpdateLDBTooltip()
+					A.ToggleAddon()
+				else
+					O:OpenOptions()
+				end
 			elseif button == "MiddleButton" then
 				A.ToggleMinimap(true)
 			end
@@ -617,14 +633,7 @@ function A:InitLDB()
 		OnEnter = function(self)
 			O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 			O.ToolTip:SetOwner(self, "ANCHOR_NONE")
-			if toolTip.header then
-				O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
-			end
-			if toolTip.lines then
-				for _, line in pairs(toolTip.lines) do
-					O.ToolTip:AddLine(line, 1, .82, 0, wrap)
-				end
-			end
+			A.UpdateLDBTooltip()
 			O.ToolTip:Show()
 			O.ToolTip:SetPoint(getAnchors(self))
 		end,
@@ -635,6 +644,31 @@ function A:InitLDB()
 	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap);
 end
 
+function A.UpdateLDBTooltip()
+	local toolTip = {
+		header = "AlertMe "..ADDON_VERSION,
+		lines = {},
+		wrap = false
+	}
+	toolTip.lines[1] = "Left-Click: Show/Hide options"
+	toolTip.lines[2] = "Shift-Left-Click: Enable/Disable addon"
+	toolTip.lines[3] = "Middle-Click: Show/Hide minimap"
+
+	if P.general.enabled == false then
+		toolTip.lines[4] = "|cffFF0000ADDON IS DISABLED"
+	end
+
+	if toolTip.header then
+		O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
+	end
+	if toolTip.lines then
+		for _, line in pairs(toolTip.lines) do
+			O.ToolTip:AddLine(line, 1, .82, 0, wrap)
+		end
+	end
+	O.ToolTip:Show()
+end
+
 function A.ToggleMinimap(toggle)
 	if toggle then P.general.showMinimap = not P.general.showMinimap end
 	if P.general.showMinimap then
@@ -643,34 +677,3 @@ function A.ToggleMinimap(toggle)
 		A.Libs.LDBI:Hide("AlertMe")
 	end
 end
-
--- OnClick = function(self, button)
--- 	if button == 'LeftButton' then
--- 		if(IsShiftKeyDown()) then
--- 			if not(WeakAuras.IsOptionsOpen()) then
--- 				WeakAuras.Toggle();
--- 			end
--- 		else
--- 			WeakAuras.OpenOptions();
--- 		end
--- 	elseif(button == 'MiddleButton') then
--- 		WeakAuras.ToggleMinimap();
--- 	else
--- 		WeakAuras.RealTimeProfilingWindow:Toggle()
--- 	end
--- 	tooltip_draw()
--- end,
-
--- local dataObject = A.Libs.LDB:NewDataObject("AlertMe", {
--- 	type = "data source",
--- 	label = "AlertMe",
--- 	text = "AlertMe",
--- 	icon = A.Backgrounds["alertme"], --"Interface\\Icons\\inv_bannerpvp_01",
--- 	OnClick = function(clickedframe, button)
--- 		if button == "RightButton" then
--- 			O:OpenOptions()
--- 		elseif button == "LeftButton" then
--- 		end
--- 	end
--- })
--- A.Libs.LDBI:Register("AlertMe", dataObject, A.MinimapIcon)

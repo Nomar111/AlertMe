@@ -10,11 +10,13 @@ function O:ShowGeneral(container)
 	dprint(2, "O:ShowGeneral")
 	-- header
 	O.AttachHeader(container, "General Settings")
+	-- addon
+	local addonGroup = O.AttachGroup(container, "inline", "Addon settings", {fullWidth = true})
+	O.AttachCheckBox(addonGroup, "Enable addon", P.general, "enabled", 180, A.ToggleAddon)
+	O.AttachCheckBox(addonGroup, "Show minimap button", P.general, "showMinimap", 180, A.ToggleMinimap)
 	-- zones
 	local zonesGroup = O.AttachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
-	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 150)
-	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world")
-	-- minimap
-	local minimapGroup = O.AttachGroup(container, "inline", "Minimap settings", {fullWidth = true})
-	O.AttachCheckBox(minimapGroup, "Show minimap button", P.general, "showMinimap", 250, A.ToggleMinimap)
+	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180)
+	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world", 180)
+
 end
