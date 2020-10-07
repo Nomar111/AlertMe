@@ -597,7 +597,7 @@ function A:InitLDB()
 	dprint(2, "A:InitLDB")
 	local toolTip = {
 		header = "AlertMe "..ADDON_VERSION,
-		lines = {"Left-Click: Show Options"},
+		lines = {"Left-Click: Toggle options", "Middle-Click: Toggle minimap"},
 		wrap = false
 	}
 
@@ -610,6 +610,8 @@ function A:InitLDB()
 		OnClick = function(self, button)
 			if button == "LeftButton" then
 				O:OpenOptions()
+			elseif button == "MiddleButton" then
+				A.ToggleMinimap(true)
 			end
 		end,
 		OnEnter = function(self)
