@@ -13,7 +13,7 @@ function O:ShowGeneral(container)
 	-- addon
 	local addonGroup = O.AttachGroup(container, "inline", "Addon settings", {fullWidth = true})
 	O.AttachCheckBox(addonGroup, "Enable addon", P.general, "enabled", 180, A.ToggleAddon)
-	O.AttachCheckBox(addonGroup, "Show minimap button", P.general, "showMinimap", 180, A.ToggleMinimap)
+	O.AttachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", 180, A.ToggleMinimap)
 	-- zones
 	local zonesGroup = O.AttachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
 	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180)

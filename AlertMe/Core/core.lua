@@ -641,7 +641,7 @@ function A:InitLDB()
 			if O.ToolTip then O.ToolTip:Hide() end
 		end,
 	})
-	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap);
+	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap, P.general.minimapPos);
 end
 
 function A.UpdateLDBTooltip()
@@ -670,10 +670,10 @@ function A.UpdateLDBTooltip()
 end
 
 function A.ToggleMinimap(toggle)
-	if toggle then P.general.showMinimap = not P.general.showMinimap end
-	if P.general.showMinimap then
-		A.Libs.LDBI:Show("AlertMe")
-	else
+	if toggle then P.general.minimap.hide = not P.general.minimap.hide end
+	if P.general.minimap.hide then
 		A.Libs.LDBI:Hide("AlertMe")
+	else
+		A.Libs.LDBI:Show("AlertMe")
 	end
 end

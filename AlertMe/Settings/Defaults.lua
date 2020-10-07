@@ -10,7 +10,8 @@ D.profile = {
 		zones = {
 			["*"] = true,
 		},
-		showMinimap = true,
+		minimap = { hide = false },
+		minimapPos = {},
 		enabled = true,
 	},
 	scrolling = {
