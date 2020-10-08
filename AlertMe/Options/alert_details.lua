@@ -1,6 +1,6 @@
---print("alert_details.lua")
+-- print("alert_details.lua")
 -- upvalues
-local _G, GetItemIcon, GetSpellInfo = _G, GetItemIcon, GetSpellInfo
+local _G, GetItemIcon = _G, GetItemIcon
 --local GameTooltip, GetSpellInfo = GameTooltip, GetSpellInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))

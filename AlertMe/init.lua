@@ -1,9 +1,7 @@
 --print("init.lua")
 -- upvalues
-local _G = _G
-local LibStub, GetAddOnMetadata, tostring = LibStub, GetAddOnMetadata, tostring
-local UnitName, GetRealmName, date, FCF_GetNumActiveChatFrames, WrapTextInColorCode = UnitName, GetRealmName, date, FCF_GetNumActiveChatFrames, WrapTextInColorCode
-
+local _G, LibStub = _G, LibStub
+local GetAddOnMetadata, UnitName, GetRealmName  = GetAddOnMetadata, UnitName, GetRealmName
 -- get engine/addon environment
 local AddonName, Engine = ...
 -- set engine environment as new global environment
@@ -33,6 +31,13 @@ VDT_AddData(A.Defaults, "D")
 VDT_AddData(A.Options, "O")
 VDT_AddData(A.Spells, "S")
 
+-- addon upvalues
+print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
+strsplit, tostring, gsub, string, date = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date
+GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
+WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
+GetSpellInfo, IsShiftKeyDown, GameTooltip, FCF_GetNumActiveChatFrames = _G.GetSpellInfo, _G.IsShiftKeyDown, _G.GameTooltip, _G.FCF_GetNumActiveChatFrames
+
 -- addon globals
 ADDON_NAME = AddonName
 ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
@@ -40,10 +45,7 @@ ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
 PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
-
--- addon upvalues
-print, pairs, unpack, strsplit, type, tcopy, tinsert, unpack = _G.print, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.table.insert, _G.unpack
-GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
+DEBUG_LEVEL = 1
 
 -- libraries
 A.Libs = {}
@@ -59,18 +61,6 @@ A.Libs.LCB = LibStub("LibCandyBar-3.0")
 A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
 --A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
-
-
-
-function A:InitChatFrames()
-	A.ChatFrames = {}
-	for i = 1, FCF_GetNumActiveChatFrames() do
-		local name = _G["ChatFrame"..i.."Tab"]:GetText()
-		if name ~= "Combat Log" then
-			A.ChatFrames[name] = "ChatFrame"..i
-		end
-	end
-end
 
 -- addon initialized
 function A:OnInitialize()
@@ -88,35 +78,7 @@ function A:OnInitialize()
 	self:RegisterChatCommand("alertme", "OpenOptions")
 	-- init chatframes/debugging
 	A:InitChatFrames()
-	-- debug print
-	function dprint(lvl,...)
-		--print(lvl,debug_lvl,...)
-		local msg = ""
-		local debug_level = 1--tonumber(GetAddOnMetadata(AddonName, "X-DebugLevel"))
-		local color = "FFcfac67"
-		local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
-		local separator = WrapTextInColorCode(" ** ", color)
-		local args = {...}
-		-- check lvl argument
-		if not lvl or type(lvl) ~= "number" then
-			msg = "Provided lvl arg is invalid: "..tostring(lvl)
-			lvl_check = false
-		end
-		-- check level vs debug_level
-		if  lvl_check ~= false and lvl > debug_level then
-			return
-		end
-		-- check args
-		if #args == 0 then
-			msg = "No debug messages provided or nil"
-		else
-			for i=1, #args do
-				local sep = (i == 1) and "" or separator
-				msg = msg..sep..tostring(args[i])
-			end
-		end
-		A:SystemMessage(prefix..msg)
-	end
+	A:InitDebugPrint()
 end
 
 function A:OpenOptions()

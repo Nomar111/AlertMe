@@ -1,9 +1,9 @@
 --print("core.lua")
 -- upvalues
-local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit, UnitAura
-local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
-local IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames = IsInInstance, GetNumGroupMembers, WrapTextInColorCode, SendChatMessage, gsub, string, FCF_GetNumActiveChatFrames
-local GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent, IsShiftKeyDown, GetSchoolString = GetTime, GetSpellInfo, C_Timer, GetInstanceInfo, PlaySoundFile, StopSound, CreateFrame, UIParent, IsShiftKeyDown, GetSchoolString
+local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit
+local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
+local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
+local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -27,39 +27,6 @@ function A:Initialize()
 	A:HideAllBars()
 	-- register for events
 	A.ToggleAddon()
-end
-
--- enable disable addon events
-function A.ToggleAddon()
-	dprint(2, "A.ToggleAddon", P.general.enabled)
-	if P.general.enabled == true then
-		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
-		A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
-		A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
-		A.RegisterCLEU("Toggle")
-	else
-		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		A:UnregisterEvent("ZONE_CHANGED")
-		A:UnregisterEvent("ZONE_CHANGED_INDOORS")
-		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllBars()
-	end
-end
-
-function A.RegisterCLEU(event)
-	dprint(2, "A.RegisterCLEU", event)
-	local name, instanceType = GetInstanceInfo()
-	-- check against instance type and settings
-	if instanceType ~= "pvp" and P.general.zones.world then
-		dprint(3, "register", instanceType, P.general.zones.world)
-		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
-	elseif instanceType == "pvp" and  P.general.zones.bg then
-		dprint(3, "register", instanceType, P.general.zones.bg)
-		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
-	else
-		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllBars()
-	end
 end
 
 function A:ParseCombatLog(eventName)
@@ -101,23 +68,16 @@ function A:ParseCombatLog(eventName)
 	-- set relevant spell name
 	ti.relSpellName = ti[eventInfo.relSpellName]
 	-- call processTriggerInfo
-	dprint(2, unpack(ti))
 	A:ProcessTriggerInfo(ti, eventInfo)
-end
-
--- systemMessage: posts messages in various chat windows
-function A:SystemMessage(msg)
-	-- loop through chat frames and post messages
-	for i, name in pairs(A.ChatFrames) do
-		if P.messages.chatFrames[name] == true then
-			local f = _G[name]
-			f:AddMessage(msg)
-		end
-	end
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
 	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.spellName)
+	-- aura removed
+	if ti.event == "SPELL_AURA_REMOVED" then
+		A:HideBars(ti, eventInfo)
+		return
+	end
 	-- check for relevant alerts for spell/event
 	local alerts = A:GetAlerts(ti, eventInfo)
 	if alerts == false or alerts == nil then
@@ -138,7 +98,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- check aura applied for friendly
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
 		local name, _, duration, remaining = A:GetAuraInfo(ti)
-		if not name  or (duration and duration - reamining >= 3 or remaining <= 2) then
+		if not name  or (duration and duration - remaining >= 3 or remaining <= 2) then
 			dprint(1, "aura info missing", ti.spellName, ti.dstName, "friend", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
 			return
 		end
@@ -155,17 +115,21 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 end
 
+
+--**********************************************************************************************************************************
+--Checks
+--**********************************************************************************************************************************
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
+	local alerts = {}
 	--debug
 	if eventInfo == nil or eventInfo.spellSelection == nil then
-		dprint(1, "A:GetAlerts:", "eventInfo nil", ti.event, eventInfo.spellSelection)
+		dprint(1, "A:GetAlerts:", "eventInfo nil - remove that shit", ti.event, eventInfo.spellSelection)
 	end
-	-- if no spells are checked for this event return all alerts from this event
+	-- if no spells are checked for this event, return all alerts from this event (interrupt)
 	if eventInfo.spellSelection == false then
-		dprint(1, "ti.event.spellSelection.false", eventInfo.short, eventInfo.spellSelection)
+		dprint(1, "spellSelection =false", eventInfo.short)
 		if A.AlertOptions[eventInfo.short] then
-			local alerts = {}
 			for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 				tinsert(alerts, tbl)
 			end
@@ -188,7 +152,6 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
 	-- create table of relevant alert settings
-	local alerts = {}
 	for uid, tbl in pairs(spellOptions) do
 		tinsert(alerts, tbl.options)
 	end
@@ -199,62 +162,6 @@ function A:GetAlerts(ti, eventInfo)
 	end
 end
 
-function A:DisplayBars(ti, alerts, eventInfo)
-	dprint(2, "A:DisplayBars", ti.relSpellName)
-	for _, alert in pairs(alerts) do
-		if alert.showBar == true and eventInfo.displaySettings == true then
-			local spellId, icon, duration, remaining = A:GetAuraInfo(ti, eventInfo)
-			if duration ~= nil then
-				local id = ti.dstGUID..ti.spellName
-				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
-			else
-				dprint(1, "no spell duration available, abort bar display")
-			end
-		end
-	end
-end
-
-function A:HideBars(ti, eventInfo)
-	dprint(2, "A:HideBars", ti, eventInfo)
-	local id = ti.dstGUID..ti.spellName
-	A:HideBar("auras", id)
-end
-
--- getAuraInfo: try to get correct spellId and duration or guess
-function A:GetAuraInfo(ti, eventInfo)
-	dprint(2, "A:GetAuraInfo")
-	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
-	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-	-- if aura info not avilable, try again after 1 second
-	if not name and ti.delayed == false then
-		ti.delayed = true
-		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
-			C_Timer.After(1, function()
-				A:ProcessTriggerInfo(ti, eventInfo)
-			end)
-	end
-	--return
-	if name then
-		local remaining = expirationTime - GetTime()
-		return spellId, icon, duration, remaining
-	end
-end
-
-function A:GetUnitAura(unit, spell)
-	dprint(2, "A:GetUnitAura", unit, spell)
-	for i = 1, 255 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
-		if not name then
-			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
-		end
-		if not name then return end
-		if spell == spellId or spell == name then
-			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
-		end
-	end
-end
-
--- checkUnits: check source, destination units of trigger event vs. relevant options
 function A:CheckUnits(ti, alerts_in, eventInfo)
 	dprint(2, "A:CheckUnits",ti , alerts_in, eventInfo)
 	-- if no unit selection for this event return
@@ -334,7 +241,9 @@ function A:CheckUnits(ti, alerts_in, eventInfo)
 	end
 end
 
--- chatAnnounce
+--**********************************************************************************************************************************
+--Actions
+--**********************************************************************************************************************************
 function A:ChatAnnounce(ti, alerts, eventInfo)
 	dprint(2, "A:ChatAnnounce", ti.spellName)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
@@ -480,47 +389,88 @@ function A:PlaySound(ti, alerts, eventInfo)
 	PlaySoundQueue(soundQueue)
 end
 
-function A:GetReactionColor(ti, rgb)
-	dprint(2, "A:GetReactionColor")
-	-- prepare return value
-	local color = "white"
-	-- aura applied/refresh
-	if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
-		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
-			color = "green"
-		else
-			color = "red"
+function A:DisplayBars(ti, alerts, eventInfo)
+	dprint(2, "A:DisplayBars", ti.relSpellName)
+	for _, alert in pairs(alerts) do
+		if alert.showBar == true and eventInfo.displaySettings == true then
+			local spellId, icon, duration, remaining = A:GetAuraInfo(ti, eventInfo)
+			if duration ~= nil then
+				local id = ti.dstGUID..ti.spellName
+				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+			else
+				dprint(1, "no spell duration available, abort bar display")
+			end
 		end
-	end
-	-- spell dispel
-	if ti.event == "SPELL_DISPEL" then
-		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
-			color = "red"
-		else
-			color = "green"
-		end
-	end
-	-- spell cast start / success
-	if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
-		if ti.srcIsFriendly then
-			color =  "green"
-		else
-			color = "red"
-		end
-	end
-	-- return RGB or HEX
-	if rgb == "rgb" then
-		return unpack(A.Colors[color]["rgb"])
-	else return A.Colors[color]["hex"]
 	end
 end
 
-function A:PostInScrolling(msg)
-	dprint(2, "A:PostInScrolling", msg)
-	if P.scrolling.enabled == true then
-		A:ShowScrolling()
-		A.ScrollingText:AddMessage(msg)
+function A:HideBars(ti, eventInfo)
+	dprint(2, "A:HideBars", ti, eventInfo)
+	local id = ti.dstGUID..ti.spellName
+	A:HideBar("auras", id)
+end
+
+--**********************************************************************************************************************************
+--Inits
+--**********************************************************************************************************************************
+function A:InitChatFrames()
+	A.ChatFrames = {}
+	for i = 1, FCF_GetNumActiveChatFrames() do
+		local name = _G["ChatFrame"..i.."Tab"]:GetText()
+		if name ~= "Combat Log" then
+			A.ChatFrames[name] = "ChatFrame"..i
+		end
 	end
+end
+
+function A:InitDebugPrint()
+	function dprint(lvl,...)
+		--print(lvl,debug_lvl,...)
+		local msg = ""
+		local debugLevel = DEBUG_LEVEL
+		local lvlCheck
+		local color = "FFcfac67"
+		local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
+		local separator = WrapTextInColorCode(" ** ", color)
+		local args = {...}
+		-- check lvl argument
+		if not lvl or type(lvl) ~= "number" then
+			msg = "Provided lvl arg is invalid: "..tostring(lvl)
+			lvlCheck = false
+		end
+		-- check level vs debug_level
+		if  lvlCheck ~= false and lvl > debugLevel then
+			return
+		end
+		-- check args
+		if #args == 0 then
+			msg = "No debug messages provided or nil"
+		else
+			for i=1, #args do
+				local sep = (i == 1) and "" or separator
+				msg = msg..sep..tostring(args[i])
+			end
+		end
+		A:SystemMessage(prefix..msg)
+	end
+end
+
+function A:InitLCD()
+	dprint(2, "A:InitLCD")
+	A.Libs.LCD:Register("AlertMe")
+	A.Libs.LCD.enableEnemyBuffTracking = true
+	A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit)
+		--A:UNIT_AURA(event, unit)
+	end)
+end
+
+function A:InitLSM()
+	dprint(2, "A:InitLSM")
+	A.Sounds = A.Libs.LSM:HashTable("sound")
+	A.Statusbars = A.Libs.LSM:HashTable("statusbar")
+	A.Backgrounds = A.Libs.LSM:HashTable("background")
+	A.Fonts = A.Libs.LSM:HashTable("font")
+	A.Borders = {}
 end
 
 function A:InitSpellOptions()
@@ -558,39 +508,44 @@ function A:InitSpellOptions()
 	end
 end
 
-function A:GetUnitNameShort(name)
-	-- getUnitName: Returns Unitname without Realm
-	local short = gsub(name, "%-[^|]+", "")
-	return short
+--**********************************************************************************************************************************
+-- Register events
+--**********************************************************************************************************************************
+function A.RegisterCLEU(event)
+	dprint(2, "A.RegisterCLEU", event)
+	local name, instanceType = GetInstanceInfo()
+	-- check against instance type and settings
+	if instanceType ~= "pvp" and P.general.zones.world then
+		dprint(3, "register", instanceType, P.general.zones.world)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+	elseif instanceType == "pvp" and  P.general.zones.bg then
+		dprint(3, "register", instanceType, P.general.zones.bg)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+	else
+		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		A:HideAllBars()
+	end
 end
 
-function A:InitLCD()
-	dprint(2, "A:InitLCD")
-	A.Libs.LCD:Register("AlertMe")
-	A.Libs.LCD.enableEnemyBuffTracking = true
-	A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit)
-		--A:UNIT_AURA(event, unit)
-	end)
+function A.ToggleAddon()
+	dprint(2, "A.ToggleAddon", P.general.enabled)
+	if P.general.enabled == true then
+		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
+		A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
+		A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
+		A.RegisterCLEU("Toggle")
+	else
+		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		A:UnregisterEvent("ZONE_CHANGED")
+		A:UnregisterEvent("ZONE_CHANGED_INDOORS")
+		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		A:HideAllBars()
+	end
 end
 
-function A:UNIT_AURA(event, unit)
-    for i=1,100 do
-        local name, _, _, _, duration, expirationTime, _, _, _, spellId = A.Libs.LCD.UnitAuraWithBuffs(unit, i, "HELPFUL")
-        if not name then break end
-        dprint(1, "LCD", unit, name, duration, expirationTime)
-    end
-end
-
-function A:InitLSM()
-	dprint(2, "A:InitLSM")
-	A.Sounds = A.Libs.LSM:HashTable("sound")
-	A.Statusbars = A.Libs.LSM:HashTable("statusbar")
-	A.Backgrounds = A.Libs.LSM:HashTable("background")
-	A.Fonts = A.Libs.LSM:HashTable("font")
-	A.Borders = {}
-end
-
--- function copied from LibDBIcon-1.0.lua
+--**********************************************************************************************************************************
+-- LDB: Minimap
+--**********************************************************************************************************************************
 local function getAnchors(frame)
 	local x, y = frame:GetCenter()
 	if not x or not y then return "CENTER" end
@@ -667,5 +622,100 @@ function A.ToggleMinimap(toggle)
 		A.Libs.LDBI:Hide("AlertMe")
 	else
 		A.Libs.LDBI:Show("AlertMe")
+	end
+end
+
+--**********************************************************************************************************************************
+-- Various
+--**********************************************************************************************************************************
+function A:GetUnitNameShort(name)
+	-- getUnitName: Returns Unitname without Realm
+	local short = gsub(name, "%-[^|]+", "")
+	return short
+end
+
+function A:GetReactionColor(ti, rgb)
+	dprint(2, "A:GetReactionColor")
+	-- prepare return value
+	local color = "white"
+	-- aura applied/refresh
+	if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
+		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+			color = "green"
+		else
+			color = "red"
+		end
+	end
+	-- spell dispel
+	if ti.event == "SPELL_DISPEL" then
+		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+			color = "red"
+		else
+			color = "green"
+		end
+	end
+	-- spell cast start / success
+	if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
+		if ti.srcIsFriendly then
+			color =  "green"
+		else
+			color = "red"
+		end
+	end
+	-- return RGB or HEX
+	if rgb == "rgb" then
+		return unpack(A.Colors[color]["rgb"])
+	else return A.Colors[color]["hex"]
+	end
+end
+
+function A:PostInScrolling(msg)
+	dprint(2, "A:PostInScrolling", msg)
+	if P.scrolling.enabled == true then
+		A:ShowScrolling()
+		A.ScrollingText:AddMessage(msg)
+	end
+end
+
+function A:SystemMessage(msg)
+	-- loop through chat frames and post messages
+	for i, name in pairs(A.ChatFrames) do
+		if P.messages.chatFrames[name] == true then
+			local f = _G[name]
+			f:AddMessage(msg)
+		end
+	end
+end
+
+function A:GetAuraInfo(ti, eventInfo)
+	dprint(2, "A:GetAuraInfo")
+	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
+	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
+	-- if aura info not avilable, try again after 1 second
+	if not name and ti.delayed == false then
+		ti.delayed = true
+		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
+			C_Timer.After(1, function()
+				A:ProcessTriggerInfo(ti, eventInfo)
+			end)
+	end
+	--return
+	if name then
+		local remaining = expirationTime - GetTime()
+		return spellId, icon, duration, remaining
+	end
+end
+
+function A:GetUnitAura(unit, spell)
+	dprint(2, "A:GetUnitAura", unit, spell)
+	for i = 1, 255 do
+		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
+		if not name then
+			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
+		end
+		if not name then return end
+		if spell == spellId or spell == name then
+			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
+		end
 	end
 end

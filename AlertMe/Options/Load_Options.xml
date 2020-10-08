@@ -9,5 +9,4 @@
 	<Script file='profiles.lua'/>
 	<Script file='alerts.lua'/>
 	<Script file='alert_details.lua'/>
-
 </Ui>
