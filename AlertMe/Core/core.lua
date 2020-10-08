@@ -64,7 +64,6 @@ function A:ParseCombatLog(eventName)
 			ti[v] = arg[i+14]
 		end
 	end
-	ti.delayed = false
 	-- set relevant spell name
 	ti.relSpellName = ti[eventInfo.relSpellName]
 	-- call processTriggerInfo
@@ -97,9 +96,9 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- check aura applied for friendly
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
-		local name, _, duration, remaining = A:GetAuraInfo(ti)
-		if not name  or (duration and duration - remaining >= 3 or remaining <= 2) then
-			dprint(1, "aura info missing", ti.spellName, ti.dstName, "friend", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
+		local  name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
+		if not name or (duration and duration - remaining >= 3 or remaining <= 2) then
+			dprint(1, "aura info missing", ti.spellName, ti.dstName, "dstFr", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
 			return
 		end
 	end
@@ -109,8 +108,8 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alertsChecked) == "table" then A:ChatAnnounce(ti, alertsChecked, eventInfo) end
 			if action == "playSound" and type(alertsChecked) == "table" then A:PlaySound(ti, alertsChecked, eventInfo) end
-			if action == "displayBars" and type(alertsChecked) == "table" then A:DisplayBars(ti, alertsChecked, eventInfo) end
 			if action == "hideBars" then A:HideBars(ti, eventInfo) end
+			if action == "displayBars" and type(alertsChecked) == "table" then A:DisplayBars(ti, alertsChecked, eventInfo) end
 		end
 	end
 end
@@ -121,10 +120,6 @@ end
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	local alerts = {}
-	--debug
-	if eventInfo == nil or eventInfo.spellSelection == nil then
-		dprint(1, "A:GetAlerts:", "eventInfo nil - remove that shit", ti.event, eventInfo.spellSelection)
-	end
 	-- if no spells are checked for this event, return all alerts from this event (interrupt)
 	if eventInfo.spellSelection == false then
 		dprint(1, "spellSelection =false", eventInfo.short)
@@ -308,7 +303,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			msgQueue["SYSTEM"][msg] = colmsg
 		end
 		-- whisper destination unit
-		if eventInfo.dstWhisper == true and alert.dstWhisper ~= 1 and ti.dstIsFriendly and not ti.dstIsPlayer then
+		if eventInfo.dstWhisper == true and ti.dstIsFriendly and not ti.dstIsPlayer then
 			if (alert.dstWhisper == 2 and ti.srcIsPlayer) or alert.dstWhisper == 3 then
 				if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
 				msgQueue["WHISPER"][msg] = msg
@@ -388,12 +383,18 @@ function A:PlaySound(ti, alerts, eventInfo)
 	PlaySoundQueue(soundQueue)
 end
 
-function A:DisplayBars(ti, alerts, eventInfo)
+function A:DisplayBars(ti, alerts, eventInfo, rep)
 	dprint(2, "A:DisplayBars", ti.relSpellName)
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then
-			local spellId, icon, duration, remaining = A:GetAuraInfo(ti, eventInfo)
-			if duration ~= nil then
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
+			-- if aura info not avilable, try again after 1 second
+			if not duration and rep ~= true then
+				dprint(1, "repeatDisplayBars", ti.relSpellName)
+					C_Timer.After(1, function()
+						A:DisplayBars(ti, {alert}, eventInfo, true)
+					end)
+			elseif duration then
 				local id = ti.dstGUID..ti.spellName
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
@@ -458,9 +459,8 @@ function A:InitLCD()
 	dprint(2, "A:InitLCD")
 	A.Libs.LCD:Register("AlertMe")
 	A.Libs.LCD.enableEnemyBuffTracking = true
-	A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit)
-		--A:UNIT_AURA(event, unit)
-	end)
+	UnitAura = A.Libs.LCD.UnitAuraWithBuffs
+	--A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit) end)
 end
 
 function A:InitLSM()
@@ -686,35 +686,24 @@ function A:SystemMessage(msg)
 	end
 end
 
-function A:GetAuraInfo(ti, eventInfo)
-	dprint(2, "A:GetAuraInfo")
+function A:GetUnitAura(ti, eventInfo)
+	dprint(2, "A:GetAuraInfo", ti.dstName, ti.ti.relSpellName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
-	local name, icon, _, debuffType, duration, expirationTime, source, _, _, spellId = A:GetUnitAura(unit, ti.relSpellName)
-	-- if aura info not avilable, try again after 1 second
-	if not name and ti.delayed == false then
-		ti.delayed = true
-		dprint(1, "repeat", unit, ti.relSpellName, name, duration)
-			C_Timer.After(1, function()
-				A:ProcessTriggerInfo(ti, eventInfo)
-			end)
-	end
-	--return
-	if name then
-		local remaining = expirationTime - GetTime()
-		return spellId, icon, duration, remaining
-	end
+	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, ti.relSpellName)
+	local remaining = expirationTime and expirationTime - GetTime() or nil
+	return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 end
 
-function A:GetUnitAura(unit, spell)
-	dprint(2, "A:GetUnitAura", unit, spell)
-	for i = 1, 255 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
-		if not name then
-			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
-		end
-		if not name then return end
-		if spell == spellId or spell == name then
-			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
-		end
-	end
-end
+-- function A:GetUnitAura(unit, spell)
+-- 	dprint(2, "A:GetUnitAura", unit, spell)
+-- 	for i = 1, 255 do
+-- 		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
+-- 		if not name then
+-- 			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
+-- 		end
+-- 		if not name then return end
+-- 		if spell == spellId or spell == name then
+-- 			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
+-- 		end
+-- 	end
+-- end
