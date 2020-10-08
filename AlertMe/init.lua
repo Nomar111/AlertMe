@@ -1,8 +1,8 @@
-dprint(3, "init.lua")
+--print("init.lua")
 -- upvalues
 local _G = _G
 local LibStub, GetAddOnMetadata, tostring = LibStub, GetAddOnMetadata, tostring
-local UnitName, GetRealmName = UnitName, GetRealmName
+local UnitName, GetRealmName, date, FCF_GetNumActiveChatFrames, WrapTextInColorCode = UnitName, GetRealmName, date, FCF_GetNumActiveChatFrames, WrapTextInColorCode
 
 -- get engine/addon environment
 local AddonName, Engine = ...
@@ -42,7 +42,7 @@ REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 
 -- addon upvalues
-dprint, pairs, unpack, strsplit, type, tcopy, tinsert, unpack = _G.dprint, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.table.insert, _G.unpack
+print, pairs, unpack, strsplit, type, tcopy, tinsert, unpack = _G.print, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.table.insert, _G.unpack
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 
 -- libraries
@@ -60,9 +60,20 @@ A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
 --A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
 
+
+
+function A:InitChatFrames()
+	A.ChatFrames = {}
+	for i = 1, FCF_GetNumActiveChatFrames() do
+		local name = _G["ChatFrame"..i.."Tab"]:GetText()
+		if name ~= "Combat Log" then
+			A.ChatFrames[name] = "ChatFrame"..i
+		end
+	end
+end
+
 -- addon initialized
 function A:OnInitialize()
-	dprint(2, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -75,6 +86,37 @@ function A:OnInitialize()
 	VDT_AddData(P, "P")
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
+	-- init chatframes/debugging
+	A:InitChatFrames()
+	-- debug print
+	function dprint(lvl,...)
+		--print(lvl,debug_lvl,...)
+		local msg = ""
+		local debug_level = 1--tonumber(GetAddOnMetadata(AddonName, "X-DebugLevel"))
+		local color = "FFcfac67"
+		local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
+		local separator = WrapTextInColorCode(" ** ", color)
+		local args = {...}
+		-- check lvl argument
+		if not lvl or type(lvl) ~= "number" then
+			msg = "Provided lvl arg is invalid: "..tostring(lvl)
+			lvl_check = false
+		end
+		-- check level vs debug_level
+		if  lvl_check ~= false and lvl > debug_level then
+			return
+		end
+		-- check args
+		if #args == 0 then
+			msg = "No debug messages provided or nil"
+		else
+			for i=1, #args do
+				local sep = (i == 1) and "" or separator
+				msg = msg..sep..tostring(args[i])
+			end
+		end
+		A:SystemMessage(prefix..msg)
+	end
 end
 
 function A:OpenOptions()

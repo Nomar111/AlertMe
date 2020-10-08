@@ -1,4 +1,4 @@
-dprint(2,"defaults.lua")
+--print("defaults.lua")
 -- get engine environment
 local _, D = unpack(select(2, ...))
 -- set engine as new global environment

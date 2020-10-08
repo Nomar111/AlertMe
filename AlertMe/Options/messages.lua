@@ -1,4 +1,4 @@
-dprint(3, "messages.lua")
+--print("messages.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- upvalues

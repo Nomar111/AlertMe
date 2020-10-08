@@ -1,4 +1,4 @@
-dprint(3, "options.lua")
+--print("options.lua")
 -- upvalues
 local FCF_GetNumActiveChatFrames = FCF_GetNumActiveChatFrames
 -- get engine environment
