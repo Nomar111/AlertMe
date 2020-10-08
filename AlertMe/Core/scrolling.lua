@@ -1,8 +1,6 @@
-dprint(3, "scrolling.lua")
+--print("scrolling.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
--- upvalues
-local CreateFrame, IsShiftKeyDown = CreateFrame, IsShiftKeyDown
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -52,7 +50,7 @@ function A:UpdateScrolling()
 	local align = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
 	f:SetJustifyH(align[db.align])
 	f:SetFading(db.fading)
-	f:SetFont(A.LSM:HashTable("font")[db.font], db.fontSize)
+	f:SetFont(A.Fonts[db.font], db.fontSize)
 	f:SetMaxLines(db.maxLines)
 	f:SetTimeVisible(db.timeVisible)
 	f:SetBackdropColor(0, 0, 0, db.alpha)
@@ -61,6 +59,7 @@ function A:UpdateScrolling()
 	--f:EnableMouse(db.interactive)
 	-- set position according to db
 	A:SetScrollingPosition(false)
+	A:ToggleScrollingInteractive()
 
 end
 

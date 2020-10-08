@@ -1,4 +1,4 @@
-dprint(3, "alerts.lua")
+--print("alerts.lua")
 -- upvalues
 local _G, time, tostring = _G, time, tostring
 -- get engine environment
@@ -14,8 +14,8 @@ function O:ShowAlerts(container, eventShort)
 	-- some local variables
 	local db = P.alerts[eventShort]
 	local uid = db.selectedAlert
-	local iconAdd = A.LSM:HashTable("background")["Add"]
-	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local iconAdd = A.Backgrounds["Add"]
+	local iconDel = A.Backgrounds["Delete"]
 	local btnAddToolTip = {lines = {"Add new alert"}}
 	local btnDelToolTip = {lines = {"Delete selected alert"}}
 

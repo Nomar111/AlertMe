@@ -1,4 +1,4 @@
-dprint(2,"defaults.lua")
+--print("defaults.lua")
 -- get engine environment
 local _, D = unpack(select(2, ...))
 -- set engine as new global environment
@@ -9,7 +9,10 @@ D.profile = {
 	general = {
 		zones = {
 			["*"] = true,
-		}
+		},
+		minimap = { hide = false },
+		minimapPos = {},
+		enabled = true,
 	},
 	scrolling = {
 		enabled = true,
@@ -87,10 +90,10 @@ D.profile = {
 					created = false,
 					showBar = true,
 					chatChannels = 1,
-					addonMessages = 2,
+					addonMessages = 1,
 					dstWhisper = 1,
 					scrollingText = true,
-					soundSelection = 1,
+					soundSelection = 3,
 					soundFile = "",
 					msgOverride = "",
 				},

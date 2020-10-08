@@ -1,9 +1,7 @@
-dprint(3, "init.lua")
+--print("init.lua")
 -- upvalues
-local _G = _G
-local LibStub, GetAddOnMetadata, tostring = LibStub, GetAddOnMetadata, tostring
-local UnitName, GetRealmName = UnitName, GetRealmName
-
+local _G, LibStub = _G, LibStub
+local GetAddOnMetadata, UnitName, GetRealmName  = GetAddOnMetadata, UnitName, GetRealmName
 -- get engine/addon environment
 local AddonName, Engine = ...
 -- set engine environment as new global environment
@@ -33,6 +31,13 @@ VDT_AddData(A.Defaults, "D")
 VDT_AddData(A.Options, "O")
 VDT_AddData(A.Spells, "S")
 
+-- addon upvalues
+print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
+strsplit, tostring, gsub, string, date = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date
+GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
+WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
+GetSpellInfo, IsShiftKeyDown, GameTooltip, FCF_GetNumActiveChatFrames = _G.GetSpellInfo, _G.IsShiftKeyDown, _G.GameTooltip, _G.FCF_GetNumActiveChatFrames
+
 -- addon globals
 ADDON_NAME = AddonName
 ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
@@ -40,10 +45,7 @@ ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
 PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
-
--- addon upvalues
-dprint, pairs, unpack, strsplit, type, tcopy, tinsert, unpack = _G.dprint, _G.pairs, _G.unpack, _G.strsplit, _G.type, _G.table.copy, _G.table.insert, _G.unpack
-GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
+DEBUG_LEVEL = 1
 
 -- libraries
 A.Libs = {}
@@ -53,13 +55,15 @@ A.Libs.AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
-A.Libs.LibSharedMedia = LibStub("LibSharedMedia-3.0")
+A.Libs.LSM = LibStub("LibSharedMedia-3.0")
 A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
+A.Libs.LDB = LibStub("LibDataBroker-1.1")
+A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
+--A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
 
 -- addon initialized
 function A:OnInitialize()
-	dprint(2, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -72,6 +76,9 @@ function A:OnInitialize()
 	VDT_AddData(P, "P")
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
+	-- init chatframes/debugging
+	A:InitChatFrames()
+	A:InitDebugPrint()
 end
 
 function A:OpenOptions()

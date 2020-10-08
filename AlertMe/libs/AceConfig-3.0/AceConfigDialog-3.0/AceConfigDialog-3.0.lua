@@ -1656,7 +1656,7 @@ function AceConfigDialog:FeedGroup(appName,options,container,rootframe,path, isR
 		scroll:SetStatusTable(status.scroll)
 	end
 
-	if ldGroups and not inline then
+	if hasChildGroups and not inline then
 		local name = GetOptionsMemberValue("name", group, options, path, appName)
 		if grouptype == "tab" then
 

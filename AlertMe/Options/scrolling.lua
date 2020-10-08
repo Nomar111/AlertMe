@@ -1,4 +1,4 @@
-dprint(3, "container.lua")
+--print("container.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -15,6 +15,10 @@ function O:ShowScrollingText(container)
 	local function toggleInteractive()
 		A:ToggleScrollingInteractive()
 	end
+	local function centerX()
+		P.scrolling.ofs_x = 0
+		A:SetScrollingPosition()
+	end
 
 	-- header
 	O.AttachHeader(container, "Scrolling Text Settings")
@@ -25,20 +29,26 @@ function O:ShowScrollingText(container)
 	O.AttachCheckBox(enableGroup, "Movable", db ,"interactive", 250, toggleInteractive)
 	O.AttachSpacer(container, _, "small")
 
-	-- buttons
-	local buttonGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
-	local btnShow = O.AttachButton(buttonGroup, "Show frame", 120)
+	-- button row 1
+	local width = 140
+	local buttonGroup1 = O.AttachGroup(container, "simple", _, {fullWidth = true})
+	local btnShow = O.AttachButton(buttonGroup1, "Show frame", width)
 	btnShow:SetCallback("OnClick", function() A:ShowScrolling(true) end)
-	O.AttachSpacer(buttonGroup, 20)
-	local btnHide = O.AttachButton(buttonGroup, "Hide frame", 120)
+	O.AttachSpacer(buttonGroup1, 20)
+	local btnHide = O.AttachButton(buttonGroup1, "Hide frame", width)
 	btnHide:SetCallback("OnClick", function() A:HideScrolling() end)
-	O.AttachSpacer(buttonGroup, 20)
-	local btnReset = O.AttachButton(buttonGroup, "Reset position", 120)
+	O.AttachSpacer(container, _, "small")
+	-- button row 2
+	local buttonGroup2 = O.AttachGroup(container, "simple", _, {fullWidth = true})
+	local btnReset = O.AttachButton(buttonGroup2, "Reset position", width)
 	btnReset:SetCallback("OnClick", function() A:SetScrollingPosition(true) end)
+	O.AttachSpacer(buttonGroup2, 20)
+	local btnCenterX = O.AttachButton(buttonGroup2, "Center horicontal", width)
+	btnCenterX:SetCallback("OnClick", centerX)
 	O.AttachSpacer(container, _, "small")
 
 	-- width
-	local width = O.AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 400, updateScrolling)
+	width = O.AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 400, updateScrolling)
 	O.AttachSpacer(container, _, "small")
 
 	-- fading

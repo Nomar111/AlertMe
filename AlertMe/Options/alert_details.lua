@@ -1,6 +1,6 @@
-dprint(3, "alert_details.lua")
+-- print("alert_details.lua")
 -- upvalues
-local _G, GetItemIcon, GetSpellInfo = _G, GetItemIcon, GetSpellInfo
+local _G, GetItemIcon = _G, GetItemIcon
 --local GameTooltip, GetSpellInfo = GameTooltip, GetSpellInfo
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
@@ -10,7 +10,6 @@ setfenv(1, _G.AlertMe)
 -- creates the general options tab
 function O:ShowAlertDetails(container, eventShort, uid)
 	dprint(2, "O:ShowAlertDetails", container, eventShort, uid)
-	--VDT_AddData(container, "container")
 	local db = P.alerts[eventShort].alertDetails[uid]
 
 	-- spell selection
@@ -205,8 +204,8 @@ function O:UpdateSpellTable(eventShort, uid)
 
 	-- local variables and functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local iconAdd = A.LSM:HashTable("background")["Add"]
-	local iconDel = A.LSM:HashTable("background")["Delete"]
+	local iconAdd = A.Backgrounds["Add"]
+	local iconDel =  A.Backgrounds["Delete"]
 	local btnDelSpellToolTip = {lines={"Delete spell/aura"}}
 	local btnAddSoundToolTip = {lines={"Set an individual sound alert"}}
 

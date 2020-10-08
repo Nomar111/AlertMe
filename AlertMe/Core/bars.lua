@@ -1,8 +1,6 @@
-dprint(3, "bars.lua")
+--print("bars.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
--- upvalues
-local CreateFrame, IsShiftKeyDown, unpack = CreateFrame, IsShiftKeyDown, unpack
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 A.Bars = {auras={}, casts={}}
@@ -89,7 +87,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	end
 	-- check if already exists
 	if A.Bars[barType][id] == nil then
-		local newBar = A.Libs.LCB:New(A.LSM:HashTable("statusbar")[db.texture], db.width, db.height)
+		local newBar = A.Libs.LCB:New(A.Statusbars[db.texture], db.width, db.height)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
 		A.Bars[barType][id] = newBar
