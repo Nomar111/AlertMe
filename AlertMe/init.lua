@@ -34,7 +34,7 @@ VDT_AddData(A.Spells, "S")
 
 -- addon upvalues
 print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
-strsplit, tostring, gsub, string, date = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date
+strsplit, tostring, gsub, string, date, next = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date, _G.next
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
 GetSpellInfo, IsShiftKeyDown, GameTooltip, FCF_GetNumActiveChatFrames = _G.GetSpellInfo, _G.IsShiftKeyDown, _G.GameTooltip, _G.FCF_GetNumActiveChatFrames

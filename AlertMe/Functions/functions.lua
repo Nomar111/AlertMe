@@ -5,7 +5,7 @@ local _G, table, getmetatable, setmetatable = _G, table, getmetatable, setmetata
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
-function table.copy(t, deep, seen)
+function tcopy(t, deep, seen)
 	seen = seen or {}
 	if t == nil then return nil end
 	if seen[t] then return seen[t] end
@@ -13,12 +13,12 @@ function table.copy(t, deep, seen)
 	local nt = {}
 	for k, v in pairs(t) do
 		if deep and type(v) == 'table' then
-			nt[k] = table.copy(v, deep, seen)
+			nt[k] = tcopy(v, deep, seen)
 		else
 			nt[k] = v
 		end
 	end
-	setmetatable(nt, table.copy(getmetatable(t), deep, seen))
+	setmetatable(nt, tcopy(getmetatable(t), deep, seen))
 	seen[t] = nt
 	return nt
 end

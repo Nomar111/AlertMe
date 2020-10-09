@@ -3,7 +3,7 @@
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
-local PlaySoundFile, StopSound, GetSchoolString, next = PlaySoundFile, StopSound, GetSchoolString, next
+local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -77,7 +77,10 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- check for relevant alerts for spell/event
 	local alerts = A:GetAlerts(ti, eventInfo)
-	if not alerts then
+	if not alerts and eventInfo.short == "success" then
+		A:Snapshot(ti, eventInfo)
+		return
+	elseif not alerts then
 		dprint(2, "no relevant alert found for", ti.event, ti.relSpellName)
 		return
 	end
@@ -85,20 +88,26 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	local alertsChecked, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 	if not alertsChecked then
 		dprint(2, "unit check failed", ti.relSpellName)
-		if errorMessages then
-			for i, errorMessage in pairs(errorMessages) do
-				dprint(1, errorMessage, ti.event, ti.relSpellName, "srcFr", ti.srcIsFriendly, "dstFr", ti.dstIsFriendly)
-			end
-		end
+		-- if errorMessages then
+		-- 	for i, errorMessage in pairs(errorMessages) do
+		-- 		dprint(1, errorMessage, ti.event, ti.relSpellName, "srcFr", ti.srcIsFriendly, "dstFr", ti.dstIsFriendly)
+		-- 	end
+		-- end
 		return
 	end
-	-- friendly aura not recently applied? cancel
-	if eventInfo.short == "gain" and ti.dstIsFriendly then
-		VDT_AddData(ti,"ti")
+
+	if eventInfo.short == "gain" then
 		local  name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
-		if not name or (duration and duration - remaining >= 3 or remaining <= 2) then
-			dprint(1, "friendly aura info missing, or not recently applied", ti.relSpellName, ti.dstName, "dstFr", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
+		if ti.dstIsFriendly and (not name or (duration and duration - remaining >= 3)) then
+			dprint(2, "f-aura no info or old", ti.relSpellName, ti.dstName, "dur", duration, "rem", remaining)
 			return
+		elseif ti.dstIsHostile and not duration then
+			dprint(2, "e-aura no info", ti.relSpellName, ti.dstName, "dur", duration, "rem", remaining)
+			if not A:Snapshot(ti, eventInfo) then
+				return
+			else
+				dprint(1, "aura was applied recently, go on...")
+			end
 		end
 	end
 	-- do whatever is defined in actions
@@ -112,6 +121,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 end
 
+
 --**********************************************************************************************************************************
 --Checks
 --**********************************************************************************************************************************
@@ -124,20 +134,19 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
-		dprint(1, "no spell sel for this event - ret all", eventInfo.short)
+		dprint(3, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
 		end
 	elseif not spellOptions then -- check for spell in alerts, check spell/event combo
 		dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
-		return false
-    else
-	    for uid, tbl in pairs(spellOptions) do
-		    tinsert(alerts, tbl.options)
-	    end
-    end
-    -- return if table
-    if type(alerts) == "table" and #alerts >= 1 then
+	else
+		for uid, tbl in pairs(spellOptions) do
+			tinsert(alerts, tbl.options)
+		end
+	end
+	-- return if table
+	if type(alerts) == "table" and #alerts >= 1 then
 		return alerts
 	end
 end
