@@ -154,3 +154,30 @@ function A:HideAllBars()
 		end
 	end
 end
+
+function A:DisplayBars(ti, alerts, eventInfo, rep)
+	dprint(2, "A:DisplayBars", ti.relSpellName)
+	for _, alert in pairs(alerts) do
+		if alert.showBar == true and eventInfo.displaySettings == true then
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
+			-- if aura info not avilable, try again after 1 second
+			if not duration and rep ~= true then
+				dprint(1, "repeatDisplayBars", ti.relSpellName)
+					C_Timer.After(1, function()
+						A:DisplayBars(ti, {alert}, eventInfo, true)
+					end)
+			elseif duration then
+				local id = ti.dstGUID..ti.spellName
+				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+			else
+				dprint(1, "no spell duration available, abort bar display")
+			end
+		end
+	end
+end
+
+function A:HideBars(ti, eventInfo)
+	dprint(2, "A:HideBars", ti, eventInfo)
+	local id = ti.dstGUID..ti.spellName
+	A:HideBar("auras", id)
+end

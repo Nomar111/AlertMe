@@ -3,7 +3,7 @@
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
-local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
+local PlaySoundFile, StopSound, GetSchoolString, next = PlaySoundFile, StopSound, GetSchoolString, next
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -321,15 +321,6 @@ function A:PlaySound(ti, alerts, eventInfo)
 	dprint(2, "A:PlaySound")
 	local soundQueue = {}
 	local delay = 1.3
-	-- check if soundqueue is empty
-	local function TableEmpty(table)
-		for i,v in pairs(table) do
-			if i then
-				return false
-			end
-		end
-		return true
-	end
 	-- play the sound queue
 	local function PlaySoundQueue(queue, oldIsIsplaying, oldHandle)
 		dprint(2, "PlaySoundQueue", queue, oldIsIsplaying, oldHandle)
@@ -341,10 +332,8 @@ function A:PlaySound(ti, alerts, eventInfo)
 		for sound, _ in pairs(queue) do
 			local isPlaying, handle = PlaySoundFile(A.Sounds[sound])
 			queue[sound] = nil
-			if TableEmpty(queue) == false then
-				C_Timer.After(delay, function()
-					PlaySoundQueue(queue, isPlaying, handle)
-				end)
+			if next(queue) then
+				C_Timer.After(delay, function() PlaySoundQueue(queue, isPlaying, handle) end)
 			else
 				break
 			end
@@ -370,55 +359,9 @@ function A:PlaySound(ti, alerts, eventInfo)
 	PlaySoundQueue(soundQueue)
 end
 
-function A:DisplayBars(ti, alerts, eventInfo, rep)
-	dprint(2, "A:DisplayBars", ti.relSpellName)
-	for _, alert in pairs(alerts) do
-		if alert.showBar == true and eventInfo.displaySettings == true then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
-			-- if aura info not avilable, try again after 1 second
-			if not duration and rep ~= true then
-				dprint(1, "repeatDisplayBars", ti.relSpellName)
-					C_Timer.After(1, function()
-						A:DisplayBars(ti, {alert}, eventInfo, true)
-					end)
-			elseif duration then
-				local id = ti.dstGUID..ti.spellName
-				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
-			else
-				dprint(1, "no spell duration available, abort bar display")
-			end
-		end
-	end
-end
-
-function A:HideBars(ti, eventInfo)
-	dprint(2, "A:HideBars", ti, eventInfo)
-	local id = ti.dstGUID..ti.spellName
-	A:HideBar("auras", id)
-end
-
 --**********************************************************************************************************************************
 --Inits
 --**********************************************************************************************************************************
-
-
-function A:InitLCD()
-	dprint(2, "A:InitLCD")
-	A.Libs.LCD:Register("AlertMe")
-	A.Libs.LCD.enableEnemyBuffTracking = true
-	UnitAura = A.Libs.LCD.UnitAuraWithBuffs
-	--A.Libs.LCD.RegisterCallback("AlertMe", "UNIT_BUFF", function(event, unit) end)
-end
-
-function A:InitLSM()
-	dprint(2, "A:InitLSM")
-	A.Sounds = A.Libs.LSM:HashTable("sound")
-	A.Statusbars = A.Libs.LSM:HashTable("statusbar")
-	A.Backgrounds = A.Libs.LSM:HashTable("background")
-	A.Fonts = A.Libs.LSM:HashTable("font")
-	A.Borders = {}
-end
-
 function A:InitSpellOptions()
 	dprint(2, "A:InitSpellOptions")
 	A.AlertOptions = {}
@@ -489,8 +432,6 @@ function A.ToggleAddon()
 	end
 end
 
-
-
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
@@ -528,41 +469,3 @@ function A:GetReactionColor(ti, rgb)
 	else return A.Colors[color]["hex"]
 	end
 end
-
-function A:PostInScrolling(msg)
-	dprint(2, "A:PostInScrolling", msg)
-	if P.scrolling.enabled == true then
-		A:ShowScrolling()
-		A.ScrollingText:AddMessage(msg)
-	end
-end
-
-function A:GetUnitAura(ti, eventInfo)
-	dprint(2, "A:GetAuraInfo", ti.dstName, ti.relSpellName)
-	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
-	for i = 1, 100 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i)
-		if not name then
-			break
-		else
-			if ti.relSpellName == name then
-				local remaining = (expirationTime > 0) and expirationTime - GetTime() or nil
-				return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
-			end
-		end
-	end
-end
-
--- function A:GetUnitAura(unit, spell)
--- 	dprint(2, "A:GetUnitAura", unit, spell)
--- 	for i = 1, 255 do
--- 		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HELPFUL")
--- 		if not name then
--- 			name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId = A.Libs.LCD.UnitAuraDirect(unit, i, "HARMFUL")
--- 		end
--- 		if not name then return end
--- 		if spell == spellId or spell == name then
--- 			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId
--- 		end
--- 	end
--- end

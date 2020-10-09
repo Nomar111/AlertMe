@@ -109,3 +109,11 @@ function A:SetScrollingPosition(reset)
 	A.ScrollingText:ClearAllPoints()
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
+
+function A:PostInScrolling(msg)
+	dprint(2, "A:PostInScrolling", msg)
+	if P.scrolling.enabled == true then
+		A:ShowScrolling()
+		A.ScrollingText:AddMessage(msg)
+	end
+end

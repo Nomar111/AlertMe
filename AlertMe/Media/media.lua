@@ -4,6 +4,16 @@ local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 local LSM = A.Libs.LSM
+
+function A:InitLSM()
+	dprint(2, "A:InitLSM")
+	A.Sounds = LSM:HashTable("sound")
+	A.Statusbars = LSM:HashTable("statusbar")
+	A.Backgrounds = LSM:HashTable("background")
+	A.Fonts = LSM:HashTable("font")
+	A.Borders = {}
+end
+
 -- fonts
 LSM:Register("font", "Roboto Condensed Bold", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-Bold.ttf]])
 LSM:Register("font", "Roboto Condensed BoldItalic", [[Interface\AddOns\AlertMe\Media\Fonts\Roboto_Condensed\RobotoCondensed-BoldItalic.ttf]])
