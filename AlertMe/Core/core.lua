@@ -101,7 +101,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		end
 	end
 	-- do whatever is defined in actions
-	if eventInfo.actions ~= nil then
+	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alertsChecked) == "table" then A:ChatAnnounce(ti, alertsChecked, eventInfo) end
 			if action == "playSound" and type(alertsChecked) == "table" then A:PlaySound(ti, alertsChecked, eventInfo) end
@@ -117,7 +117,7 @@ end
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	local alerts = {}
-    local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short] and A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
+    local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
 		dprint(1, "no spell sel for this event - ret all", eventInfo.short)
