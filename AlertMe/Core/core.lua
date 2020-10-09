@@ -42,7 +42,7 @@ function A:ParseCombatLog(eventName)
 		dstName = arg[9],
 		dstFlags = arg[10],
 		spellName = arg[13],
-		spellSchool = arg[14]  
+		spellSchool = arg[14]
 	}
 	-- check if trigger event exists in events table, if not abort
 	if A.Events[ti.event] == nil then
@@ -77,8 +77,8 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- check for relevant alerts for spell/event
 	local alerts = A:GetAlerts(ti, eventInfo)
-	if not alerts
-		dprint(2, "no relevant alert found for", ti.event, ti.relSpellName, )
+	if not alerts then
+		dprint(2, "no relevant alert found for", ti.event, ti.relSpellName)
 		return
 	end
 	-- check units
@@ -94,6 +94,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- friendly aura not recently applied? cancel
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
+		VDT_AddData(ti,"ti")
 		local  name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
 		if not name or (duration and duration - remaining >= 3 or remaining <= 2) then
 			dprint(1, "friendly aura info missing, or not recently applied", ti.relSpellName, ti.dstName, "dstFr", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
@@ -117,7 +118,7 @@ end
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	local alerts = {}
-    local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
+    local spellOptions = (A.SpellOptions[ti.relSpellName][eventInfo.short] ~= nil) and A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
 		dprint(1, "no spell sel for this event - ret all", eventInfo.short)
@@ -669,11 +670,19 @@ function A:SystemMessage(msg)
 end
 
 function A:GetUnitAura(ti, eventInfo)
-	dprint(2, "A:GetAuraInfo", ti.dstName, ti.ti.relSpellName)
+	dprint(2, "A:GetAuraInfo", ti.dstName, ti.relSpellName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
-	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, ti.relSpellName)
-	local remaining = expirationTime and expirationTime - GetTime() or nil
-	return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
+	for i = 1, 100 do
+		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i)
+		if not name then
+			break
+		else
+			if ti.relSpellName == name then
+				local remaining = (expirationTime > 0) and expirationTime - GetTime() or nil
+				return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
+			end
+		end
+	end
 end
 
 -- function A:GetUnitAura(unit, spell)
