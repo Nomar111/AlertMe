@@ -23,17 +23,15 @@ function A:Initialize()
 	A:InitLCD()
 	-- init LDB
 	A:InitLDB()
-	-- for reloadui
-	A:HideAllBars()
 	-- register for events
 	A.ToggleAddon()
+	-- for reloadui
+	A:HideAllBars()
 end
 
 function A:ParseCombatLog(eventName)
 	dprint(2, "A:ParseCombatLog", eventName)
-	local arg = {}
-	arg = {CombatLogGetCurrentEventInfo()}
-	--VDT_AddData(arg,"arg")
+	local arg = {CombatLogGetCurrentEventInfo()}
 	local ti = {
 		ts = arg[1],
 		event = arg[2],
@@ -44,7 +42,7 @@ function A:ParseCombatLog(eventName)
 		dstName = arg[9],
 		dstFlags = arg[10],
 		spellName = arg[13],
-		spellSchool = arg[14]
+		spellSchool = arg[14]  
 	}
 	-- check if trigger event exists in events table, if not abort
 	if A.Events[ti.event] == nil then
@@ -71,7 +69,7 @@ function A:ParseCombatLog(eventName)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
-	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.spellName)
+	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	-- aura removed
 	if ti.event == "SPELL_AURA_REMOVED" then
 		A:HideBars(ti, eventInfo)
@@ -79,30 +77,29 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 	-- check for relevant alerts for spell/event
 	local alerts = A:GetAlerts(ti, eventInfo)
-	if alerts == false or alerts == nil then
-		dprint(2, "no alert", ti.spellName, ti.event)
+	if not alerts
+		dprint(2, "no relevant alert found for", ti.event, ti.relSpellName, )
 		return
 	end
 	-- check units
-	local alertsChecked, errorMessages = A:CheckUnits(ti, alerts, eventInfo)
-	if alertsChecked == false or alertsChecked == nil then
+	local alertsChecked, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+	if not alertsChecked then
 		dprint(2, "unit check failed", ti.relSpellName)
 		if errorMessages then
 			for i, errorMessage in pairs(errorMessages) do
-				dprint(1, errorMessage, ti.relSpellName, "srcFr", ti.srcIsFriendly, "dstFr", ti.dstIsFriendly)
+				dprint(1, errorMessage, ti.event, ti.relSpellName, "srcFr", ti.srcIsFriendly, "dstFr", ti.dstIsFriendly)
 			end
 		end
 		return
 	end
-	-- check aura applied for friendly
+	-- friendly aura not recently applied? cancel
 	if eventInfo.short == "gain" and ti.dstIsFriendly then
 		local  name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
 		if not name or (duration and duration - remaining >= 3 or remaining <= 2) then
-			dprint(1, "aura info missing", ti.spellName, ti.dstName, "dstFr", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
+			dprint(1, "friendly aura info missing, or not recently applied", ti.relSpellName, ti.dstName, "dstFr", ti.dstIsFriendly, "n", name, "dur", duration, "rem", remaining)
 			return
 		end
 	end
-	--VDT_AddData(ti,"ti")
 	-- do whatever is defined in actions
 	if eventInfo.actions ~= nil then
 		for _, action in pairs(eventInfo.actions) do
@@ -120,43 +117,28 @@ end
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	local alerts = {}
-	-- if no spells are checked for this event, return all alerts from this event (interrupt)
-	if eventInfo.spellSelection == false then
-		dprint(1, "spellSelection =false", eventInfo.short)
-		if A.AlertOptions[eventInfo.short] then
-			for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
-				tinsert(alerts, tbl)
-			end
-			if type(alerts) == "table" and #alerts >= 1 then
-				return alerts
-			else
-				return false
-			end
+    local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short] and A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
+	-- various checks
+	if eventInfo.spellSelection == false then -- spell selection disabled for this event
+		dprint(1, "no spell sel for this event - ret all", eventInfo.short)
+		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
+			tinsert(alerts, tbl)
 		end
-	end
-	-- search for spell
-	if A.SpellOptions[ti.relSpellName] == nil then
-		dprint(3, "spell not found in options", ti.relSpellName)
+	elseif not A.SpellOptions[ti.relSpellName] or not spellOptions then -- check for spell in alerts, check spell/event combo
+		dprint(3, "spell (event) not found not found", ti.relSpellName, eventInfo.short)
 		return false
-	end
-	-- search for spell/event combination
-	if A.SpellOptions[ti.relSpellName][eventInfo.short] == nil then
-		dprint(3, "spell/event combination not found in options", ti.relSpellName, eventInfo.short)
-		return false
-	end
-	local spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
-	-- create table of relevant alert settings
-	for uid, tbl in pairs(spellOptions) do
-		tinsert(alerts, tbl.options)
-	end
-	if type(alerts) == "table" and #alerts >= 1 then
+    else
+	    for uid, tbl in pairs(spellOptions) do
+		    tinsert(alerts, tbl.options)
+	    end
+    end
+    -- return if table
+    if type(alerts) == "table" and #alerts >= 1 then
 		return alerts
-	else
-		return false
 	end
 end
 
-function A:CheckUnits(ti, alerts_in, eventInfo)
+function A:CheckUnits(ti, eventInfo, alerts_in)
 	dprint(2, "A:CheckUnits",ti , alerts_in, eventInfo)
 	-- if no unit selection for this event return
 	if eventInfo.unitSelection == false or alerts_in == true then
@@ -272,8 +254,8 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			msg = P.messages[eventInfo.short]
 		end
 		-- replace
-		msg = string.gsub(msg,"%%dstName", dstName)
-		msg = string.gsub(msg,"%%srcName", srcName)
+		msg = string.gsub(msg, "%%dstName", dstName)
+		msg = string.gsub(msg, "%%srcName", srcName)
 		msg = string.gsub(msg, "%%spellName", spellName)
 		msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
 		msg = string.gsub(msg, "%%extraSchool", extraSchool)
@@ -490,9 +472,9 @@ function A:InitSpellOptions()
 				A.AlertOptions[event][uid] = alertDetails
 				-- spells
 				for spellName, spellDetails in pairs(alertDetails.spellNames) do
-					if A.SpellOptions[spellName] == nil then A.SpellOptions[spellName] = {}	end
-					if A.SpellOptions[spellName][event] == nil then A.SpellOptions[spellName][event] = {} end
-					if A.SpellOptions[spellName][event][uid] == nil then
+					if not A.SpellOptions[spellName] then A.SpellOptions[spellName] = {} end
+					if not A.SpellOptions[spellName][event] then A.SpellOptions[spellName][event] = {} end
+					if not A.SpellOptions[spellName][event][uid] then
 						A.SpellOptions[spellName][event][uid] = {
 							uid = uid,
 							event = event,
