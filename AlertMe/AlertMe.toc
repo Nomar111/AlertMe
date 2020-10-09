@@ -8,8 +8,8 @@
 ## Version: 0.1
 
 Libs\load_libs.xml
-Functions\load_functions.xml
 init.lua
+Functions\load_functions.xml
 Settings\load_settings.xml
 Core\load_core.xml
 Options\load_options.xml

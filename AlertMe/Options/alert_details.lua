@@ -1,4 +1,4 @@
--- print("alert_details.lua")
+--dprint(3, "alert_details.lua")
 -- upvalues
 local _G, GetItemIcon = _G, GetItemIcon
 --local GameTooltip, GetSpellInfo = GameTooltip, GetSpellInfo

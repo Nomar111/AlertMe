@@ -1,4 +1,4 @@
---print("defaults.lua")
+--dprint(3, "defaults.lua")
 -- get engine environment
 local _, D = unpack(select(2, ...))
 -- set engine as new global environment
@@ -13,6 +13,7 @@ D.profile = {
 		minimap = { hide = false },
 		minimapPos = {},
 		enabled = true,
+		debugLevel = 1
 	},
 	scrolling = {
 		enabled = true,

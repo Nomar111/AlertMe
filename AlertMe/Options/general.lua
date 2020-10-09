@@ -1,4 +1,4 @@
---print("general.lua")
+--dprint(3, "general.lua")
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -18,5 +18,8 @@ function O:ShowGeneral(container)
 	local zonesGroup = O.AttachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
 	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180)
 	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world", 180)
-
+	-- debug level
+	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
+		O.AttachSlider(container, "Debug level", P.general, "debugLevel", 1, 3, 1, false, 200)
+	end
 end

@@ -1,4 +1,4 @@
---print("core.lua")
+--dprint(3, "core.lua")
 -- upvalues
 local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
@@ -118,15 +118,18 @@ end
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti, eventInfo)
 	local alerts = {}
-    local spellOptions = (A.SpellOptions[ti.relSpellName][eventInfo.short] ~= nil) and A.SpellOptions[ti.relSpellName][eventInfo.short] or nil
+	local spellOptions
+	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
+		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
+	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
 		dprint(1, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
 		end
-	elseif not A.SpellOptions[ti.relSpellName] or not spellOptions then -- check for spell in alerts, check spell/event combo
-		dprint(3, "spell (event) not found not found", ti.relSpellName, eventInfo.short)
+	elseif not spellOptions then -- check for spell in alerts, check spell/event combo
+		dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
 		return false
     else
 	    for uid, tbl in pairs(spellOptions) do
@@ -342,8 +345,9 @@ function A:PlaySound(ti, alerts, eventInfo)
 				C_Timer.After(delay, function()
 					PlaySoundQueue(queue, isPlaying, handle)
 				end)
+			else
+				break
 			end
-			break
 		end
 	end
 	-- loop alerts
@@ -396,47 +400,7 @@ end
 --**********************************************************************************************************************************
 --Inits
 --**********************************************************************************************************************************
-function A:InitChatFrames()
-	A.ChatFrames = {}
-	for i = 1, FCF_GetNumActiveChatFrames() do
-		local name = _G["ChatFrame"..i.."Tab"]:GetText()
-		if name ~= "Combat Log" then
-			A.ChatFrames[name] = "ChatFrame"..i
-		end
-	end
-end
 
-function A:InitDebugPrint()
-	function dprint(lvl,...)
-		--print(lvl,debug_lvl,...)
-		local msg = ""
-		local debugLevel = DEBUG_LEVEL
-		local lvlCheck
-		local color = "FFcfac67"
-		local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
-		local separator = WrapTextInColorCode(" ** ", color)
-		local args = {...}
-		-- check lvl argument
-		if not lvl or type(lvl) ~= "number" then
-			msg = "Provided lvl arg is invalid: "..tostring(lvl)
-			lvlCheck = false
-		end
-		-- check level vs debug_level
-		if  lvlCheck ~= false and lvl > debugLevel then
-			return
-		end
-		-- check args
-		if #args == 0 then
-			msg = "No debug messages provided or nil"
-		else
-			for i=1, #args do
-				local sep = (i == 1) and "" or separator
-				msg = msg..sep..tostring(args[i])
-			end
-		end
-		A:SystemMessage(prefix..msg)
-	end
-end
 
 function A:InitLCD()
 	dprint(2, "A:InitLCD")
@@ -525,97 +489,11 @@ function A.ToggleAddon()
 	end
 end
 
---**********************************************************************************************************************************
--- LDB: Minimap
---**********************************************************************************************************************************
-local function getAnchors(frame)
-	local x, y = frame:GetCenter()
-	if not x or not y then return "CENTER" end
-	local hHalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
-	local vHalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
-	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
-end
 
-function A:InitLDB()
-	dprint(2, "A:InitLDB")
-	local AlertMeBroker
-	AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
-		type = "launcher",
-		text = "AlertMe",
-		icon = A.Backgrounds["AlertMe"],
-		tocname = "AlertMe",
-		OnClick = function(self, button)
-			if button == "LeftButton" then
-				if(IsShiftKeyDown()) then
-					P.general.enabled = not P.general.enabled
-					A.UpdateLDBTooltip()
-					A.ToggleAddon()
-				else
-					O:OpenOptions()
-				end
-			elseif button == "MiddleButton" then
-				A.ToggleMinimap(true)
-			end
-		end,
-		OnEnter = function(self)
-			O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-			O.ToolTip:SetOwner(self, "ANCHOR_NONE")
-			A.UpdateLDBTooltip()
-			O.ToolTip:Show()
-			O.ToolTip:SetPoint(getAnchors(self))
-		end,
-		OnLeave = function()
-			if O.ToolTip then O.ToolTip:Hide() end
-		end,
-	})
-	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap, P.general.minimapPos);
-end
-
-function A.UpdateLDBTooltip()
-	dprint(2, "A.UpdateLDBTooltip")
-	-- prepare tooltip text
-	local toolTip = {
-		header = "AlertMe "..ADDON_VERSION,
-		lines = {},
-		wrap = false
-	}
-	toolTip.lines[1] = "Left-Click: Show/Hide options"
-	toolTip.lines[2] = "Shift-Left-Click: Enable/Disable addon"
-	toolTip.lines[3] = "Middle-Click: Show/Hide minimap"
-	if P.general.enabled == false then
-		toolTip.lines[4] = "|cffFF0000ADDON IS DISABLED"
-	end
-	-- set text
-	if toolTip.header then
-		O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
-	end
-	if toolTip.lines then
-		for _, line in pairs(toolTip.lines) do
-			O.ToolTip:AddLine(line, 1, .82, 0, wrap)
-		end
-	end
-	O.ToolTip:Show()
-end
-
-function A.ToggleMinimap(toggle)
-	dprint(2,"A.ToggleMinimap", toggle)
-	if toggle then P.general.minimap.hide = not P.general.minimap.hide end
-	if P.general.minimap.hide then
-		A.Libs.LDBI:Hide("AlertMe")
-	else
-		A.Libs.LDBI:Show("AlertMe")
-	end
-end
 
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-function A:GetUnitNameShort(name)
-	-- getUnitName: Returns Unitname without Realm
-	local short = gsub(name, "%-[^|]+", "")
-	return short
-end
-
 function A:GetReactionColor(ti, rgb)
 	dprint(2, "A:GetReactionColor")
 	-- prepare return value
@@ -656,16 +534,6 @@ function A:PostInScrolling(msg)
 	if P.scrolling.enabled == true then
 		A:ShowScrolling()
 		A.ScrollingText:AddMessage(msg)
-	end
-end
-
-function A:SystemMessage(msg)
-	-- loop through chat frames and post messages
-	for i, name in pairs(A.ChatFrames) do
-		if P.messages.chatFrames[name] == true then
-			local f = _G[name]
-			f:AddMessage(msg)
-		end
 	end
 end
 

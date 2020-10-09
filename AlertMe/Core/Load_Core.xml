@@ -1,5 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file='core.lua'/>
+	<Script file='ldb.lua'/>
 	<Script file='scrolling.lua'/>
 	<Script file='bars.lua'/>
 </Ui>

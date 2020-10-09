@@ -9,11 +9,12 @@ setfenv(1, Engine)
 
 -- register as ace addon
 local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEvent-3.0")
--- create (default) options table
+-- create some tables table so we can use them right away
 A.Defaults = {}
 A.Options = {}
 A.Profile = {profile = {}}
 A.Spells = {}
+
 -- set engine environment substructure
 Engine[1] = A
 Engine[2] = A.Defaults  	-- D
@@ -62,8 +63,10 @@ A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
 --A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
 
+
 -- addon initialized
 function A:OnInitialize()
+	dprint(2, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -78,7 +81,7 @@ function A:OnInitialize()
 	self:RegisterChatCommand("alertme", "OpenOptions")
 	-- init chatframes/debugging
 	A:InitChatFrames()
-	A:InitDebugPrint()
+	--A:InitDebugPrint()
 end
 
 function A:OpenOptions()
@@ -88,7 +91,7 @@ end
 
 -- addon enabled
 function A:OnEnable()
-	dprint(2, "A:OnEnable")
+	--dprint(2, "A:OnEnable")
 	A:Initialize()
 	--A.Options:OpenOptions()
 end
