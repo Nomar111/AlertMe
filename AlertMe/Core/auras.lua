@@ -29,44 +29,69 @@ function A:GetUnitAura(ti, eventInfo)
 	end
 end
 
-function A:Snapshot(ti, eventInfo)
-	dprint(3, "A:Snapshot", ti.relSpellName, eventInfo.short)
-	-- if success was cast check if there is a gain alert that fits the event
-	if eventInfo.short == "success" then
-		local _eventInfo = tcopy(eventInfo)
+function A:FakeEvent(ti, origEvent)
+	dprint(2, "A:FakeEvent", ti.relSpellName, origEvent.short)
+	if origEvent.short == "success" then
+		-- create fake args
 		local _ti = tcopy(ti)
 		_ti.event = "SPELL_AURA_APPLIED"
-		_eventInfo.short = "gain"
-		local alerts = A:GetAlerts(_ti, _eventInfo)
-		if not alerts then return end
-		if not A:CheckUnits(_ti, _eventInfo, alerts) then return end
-		A:CheckSnapShot(ti, eventInfo)
-	elseif eventInfo.short == "gain" then
-		A:CheckSnapShot(ti, eventInfo)
+		local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
+		-- get alerts for fake args
+		local alerts, alertsUnits, errorMessages
+		-- check for relevant alerts for spell/event
+		alerts = A:GetAlerts(_ti, _eventInfo)
+		if not alerts then
+			return
+		end
+		-- check units
+		alertsUnits, errorMessages = A:CheckUnits(_ti, _eventInfo, alerts)
+		if not alertsUnits then
+			dprint(2, "fake: unit check failed", ti.relSpellName, unpack(errorMessages))
+			return
+		end
+		-- check for snapshots
+		if A:CheckSnapShot(ti, origEvent) then
+			-- do whatever is defined in actions
+			--dprint(1, "doactions fake event")
+			A:DoActions(ti, alertsUnits, _eventInfo)
+		else
+			--dprint(1, "add schnappsi")
+			A:AddSnapShot(ti, origEvent)
+		end
 	end
 end
 
 function A:CheckSnapShot(ti, eventInfo)
-	dprint(2, "A:Snapshot", ti.relSpellName, eventInfo.short)
+	dprint(2, "A:CheckSnapShot", ti.relSpellName, eventInfo.short)
 	A:CleanSnapshots()
 	if eventInfo.short == "gain" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then
 			local snap = A.Snapshots[ti.dstGUID][ti.relSpellName]["success"]
 			local timeDiff = GetTime() - snap.ts
-			if timeDiff > 0 and timeDiff < 3 then
-				--dprint(1, ti.relSpellName, "on", ti.dstName, "before", GetTime() - snap.ts, "trig", eventInfo.short)
+			if timeDiff >= 0 and timeDiff < 2 then
+				dprint(1, "check snapshot gain: go", timeDiff)
 				return true
 			end
+		else
+			dprint(1, "check snapshot gain: nogo", timeDiff)
+			A:AddSnapShot(ti, eventInfo)
 		end
 	elseif eventInfo.short == "success" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"] then
 			local snap = A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"]
 			local timeDiff = GetTime() - snap.ts
-			if timeDiff > 0 and timeDiff < 3 then
-				dprint(1, ti.relSpellName, "on", ti.dstName, "before", GetTime() - snap.ts, "trig", eventInfo.short)
+			if timeDiff >= 0 and timeDiff < 2 then
+				dprint(1, "check snapshot success: go", timeDiff)
+				return true
+			else
+				dprint(1, "check snapshot success: nogo", timeDiff)
 			end
 		end
 	end
+end
+
+function A:AddSnapShot(ti, eventInfo)
+	dprint(1, "A:AddSnapShot", ti.relSpellName, eventInfo.short)
 	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
 	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {
@@ -77,13 +102,12 @@ function A:CheckSnapShot(ti, eventInfo)
 end
 
 function A:CleanSnapshots()
-	dprint(1, "A:CleanSnapshots")
+	dprint(2, "A:CleanSnapshots")
 	local now = GetTime()
 	for d, dstGUID in pairs(A.Snapshots) do
 		for s, relSpellName in pairs(dstGUID) do
 			for e, short in pairs(relSpellName) do
 				if now - short.ts > 10 then
-					dprint(1, "das war zu lange", now - short.ts, short)
 					A.Snapshots[d][s][e] = nil
 				end
 			end

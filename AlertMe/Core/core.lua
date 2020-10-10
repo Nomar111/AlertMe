@@ -75,48 +75,37 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		A:HideBars(ti, eventInfo)
 		return
 	end
+	-- do some checks
+	local alerts, alertsUnits, errorMessage
 	-- check for relevant alerts for spell/event
-	local alerts = A:GetAlerts(ti, eventInfo)
-	if not alerts and eventInfo.short == "success" then
-		A:Snapshot(ti, eventInfo)
-		return
-	elseif not alerts then
-		dprint(2, "no relevant alert found for", ti.event, ti.relSpellName)
-		return
-	end
-	-- check units
-	local alertsChecked, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
-	if not alertsChecked then
-		dprint(2, "unit check failed", ti.relSpellName)
-		-- if errorMessages then
-		-- 	for i, errorMessage in pairs(errorMessages) do
-		-- 		dprint(1, errorMessage, ti.event, ti.relSpellName, "srcFr", ti.srcIsFriendly, "dstFr", ti.dstIsFriendly)
-		-- 	end
-		-- end
-		return
-	end
-
-	if eventInfo.short == "gain" then
-		local  name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
-		if ti.dstIsFriendly and (not name or (duration and duration - remaining >= 3)) then
-			dprint(2, "f-aura no info or old", ti.relSpellName, ti.dstName, "dur", duration, "rem", remaining)
-			return
-		elseif ti.dstIsHostile and not duration then
-			dprint(2, "e-aura no info", ti.relSpellName, ti.dstName, "dur", duration, "rem", remaining)
-			if not A:Snapshot(ti, eventInfo) then
+	alerts = A:GetAlerts(ti, eventInfo)
+	if not alerts then
+		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName)
+	else
+		-- check units
+		alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+		if not alertsUnits then
+			dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		else
+			local auraInfo = A:GetUnitAura(ti, eventInfo)
+			if eventInfo.short == "gain" and ti.dstIsFriendly and not auraInfo then
+				dprint(2, "friend-aura: no info", ti.relSpellName, ti.dstName)
 				return
-			else
-				dprint(1, "aura was applied recently, go on...")
 			end
+			A:DoActions(ti, alertsUnits, eventInfo)
 		end
 	end
-	-- do whatever is defined in actions
+	-- fake event
+	A:FakeEvent(ti, eventInfo)
+end
+
+function A:DoActions(ti, alertsUnits, eventInfo)
+	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "chatAnnounce" and type(alertsChecked) == "table" then A:ChatAnnounce(ti, alertsChecked, eventInfo) end
-			if action == "playSound" and type(alertsChecked) == "table" then A:PlaySound(ti, alertsChecked, eventInfo) end
-			if action == "hideBars" then A:HideBars(ti, eventInfo) end
-			if action == "displayBars" and type(alertsChecked) == "table" then A:DisplayBars(ti, alertsChecked, eventInfo) end
+			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo) end
+			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo) end
+			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo) end
 		end
 	end
 end
@@ -126,7 +115,7 @@ end
 --Checks
 --**********************************************************************************************************************************
 function A:GetAlerts(ti, eventInfo)
-	dprint(2, "A:GetAlerts", ti, eventInfo)
+	dprint(2, "A:GetAlerts", ti.relSpellName, eventInfo.short)
 	local alerts = {}
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
@@ -134,12 +123,12 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
-		dprint(3, "no spell sel for this event - ret all", eventInfo.short)
+		dprint(2, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
 		end
 	elseif not spellOptions then -- check for spell in alerts, check spell/event combo
-		dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
+		dprint(2, "spell/event combo not found", ti.relSpellName, eventInfo.short)
 	else
 		for uid, tbl in pairs(spellOptions) do
 			tinsert(alerts, tbl.options)
@@ -152,7 +141,7 @@ function A:GetAlerts(ti, eventInfo)
 end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
-	dprint(2, "A:CheckUnits",ti , alerts_in, eventInfo)
+	dprint(2, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
 	-- if no unit selection for this event return
 	if eventInfo.unitSelection == false or alerts_in == true then
 		return alerts_in
@@ -233,7 +222,7 @@ end
 --**********************************************************************************************************************************
 --Actions
 --**********************************************************************************************************************************
-function A:ChatAnnounce(ti, alerts, eventInfo)
+function A:ChatAnnounce(ti, alerts, eventInfo, injected)
 	dprint(2, "A:ChatAnnounce", ti.spellName)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
@@ -326,7 +315,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	end
 end
 
-function A:PlaySound(ti, alerts, eventInfo)
+function A:PlaySound(ti, alerts, eventInfo, injected)
 	dprint(2, "A:PlaySound")
 	local soundQueue = {}
 	local delay = 1.3

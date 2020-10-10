@@ -50,6 +50,7 @@ function A:SystemMessage(msg)
 	end
 end
 
+A.CombatLog = {}
 function dprint(lvl,...)
 	--print(lvl,debug_lvl,...)
 	local msg = ""
@@ -79,6 +80,7 @@ function dprint(lvl,...)
 			msg = msg..sep..tostring(args[i])
 		end
 	end
+	tinsert(A.CombatLog, msg)
 	A:SystemMessage(prefix..msg)
 end
 
