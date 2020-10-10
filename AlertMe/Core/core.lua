@@ -27,6 +27,8 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
+	-- reset log
+	A.db.profile.log = nil
 end
 
 function A:ParseCombatLog(eventName)
@@ -75,37 +77,49 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		A:HideBars(ti, eventInfo)
 		return
 	end
+	-- fake event
+	A:FakeEvent(ti, eventInfo)
 	-- do some checks
 	local alerts, alertsUnits, errorMessage
 	-- check for relevant alerts for spell/event
 	alerts = A:GetAlerts(ti, eventInfo)
 	if not alerts then
 		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName)
-	else
-		-- check units
-		alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
-		if not alertsUnits then
-			dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
-		else
-			local auraInfo = A:GetUnitAura(ti, eventInfo)
-			if eventInfo.short == "gain" and ti.dstIsFriendly and not auraInfo then
-				dprint(2, "friend-aura: no info", ti.relSpellName, ti.dstName)
-				return
-			end
-			A:DoActions(ti, alertsUnits, eventInfo)
-		end
+		return
 	end
-	-- fake event
-	A:FakeEvent(ti, eventInfo)
+	-- check units
+	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+	if not alertsUnits then
+		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		return
+	end
+	-- aura special
+	if eventInfo.short == "gain"  then
+		local auraInfo = A:GetUnitAura(ti, eventInfo)
+		if ti.dstIsFriendly and not auraInfo then
+			dprint(2, "friend-aura: no info", ti.relSpellName, ti.dstName)
+			return
+		elseif ti.dstIsHostile then
+			if not auraInfo then
+				if A:CheckSnapShot(ti, eventInfo) then
+					A:DoActions(ti, alertsUnits, eventInfo, true)
+				end
+			else
+				A:DoActions(ti, alertsUnits, eventInfo, false)
+			end
+		end
+	else
+		A:DoActions(ti, alertsUnits, eventInfo, false)
+	end
 end
 
-function A:DoActions(ti, alertsUnits, eventInfo)
+function A:DoActions(ti, alertsUnits, eventInfo, fake)
 	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo) end
-			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo) end
-			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo) end
+			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo, fake) end
+			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo, fake) end
+			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo, fake) end
 		end
 	end
 end
@@ -222,8 +236,9 @@ end
 --**********************************************************************************************************************************
 --Actions
 --**********************************************************************************************************************************
-function A:ChatAnnounce(ti, alerts, eventInfo, injected)
-	dprint(2, "A:ChatAnnounce", ti.spellName)
+function A:ChatAnnounce(ti, alerts, eventInfo, fake)
+	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, fake)
+	if fake then return end
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
 	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
@@ -315,8 +330,9 @@ function A:ChatAnnounce(ti, alerts, eventInfo, injected)
 	end
 end
 
-function A:PlaySound(ti, alerts, eventInfo, injected)
-	dprint(2, "A:PlaySound")
+function A:PlaySound(ti, alerts, eventInfo, fake)
+	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short, fake)
+	if fake then return end
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue

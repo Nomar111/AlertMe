@@ -50,13 +50,12 @@ function A:SystemMessage(msg)
 	end
 end
 
-A.CombatLog = {}
 function dprint(lvl,...)
 	--print(lvl,debug_lvl,...)
 	local msg = ""
+	local logmsg = ""
 	local debugLevel = DEBUG_LEVEL
 	if A.db then debugLevel =  A.db.profile.general.debugLevel end
-
 	local lvlCheck
 	local color = "FFcfac67"
 	local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
@@ -78,9 +77,12 @@ function dprint(lvl,...)
 		for i=1, #args do
 			local sep = (i == 1) and "" or separator
 			msg = msg..sep..tostring(args[i])
+			logmsg = logmsg.." | "..tostring(args[i])
 		end
 	end
-	tinsert(A.CombatLog, msg)
+	if A.db then
+		tinsert(A.db.profile.log, logmsg)
+	end
 	A:SystemMessage(prefix..msg)
 end
 

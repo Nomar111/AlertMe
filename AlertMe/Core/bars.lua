@@ -71,7 +71,7 @@ function A:ResetContainerPosition(barType)
 end
 
 function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
-	dprint(2, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
+	dprint(1, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
 	local db = P.bars[barType]
 	-- enabled?
 	if db.enabled == false then return end
@@ -155,24 +155,23 @@ function A:HideAllBars()
 	end
 end
 
-function A:DisplayBars(ti, alerts, eventInfo)
-	dprint(2, "A:DisplayBars", ti.relSpellName)
+function A:DisplayBars(ti, alerts, eventInfo, fake)
+	dprint(2, "A:DisplayBars", ti.relSpellName, eventInfo.short, fake)
+	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
-			if not duration then
-				dprint(1, "No aura info, checking snapshots...", ti.relSpellName)
-				-- if aura info not avilable, look for snapshot
-				if not A:CheckSnapShot(ti, eventInfo) then
-					return
-				else
-					spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-					duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
-					expirationTime = GetTime() + duration
-				end
+			if duration then
+				dprint(1, "aura info found", ti.relSpellName, eventInfo.short, remaining)
+				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+			elseif not duration and fake then
+				dprint(1, "no aura info, but fake injection.", ti.relSpellName)
+				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+				duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, duration, true)
+			else
+				dprint(1, "no aura info, no fake, abort")
 			end
-			local id = ti.dstGUID..ti.spellName
-			A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 		end
 	end
 end

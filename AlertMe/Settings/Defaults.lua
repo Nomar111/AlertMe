@@ -100,33 +100,6 @@ D.profile = {
 				},
 			},
 		},
-		-- ["removed"] = {
-		-- 	selectedAlert = "",
-		-- 	alertDetails = {
-		-- 		[1] = {
-		-- 			name = "Dummy alert for removed auras",
-		-- 			active = true,
-		-- 			spellNames = {
-		-- 				['*'] = {
-		-- 					icon = "",
-		-- 					soundFile = "",
-		-- 				}
-		-- 			},
-		-- 			srcUnits = 1,
-		-- 			srcExclude = 1,
-		-- 			dstUnits = 1,
-		-- 			dstExclude = 1,
-		-- 			created = true,
-		-- 			showBar = true,
-		-- 			chatChannels = 1,
-		-- 			addonMessages = 2,
-		-- 			dstWhisper = 1,
-		-- 			scrollingText = true,
-		-- 			soundSelection = 1,
-		-- 			soundFile = "",
-		-- 			msgOverride = "",
-		-- 		},
-		-- 	},
-		-- },
 	},
+	log = {}
 }
