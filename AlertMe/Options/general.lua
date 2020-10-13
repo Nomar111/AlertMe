@@ -22,11 +22,12 @@ function O:ShowGeneral(container)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
 		local function deleteLog()
+			dprint(1, "deleteLog")
 			P.log = nil
 			P.log = {}
 		end
-		O.AttachSlider(container, "Debug level", P.general, "debugLevel", 1, 3, 1, false, 200)
-		O.AttachSlider(container, "Debug level logging", P.general, "debugLevelLog", 1, 3, 1, false, 200)
+		O.AttachSlider(container, "Debug level", P.general, "debugLevel", 0, 3, 1, false, 200)
+		O.AttachSlider(container, "Debug level logging", P.general, "debugLevelLog", 0, 3, 1, false, 200)
 		O.AttachCheckBox(container, "Debug logging", P.general, "debugLog", 180)
 		local btnDeleteLog = O.AttachButton(container, "Delete log table", 200)
 		btnDeleteLog:SetCallback("OnClick", deleteLog)

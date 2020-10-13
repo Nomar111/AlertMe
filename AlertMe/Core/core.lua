@@ -101,13 +101,13 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	end
 end
 
-function A:DoActions(ti, eventInfo, alertsUnits, snapShot)
+function A:DoActions(ti, eventInfo, alerts, snapShot)
 	dprint(1, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo, snapShot) end
-			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo, snapShot) end
-			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo, snapShot) end
+			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo, snapShot) end
+			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo, snapShot) end
+			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
 		end
 	end
 end

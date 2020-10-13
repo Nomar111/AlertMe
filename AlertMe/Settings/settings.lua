@@ -37,6 +37,14 @@ A.Events = {
 		displaySettings = true,
 		actions = {"hideBars"},
 	},
+	["SPELL_AURA_BROKEN"] = {
+		masterEvent = "SPELL_AURA_REMOVED",
+		optionsDisplay = false,
+	},
+	["SPELL_AURA_BROKEN_SPELL"] = {
+		masterEvent = "SPELL_AURA_REMOVED",
+		optionsDisplay = false,
+	},
 	["SPELL_DISPEL"] = {
 		short = "dispel",
 		optionsDisplay = true,

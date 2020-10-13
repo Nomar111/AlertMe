@@ -41,8 +41,8 @@ function A:MatchUnitAura(ti, eventInfo, unit, filter)
 	end
 end
 
-function A:FakeEvent(ti, eventinfo)
-	dprint(2, "A:FakeEvent", ti.relSpellName, eventinfo.short)
+function A:FakeEvent(ti, eventInfo)
+	dprint(2, "A:FakeEvent", ti.relSpellName, eventInfo.short)
 	-- create fake args
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
@@ -52,11 +52,11 @@ function A:FakeEvent(ti, eventinfo)
 	if not check then return end
 	-- check for snapshots
 	local exists
-	exists, _ti, _eventInfo = A:CheckSnapShot(ti, eventinfo)
+	exists, _ti, _eventInfo = A:CheckSnapShot(ti, eventInfo)
 	if exists then
 		-- do whatever is defined in actions
 		dprint(1, "fakevent: do actions", _ti.relSpellName, _eventInfo.short)
-		A:DoActions(_ti, _eventInfo, alertsUnits, true)
+		A:DoActions(_ti, _eventInfo, alerts, true)
 	else
 		-- if no snapshot was found, add one for the success event
 		A:AddSnapShot(ti, eventInfo)
@@ -86,7 +86,7 @@ function A:CheckSnapShot(ti, eventInfo)
 				return true, snapShot.ti, snapShot.eventInfo
 			end
 		end
-		dprint(1, "no gain ss found", ti.relSpellName, eventInfo.short)
+		dprint(1, "snapshot(success): no match (gain)", ti.relSpellName, eventInfo.short)
 		return false
 	end
 end

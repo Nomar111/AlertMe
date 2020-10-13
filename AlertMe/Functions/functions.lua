@@ -88,7 +88,7 @@ function dprint(lvl,...)
 		else
 			for i=1, #args do
 				local sep = (i == 1) and "" or separator
-				logmsg = msg..sep..tostring(args[i])
+				logmsg = logmsg..sep..tostring(args[i])
 			end
 		end
 		if A.db then
