@@ -30,7 +30,7 @@ function A:Initialize()
 end
 
 function A:ParseCombatLog(eventName)
-	dprint(2, "A:ParseCombatLog", eventName)
+	dprint(3, "A:ParseCombatLog", eventName)
 	local arg = {CombatLogGetCurrentEventInfo()}
 	local ti = {
 		ts = arg[1],
@@ -52,6 +52,8 @@ function A:ParseCombatLog(eventName)
 	-- spell cast success sometimes has no destination data - take source data then
 	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
 		ti.dstGUID, ti.dstName, ti.dstFlags = ti.srcGUID, ti.srcName, ti.srcFlags
+	elseif ti.event == "SPELL_INTERRUPT" then
+		ti.lockout = A.Lockouts[ti.spellName]
 	end
 	-- set evenInfo (either from master event or from self)
 	local masterEvent = A.Events[ti.event].masterEvent
@@ -69,7 +71,7 @@ function A:ParseCombatLog(eventName)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
-	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
+	dprint(3, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	if eventInfo.short == "removed" then
 		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
@@ -102,7 +104,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 end
 
 function A:DoActions(ti, eventInfo, alerts, snapShot)
-	dprint(1, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
+	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo, snapShot) end
@@ -117,25 +119,25 @@ end
 --Checks
 --**********************************************************************************************************************************
 function A:DoChecks(ti, eventInfo)
-	dprint(2, "A:DoChecks", ti.relSpellName, eventInfo.short)
+	dprint(3, "A:DoChecks", ti.relSpellName, eventInfo.short)
 	local alerts, alertsUnits, errorMessage
 	-- check for relevant alerts for spell/event
 	alerts = A:GetAlerts(ti, eventInfo)
 	if not alerts then
-		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName)
+		dprint(3, "no relevant alert found for", eventInfo.short, ti.relSpellName)
 		return false
 	end
 	-- check units
 	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 	if not alertsUnits then
-		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 		return false
 	end
 	return true, alertsUnits
 end
 
 function A:GetAlerts(ti, eventInfo)
-	dprint(2, "A:GetAlerts", ti.relSpellName, eventInfo.short)
+	dprint(3, "A:GetAlerts", ti.relSpellName, eventInfo.short)
 	local alerts = {}
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
@@ -143,12 +145,12 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
-		dprint(2, "no spell sel for this event - ret all", eventInfo.short)
+		dprint(3, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
 		end
 	elseif not spellOptions then -- check for spell in alerts, check spell/event combo
-		dprint(2, "spell/event combo not found", ti.relSpellName, eventInfo.short)
+		dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
 	else
 		for uid, tbl in pairs(spellOptions) do
 			tinsert(alerts, tbl.options)
@@ -160,17 +162,17 @@ function A:GetAlerts(ti, eventInfo)
 	end
 end
 
-function A:GetAlertSetting(alerts, setting, value)
-	dprint(2, "A:GetAlertSetting",setting, value)
-	for _, alertDetails in pairs(alerts) do
-		if alertDetails[setting] == value then
-			dprint(1, "A:GetAlertSetting",setting, value, true)
-			return true
-		end
-	end
-	dprint(1, "A:GetAlertSetting",setting, value, false)
-	return false
-end
+-- function A:GetAlertSetting(alerts, setting, value)
+-- 	dprint(2, "A:GetAlertSetting",setting, value)
+-- 	for _, alertDetails in pairs(alerts) do
+-- 		if alertDetails[setting] == value then
+-- 			dprint(1, "A:GetAlertSetting",setting, value, true)
+-- 			return true
+-- 		end
+-- 	end
+-- 	dprint(1, "A:GetAlertSetting",setting, value, false)
+-- 	return false
+-- end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
 	dprint(2, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
@@ -393,7 +395,7 @@ end
 --Inits
 --**********************************************************************************************************************************
 function A:InitSpellOptions()
-	dprint(2, "A:InitSpellOptions")
+	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
 	VDT_AddData(A.AlertOptions, "A.AlertOptions")
@@ -431,7 +433,7 @@ end
 -- Register events
 --**********************************************************************************************************************************
 function A.RegisterCLEU(event)
-	dprint(2, "A.RegisterCLEU", event)
+	dprint(3, "A.RegisterCLEU", event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
@@ -451,7 +453,7 @@ function A.RegisterCLEU(event)
 end
 
 function A.ToggleAddon()
-	dprint(2, "A.ToggleAddon", P.general.enabled)
+	dprint(3, "A.ToggleAddon", P.general.enabled)
 	if P.general.enabled == true then
 		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
 		--A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)

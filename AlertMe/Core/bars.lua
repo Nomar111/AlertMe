@@ -79,11 +79,13 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	if A.Bars[barType][id] == nil and noCreate == true then return end
 	-- callback for when bar is stopped
 	local function barStopped(_, delBar)
-		dprint(2, delBar, delBar:Get("id"), "stopped")
+		dprint(2, "barStopped", delBar, delBar:Get("id"), "stopped")
 		local _id = delBar:Get("id")
 		local _barType = delBar:Get("barType")
 		delBar:SetParent(nil)
-		A.Bars[_barType][_id] = nil
+		if A.Bars and A.Bars[_barType] and A.Bars[_barType][_id] then
+			A.Bars[_barType][_id] = nil
+		end
 	end
 	-- check if already exists
 	if A.Bars[barType][id] == nil then
