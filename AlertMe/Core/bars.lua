@@ -155,22 +155,22 @@ function A:HideAllBars()
 	end
 end
 
-function A:DisplayBars(ti, alerts, eventInfo, fake)
-	dprint(2, "A:DisplayBars", ti.relSpellName, eventInfo.short, fake)
+function A:DisplayBars(ti, alerts, eventInfo, snapShot)
+	dprint(2, "A:DisplayBars", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
-			if duration then
-				dprint(1, "aura info found", ti.relSpellName, eventInfo.short, remaining)
+			if remaining then
+				dprint(1, "aura info found", ti.relSpellName, eventInfo.short, "remianing", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
-			elseif not duration and fake then
-				dprint(1, "no aura info, but fake injection.", ti.relSpellName)
+			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-				duration = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
-				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, duration, true)
+				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+				dprint(1, "no aura info, from snapShot", ti.relSpellName, "remaining", remaining)
+				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
-				dprint(1, "no aura info, no fake, abort")
+				dprint(1, "no aura info, no snapShot, abort", ti.relSpellName,  eventInfo.short)
 			end
 		end
 	end

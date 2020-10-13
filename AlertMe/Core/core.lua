@@ -72,57 +72,54 @@ function A:ParseCombatLog(eventName)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
-	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
-	-- aura removed
-	if ti.event == "SPELL_AURA_REMOVED" then
+	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName, "delayed", ti.delayed)
+	if eventInfo.short == "removed" then
+		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
 		return
+	elseif eventInfo.short == "success" then
+		-- if spell cast success fake an applay event
+		A:FakeEvent(ti, eventInfo)
 	end
-	-- fake event
-	A:FakeEvent(ti, eventInfo)
 	-- do some checks
 	local alerts, alertsUnits, errorMessage
 	-- check for relevant alerts for spell/event
 	alerts = A:GetAlerts(ti, eventInfo)
 	if not alerts then
-		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName, delayed)
+		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName, "delayed", ti.delayed)
 		return
 	end
 	-- check units
 	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 	if not alertsUnits then
-		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages), delayed)
+		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages),  "delayed", ti.delayed)
 		return
 	end
-	-- aura special
-	if eventInfo.short == "gain"  then
+	-- if aura gain event & progress bar is to be displayed special treatment
+	if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
 		local auraInfo = A:GetUnitAura(ti, eventInfo)
 		if auraInfo then
-			A:DoActions(ti, alertsUnits, eventInfo, false)
-		elseif ti.dstIsFriendly then
-			dprint(1, "friend-aura: no info", ti.relSpellName, ti.dstName, delayed)
-			return
-		elseif ti.dstIsHostile then
-			if not auraInfo then
-				if A:CheckSnapShot(ti, eventInfo) then
-					A:DoActions(ti, alertsUnits, eventInfo, true)
-				end
+			A:DoActions(ti, eventInfo, alertsUnits, false)
+		else
+			if A:CheckSnapShot(ti, eventInfo) then
+				-- call actions from snapShot
+				A:DoActions(ti, eventInfo, alertsUnits, true)
 			else
-				A:DoActions(ti, alertsUnits, eventInfo, false)
+				-- add a snapshot
+				A:AddSnapShot(ti, eventInfo)
 			end
 		end
-	else
-		A:DoActions(ti, alertsUnits, eventInfo, false)
 	end
+	A:DoActions(ti, eventInfo, alertsUnits, false)
 end
 
-function A:DoActions(ti, alertsUnits, eventInfo, fake)
-	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName)
+function A:DoActions(ti, eventInfo, alertsUnits, snapShot)
+	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo, fake) end
-			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo, fake) end
-			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo, fake) end
+			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo, snapShot) end
+			if action == "playSound" and type(alertsUnits) == "table" then A:PlaySound(ti, alertsUnits, eventInfo, snapShot) end
+			if action == "displayBars" and type(alertsUnits) == "table" then A:DisplayBars(ti, alertsUnits, eventInfo, snapShot) end
 		end
 	end
 end
@@ -155,6 +152,16 @@ function A:GetAlerts(ti, eventInfo)
 	if type(alerts) == "table" and #alerts >= 1 then
 		return alerts
 	end
+end
+
+function A:GetAlertSetting(alerts, setting, value)
+	dprint(2, " A:GetAlertSetting")
+	for _, alertDetails in pairs(alerts) do
+		if alertDetails[setting] == value then
+			return true
+		end
+	end
+	return false
 end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
@@ -239,9 +246,8 @@ end
 --**********************************************************************************************************************************
 --Actions
 --**********************************************************************************************************************************
-function A:ChatAnnounce(ti, alerts, eventInfo, fake)
-	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, fake)
-	if fake then return end
+function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
+	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot", snapShot)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
 	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
@@ -333,9 +339,8 @@ function A:ChatAnnounce(ti, alerts, eventInfo, fake)
 	end
 end
 
-function A:PlaySound(ti, alerts, eventInfo, fake)
-	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short, fake)
-	if fake then return end
+function A:PlaySound(ti, alerts, eventInfo, snapShot)
+	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue
