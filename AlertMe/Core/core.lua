@@ -96,9 +96,10 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	end
 	-- if aura gain event & progress bar is to be displayed special treatment
-	if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
-		local auraInfo = A:GetUnitAura(ti, eventInfo)
-		if auraInfo then
+	--if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
+	if eventInfo.short == "gain" then
+		local name, _, _, _, duration, expirationTime, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
+		if auraInfo and ((duration - remaining <= 2) or duration == 0) then
 			A:DoActions(ti, eventInfo, alertsUnits, false)
 		else
 			if A:CheckSnapShot(ti, eventInfo) then
@@ -109,12 +110,13 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 				A:AddSnapShot(ti, eventInfo)
 			end
 		end
+	else
+		A:DoActions(ti, eventInfo, alertsUnits, false)
 	end
-	A:DoActions(ti, eventInfo, alertsUnits, false)
 end
 
 function A:DoActions(ti, eventInfo, alertsUnits, snapShot)
-	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
+	dprint(1, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alertsUnits) == "table" then A:ChatAnnounce(ti, alertsUnits, eventInfo, snapShot) end
@@ -155,12 +157,14 @@ function A:GetAlerts(ti, eventInfo)
 end
 
 function A:GetAlertSetting(alerts, setting, value)
-	dprint(2, " A:GetAlertSetting")
+	dprint(2, "A:GetAlertSetting",setting, value)
 	for _, alertDetails in pairs(alerts) do
 		if alertDetails[setting] == value then
+			dprint(1, "A:GetAlertSetting",setting, value, true)
 			return true
 		end
 	end
+	dprint(1, "A:GetAlertSetting",setting, value, false)
 	return false
 end
 
@@ -427,16 +431,16 @@ function A.RegisterCLEU(event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
-		dprint(1, "register", "type", instanceType, "instance", P.general.zones.instance)
+		dprint(2, "register", "type", instanceType, "instance", P.general.zones.instance)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	elseif (instanceType == "pvp" or instanceType == "arena") and P.general.zones.bg then
-		dprint(1, "register", "type", instanceType, "bg", P.general.zones.bg)
+		dprint(2, "register", "type", instanceType, "bg", P.general.zones.bg)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	elseif instanceType == "none" and P.general.zones.world then
-		dprint(1, "register", "type", instanceType, "world", P.general.zones.world)
+		dprint(2, "register", "type", instanceType, "world", P.general.zones.world)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
-		dprint(1, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
+		dprint(2, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end

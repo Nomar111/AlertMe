@@ -43,7 +43,7 @@ function A:MatchUnitAura(ti, eventInfo, unit, filter)
 end
 
 function A:FakeEvent(ti, eventinfo)
-	dprint(2, "A:FakeEvent", ti.relSpellName, origEvent.short, "delayed", ti.delayed)
+	dprint(2, "A:FakeEvent", ti.relSpellName, eventinfo.short, "delayed", ti.delayed)
 	-- create fake args
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
@@ -77,6 +77,7 @@ end
 
 function A:CheckSnapShot(ti, eventInfo)
 	dprint(2, "A:CheckSnapShot", ti.relSpellName, eventInfo.short)
+	if ti.delayed then return false end
 	A:CleanSnapshots()
 	if eventInfo.short == "gain" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then
@@ -105,7 +106,7 @@ end
 
 function A:AddSnapShot(ti, eventInfo)
 	dprint(1, "A:AddSnapShot", ti.relSpellName, eventInfo.short)
-	--if ti.delayed then return end
+	if ti.delayed then return end
 	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
 	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {

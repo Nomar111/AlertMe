@@ -22,5 +22,8 @@ function O:ShowGeneral(container)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
 		O.AttachSlider(container, "Debug level", P.general, "debugLevel", 1, 3, 1, false, 200)
+		O.AttachSlider(container, "Debug level log", P.general, "debugLevelLog", 1, 3, 1, false, 200)
+		O.AttachSlider(container, "Debug level log", P.general, "debugLevelLog", 1, 3, 1, false, 200)
+		--O.AttachCheckBox(container, "Hide minimap", P.general.minimap, "hide", 180, A.ToggleMinimap)
 	end
 end

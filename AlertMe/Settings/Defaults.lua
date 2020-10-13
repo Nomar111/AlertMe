@@ -14,7 +14,9 @@ D.profile = {
 		minimap = { hide = false },
 		minimapPos = {},
 		enabled = true,
-		debugLevel = 1
+		debugLevel = 1,
+		debugLevelLog = 2,
+		debugLog = false,
 	},
 	scrolling = {
 		enabled = true,
