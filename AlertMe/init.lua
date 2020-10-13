@@ -63,7 +63,6 @@ A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
 --A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
 
-
 -- addon initialized
 function A:OnInitialize()
 	dprint(2, "A:OnInitialize")

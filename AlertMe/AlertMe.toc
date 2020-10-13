@@ -1,11 +1,11 @@
 ## Interface: 11304
 ## Title: AlertMe
-## Notes: Addon that alerts on combatlog events
+## Notes: Addon that alerts on various combatlog events
 ## Author: Nomar - Zandalar Tribe (EU)
 ## SavedVariables: AlertMeDB
 ## SavedVariablesPerCharacter: AlertMeDBChr
-## OptionalDeps: Ace3, ViragDevTool
-## Version: 0.1
+## OptionalDeps: Ace3
+## Version: v1.0.0-alpha
 
 Libs\load_libs.xml
 init.lua
@@ -14,18 +14,4 @@ Settings\load_settings.xml
 Core\load_core.xml
 Options\load_options.xml
 Media\media.lua
-#CustomWidgets\AceGUIWidget-WeakAurasExpand.lua
-#CustomWidgets\AceGUIWidget-WeakAurasExpandSmall.lua
 CustomWidgets\AceGUIWidget-WeakAurasIcon.lua
-#CustomWidgets\AceGUIWidget-WeakAurasNewHeaderButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasLoadedHeaderButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasDisplayButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasTextureButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasIconButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasMultiLineEditBox.lua
-#CustomWidgets\AceGUIWidget-WeakAurasNewButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasImportButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasSortedDropDown.lua
-#CustomWidgets\AceGUIWidget-WeakAurasToolbarButton.lua
-#CustomWidgets\AceGUIWidget-WeakAurasTwoColumnDropDown.lua
-#CustomWidgets\AceGUIContainer-WeakAurasTreeGroup.lua
