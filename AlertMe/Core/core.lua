@@ -398,8 +398,8 @@ function A:InitSpellOptions()
 	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
-	VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	--VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	--VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
 		--dprint(3, "Loop1: ", event, alert)

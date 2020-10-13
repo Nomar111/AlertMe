@@ -25,12 +25,12 @@ Engine[4] = A.Spells		-- S
 _G.AlertMe = Engine
 
 -- init debugger and add engine
-VDT_AddData = _G.ViragDevTool_AddData
-VDT_AddData(Engine, "Engine")
-VDT_AddData(A, "A")
-VDT_AddData(A.Defaults, "D")
-VDT_AddData(A.Options, "O")
-VDT_AddData(A.Spells, "S")
+-- VDT_AddData = _G.ViragDevTool_AddData
+-- VDT_AddData(Engine, "Engine")
+-- VDT_AddData(A, "A")
+-- VDT_AddData(A.Defaults, "D")
+-- VDT_AddData(A.Options, "O")
+-- VDT_AddData(A.Spells, "S")
 
 -- addon upvalues
 print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
@@ -74,8 +74,8 @@ function A:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileEvent")
 	-- define addon global P for profile data
 	P = A.db.profile
-	VDT_AddData(self.db, "db")
-	VDT_AddData(P, "P")
+	--VDT_AddData(self.db, "db")
+	--VDT_AddData(P, "P")
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
 	-- init chatframes/debugging

@@ -3,7 +3,7 @@ local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 A.Snapshots = {}
-VDT_AddData(A.Snapshots, "Snapshots")
+--VDT_AddData(A.Snapshots, "Snapshots")
 
 function A:InitLCD()
 	dprint(2, "A:InitLCD")
