@@ -99,7 +99,16 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	local bar = A.Bars[barType][id]
 	-- update/set bar settings
 	if db.showIcon == true then bar:SetIcon(icon) end
-	bar:SetLabel(label)
+	if db.width <= 140 then
+		label = string.sub(label, 1, 10)
+	elseif db.width <= 160 then
+		label = string.sub(label, 1, 14)
+	elseif db.width <= 180 then
+		label = string.sub(label, 1, 18)
+	elseif db.width <= 200 then
+		label = string.sub(label, 1, 22)
+	end
+	bar:SetLabel(label, 1, 12)
 	bar:SetDuration(duration)
 	bar:SetFill(db.fill)
 	bar:SetTimeVisibility(db.timeVisible)
@@ -167,6 +176,7 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+				_, _, icon = GetSpellInfo(spellId)
 				dprint(1, "no aura info, but snapShot", ti.relSpellName, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else

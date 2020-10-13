@@ -38,10 +38,12 @@ A.Events = {
 		actions = {"hideBars"},
 	},
 	["SPELL_AURA_BROKEN"] = {
+		short = "broken",
 		masterEvent = "SPELL_AURA_REMOVED",
 		optionsDisplay = false,
 	},
 	["SPELL_AURA_BROKEN_SPELL"] = {
+		short = "broken_spell",
 		masterEvent = "SPELL_AURA_REMOVED",
 		optionsDisplay = false,
 	},
