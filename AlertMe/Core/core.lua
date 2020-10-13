@@ -27,8 +27,6 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
-	-- reset log
-	A.db.profile.log = nil
 end
 
 function A:ParseCombatLog(eventName)

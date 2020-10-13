@@ -71,7 +71,7 @@ function A:ResetContainerPosition(barType)
 end
 
 function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
-	dprint(1, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
+	dprint(2, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
 	local db = P.bars[barType]
 	-- enabled?
 	if db.enabled == false then return end

@@ -55,7 +55,11 @@ function dprint(lvl,...)
 	local msg = ""
 	local logmsg = ""
 	local debugLevel = DEBUG_LEVEL
-	if A.db then debugLevel =  A.db.profile.general.debugLevel end
+	local debugLevelLog = DEBUG_LEVEL
+	if A.db then
+		debugLevel =  A.db.profile.general.debugLevel
+		debugLevelLog =  A.db.profile.general.debugLevelLog
+	end
 	local lvlCheck
 	local color = "FFcfac67"
 	local prefix = "["..date("%H:%M:%S").."]"..WrapTextInColorCode(" AlertMe ** ", color)
@@ -67,23 +71,30 @@ function dprint(lvl,...)
 		lvlCheck = false
 	end
 	-- check level vs debug_level
-	if  lvlCheck ~= false and lvl > debugLevel then
-		return
+	if  lvlCheck ~= false and lvl <= debugLevel then
+		if #args == 0 then
+			msg = "No debug messages provided or nil"
+		else
+			for i=1, #args do
+				local sep = (i == 1) and "" or separator
+				msg = msg..sep..tostring(args[i])
+			end
+		end
+		A:SystemMessage(prefix..msg)
 	end
-	-- check args
-	if #args == 0 then
-		msg = "No debug messages provided or nil"
-	else
-		for i=1, #args do
-			local sep = (i == 1) and "" or separator
-			msg = msg..sep..tostring(args[i])
-			logmsg = logmsg.." | "..tostring(args[i])
+	if lvlCheck ~= false and lvl <= debugLevelLog then
+		if #args == 0 then
+			logmsg = "No debug messages provided or nil"
+		else
+			for i=1, #args do
+				local sep = (i == 1) and "" or separator
+				logmsg = msg..sep..tostring(args[i])
+			end
+		end
+		if A.db then
+			tinsert(A.db.profile.log, logmsg)
 		end
 	end
-	-- if A.db then
-	-- 	tinsert(A.db.profile.log, logmsg)
-	-- end
-	A:SystemMessage(prefix..msg)
 end
 
 -- function uuid()
