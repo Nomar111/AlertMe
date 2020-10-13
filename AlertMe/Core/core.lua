@@ -66,6 +66,7 @@ function A:ParseCombatLog(eventName)
 	end
 	-- set relevant spell name
 	ti.relSpellName = ti[eventInfo.relSpellName]
+	ti.delayed = false
 	-- call processTriggerInfo
 	A:ProcessTriggerInfo(ti, eventInfo)
 end
@@ -84,20 +85,22 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- check for relevant alerts for spell/event
 	alerts = A:GetAlerts(ti, eventInfo)
 	if not alerts then
-		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName)
+		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName, delayed)
 		return
 	end
 	-- check units
 	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 	if not alertsUnits then
-		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages), delayed)
 		return
 	end
 	-- aura special
 	if eventInfo.short == "gain"  then
 		local auraInfo = A:GetUnitAura(ti, eventInfo)
-		if ti.dstIsFriendly and not auraInfo then
-			dprint(2, "friend-aura: no info", ti.relSpellName, ti.dstName)
+		if auraInfo then
+			A:DoActions(ti, alertsUnits, eventInfo, false)
+		elseif ti.dstIsFriendly then
+			dprint(1, "friend-aura: no info", ti.relSpellName, ti.dstName, delayed)
 			return
 		elseif ti.dstIsHostile then
 			if not auraInfo then
@@ -183,7 +186,7 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 			-- write some useful info into ti for later use
 			ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
 			-- player controlled check
-			if not playerControlled then
+			if not playerControlled and units ~= 6 then
 				tinsert(errorMessages, pre..", ".."unit not player controlled")
 				checkFailed = true
 				break
@@ -418,13 +421,17 @@ function A.RegisterCLEU(event)
 	dprint(2, "A.RegisterCLEU", event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
-	if instanceType ~= "pvp" and P.general.zones.world then
-		dprint(3, "register", instanceType, P.general.zones.world)
+	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
+		dprint(1, "register", "type", instanceType, "instance", P.general.zones.instance)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
-	elseif instanceType == "pvp" and  P.general.zones.bg then
-		dprint(3, "register", instanceType, P.general.zones.bg)
+	elseif (instanceType == "pvp" or instanceType == "arena") and P.general.zones.bg then
+		dprint(1, "register", "type", instanceType, "bg", P.general.zones.bg)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+	elseif instanceType == "none" and P.general.zones.world then
+		dprint(1, "register", "type", instanceType, "world", P.general.zones.world)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
+		dprint(1, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end
@@ -434,13 +441,13 @@ function A.ToggleAddon()
 	dprint(2, "A.ToggleAddon", P.general.enabled)
 	if P.general.enabled == true then
 		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
-		A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
-		A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
+		--A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
+		--A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
 		A.RegisterCLEU("Toggle")
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		A:UnregisterEvent("ZONE_CHANGED")
-		A:UnregisterEvent("ZONE_CHANGED_INDOORS")
+		--A:UnregisterEvent("ZONE_CHANGED")
+		--A:UnregisterEvent("ZONE_CHANGED_INDOORS")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end

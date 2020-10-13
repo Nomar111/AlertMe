@@ -9,6 +9,7 @@ D.profile = {
 	general = {
 		zones = {
 			["*"] = true,
+			["instance"] = false,
 		},
 		minimap = { hide = false },
 		minimapPos = {},

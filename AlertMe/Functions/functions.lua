@@ -80,9 +80,9 @@ function dprint(lvl,...)
 			logmsg = logmsg.." | "..tostring(args[i])
 		end
 	end
-	if A.db then
-		tinsert(A.db.profile.log, logmsg)
-	end
+	-- if A.db then
+	-- 	tinsert(A.db.profile.log, logmsg)
+	-- end
 	A:SystemMessage(prefix..msg)
 end
 

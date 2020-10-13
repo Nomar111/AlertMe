@@ -14,19 +14,25 @@ function A:InitLCD()
 end
 
 function A:GetUnitAura(ti, eventInfo)
-	dprint(2, "A:GetAuraInfo", ti.dstName, ti.relSpellName)
+	dprint(2, "A:GetUnitAura", ti.relSpellName, ti.dstName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
-	for i = 1, 100 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i, "HELPFUL")
-		if not name then
-			break
-		elseif ti.relSpellName == name then
-			local remaining = (expirationTime > 0) and expirationTime - GetTime() or nil
-			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
-		end
+	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
+	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining =  A:MatchUnitAura(ti, eventInfo, unit, filter)
+	if not name and not ti.delayed then
+		ti.delayed = true
+		C_Timer.After(0.2, function()
+			dprint(2, "delayed call")
+			A:ProcessTriggerInfo(ti, eventInfo)
+		end)
+	else
+		return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 	end
+end
+
+function A:MatchUnitAura(ti, eventInfo, unit, filter)
+	dprint(2, "A:MatchUnitAura", ti.relSpellName, "unit", unit, "filter", filter)
 	for i = 1, 100 do
-		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i, "HARMFUL")
+		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i, filter)
 		if not name then
 			break
 		elseif ti.relSpellName == name then
@@ -38,6 +44,7 @@ end
 
 function A:FakeEvent(ti, origEvent)
 	dprint(2, "A:FakeEvent", ti.relSpellName, origEvent.short)
+	if ti.delayed then return end
 	if origEvent.short == "success" then
 		-- create fake args
 		local _ti = tcopy(ti)
@@ -69,19 +76,21 @@ function A:FakeEvent(ti, origEvent)
 end
 
 function A:CheckSnapShot(ti, eventInfo)
-	dprint(1, "A:CheckSnapShot", ti.relSpellName, eventInfo.short)
+	dprint(2, "A:CheckSnapShot", ti.relSpellName, eventInfo.short)
 	A:CleanSnapshots()
 	if eventInfo.short == "gain" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then
 			local snap = A.Snapshots[ti.dstGUID][ti.relSpellName]["success"]
 			local timeDiff = GetTime() - snap.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				dprint(1, "check ss: go", timeDiff, ti.relSpellName, eventInfo.shor)
+				dprint(1, "check ss: go", timeDiff, ti.relSpellName, eventInfo.short)
 				return true
 			end
 		else
 			dprint(1, "check ss: no-go", timeDiff, ti.relSpellName, eventInfo.short)
-			A:AddSnapShot(ti, eventInfo)
+			if not ti.delayed then
+				A:AddSnapShot(ti, eventInfo)
+			end
 		end
 	elseif eventInfo.short == "success" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"] then
@@ -100,6 +109,7 @@ end
 
 function A:AddSnapShot(ti, eventInfo)
 	dprint(1, "A:AddSnapShot", ti.relSpellName, eventInfo.short)
+	if ti.delayed then return end
 	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
 	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {
