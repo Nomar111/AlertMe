@@ -18,15 +18,14 @@ function A:GetUnitAura(ti, eventInfo)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
 	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining =  A:MatchUnitAura(ti, eventInfo, unit, filter)
-	if not name and not ti.delayed then -- only do the first timer
-		ti.delayed = true
-		C_Timer.After(0.2, function()
-			dprint(2, "delayed call", ti.relSpellName, ti.dstName)
-			A:ProcessTriggerInfo(ti, eventInfo)
-		end)
-	else
-		return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
-	end
+	-- if not name and not ti.delayed then -- only do the first timer
+	-- 	ti.delayed = true
+	-- 	C_Timer.After(0.2, function()
+	-- 		dprint(2, "delayed call", ti.relSpellName, ti.dstName)
+	-- 		A:ProcessTriggerInfo(ti, eventInfo)
+	-- 	end)
+	-- else
+	return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 end
 
 function A:MatchUnitAura(ti, eventInfo, unit, filter)
@@ -43,25 +42,14 @@ function A:MatchUnitAura(ti, eventInfo, unit, filter)
 end
 
 function A:FakeEvent(ti, eventinfo)
-	dprint(2, "A:FakeEvent", ti.relSpellName, eventinfo.short, "delayed", ti.delayed)
+	dprint(2, "A:FakeEvent", ti.relSpellName, eventinfo.short)
 	-- create fake args
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
 	local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
 	-- get alerts for fake args
-	local alerts, alertsUnits, errorMessages
-	-- check for relevant alerts for spell/event
-	alerts = A:GetAlerts(_ti, _eventInfo)
-	if not alerts then
-		dprint(2, "fakeevent: no relevant alert found", _eventInfo.short, _ti.relSpellName, delayed)
-		return
-	end
-	-- check units
-	alertsUnits, errorMessages = A:CheckUnits(_ti, _eventInfo, alerts)
-	if not alertsUnits then
-		dprint(2, "fakeevent: unit check failed", _eventInfo.short, _ti.relSpellName, unpack(errorMessages))
-		return
-	end
+	local check, alerts = A:DoChecks(_ti, _eventInfo)
+	if not check then return end
 	-- check for snapshots
 	local exists
 	exists, _ti, _eventInfo = A:CheckSnapShot(ti, eventinfo)
@@ -71,13 +59,12 @@ function A:FakeEvent(ti, eventinfo)
 		A:DoActions(_ti, _eventInfo, alertsUnits, true)
 	else
 		-- if no snapshot was found, add one for the success event
-		A:AddSnapShot(ti, eventinfo)
+		A:AddSnapShot(ti, eventInfo)
 	end
 end
 
 function A:CheckSnapShot(ti, eventInfo)
 	dprint(2, "A:CheckSnapShot", ti.relSpellName, eventInfo.short)
-	if ti.delayed then return false end
 	A:CleanSnapshots()
 	if eventInfo.short == "gain" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then
@@ -106,7 +93,6 @@ end
 
 function A:AddSnapShot(ti, eventInfo)
 	dprint(1, "A:AddSnapShot", ti.relSpellName, eventInfo.short)
-	if ti.delayed then return end
 	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
 	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {

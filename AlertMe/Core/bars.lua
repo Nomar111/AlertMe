@@ -167,10 +167,10 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
-				dprint(1, "no aura info, from snapShot", ti.relSpellName, "remaining", remaining)
+				dprint(1, "no aura info, but snapShot", ti.relSpellName, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
-				dprint(1, "no aura info, no snapShot, abort", ti.relSpellName,  eventInfo.short)
+				dprint(1, "no aura duration, no snapShot, abort", ti.relSpellName,  eventInfo.short)
 			end
 		end
 	end

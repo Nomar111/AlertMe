@@ -66,13 +66,12 @@ function A:ParseCombatLog(eventName)
 	end
 	-- set relevant spell name
 	ti.relSpellName = ti[eventInfo.relSpellName]
-	ti.delayed = false
 	-- call processTriggerInfo
 	A:ProcessTriggerInfo(ti, eventInfo)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
-	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName, "delayed", ti.delayed)
+	dprint(2, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	if eventInfo.short == "removed" then
 		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
@@ -82,36 +81,25 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		A:FakeEvent(ti, eventInfo)
 	end
 	-- do some checks
-	local alerts, alertsUnits, errorMessage
-	-- check for relevant alerts for spell/event
-	alerts = A:GetAlerts(ti, eventInfo)
-	if not alerts then
-		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName, "delayed", ti.delayed)
-		return
-	end
-	-- check units
-	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
-	if not alertsUnits then
-		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages),  "delayed", ti.delayed)
-		return
-	end
+	local check, alerts = A:DoChecks(ti, eventInfo)
+	if not check then return end
 	-- if aura gain event & progress bar is to be displayed special treatment
 	--if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
 	if eventInfo.short == "gain" then
 		local name, _, _, _, duration, expirationTime, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
-		if auraInfo and ((duration - remaining <= 2) or duration == 0) then
-			A:DoActions(ti, eventInfo, alertsUnits, false)
-		else
+		if name and ((duration - remaining <= 2) or duration == 0) then
+			A:DoActions(ti, eventInfo, alerts, false)
+		elseif not name then
 			if A:CheckSnapShot(ti, eventInfo) then
 				-- call actions from snapShot
-				A:DoActions(ti, eventInfo, alertsUnits, true)
+				A:DoActions(ti, eventInfo, alerts, true)
 			else
 				-- add a snapshot
 				A:AddSnapShot(ti, eventInfo)
 			end
 		end
-	else
-		A:DoActions(ti, eventInfo, alertsUnits, false)
+	else -- success, interrupt, dispel
+		A:DoActions(ti, eventInfo, alerts, false)
 	end
 end
 
@@ -130,6 +118,24 @@ end
 --**********************************************************************************************************************************
 --Checks
 --**********************************************************************************************************************************
+function A:DoChecks(ti, eventInfo)
+	dprint(2, "A:DoChecks", ti.relSpellName, eventInfo.short)
+	local alerts, alertsUnits, errorMessage
+	-- check for relevant alerts for spell/event
+	alerts = A:GetAlerts(ti, eventInfo)
+	if not alerts then
+		dprint(2, "no relevant alert found for", eventInfo.short, ti.relSpellName)
+		return false
+	end
+	-- check units
+	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+	if not alertsUnits then
+		dprint(2, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		return false
+	end
+	return true, alertsUnits
+end
+
 function A:GetAlerts(ti, eventInfo)
 	dprint(2, "A:GetAlerts", ti.relSpellName, eventInfo.short)
 	local alerts = {}
