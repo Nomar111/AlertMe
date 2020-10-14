@@ -11,6 +11,8 @@ setfenv(1, _G.AlertMe)
 
 -- init function
 function A:Initialize()
+	-- init examples profile
+	A:InitExamples()
 	-- init LSM
 	A:InitLSM()
 	-- init scrolling text frame

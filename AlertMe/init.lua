@@ -80,18 +80,16 @@ function A:OnInitialize()
 	self:RegisterChatCommand("alertme", "OpenOptions")
 	-- init chatframes/debugging
 	A:InitChatFrames()
-	--A:InitDebugPrint()
 end
 
 function A:OpenOptions()
-	dprint(2, "A:OpenOptions")
+	dprint(3, "A:OpenOptions")
 	A.Options:OpenOptions()
 end
 
 -- addon enabled
 function A:OnEnable()
-	--dprint(2, "A:OnEnable")
-	A:InitExamples()
+	dprint(3, "A:OnEnable")
 	A:Initialize()
 	--A.Options:OpenOptions()
 end

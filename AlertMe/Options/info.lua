@@ -9,6 +9,10 @@ function O:ShowInfo(container)
 	-- header
 	O.AttachHeader(container, "Addon Info")
 	-- info
-	local text = "Addon Name: AlertMe\n\n".."installed Version: "..ADDON_VERSION.."\n\nCreated by: "..ADDON_AUTHOR
+	local text = "Addon Name: AlertMe"
+	text = text.."\n\nCurrently installed Version: "..ADDON_VERSION
+	text = text.."\n\nCreated by: "..ADDON_AUTHOR
+	text = text.."\n\nEmail: NomarZT@gmx.net"
+	text = text.."\n\nGithub page: https://github.com/Nomar111/AlertMe"
 	O.AttachLabel(container, text, GameFontHighlight)
 end
