@@ -1,6 +1,6 @@
 ## Interface: 11304
 ## Title: AlertMe
-## Notes: Addon that alerts on various combatlog events
+## Notes: PvP alerts
 ## Author: Nomar - Zandalar Tribe (EU)
 ## SavedVariables: AlertMeDB
 ## SavedVariablesPerCharacter: AlertMeDBChr
