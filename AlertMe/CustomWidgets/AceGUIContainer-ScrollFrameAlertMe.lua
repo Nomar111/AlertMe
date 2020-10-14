@@ -172,22 +172,7 @@ local function Constructor()
 	}
 	frame:SetBackdrop(FrameBackdrop)
 	frame:SetBackdropColor(1, 1, 1, 1)
-	-- local t = f:CreateTexture(nil,"BACKGROUND")
-	-- t:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Factions.blp")
-	-- t:SetAllPoints(frame)
-	-- frame.texture = t
-	-- local num = AceGUI:GetNextWidgetNum(Type)
-
-	-- GetBackdrop() - Creates and returns a backdrop table suitable for use in SetBackdrop (added 1.11)
-	-- GetBackdropBorderColor() - Gets the frame's backdrop border color (r, g, b, a) (added 1.11)
-	-- GetBackdropColor() - Gets the frame's backdrop color (r, g, b, a) (added 1.11)
-
--- Frame:SetBackdrop( {
---   bgFile = "bgFile",
---   edgeFile = "edgeFile", tile = false, tileSize = 0, edgeSize = 32,
---   insets = { left = 0, right = 0, top = 0, bottom = 0 }
--- });
-
+	
 	local scrollframe = CreateFrame("ScrollFrame", nil, frame)
 	scrollframe:SetPoint("TOPLEFT")
 	scrollframe:SetPoint("BOTTOMRIGHT")

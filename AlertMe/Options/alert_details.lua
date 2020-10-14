@@ -229,7 +229,6 @@ function O:UpdateSpellTable(eventShort, uid)
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
-	--scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
 	O.SpellTable:AddChild(scrollGroup)
 
 	-- loop over all tracked spells/auras
