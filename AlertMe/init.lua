@@ -91,6 +91,7 @@ end
 -- addon enabled
 function A:OnEnable()
 	--dprint(2, "A:OnEnable")
+	A:InitExamples()
 	A:Initialize()
 	--A.Options:OpenOptions()
 end
