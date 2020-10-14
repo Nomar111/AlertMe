@@ -29,6 +29,8 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
+	-- init debugger
+	VDT_AddData = _G.ViragDevTool_AddData or nil
 end
 
 function A:ParseCombatLog(eventName)

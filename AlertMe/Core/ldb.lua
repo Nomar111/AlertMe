@@ -17,12 +17,14 @@ function A:InitLDB()
 	AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
 		type = "launcher",
 		text = "AlertMe",
+		iconR = (P.general.enabled) and 1 or 0.5,
 		icon = A.Backgrounds["AlertMe"],
 		tocname = "AlertMe",
 		OnClick = function(self, button)
 			if button == "LeftButton" then
 				if(IsShiftKeyDown()) then
 					P.general.enabled = not P.general.enabled
+					AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 					A.UpdateLDBTooltip()
 					A.ToggleAddon()
 				else

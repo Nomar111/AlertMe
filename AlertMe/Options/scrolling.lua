@@ -17,6 +17,7 @@ function O:ShowScrollingText(container)
 	end
 	local function centerX()
 		P.scrolling.ofs_x = 0
+		P.scrolling.point = "CENTER"
 		A:SetScrollingPosition()
 	end
 
