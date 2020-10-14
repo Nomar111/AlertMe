@@ -189,6 +189,25 @@ function O.AttachLabel(container, text, fontObject, color, absWidth, relWidth)
 	return widget
 end
 
+function O.AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
+	dprint(3, "O.AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
+	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
+	widget:SetText(text)
+	if absWidth ~= nil then
+		widget:SetWidth(absWidth)
+	else
+		widget:SetRelativeWidth(relWidth or 1)
+	end
+	if fontObject == nil then fontObject = GameFontHighlight end
+	widget:SetFontObject(fontObject)
+	widget:SetCallback("OnClick", function(_widget, _button)
+		if func ~= nil then func(_widget, event) end
+	end)
+	if color ~= nil then widget:SetColor(color[1], color[2], color[3]) end
+	container:AddChild(widget)
+	return widget
+end
+
 function O.AttachLSM(container, type, label, db, key, width, func)
 	dprint(3, "O.AttachLSM", container, type, label, db, key, width, func)
 	-- local variables/tables

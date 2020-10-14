@@ -1,4 +1,6 @@
 --dprint(3, "info.lua")
+-- upvalues
+local _G = _G
 -- get engine environment
 local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
@@ -9,10 +11,10 @@ function O:ShowInfo(container)
 	-- header
 	O.AttachHeader(container, "Addon Info")
 	-- info
-	local text = "Addon Name: AlertMe"
-	text = text.."\n\nCurrently installed Version: "..ADDON_VERSION
-	text = text.."\n\nCreated by: "..ADDON_AUTHOR
+	local text = "Addon: AlertMe"
+	text = text.."\n\nCurrent Version: "..ADDON_VERSION
+	text = text.."\n\nAuthor: "..ADDON_AUTHOR
 	text = text.."\n\nEmail: NomarZT@gmx.net"
-	text = text.."\n\nGithub page: https://github.com/Nomar111/AlertMe"
-	O.AttachLabel(container, text, GameFontHighlight)
+	text = text.."\n\nGithub: https://github.com/Nomar111/AlertMe"
+	O.AttachLabel(container, text, GameFontNormal, _, 400)
 end

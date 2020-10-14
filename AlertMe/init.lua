@@ -47,6 +47,8 @@ PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 DEBUG_LEVEL = 1
+GITHUB_LINK = "https://github.com/Nomar111/AlertMe"
+A.Github = GITHUB_LINK
 
 -- libraries
 A.Libs = {}
