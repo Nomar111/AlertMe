@@ -470,6 +470,7 @@ function A.ToggleAddon()
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end
+	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end
 
 --**********************************************************************************************************************************

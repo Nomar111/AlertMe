@@ -13,8 +13,7 @@ end
 
 function A:InitLDB()
 	dprint(2, "A:InitLDB")
-	local AlertMeBroker
-	AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
+	A.AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
 		type = "launcher",
 		text = "AlertMe",
 		iconR = (P.general.enabled) and 1 or 0.5,
@@ -24,7 +23,6 @@ function A:InitLDB()
 			if button == "LeftButton" then
 				if(IsShiftKeyDown()) then
 					P.general.enabled = not P.general.enabled
-					AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 					A.UpdateLDBTooltip()
 					A.ToggleAddon()
 				else
@@ -45,7 +43,7 @@ function A:InitLDB()
 			if O.ToolTip then O.ToolTip:Hide() end
 		end,
 	})
-	A.Libs.LDBI:Register("AlertMe", AlertMeBroker, P.general.minimap, P.general.minimapPos);
+	A.Libs.LDBI:Register("AlertMe", A.AlertMeBroker, P.general.minimap, P.general.minimapPos);
 end
 
 function A.UpdateLDBTooltip()
