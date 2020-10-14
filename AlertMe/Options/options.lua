@@ -75,7 +75,7 @@ function O:CreateNavTree(container)
 		scrollGroup:SetLayout("List")
 		scrollGroup:SetFullHeight(true)
 		scrollGroup:SetFullWidth(true)
-		scrollGroup.frame:SetBackdrop(nil)
+		--scrollGroup.frame:SetBackdrop(nil)
 		contentGroup:AddChild(scrollGroup)
 		O:ShowOptions(scrollGroup, uniqueValue)
 	end

@@ -7,6 +7,5 @@ do
 	local function Constructor()
 		return AceGUI:Create("Predictor_Base")
 	end
-	
 	AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

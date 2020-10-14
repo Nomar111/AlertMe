@@ -303,6 +303,16 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 		-- get reaction color
 		local color = A:GetReactionColor(ti)
 		local colmsg = WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+		--|TTexturePath:size1:size2:xoffset:yoffset|t
+		-- local button = self.buttons[activeButtons]
+		-- local spellName, spellRank, spellIcon = GetSpellInfo(spellID)
+		-- if spellIcon == nil then return end
+		-- if( self.obj.useRanks and spellRank and spellRank ~= "" ) then
+		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
+		-- else
+		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
+		-- end
+
 		msg = prefix..msg..postfix
 		-- bg/raid/party
 		if alert.chatChannels == 2 and channel then

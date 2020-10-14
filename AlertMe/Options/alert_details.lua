@@ -225,11 +225,11 @@ function O:UpdateSpellTable(eventShort, uid)
 		O.SoundSelection:SetDisabled(false)
 	end
 
-	local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
+	local scrollGroup = A.Libs.AceGUI:Create("AlertMe")
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
-	scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
+	--scrollGroup.frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile=true , tileSize=16})
 	O.SpellTable:AddChild(scrollGroup)
 
 	-- loop over all tracked spells/auras
