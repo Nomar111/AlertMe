@@ -111,10 +111,14 @@ function A:SetScrollingPosition(reset)
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:PostInScrolling(msg)
-	dprint(2, "A:PostInScrolling", msg)
+function A:PostInScrolling(msg, icon)
+	dprint(1, "A:PostInScrolling", msg, icon)
 	if P.scrolling.enabled == true then
 		A:ShowScrolling()
-		A.ScrollingText:AddMessage(msg)
+		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
+		-- else
+		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
+		-- end
+		A.ScrollingText:AddMessage("|T"..icon..":15:15:0:0|t "..msg)
 	end
 end

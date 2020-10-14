@@ -90,8 +90,9 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- if aura gain event & progress bar is to be displayed special treatment
 	--if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
 	if eventInfo.short == "gain" then
-		local name, _, _, _, duration, expirationTime, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
+		local name, _, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 		if name and ((duration - remaining <= 2) or duration == 0) then
+			ti.spellId = spellId
 			A:DoActions(ti, eventInfo, alerts, false)
 		elseif not name then
 			if A:CheckSnapShot(ti, eventInfo) then
@@ -270,6 +271,8 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
+	local _, _, icon = GetSpellInfo(A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName))
+	dprint(1, icon)
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil
@@ -303,15 +306,6 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 		-- get reaction color
 		local color = A:GetReactionColor(ti)
 		local colmsg = WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-		--|TTexturePath:size1:size2:xoffset:yoffset|t
-		-- local button = self.buttons[activeButtons]
-		-- local spellName, spellRank, spellIcon = GetSpellInfo(spellID)
-		-- if spellIcon == nil then return end
-		-- if( self.obj.useRanks and spellRank and spellRank ~= "" ) then
-		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
-		-- else
-		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
-		-- end
 
 		msg = prefix..msg..postfix
 		-- bg/raid/party
@@ -355,7 +349,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 			elseif chan == "WHISPER" then
 				SendChatMessage(string.gsub(msg, dstName, "You"), chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
-				A:PostInScrolling(msg)
+				A:PostInScrolling(msg, icon)
 			else
 				SendChatMessage(msg, chan, nil, nil)
 			end
