@@ -86,7 +86,6 @@ LSM:Register("font", "Roboto Condensed LightItalic", [[Interface\AddOns\AlertMe\
 LSM:Register("font", "Roboto Condensed Regular", [[Interface\AddOns\AlertMe\Media\font\roboto_condensed\RobotoCondensed-Regular.ttf]])
 LSM:Register("font", "Roboto Condensed RegularItalic", [[Interface\AddOns\AlertMe\Media\font\roboto_condensed\RobotoCondensed-RegularItalic.ttf]])
 LSM:Register("font", "Adventure", [[Interface\Addons\AlertMe\Media\font\adventure\Adventure.ttf]])
-LSM:Register("font", "All Hooked Up", [[Interface\Addons\AlertMe\Media\font\all_hooked_up\HookedUp.ttf]])
 LSM:Register("font", "Bazooka", [[Interface\Addons\AlertMe\Media\font\bazooka\Bazooka.ttf]])
 LSM:Register("font", "Black Chancery", [[Interface\Addons\AlertMe\Media\font\black_chancery\BlackChancery.ttf]])
 LSM:Register("font", "Celestia Medium Redux", [[Interface\Addons\AlertMe\Media\font\celestia_medium_redux\CelestiaMediumRedux1.55.ttf]])
