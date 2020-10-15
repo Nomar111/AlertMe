@@ -22,7 +22,6 @@ function O:ShowGeneral(container)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
 		local function deleteLog()
-			dprint(1, "deleteLog")
 			P.log = nil
 			P.log = {}
 		end

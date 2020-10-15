@@ -447,6 +447,8 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	local icon
 	if A.SpellOptions[ti.relSpellName] then
 		icon = A.SpellOptions[ti.relSpellName].icon
+	else
+		dprint(1, "A:CreateMessage", "no icon found", ti.relSpellName)
 	end
 	-- get message from options
 	local msg = P.messages[eventInfo.short]
