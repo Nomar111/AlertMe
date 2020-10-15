@@ -27,7 +27,6 @@ function A:Initialize()
 	A:InitLDB()
 	-- register for events
 	A.ToggleAddon()
-
 	-- for reloadui
 	A:HideAllBars()
 	-- init debugger
