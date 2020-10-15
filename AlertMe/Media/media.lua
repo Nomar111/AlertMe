@@ -103,8 +103,6 @@ LSM:Register("font", "SF Atarian System", [[Interface\Addons\AlertMe\Media\font\
 LSM:Register("font", "SF Covington", [[Interface\Addons\AlertMe\Media\font\sf_covington\SFCovington.ttf]])
 LSM:Register("font", "SF Movie Poster", [[Interface\Addons\AlertMe\Media\font\sf_movie_poster\SFMoviePoster-Bold.ttf]])
 LSM:Register("font", "SF Wonder Comic", [[Interface\Addons\AlertMe\Media\font\sf_wonder_comic\SFWonderComic.ttf]])
-LSM:Register("font", "swf!t", [[Interface\Addons\AlertMe\Media\font\swf!t\SWF!T___.ttf]])
-LSM:Register("font", "WenQuanYi Zen Hei", [[Interface\Addons\AlertMe\Media\font\wen_quan_yi_zen_hei\wqy-zenhei.ttf]])
 LSM:Register("font", "Yellowjacket", [[Interface\Addons\AlertMe\Media\font\yellowjacket\yellow.ttf]])
 
 -- sound
