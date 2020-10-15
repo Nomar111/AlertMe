@@ -18,6 +18,10 @@ function A:GetUnitAura(ti, eventInfo)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
 	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining =  A:MatchUnitAura(ti, eventInfo, unit, filter)
+	if name then
+		ti.icon = icon
+		ti.spellId = spellId
+	end
 	-- if not name and not ti.delayed then -- only do the first timer
 	-- 	ti.delayed = true
 	-- 	C_Timer.After(0.2, function()
@@ -56,7 +60,7 @@ function A:FakeEvent(ti, eventInfo)
 	if exists then
 		-- do whatever is defined in actions
 		dprint(2, "fakevent: do actions", _ti.relSpellName, _eventInfo.short)
-		A:DoActions(_ti, _eventInfo, alerts, true)
+		A:DoActions(_ti, _eventInfo, alerts)
 	else
 		-- if no snapshot was found, add one for the success event
 		A:AddSnapShot(ti, eventInfo)

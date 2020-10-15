@@ -79,7 +79,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	if A.Bars[barType][id] == nil and noCreate == true then return end
 	-- callback for when bar is stopped
 	local function barStopped(_, delBar)
-		dprint(2, "barStopped", delBar, delBar:Get("id"), "stopped")
+		dprint(3, "barStopped", delBar, delBar:Get("id"), "stopped")
 		local _id = delBar:Get("id")
 		local _barType = delBar:Get("barType")
 		delBar:SetParent(nil)
@@ -157,7 +157,7 @@ function A:HideBar(barType, id)
 end
 
 function A:HideAllBars()
-	dprint(2, "A:HideAllBars")
+	dprint(3, "A:HideAllBars")
 	if A.Bars == nil then return end
 	for barType,ids in pairs(A.Bars) do
 		for id, _ in pairs(ids) do
@@ -173,7 +173,7 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 		if alert.showBar == true and eventInfo.displaySettings == true then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 			if remaining then
-				dprint(1, "aura info found", ti.relSpellName, eventInfo.short, "remianing", remaining)
+				dprint(2, "aura info found", ti.relSpellName, eventInfo.short, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
@@ -189,7 +189,7 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 end
 
 function A:HideBars(ti, eventInfo)
-	dprint(2, "A:HideBars", ti, eventInfo)
+	dprint(3, "A:HideBars", ti, eventInfo)
 	local id = ti.dstGUID..ti.spellName
 	A:HideBar("auras", id)
 end

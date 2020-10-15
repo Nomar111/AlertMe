@@ -112,13 +112,11 @@ function A:SetScrollingPosition(reset)
 end
 
 function A:PostInScrolling(msg, icon)
-	dprint(1, "A:PostInScrolling", msg, icon)
+	dprint(3, "A:PostInScrolling", msg, icon)
 	if P.scrolling.enabled == true then
 		A:ShowScrolling()
-		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
-		-- else
-		-- 	button:SetFormattedText("|T%s:20:20:2:11|t %s", spellIcon, spellName)
-		-- end
-		A.ScrollingText:AddMessage("|T"..icon..":15:15:0:0|t "..msg)
+		A.ScrollingText:AddMessage(msg)
+		-- 	SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
+		--A.ScrollingText:AddMessage("|T"..icon..":15:15:0:0|t "..msg)
 	end
 end

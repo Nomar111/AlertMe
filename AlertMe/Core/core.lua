@@ -90,9 +90,8 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- if aura gain event & progress bar is to be displayed special treatment
 	--if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
 	if eventInfo.short == "gain" then
-		local name, _, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
+		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
 		if name and ((duration - remaining <= 2) or duration == 0) then
-			ti.spellId = spellId
 			A:DoActions(ti, eventInfo, alerts, false)
 		elseif not name then
 			if A:CheckSnapShot(ti, eventInfo) then
@@ -112,8 +111,8 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
-			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo, snapShot) end
-			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo, snapShot) end
+			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
+			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
 		end
 	end
@@ -167,18 +166,6 @@ function A:GetAlerts(ti, eventInfo)
 	end
 end
 
--- function A:GetAlertSetting(alerts, setting, value)
--- 	dprint(2, "A:GetAlertSetting",setting, value)
--- 	for _, alertDetails in pairs(alerts) do
--- 		if alertDetails[setting] == value then
--- 			dprint(1, "A:GetAlertSetting",setting, value, true)
--- 			return true
--- 		end
--- 	end
--- 	dprint(1, "A:GetAlertSetting",setting, value, false)
--- 	return false
--- end
-
 function A:CheckUnits(ti, eventInfo, alerts_in)
 	dprint(2, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
 	-- if no unit selection for this event return
@@ -202,7 +189,6 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 			local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
 			local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
 			local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
-			--local isOutsider = (bit.band(flags, COMBATLOG_OBJECT_AFFILIATION_OUTSIDER) > 0)
 			local isPlayer = (GUID == playerGUID)
 			local isTarget = (GUID == targetGUID)
 			-- write some useful info into ti for later use
@@ -261,8 +247,8 @@ end
 --**********************************************************************************************************************************
 --Actions
 --**********************************************************************************************************************************
-function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
-	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot", snapShot)
+function A:ChatAnnounce(ti, alerts, eventInfo)
+	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot")
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
 	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
@@ -271,8 +257,6 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
-	local _, _, icon = GetSpellInfo(A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName))
-	dprint(1, icon)
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil
@@ -290,11 +274,10 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 	-- loop through option groups
 	for _, alert in pairs(alerts) do
 		-- get message from options
-		local msg = ""
-		if alert.msgOverride ~= nil and alert.msgOverride ~= "" then
+		local msg = P.messages[eventInfo.short]
+		-- override?
+		if alert.msgOverride and alert.msgOverride ~= "" then
 			msg = alert.msgOverride
-		else
-			msg = P.messages[eventInfo.short]
 		end
 		-- replace
 		msg = string.gsub(msg, "%%dstName", dstName)
@@ -306,7 +289,6 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 		-- get reaction color
 		local color = A:GetReactionColor(ti)
 		local colmsg = WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-
 		msg = prefix..msg..postfix
 		-- bg/raid/party
 		if alert.chatChannels == 2 and channel then
@@ -349,7 +331,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 			elseif chan == "WHISPER" then
 				SendChatMessage(string.gsub(msg, dstName, "You"), chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
-				A:PostInScrolling(msg, icon)
+				A:PostInScrolling(msg, ti.icon)
 			else
 				SendChatMessage(msg, chan, nil, nil)
 			end
@@ -357,15 +339,15 @@ function A:ChatAnnounce(ti, alerts, eventInfo, snapShot)
 	end
 end
 
-function A:PlaySound(ti, alerts, eventInfo, snapShot)
-	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+function A:PlaySound(ti, alerts, eventInfo)
+	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short)
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue
-	local function PlaySoundQueue(queue, oldIsIsplaying, oldHandle)
-		dprint(2, "PlaySoundQueue", queue, oldIsIsplaying, oldHandle)
+	local function PlaySoundQueue(queue, oldIsPlaying, oldHandle)
+		dprint(2, "PlaySoundQueue", queue, oldIsPlaying, oldHandle)
 		-- stop ols sound if its still plying
-		if oldIsIsplaying and oldHandle then
+		if oldIsPlaying and oldHandle then
 			StopSound(oldHandle)
 		end
 		-- loop & iterate
@@ -445,16 +427,13 @@ function A.RegisterCLEU(event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
-		dprint(2, "register", "type", instanceType, "instance", P.general.zones.instance)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	elseif (instanceType == "pvp" or instanceType == "arena") and P.general.zones.bg then
-		dprint(2, "register", "type", instanceType, "bg", P.general.zones.bg)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	elseif instanceType == "none" and P.general.zones.world then
-		dprint(2, "register", "type", instanceType, "world", P.general.zones.world)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
-		dprint(2, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
+		--dprint(2, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end
@@ -464,13 +443,9 @@ function A.ToggleAddon()
 	dprint(3, "A.ToggleAddon", P.general.enabled)
 	if P.general.enabled == true then
 		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
-		--A:RegisterEvent("ZONE_CHANGED", A.RegisterCLEU)
-		--A:RegisterEvent("ZONE_CHANGED_INDOORS", A.RegisterCLEU)
 		A.RegisterCLEU("Toggle")
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		--A:UnregisterEvent("ZONE_CHANGED")
-		--A:UnregisterEvent("ZONE_CHANGED_INDOORS")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end
@@ -481,7 +456,7 @@ end
 -- Various
 --**********************************************************************************************************************************
 function A:GetReactionColor(ti, rgb)
-	dprint(2, "A:GetReactionColor")
+	dprint(3, "A:GetReactionColor")
 	-- prepare return value
 	local color = "white"
 	-- aura applied/refresh
@@ -500,7 +475,7 @@ function A:GetReactionColor(ti, rgb)
 			color = "green"
 		end
 	end
-	-- spell cast start / success
+	-- spell cast start / success / interrupt
 	if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
 		if ti.srcIsFriendly then
 			color =  "green"
@@ -511,6 +486,7 @@ function A:GetReactionColor(ti, rgb)
 	-- return RGB or HEX
 	if rgb == "rgb" then
 		return unpack(A.Colors[color]["rgb"])
-	else return A.Colors[color]["hex"]
+	else
+		return A.Colors[color]["hex"]
 	end
 end
