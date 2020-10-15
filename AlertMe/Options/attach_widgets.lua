@@ -279,7 +279,6 @@ function O.SetToolTip(widget, toolTip)
 	-- show
 	local wrap = true
 	if toolTip.wrap ~= nil then	wrap = toolTip.wrap	end
-	--dprint(1, "wrap", wrap)
 	widget:SetCallback("OnEnter", function()
 		O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 		O.ToolTip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")

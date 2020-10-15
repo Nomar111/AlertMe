@@ -149,7 +149,7 @@ function A:ReArrangeBars(barType)
 end
 
 function A:HideBar(barType, id)
-	dprint(2, "A:HideBar", barType, id)
+	dprint(3, "A:HideBar", barType, id)
 	if A.Bars[barType][id] ~= nil then
 		A.Bars[barType][id]:Stop()
 	end
@@ -172,13 +172,13 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 		if alert.showBar == true and eventInfo.displaySettings == true then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 			if remaining then
-				dprint(2, "aura info found", ti.relSpellName, eventInfo.short, "remaining", remaining)
+				dprint(3, "aura info found", ti.relSpellName, eventInfo.short, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				dprint(1, "no aura info, but snapShot", ti.relSpellName, "remaining", remaining)
+				dprint(2, "no aura info, but snapShot", ti.relSpellName, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
 				dprint(1, "no aura duration, no snapShot, abort", ti.relSpellName,  eventInfo.short)

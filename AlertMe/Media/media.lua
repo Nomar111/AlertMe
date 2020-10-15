@@ -140,7 +140,6 @@ LSM:Register("sound", "Deterrence", [[Interface\AddOns\AlertMe\Media\sound\Deter
 LSM:Register("sound", "Disarm", [[Interface\AddOns\AlertMe\Media\sound\Disarm.ogg]])
 LSM:Register("sound", "Dispel", [[Interface\AddOns\AlertMe\Media\sound\Dispel.ogg]])
 LSM:Register("sound", "Divine Shield", [[Interface\AddOns\AlertMe\Media\sound\Divine Shield.ogg]])
-LSM:Register("sound", "divine", [[Interface\AddOns\AlertMe\Media\sound\divine.ogg]])
 LSM:Register("sound", "Drinking", [[Interface\AddOns\AlertMe\Media\sound\Drinking.ogg]])
 LSM:Register("sound", "Earthbind Totem", [[Interface\AddOns\AlertMe\Media\sound\Earthbind Totem.ogg]])
 LSM:Register("sound", "Elemental Mastery", [[Interface\AddOns\AlertMe\Media\sound\Elemental Mastery.ogg]])

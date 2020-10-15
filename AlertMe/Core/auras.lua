@@ -13,14 +13,10 @@ function A:InitLCD()
 end
 
 function A:GetUnitAura(ti, eventInfo)
-	dprint(2, "A:GetUnitAura", ti.relSpellName, ti.dstName)
+	dprint(3, "A:GetUnitAura", ti.relSpellName, ti.dstName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
 	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining =  A:MatchUnitAura(ti, eventInfo, unit, filter)
-	if name then
-		ti.icon = icon
-		ti.spellId = spellId
-	end
 	-- if not name and not ti.delayed then -- only do the first timer
 	-- 	C_Timer.After(0.2, function()
 	-- 		dprint(2, "delayed call", ti.relSpellName, ti.dstName)
@@ -30,7 +26,7 @@ function A:GetUnitAura(ti, eventInfo)
 end
 
 function A:MatchUnitAura(ti, eventInfo, unit, filter)
-	dprint(2, "A:MatchUnitAura", ti.relSpellName, "unit", unit, "filter", filter)
+	dprint(3, "A:MatchUnitAura", ti.relSpellName, "unit", unit, "filter", filter)
 	for i = 1, 100 do
 		local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId  = UnitAura(unit, i, filter)
 		if not name then
@@ -43,7 +39,7 @@ function A:MatchUnitAura(ti, eventInfo, unit, filter)
 end
 
 function A:FakeEvent(ti, eventInfo)
-	dprint(2, "A:FakeEvent", ti.relSpellName, eventInfo.short)
+	dprint(3, "A:FakeEvent", ti.relSpellName, eventInfo.short)
 	-- create fake args
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
@@ -72,7 +68,7 @@ function A:CheckSnapShot(ti, eventInfo)
 			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["success"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				dprint(1, "snapshot(gain): found match (success)", timeDiff, ti.relSpellName, eventInfo.short)
+				dprint(2, "snapshot(gain): found match (success)", timeDiff, ti.relSpellName, eventInfo.short)
 				return true, snapShot.ti, snapShot.eventInfo
 			end
 		end
@@ -83,7 +79,7 @@ function A:CheckSnapShot(ti, eventInfo)
 			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				dprint(1, "snapshot(success): found match (gain)", timeDiff, ti.relSpellName)
+				dprint(2, "snapshot(success): found match (gain)", timeDiff, ti.relSpellName)
 				return true, snapShot.ti, snapShot.eventInfo
 			end
 		end

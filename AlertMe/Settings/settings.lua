@@ -70,11 +70,10 @@ A.Events = {
 		type = "spell",
 		spellSelection = true,
 		unitSelection = true,
-		displaySettings = true,
+		displaySettings = false,
 		dstWhisper = false,
 		relSpellName = "spellName",
 		units = {"src"},
-		--msg = P.events.msgCastStart,
 		actions = {"chatAnnounce", "playSound"},
 	},
 	["SPELL_CAST_SUCCESS"] = {

@@ -11,6 +11,8 @@ setfenv(1, _G.AlertMe)
 
 -- init function
 function A:Initialize()
+	-- init debugger
+	VDT_AddData = _G.ViragDevTool_AddData or nil
 	-- init examples profile
 	A:InitExamples()
 	-- init LSM
@@ -29,8 +31,6 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
-	-- init debugger
-	VDT_AddData = _G.ViragDevTool_AddData or nil
 end
 
 function A:ParseCombatLog(eventName)
@@ -146,6 +146,7 @@ function A:GetAlerts(ti, eventInfo)
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
 		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
+
 	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event
@@ -167,7 +168,7 @@ function A:GetAlerts(ti, eventInfo)
 end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
-	dprint(2, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
+	dprint(3, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
 	-- if no unit selection for this event return
 	if eventInfo.unitSelection == false or alerts_in == true then
 		return alerts_in
@@ -292,7 +293,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 		if eventInfo.dstWhisper == true and ti.dstIsFriendly and not ti.dstIsPlayer then
 			if (alert.dstWhisper == 2 and ti.srcIsPlayer) or alert.dstWhisper == 3 then
 				if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
-				msgQueue["WHISPER"][msg] = mmsgsg
+				msgQueue["WHISPER"][msg] = msg
 			end
 		end
 		-- scrolling messages
@@ -366,8 +367,8 @@ function A:InitSpellOptions()
 	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
-	--VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	--VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
 		--dprint(3, "Loop1: ", event, alert)
@@ -380,7 +381,7 @@ function A:InitSpellOptions()
 				A.AlertOptions[event][uid] = alertDetails
 				-- spells
 				for spellName, spellDetails in pairs(alertDetails.spellNames) do
-					if not A.SpellOptions[spellName] then A.SpellOptions[spellName] = {} end
+					if not A.SpellOptions[spellName] then A.SpellOptions[spellName] = {icon = spellDetails.icon} end
 					if not A.SpellOptions[spellName][event] then A.SpellOptions[spellName][event] = {} end
 					if not A.SpellOptions[spellName][event][uid] then
 						A.SpellOptions[spellName][event][uid] = {
@@ -443,6 +444,10 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
+	local icon
+	if A.SpellOptions[ti.relSpellName] then
+		icon = A.SpellOptions[ti.relSpellName].icon
+	end
 	-- get message from options
 	local msg = P.messages[eventInfo.short]
 	-- override?
@@ -463,11 +468,10 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 		return prefix..msg..postfix
 	elseif colored and not showIcon then
 		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-	elseif colored and showIcon then
+	elseif colored and showIcon and icon then
 		local iconSize = P.scrolling.fontSize
-		local icon = " |T"..ti.icon..":"..iconSize..":"..iconSize..":0:0|t "
-
-		return WrapTextInColorCode(prefix, color)..icon..msg..icon..WrapTextInColorCode(postfix, color)
+		local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
+		return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
 	end
 end
 
