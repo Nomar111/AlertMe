@@ -24,7 +24,6 @@ function A:GetContainer(barType)
 		bg:SetAllPoints(f)
 		bg:SetColorTexture(0, 0, 0, 0.6)
 		f.bg = bg
-		--local header = f:CreateFontString(nil, "OVERLAY", "TextStatusBarText")
 		local header = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		header:SetAllPoints(f)
 		header:SetText("Drag here")
