@@ -32,7 +32,7 @@ D.profile = {
 		fontSize = 14,
 		font = "Roboto Condensed Regular",
 		timeVisible = 10,
-		alpha = 0.1,
+		alpha = 0,
 	},
 	bars = {
 		["**"] = {

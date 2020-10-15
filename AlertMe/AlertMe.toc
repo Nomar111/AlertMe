@@ -15,4 +15,4 @@ Core\load_core.xml
 Options\load_options.xml
 Media\media.lua
 CustomWidgets\AceGUIWidget-WeakAurasIcon.lua
-CustomWidgets\AceGUIContainer-ScrollFrameAlertMe.lua
+CustomWidgets\AceGUIContainer-AlertMeScrollFrame.lua
