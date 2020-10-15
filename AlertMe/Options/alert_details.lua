@@ -225,7 +225,7 @@ function O:UpdateSpellTable(eventShort, uid)
 		O.SoundSelection:SetDisabled(false)
 	end
 
-	local scrollGroup = A.Libs.AceGUI:Create("AlertMe")
+	local scrollGroup = A.Libs.AceGUI:Create("AlertMeScrollFrame")
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)

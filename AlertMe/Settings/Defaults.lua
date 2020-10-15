@@ -33,14 +33,15 @@ D.profile = {
 		font = "Roboto Condensed Regular",
 		timeVisible = 10,
 		alpha = 0,
+		showIcon = true,
 	},
 	bars = {
 		["**"] = {
 			enabled = true,
 			unlocked = false,
 			showIcon = true,
-			width = 160,
-			height = 17,
+			width = 170,
+			height = 18,
 			alpha = 0.7,
 			fill = false,
 			timeVisible = true,

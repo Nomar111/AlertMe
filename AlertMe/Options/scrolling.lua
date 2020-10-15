@@ -77,8 +77,11 @@ function O:ShowScrollingText(container)
 	O.AttachSpacer(container, _, "small")
 
 	-- align
+	local alignGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
-	local ddAlign = O.AttachDropdown(container, "Alignment", db, "align", list, sliderWidth, updateScrolling)
+	local ddAlign = O.AttachDropdown(alignGroup, "Alignment", db, "align", list, sliderWidth, updateScrolling)
+	O.AttachSpacer(alignGroup, 20)
+	O.AttachCheckBox(alignGroup, "Show spell icon", db, "showIcon", sliderWidth)
 	O.AttachSpacer(container, _, "large")
 
 	-- inline docu

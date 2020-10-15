@@ -3,7 +3,6 @@ local A, D, O, S = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 A.Snapshots = {}
---VDT_AddData(A.Snapshots, "Snapshots")
 
 function A:InitLCD()
 	dprint(2, "A:InitLCD")
@@ -23,12 +22,10 @@ function A:GetUnitAura(ti, eventInfo)
 		ti.spellId = spellId
 	end
 	-- if not name and not ti.delayed then -- only do the first timer
-	-- 	ti.delayed = true
 	-- 	C_Timer.After(0.2, function()
 	-- 		dprint(2, "delayed call", ti.relSpellName, ti.dstName)
 	-- 		A:ProcessTriggerInfo(ti, eventInfo)
 	-- 	end)
-	-- else
 	return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 end
 

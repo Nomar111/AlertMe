@@ -116,7 +116,5 @@ function A:PostInScrolling(msg, icon)
 	if P.scrolling.enabled == true then
 		A:ShowScrolling()
 		A.ScrollingText:AddMessage(msg)
-		-- 	SetFormattedText("|T%s:20:20:2:11|t %s (%s)", spellIcon, spellName, spellRank)
-		--A.ScrollingText:AddMessage("|T"..icon..":15:15:0:0|t "..msg)
 	end
 end

@@ -249,14 +249,6 @@ end
 --**********************************************************************************************************************************
 function A:ChatAnnounce(ti, alerts, eventInfo)
 	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot")
-	local prefix, postfix = P.messages.prefix, P.messages.postfix
-	-- check possible replacements for being nil
-	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
-	local dstName = (ti.dstName) and A:GetUnitNameShort(ti.dstName) or ""
-	local spellName = (ti.spellName) and ti.spellName or ""
-	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
-	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
-	local lockout = (ti.lockout) and ti.lockout or ""
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil
@@ -273,23 +265,9 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local msgQueue = {}
 	-- loop through option groups
 	for _, alert in pairs(alerts) do
-		-- get message from options
-		local msg = P.messages[eventInfo.short]
-		-- override?
-		if alert.msgOverride and alert.msgOverride ~= "" then
-			msg = alert.msgOverride
-		end
-		-- replace
-		msg = string.gsub(msg, "%%dstName", dstName)
-		msg = string.gsub(msg, "%%srcName", srcName)
-		msg = string.gsub(msg, "%%spellName", spellName)
-		msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
-		msg = string.gsub(msg, "%%extraSchool", extraSchool)
-		msg = string.gsub(msg, "%%lockout", lockout)
-		-- get reaction color
-		local color = A:GetReactionColor(ti)
-		local colmsg = WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-		msg = prefix..msg..postfix
+		local msg = A:CreateMessage(ti, eventInfo, alert, false, false)
+		local msgSystem = A:CreateMessage(ti, eventInfo, alert, true, false)
+		local msgScrolling = (P.scrolling.showIcon) and A:CreateMessage(ti, eventInfo, alert, true, true) or  msgSystem
 		-- bg/raid/party
 		if alert.chatChannels == 2 and channel then
 			if msgQueue[channel] == nil then msgQueue[channel] = {} end
@@ -308,19 +286,19 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 		-- addon messages
 		if alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance) then
 			if msgQueue["SYSTEM"] == nil then msgQueue["SYSTEM"] = {} end
-			msgQueue["SYSTEM"][msg] = colmsg
+			msgQueue["SYSTEM"][msg] = msgSystem
 		end
 		-- whisper destination unit
 		if eventInfo.dstWhisper == true and ti.dstIsFriendly and not ti.dstIsPlayer then
 			if (alert.dstWhisper == 2 and ti.srcIsPlayer) or alert.dstWhisper == 3 then
 				if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
-				msgQueue["WHISPER"][msg] = msg
+				msgQueue["WHISPER"][msg] = mmsgsg
 			end
 		end
 		-- scrolling messages
 		if alert.scrollingText == true and P.scrolling.enabled then
 			if msgQueue["SCROLLING"] == nil then msgQueue["SCROLLING"] = {} end
-			msgQueue["SCROLLING"][msg] = colmsg
+			msgQueue["SCROLLING"][msg] = msgScrolling
 		end
 	end
 	-- loop through message queue and send messages
@@ -455,6 +433,44 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
+function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
+	dprint(3, "A:CreateMessage")
+	local prefix, postfix = P.messages.prefix, P.messages.postfix
+	-- check possible replacements for being nil
+	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
+	local dstName = (ti.dstName) and A:GetUnitNameShort(ti.dstName) or ""
+	local spellName = (ti.spellName) and ti.spellName or ""
+	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
+	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
+	local lockout = (ti.lockout) and ti.lockout or ""
+	-- get message from options
+	local msg = P.messages[eventInfo.short]
+	-- override?
+	if alert.msgOverride and alert.msgOverride ~= "" then
+		msg = alert.msgOverride
+	end
+	-- replace
+	msg = string.gsub(msg, "%%dstName", dstName)
+	msg = string.gsub(msg, "%%srcName", srcName)
+	msg = string.gsub(msg, "%%spellName", spellName)
+	msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
+	msg = string.gsub(msg, "%%extraSchool", extraSchool)
+	msg = string.gsub(msg, "%%lockout", lockout)
+	-- get reaction color
+	local color = A:GetReactionColor(ti)
+	-- return
+	if not colored then
+		return prefix..msg..postfix
+	elseif colored and not showIcon then
+		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+	elseif colored and showIcon then
+		local iconSize = P.scrolling.fontSize
+		local icon = " |T"..ti.icon..":"..iconSize..":"..iconSize..":0:0|t "
+
+		return WrapTextInColorCode(prefix, color)..icon..msg..icon..WrapTextInColorCode(postfix, color)
+	end
+end
+
 function A:GetReactionColor(ti, rgb)
 	dprint(3, "A:GetReactionColor")
 	-- prepare return value
