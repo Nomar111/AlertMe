@@ -14,8 +14,8 @@ function O:ShowAlerts(container, eventShort)
 	-- some local variables
 	local db = P.alerts[eventShort]
 	local uid = db.selectedAlert
-	local iconAdd = A.Backgrounds["Add"]
-	local iconDel = A.Backgrounds["Delete"]
+	local iconAdd = A.Backgrounds["AlertMe_Add"]
+	local iconDel = A.Backgrounds["AlertMe_Delete"]
 	local btnAddToolTip = {lines = {"Add new alert"}}
 	local btnDelToolTip = {lines = {"Delete selected alert"}}
 	-- local functions

@@ -172,8 +172,8 @@ function O:UpdateSpellTable(eventShort, uid)
 	O.SpellTable:ReleaseChildren()
 	-- local variables and functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local iconAdd = A.Backgrounds["Add"]
-	local iconDel =  A.Backgrounds["Delete"]
+	local iconAdd = A.Backgrounds["AlertMe_Add"]
+	local iconDel =  A.Backgrounds["AlertMe_Delete"]
 	local btnDelSpellToolTip = {lines={"Delete spell/aura"}}
 	local btnAddSoundToolTip = {lines={"Set an individual sound alert"}}
 	-- delete
