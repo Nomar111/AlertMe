@@ -175,10 +175,14 @@ function A:InitExamples()
 				["selectedAlert"] = "1601740147",
 				["alertDetails"] = {
 					["1601740147"] = {
+						["created"] = true,
+						["soundFile"] = "Purge",
+						["name"] = "Dispel Enemy Buffs",
+						["soundSelection"] = 2,
 						["spellNames"] = {
 							["Blessing of Protection"] = {
 								["icon"] = 135964,
-								["soundFile"] = "None",
+								["soundFile"] = "Purge",
 							},
 							["Blessing of Freedom"] = {
 								["icon"] = 135968,
@@ -190,11 +194,6 @@ function A:InitExamples()
 								["icon"] = 135896,
 							},
 						},
-						["soundFile"] = "Purge",
-						["name"] = "Dispel Enemy Buffs",
-						["chatChannels"] = 4,
-						["soundSelection"] = 2,
-						["created"] = true,
 					},
 				},
 			},
@@ -204,48 +203,34 @@ function A:InitExamples()
 					["1602031069"] = {
 						["msgOverride"] = "May the force be with you!",
 						["dstWhisper"] = 2,
-						["addonMessages"] = 2,
-						["created"] = true,
-						["name"] = "Whisper buff target",
-						["dstUnits"] = 2,
-						["soundSelection"] = 1,
 						["spellNames"] = {
-							["Power Infusion"] = {
-								["icon"] = 135939,
-							},
 							["Innervate"] = {
 								["icon"] = 136048,
 							},
 						},
+						["name"] = "Innervate whisper",
+						["dstUnits"] = 2,
+						["soundSelection"] = 1,
+						["created"] = true,
 					},
 				},
 			},
 			["interrupt"] = {
-				["selectedAlert"] = "1602863497",
+				["selectedAlert"] = "1601740297",
 				["alertDetails"] = {
-					["1602863497"] = {
-						["addonMessages"] = 2,
-						["created"] = true,
-						["name"] = "Enemy by me",
-						["dstUnits"] = 3,
-						["chatChannels"] = 4,
-					},
 					["1601740297"] = {
-						["created"] = true,
-						["srcUnits"] = 3,
-						["addonMessages"] = 2,
-						["soundFile"] = "Kick",
-						["name"] = "Myself interrupted",
-						["chatChannels"] = 4,
-						["soundSelection"] = 2,
 						["msgOverride"] = "I am interrupted --%extraSchool locked for %lockout s",
+						["srcUnits"] = 3,
+						["soundFile"] = "Kick",
+						["name"] = "Myself by Enemy",
+						["soundSelection"] = 2,
+						["created"] = true,
 					},
 					["1601740258"] = {
 						["srcUnits"] = 2,
 						["created"] = true,
-						["srcExclude"] = 2,
 						["soundFile"] = "Countered",
-						["name"] = "Enemy by friendly",
+						["name"] = "Enemy",
 						["dstUnits"] = 3,
 						["soundSelection"] = 2,
 					},
@@ -255,6 +240,8 @@ function A:InitExamples()
 				["selectedAlert"] = "1596266126",
 				["alertDetails"] = {
 					["1596266126"] = {
+						["created"] = true,
+						["srcUnits"] = 3,
 						["spellNames"] = {
 							["Mind Control"] = {
 								["icon"] = 136206,
@@ -269,13 +256,12 @@ function A:InitExamples()
 								["soundFile"] = "Mana Burn",
 							},
 						},
-						["srcUnits"] = 3,
-						["created"] = true,
-						["name"] = "Enemy, Announce",
-						["chatChannels"] = 4,
+						["name"] = "Enemy casts, announce",
 						["showBar"] = false,
 					},
 					["1601739802"] = {
+						["created"] = true,
+						["srcUnits"] = 3,
 						["spellNames"] = {
 							["Scare Beast"] = {
 								["icon"] = 132118,
@@ -294,47 +280,32 @@ function A:InitExamples()
 								["soundFile"] = "Hibernate",
 							},
 						},
-						["srcUnits"] = 3,
-						["created"] = true,
-						["name"] = "Enemy, NoAnnounce",
+						["name"] = "Enemy casts, no announce",
 						["showBar"] = false,
-					},
-					["1602863290"] = {
-						["spellNames"] = {
-							["Polymorph"] = {
-								["icon"] = 136071,
-							},
-							["Hibernate"] = {
-								["icon"] = 136090,
-							},
-						},
-						["addonMessages"] = 2,
-						["created"] = true,
-						["name"] = "MySpellAnnounce",
-						["chatChannels"] = 4,
-						["soundSelection"] = 1,
 					},
 				},
 			},
 			["gain"] = {
-				["selectedAlert"] = "1601737160",
+				["selectedAlert"] = "1596266053",
 				["alertDetails"] = {
 					["1601739154"] = {
-						["msgOverride"] = "I am affected by %spellName",
+						["created"] = true,
 						["srcUnits"] = 3,
-						["addonMessages"] = 2,
+						["msgOverride"] = "I am affected by %spellName",
+						["name"] = "CC on me",
+						["soundSelection"] = 1,
 						["spellNames"] = {
 							["Mind Control"] = {
 								["icon"] = 136206,
 							},
-							["Freezing Trap Effect"] = {
-								["icon"] = 135834,
+							["Sap"] = {
+								["icon"] = 132310,
 							},
 							["Silence"] = {
 								["icon"] = 135975,
 							},
-							["Sap"] = {
-								["icon"] = 132310,
+							["Freezing Trap Effect"] = {
+								["icon"] = 135834,
 							},
 							["Reckless Charge"] = {
 								["icon"] = 136010,
@@ -343,12 +314,13 @@ function A:InitExamples()
 								["icon"] = 136175,
 							},
 						},
-						["name"] = "CC on me",
-						["soundSelection"] = 1,
-						["created"] = true,
 						["showBar"] = false,
 					},
 					["1601739067"] = {
+						["created"] = true,
+						["srcUnits"] = 3,
+						["name"] = "EnemyBuffs, NoAnnounce",
+						["dstUnits"] = 1,
 						["spellNames"] = {
 							["Divine Shield"] = {
 								["icon"] = 135896,
@@ -367,13 +339,12 @@ function A:InitExamples()
 								["soundFile"] = "Sprint",
 							},
 						},
-						["srcUnits"] = 3,
-						["addonMessages"] = 2,
-						["name"] = "EnemyBuffs, NoAnnounce",
-						["dstUnits"] = 1,
-						["created"] = true,
 					},
 					["1601737160"] = {
+						["created"] = true,
+						["srcUnits"] = 3,
+						["name"] = "EnemyBuffs, Announce",
+						["dstUnits"] = 1,
 						["spellNames"] = {
 							["Free Action"] = {
 								["icon"] = 134715,
@@ -396,11 +367,26 @@ function A:InitExamples()
 								["soundFile"] = "Blessing of Protection",
 							},
 						},
-						["srcUnits"] = 3,
-						["addonMessages"] = 2,
-						["name"] = "EnemyBuffs, Announce",
-						["dstUnits"] = 1,
+					},
+					["1602026476"] = {
 						["created"] = true,
+						["srcUnits"] = 2,
+						["name"] = "debug",
+						["dstUnits"] = 1,
+						["spellNames"] = {
+							["Recklessness"] = {
+								["icon"] = 132109,
+								["soundFile"] = "Recklessness",
+							},
+							["Death Wish"] = {
+								["icon"] = 136146,
+								["soundFile"] = "Death Wish",
+							},
+							["Shield Wall"] = {
+								["icon"] = 132362,
+								["soundFile"] = "Shield Wall",
+							},
+						},
 					},
 					["1601739380"] = {
 						["created"] = true,
@@ -411,8 +397,6 @@ function A:InitExamples()
 							},
 						},
 						["srcUnits"] = 3,
-						["addonMessages"] = 2,
-						["showBar"] = false,
 						["name"] = "Friend blinded",
 						["dstUnits"] = 2,
 						["dstExclude"] = 2,
@@ -420,7 +404,6 @@ function A:InitExamples()
 					["1601739528"] = {
 						["created"] = true,
 						["srcUnits"] = 3,
-						["addonMessages"] = 2,
 						["spellNames"] = {
 							["Stealth"] = {
 								["icon"] = 132320,
@@ -438,6 +421,21 @@ function A:InitExamples()
 						["name"] = "Sound only",
 						["dstUnits"] = 3,
 						["showBar"] = false,
+					},
+					["1596266053"] = {
+						["created"] = true,
+						["soundFile"] = "Sprint",
+						["name"] = "MotW",
+						["soundSelection"] = 1,
+						["spellNames"] = {
+							["Mark of the Wild"] = {
+								["icon"] = 136078,
+								["soundFile"] = "None",
+							},
+							["Thorns"] = {
+								["icon"] = 136104,
+							},
+						},
 					},
 				},
 			},
