@@ -436,11 +436,6 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
 	local icon
-	if A.SpellOptions[ti.relSpellName] then
-		icon = A.SpellOptions[ti.relSpellName].icon
-	else
-		dprint(1, "A:CreateMessage", "no icon found", ti.relSpellName)
-	end
 	-- get message from options
 	local msg = P.messages[eventInfo.short]
 	-- override?
@@ -462,6 +457,13 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	elseif colored and not showIcon then
 		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
 	elseif colored and showIcon and icon then
+		-- get icon
+		if A.SpellOptions[ti.relSpellName] then
+			icon = A.SpellOptions[ti.relSpellName].icon
+		else
+			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+			_, _, icon = GetSpellInfo(spellId)
+		end
 		local iconSize = P.scrolling.fontSize-2.5
 		local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
 		return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
