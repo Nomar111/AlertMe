@@ -5,7 +5,6 @@
 	<Include file="AceEvent-3.0\AceEvent-3.0.xml"/>
 	<Include file="AceDB-3.0\AceDB-3.0.xml"/>
 	<Include file="AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
-	<Include file="AceConsole-3.0\AceConsole-3.0.xml"/>
 	<Include file="AceGUI-3.0\AceGUI-3.0.xml"/>
 	<Include file="AceConfig-3.0\AceConfig-3.0.xml"/>
 	<Include file="AceConfig-3.0\AceConfigDialog-3.0\AceConfigDialog-3.0.xml"/>
@@ -15,11 +14,10 @@
 	<Include file="LibCandyBar-3.0\lib.xml"/>
 	<script file="LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
 	<Include file="LibDBIcon-1.0\lib.xml"/>
-
 	<!--
 	<Include file="AceComm-3.0\AceComm-3.0.xml"/>
+	<Include file="AceConsole-3.0\AceConsole-3.0.xml"/>
 	<Include file="AceTimer-3.0\AceTimer-3.0.xml"/>
 	<Include file="AceSerializer-3.0\AceSerializer-3.0.xml"/>
-	<Include file="Lib-EditBox-AutoComplete\Lib-EditBox-AutoComplete.xml"/>
 	-->
 </Ui>
