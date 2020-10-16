@@ -2,6 +2,7 @@
 	<Script file='core.lua'/>
 	<Script file='auras.lua'/>
 	<Script file='ldb.lua'/>
+	<Script file='lcg.lua'/>
 	<Script file='scrolling.lua'/>
 	<Script file='bars.lua'/>
 </Ui>

@@ -47,6 +47,8 @@ A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
 A.Libs.LSM = LibStub("LibSharedMedia-3.0")
 A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
+A.Libs.LCG = LibStub("LibCustomGlow-1.0")
+A.Libs.LGF = LibStub("LibGetFrame-1.0")
 A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
 

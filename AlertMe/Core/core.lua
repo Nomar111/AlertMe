@@ -24,6 +24,8 @@ function A:Initialize()
 	A:InitLCD()
 	-- init LDB
 	A:InitLDB()
+	-- init LCG
+	A:InitLCG()
 	-- register for events
 	A.ToggleAddon()
 	-- for reloadui
