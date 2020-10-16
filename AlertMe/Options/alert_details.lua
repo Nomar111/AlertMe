@@ -43,7 +43,7 @@ function O:ShowUnitSelection(container, eventShort, uid)
 	-- unit selection
 	if A.EventsShort[eventShort].unitSelection == true then
 		O.AttachHeader(container, "Unit selection")
-		local unitsList = {[1] = "All players", [2] = "Grouped players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities"}
+		local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities"}
 		local excludeList = {[1] = "---", [2] = "Myself", [3] = "Target"}
 		local unitsGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
 		if A.EventsShort[eventShort].units[1] == "src" then
