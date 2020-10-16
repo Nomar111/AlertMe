@@ -1,12 +1,10 @@
---dprint(3, "bars.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
--- creates the general options tab
 function O:ShowBars(container)
-	dprint(2, "O:ShowBars")
+	dprint(3, "O:ShowBars")
 	local sliderWidth = 200
 	local db = P.bars.auras
 	-- local functions
@@ -24,7 +22,6 @@ function O:ShowBars(container)
 	O.AttachCheckBox(enableGroup, "Enable aura bars", db ,"enabled", 140)
 	O.AttachCheckBox(enableGroup, "Unlock bars", db ,"unlocked", 140, containerLock)
 	O.AttachSpacer(container, _, "medium")
-
 	-- buttons
 	local buttonGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	-- show
@@ -45,28 +42,23 @@ function O:ShowBars(container)
 	local btnReset = O.AttachButton(buttonGroup, "Reset position", 120)
 	btnReset:SetCallback("OnClick", function() A:ResetContainerPosition("auras") end)
 	O.AttachSpacer(container, _, "medium")
-
 	-- texture
 	local textureGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachLSM(textureGroup, "statusbar", "Bar texture", db, "texture", sliderWidth - 4, updateTestBar)
 	O.AttachSpacer(textureGroup, 23)
-	--O.AttachSlider(textureGroup, "Bar alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, updateTestBar)
 	O.AttachSpacer(container, _, "medium")
-
 	-- width/height
 	local sizeGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachSlider(sizeGroup, "Set width", db, "width", 40, 400, 5, false, sliderWidth, updateTestBar)
 	O.AttachSpacer(sizeGroup, 20)
 	O.AttachSlider(sizeGroup, "Set height", db, "height", 1, 50, 1, false, sliderWidth, updateTestBar)
 	O.AttachSpacer(container, _, "medium")
-
 	-- icon / fill
 	local iconGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachCheckBox(iconGroup, "Show icon", db ,"showIcon", 120, updateTestBar)
 	O.AttachCheckBox(iconGroup, "Fill up", db ,"fill", 100, updateTestBar)
 	O.AttachCheckBox(iconGroup, "Time visible", db ,"timeVisible", 120, updateTestBar)
 	O.AttachSpacer(container, _, "large")
-
 	-- colors
 	O.AttachColorPicker(container, "Bar color (good)", db, "goodColor", true, _, updateTestBar)
 	O.AttachSpacer(container, _, "small")

@@ -1,4 +1,3 @@
---dprint(3, "options.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -9,7 +8,7 @@ O.config = {}
 -- *************************************************************************************
 -- open the options window
 function O:OpenOptions()
-	dprint(2, "O:OpenOptions")
+	dprint(3, "O:OpenOptions")
 	local function close()
 		A:InitSpellOptions()
 		A.RegisterCLEU("Options")
@@ -37,7 +36,7 @@ end
 -- *************************************************************************************
 -- creates navigation tree
 function O:CreateNavTree(container)
-	dprint(2, "O:CreateNavTree")
+	dprint(3, "O:CreateNavTree")
 	-- function to draw the groupd
 	local tree_structure = {}
 	tree_structure[1] = {value = "general", text = "General"}
@@ -62,13 +61,11 @@ function O:CreateNavTree(container)
 	tree.width = "fill"
 	tree.height = "fill"
 	tree:SetTree(tree_structure)
-
 	-- callbacks
 	local function GroupSelected(widget, event, uniqueValue)
-		dprint(2, widget, event, uniqueValue)
+		dprint(3, widget, event, uniqueValue)
 		-- release content
 		widget:ReleaseChildren()
-
 		-- create new content container
 		local  contentGroup =  O.AttachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
 		local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
@@ -80,11 +77,10 @@ function O:CreateNavTree(container)
 	end
 	tree:SetCallback("OnGroupSelected", GroupSelected)
 	container:AddChild(tree)
-	--tree:SelectByPath(5)
 end
 
 function O:ShowOptions(container, uniqueValue)
-	dprint(2, "O:ShowOptions", uniqueValue)
+	dprint(3, "O:ShowOptions", uniqueValue)
 	local delim = "\001"
 	local lvl1, lvl2 = strsplit(delim, uniqueValue)
 	if lvl1 == "general" then O:ShowGeneral(container)

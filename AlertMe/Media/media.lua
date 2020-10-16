@@ -1,4 +1,3 @@
---dprint(3, "media.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -6,12 +5,12 @@ setfenv(1, _G.AlertMe)
 local LSM = A.Libs.LSM
 
 function A:InitLSM()
-dprint(2, "A:InitLSM")
-A.Sounds = LSM:HashTable("sound")
-A.Statusbars = LSM:HashTable("statusbar")
-A.Backgrounds = LSM:HashTable("background")
-A.Fonts = LSM:HashTable("font")
-A.Borders = LSM:HashTable("font")
+	dprint(3, "A:InitLSM")
+	A.Sounds = LSM:HashTable("sound")
+	A.Statusbars = LSM:HashTable("statusbar")
+	A.Backgrounds = LSM:HashTable("background")
+	A.Fonts = LSM:HashTable("font")
+	A.Borders = LSM:HashTable("font")
 end
 
 -- status bars

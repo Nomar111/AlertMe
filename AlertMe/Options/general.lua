@@ -1,4 +1,3 @@
---dprint(3, "general.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -6,8 +5,7 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowGeneral(container)
-	--VDT_AddData(container,"cnt")
-	dprint(2, "O:ShowGeneral")
+	dprint(3, "O:ShowGeneral")
 	-- header
 	O.AttachHeader(container, "General Settings")
 	-- addon

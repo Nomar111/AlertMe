@@ -1,11 +1,10 @@
---dprint(3, "messages.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 function O:ShowMessages(container)
-	dprint(2, "O:ShowMessages")
+	dprint(3, "O:ShowMessages")
 	local db = P.messages
 	-- header
 	O.AttachHeader(container, "Message Settings")

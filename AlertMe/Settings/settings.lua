@@ -1,4 +1,3 @@
---dprint(3, "settings.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment

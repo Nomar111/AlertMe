@@ -1,6 +1,6 @@
---dprint(3, "defaults.lua")
 -- get engine environment
-local _, D = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
+local D = A.Defaults
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 

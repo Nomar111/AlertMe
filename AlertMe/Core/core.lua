@@ -54,7 +54,7 @@ function A:ParseCombatLog(eventName)
 	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
 		ti.dstGUID, ti.dstName, ti.dstFlags = ti.srcGUID, ti.srcName, ti.srcFlags
 	elseif ti.event == "SPELL_INTERRUPT" then
-		ti.lockout = A.Lockouts[ti.spellName]
+		ti.lockout = A.Lockouts[ti.spellName] or ""
 	end
 	-- set evenInfo (either from master event or from self)
 	local masterEvent = A.Events[ti.event].masterEvent
@@ -105,7 +105,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 end
 
 function A:DoActions(ti, eventInfo, alerts, snapShot)
-	dprint(2, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
+	dprint(3, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
@@ -114,7 +114,6 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 		end
 	end
 end
-
 
 --**********************************************************************************************************************************
 --Checks
@@ -321,7 +320,7 @@ function A:PlaySound(ti, alerts, eventInfo)
 	local delay = 1.3
 	-- play the sound queue
 	local function PlaySoundQueue(queue, oldIsPlaying, oldHandle)
-		dprint(2, "PlaySoundQueue", queue, oldIsPlaying, oldHandle)
+		dprint(3, "PlaySoundQueue", queue, oldIsPlaying, oldHandle)
 		-- stop ols sound if its still plying
 		if oldIsPlaying and oldHandle then
 			StopSound(oldHandle)
@@ -409,7 +408,6 @@ function A.RegisterCLEU(event)
 	elseif instanceType == "none" and P.general.zones.world then
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
-		--dprint(2, "unregister", "type", instanceType, "bg", P.general.zones.bg, "world", P.general.zones.world, "instance", P.general.zones.instance)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
 	end

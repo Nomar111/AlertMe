@@ -1,11 +1,10 @@
---dprint(3, "container.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
 function O:ShowScrollingText(container)
-	dprint(2, "O:ShowcontainerText")
+	dprint(3, "O:ShowScrollingText")
 	local db = P.scrolling
 	local sliderWidth = 190
 	-- local function
@@ -20,16 +19,13 @@ function O:ShowScrollingText(container)
 		P.scrolling.point = "CENTER"
 		A:SetScrollingPosition()
 	end
-
 	-- header
 	O.AttachHeader(container, "Scrolling Text Settings")
-
 	-- enable
 	local enableGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachCheckBox(enableGroup, "Enable Scrolling Text", db ,"enabled", 170)
 	O.AttachCheckBox(enableGroup, "Movable", db ,"interactive", 250, toggleInteractive)
 	O.AttachSpacer(container, _, "small")
-
 	-- button row 1
 	local width = 140
 	local buttonGroup1 = O.AttachGroup(container, "simple", _, {fullWidth = true})
@@ -47,11 +43,9 @@ function O:ShowScrollingText(container)
 	local btnCenterX = O.AttachButton(buttonGroup2, "Center horicontal", width)
 	btnCenterX:SetCallback("OnClick", centerX)
 	O.AttachSpacer(container, _, "small")
-
 	-- width
 	width = O.AttachSlider(container, "Set width", db, "width", 300, 1000, 20, false, 400, updateScrolling)
 	O.AttachSpacer(container, _, "small")
-
 	-- fading
 	local fadingGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	local cbFading = O.AttachCheckBox(fadingGroup, "Enable fading", db, "fading", sliderWidth, updateScrolling)
@@ -59,7 +53,6 @@ function O:ShowScrollingText(container)
 	-- time visible
 	O.AttachSlider(fadingGroup, "Fade after (s)", db, "timeVisible", 1, 30, 1, false, sliderWidth, updateScrolling)
 	O.AttachSpacer(container, _, "small")
-
 	-- font size
 	local alphaGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachSlider(alphaGroup, "Font size", db, "fontSize", 8, 22, 1, false, sliderWidth, updateScrolling)
@@ -75,7 +68,6 @@ function O:ShowScrollingText(container)
 	-- max lines
 	O.AttachSlider(linesGroup, "Max. lines (history)", db, "maxLines", 25, 500, 25, false, sliderWidth, updateScrolling)
 	O.AttachSpacer(container, _, "small")
-
 	-- align
 	local alignGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
@@ -83,7 +75,6 @@ function O:ShowScrollingText(container)
 	O.AttachSpacer(alignGroup, 20)
 	O.AttachCheckBox(alignGroup, "Show spell icon", db, "showIcon", sliderWidth)
 	O.AttachSpacer(container, _, "large")
-
 	-- inline docu
 	local text1 = "Left-Click for moving the frame (if set to movable)."
 	local text2 = "Right-Click for closing the frame (if set to movable)."

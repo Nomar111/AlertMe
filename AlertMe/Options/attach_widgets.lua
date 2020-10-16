@@ -1,4 +1,3 @@
---dprint(3, "attach_widgets.lua")
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
@@ -111,7 +110,6 @@ function O.AttachGroup(container, type, title, format)
 	else
 		layout = format.layout
 	end
-
 	-- create group
 	local widget = {}
 	if type == "inline" then
@@ -120,7 +118,6 @@ function O.AttachGroup(container, type, title, format)
 	elseif type == "simple" then
 		widget = A.Libs.AceGUI:Create("SimpleGroup")
 	end
-
 	-- format
 	if format then
 		if format.fullWidth == true then widget:SetFullWidth(true) end
@@ -136,7 +133,6 @@ function O.AttachGroup(container, type, title, format)
 	if layout ~= "none" then
 		widget:SetLayout(layout)
 	 end
-
 	-- attach & return
 	container:AddChild(widget)
 	return widget

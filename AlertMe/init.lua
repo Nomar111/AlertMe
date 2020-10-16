@@ -87,7 +87,7 @@ end
 
 -- automatically called on profile copy/delete/etc.
 function A:OnProfileEvent(event)
-	dprint(2, "A:OnProfileEvent", event)
+	dprint(3, "A:OnProfileEvent", event)
 	-- set global P again
 	P = A.db.profile
 	-- update options table
