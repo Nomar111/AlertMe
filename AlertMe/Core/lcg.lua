@@ -9,6 +9,12 @@ function A:InitLCG()
 	A.GetUnitNameplate = A.Libs.LGF.GetUnitNameplate(unit)
 end
 
+-- if ti.dstGUID then
+-- 	local unitFrame = A.GetUnitFrame(ti.dstGUID)
+-- 	dprint(1, "A.GetUnitFrame", unitFrame)
+-- 	VDT_AddData(unitFrame, "unitFrame")
+-- end
+
 
 
 

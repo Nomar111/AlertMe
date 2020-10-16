@@ -303,7 +303,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			if chan == "SYSTEM" then
 				A:SystemMessage(msg)
 			elseif chan == "WHISPER" then
-				SendChatMessage(string.gsub(msg, dstName, "You"), chan, nil, ti.dstName)
+				SendChatMessage(msg, chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
 				A:PostInScrolling(msg, ti.icon)
 			else
