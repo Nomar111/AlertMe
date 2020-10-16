@@ -216,12 +216,7 @@ LSM:Register("border", "RothSquare", [[Interface\Addons\AlertMe\Media\border\rot
 LSM:Register("border", "SeerahScalloped", [[Interface\Addons\AlertMe\Media\border\SeerahScalloped.blp]])
 
 -- backgrounds
-LSM:Register("background", "Moo", [[Interface\Addons\AlertMe\Media\background\moo.tga]])
-LSM:Register("background", "Bricks", [[Interface\Addons\AlertMe\Media\background\bricks.tga]])
-LSM:Register("background", "Brushed Metal", [[Interface\Addons\Media\AlertMe\background\brushedmetal.tga]])
-LSM:Register("background", "Copper", [[Interface\Addons\AlertMe\Media\background\copper.tga]])
-LSM:Register("background", "Smoke", [[Interface\Addons\AlertMe\Media\background\smoke.tga]])
-LSM:Register("background", "Add", [[Interface\AddOns\AlertMe\Media\background\add.tga]])
-LSM:Register("background", "Delete", [[Interface\AddOns\AlertMe\Media\background\delete.tga]])
-LSM:Register("background", "Reset", [[Interface\AddOns\AlertMe\Media\background\reset.tga]])
-LSM:Register("background", "AlertMe", [[Interface\AddOns\AlertMe\Media\background\alertme.tga]])
+LSM:Register("background", "AlertMe_Add", [[Interface\AddOns\AlertMe\Media\background\alertme_add.tga]])
+LSM:Register("background", "AlertMe_Add2", [[Interface\AddOns\AlertMe\Media\background\alertme_add2.tga]])
+LSM:Register("background", "AlertMe_Delete", [[Interface\AddOns\AlertMe\Media\background\alertme_delete.tga]])
+LSM:Register("background", "AlertMe_Minimap", [[Interface\AddOns\AlertMe\Media\background\alertme_minimap.tga]])
