@@ -456,7 +456,7 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 		return prefix..msg..postfix
 	elseif colored and not showIcon then
 		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-	elseif colored and showIcon and icon then
+	elseif colored and showIcon then
 		-- get icon
 		if A.SpellOptions[ti.relSpellName] then
 			icon = A.SpellOptions[ti.relSpellName].icon
