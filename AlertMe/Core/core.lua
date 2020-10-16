@@ -464,9 +464,13 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 			_, _, icon = GetSpellInfo(spellId)
 		end
-		local iconSize = P.scrolling.fontSize-2.5
-		local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
-		return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
+		if icon then
+			local iconSize = P.scrolling.fontSize-2.5
+			local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
+			return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
+		else
+			return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+		end
 	end
 end
 
