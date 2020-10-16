@@ -12,7 +12,6 @@ local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEven
 A.Defaults = {}
 A.Options = {}
 A.Profile = {profile = {}}
-A.Spells = {}
 
 -- set engine environment substructure
 Engine[1] = A				-- A
