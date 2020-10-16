@@ -1,11 +1,11 @@
 ## Interface: 11304
 ## Title: AlertMe
-## Notes: PvP alerts
+## Notes: PvP Alerts
 ## Author: Nomar - Zandalar Tribe (EU)
 ## SavedVariables: AlertMeDB
 ## SavedVariablesPerCharacter: AlertMeDBChr
 ## OptionalDeps: Ace3
-## Version: v1.0.0-alpha
+## Version: v1.0.0
 
 Libs\load_libs.xml
 init.lua

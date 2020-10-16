@@ -1,5 +1,5 @@
 -- get engine environment
-local A, D, O, S = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
 --upvalues
 local _G, table, getmetatable, setmetatable = _G, table, getmetatable, setmetatable
 -- set engine as new global environment
@@ -94,5 +94,12 @@ function dprint(lvl,...)
 		if A.db then
 			tinsert(A.db.profile.log, logmsg)
 		end
+	end
+end
+
+function VDT_AddData(obj, desc)
+	local vdt = _G.ViragDevTool_AddData or nil
+	if vdt then
+		vdt(obj, desc)
 	end
 end

@@ -1,4 +1,3 @@
---print("init.lua")
 -- upvalues
 local _G, LibStub = _G, LibStub
 local GetAddOnMetadata, UnitName, GetRealmName  = GetAddOnMetadata, UnitName, GetRealmName
@@ -16,21 +15,11 @@ A.Profile = {profile = {}}
 A.Spells = {}
 
 -- set engine environment substructure
-Engine[1] = A
-Engine[2] = A.Defaults  	-- D
-Engine[3] = A.Options   	-- O
-Engine[4] = A.Spells		-- S
+Engine[1] = A				-- A
+Engine[2] = A.Options   	-- O
 
 -- set wow global
 _G.AlertMe = Engine
-
--- init debugger and add engine
--- VDT_AddData = _G.ViragDevTool_AddData
--- VDT_AddData(Engine, "Engine")
--- VDT_AddData(A, "A")
--- VDT_AddData(A.Defaults, "D")
--- VDT_AddData(A.Options, "O")
--- VDT_AddData(A.Spells, "S")
 
 -- addon upvalues
 print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
@@ -47,8 +36,6 @@ PLAYER_NAME = UnitName("player")
 REALM_NAME = GetRealmName()
 PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 DEBUG_LEVEL = 1
-GITHUB_LINK = "https://github.com/Nomar111/AlertMe"
-A.Github = GITHUB_LINK
 
 -- libraries
 A.Libs = {}
@@ -63,11 +50,10 @@ A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
 A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
---A.Libs.Callbacks = LibStub("CallbackHandler-1.0"):New(A.Libs.Callbacks)
 
 -- addon initialized
 function A:OnInitialize()
-	dprint(2, "A:OnInitialize")
+	dprint(3, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -76,8 +62,6 @@ function A:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileEvent")
 	-- define addon global P for profile data
 	P = A.db.profile
-	--VDT_AddData(self.db, "db")
-	--VDT_AddData(P, "P")
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
 	-- init chatframes/debugging
@@ -98,7 +82,7 @@ end
 
 -- addon disabled
 function A:OnDisable()
-	dprint(2, "A:OnDisable")
+	dprint(3, "A:OnDisable")
 end
 
 -- automatically called on profile copy/delete/etc.
@@ -108,5 +92,4 @@ function A:OnProfileEvent(event)
 	P = A.db.profile
 	-- update options table
 	A.Options.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
-	-- do whatever else
 end

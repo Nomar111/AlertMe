@@ -3,7 +3,7 @@
 local _G, GetItemIcon = _G, GetItemIcon
 --local GameTooltip, GetSpellInfo = GameTooltip, GetSpellInfo
 -- get engine environment
-local A, D, O, S = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 

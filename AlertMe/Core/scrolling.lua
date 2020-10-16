@@ -1,13 +1,12 @@
---dprint(3, "scrolling.lua")
-local _G = _G
 -- get engine environment
-local A, D, O, S = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
+--upvalues
+local _G = _G
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
--- scrolling text init
 function A:UpdateScrolling()
-	dprint(2, "A:UpdateScrolling")
+	dprint(3, "A:UpdateScrolling")
 	-- enabled?
 	local db = P.scrolling
 	if db.enabled == false then return end
@@ -57,18 +56,18 @@ function A:UpdateScrolling()
 	f:SetBackdropColor(0, 0, 0, db.alpha)
 	f:RefreshLayout()
 	f:RefreshDisplay()
-	--f:EnableMouse(db.interactive)
 	-- set position according to db
 	A:SetScrollingPosition(false)
 	A:ToggleScrollingInteractive()
-
 end
 
 function A:ToggleScrollingInteractive()
+	dprint(3, "A:ToggleScrollingInteractive")
 	A.ScrollingText:EnableMouse(P.scrolling.interactive)
 end
 
 function A:ShowScrolling(setup)
+	dprint(3, "A:ShowScrolling", setup)
 	-- enabled?
 	local db = P.scrolling
 	if db.enabled == false then return end
@@ -89,6 +88,7 @@ function A:ShowScrolling(setup)
 end
 
 function A:HideScrolling()
+	dprint(3, "A:HideScrolling")
 	-- hide if exsists
 	if A.ScrollingText ~= nil then
 		A.ScrollingText:Hide()
@@ -96,6 +96,7 @@ function A:HideScrolling()
 end
 
 function A:SetScrollingPosition(reset)
+	dprint(3, "A:SetScrollingPosition", reset)
 	-- enabled?
 	local db = P.scrolling
 	if db.enabled == false then return end
@@ -111,8 +112,8 @@ function A:SetScrollingPosition(reset)
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:PostInScrolling(msg, icon)
-	dprint(3, "A:PostInScrolling", msg, icon)
+function A:PostInScrolling(msg)
+	dprint(3, "A:PostInScrolling", msg)
 	if P.scrolling.enabled == true then
 		A:ShowScrolling()
 		A.ScrollingText:AddMessage(msg)

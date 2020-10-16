@@ -1,11 +1,12 @@
 -- get engine environment
-local A, D, O, S = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+-- create table for snapshots
 A.Snapshots = {}
 
 function A:InitLCD()
-	dprint(2, "A:InitLCD")
+	dprint(3, "A:InitLCD")
 	A.Libs.LCD:Register("AlertMe")
 	A.Libs.LCD.enableEnemyBuffTracking = true
 	UnitAura = A.Libs.LCD.UnitAuraWithBuffs
@@ -16,13 +17,12 @@ function A:GetUnitAura(ti, eventInfo)
 	dprint(3, "A:GetUnitAura", ti.relSpellName, ti.dstName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
-	local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining =  A:MatchUnitAura(ti, eventInfo, unit, filter)
+	return(A:MatchUnitAura(ti, eventInfo, unit, filter))
 	-- if not name and not ti.delayed then -- only do the first timer
 	-- 	C_Timer.After(0.2, function()
 	-- 		dprint(2, "delayed call", ti.relSpellName, ti.dstName)
 	-- 		A:ProcessTriggerInfo(ti, eventInfo)
 	-- 	end)
-	return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 end
 
 function A:MatchUnitAura(ti, eventInfo, unit, filter)

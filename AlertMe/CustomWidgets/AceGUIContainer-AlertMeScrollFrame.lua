@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------
 ScrollFrame Container forked for AlertMe from the AceGUI original
 -------------------------------------------------------------------------------]]
-local A, D, O, S = unpack(select(2, ...))
+local A, O = unpack(select(2, ...))
 local Type, Version = "AlertMeScrollFrame", 1
 local AceGUI = A.Libs.AceGUI
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
