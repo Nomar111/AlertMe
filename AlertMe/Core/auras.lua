@@ -31,7 +31,7 @@ function A:MatchUnitAura(ti, eventInfo, unit, filter)
 		if not name then
 			break
 		elseif ti.relSpellName == name then
-			local remaining = (expirationTime > 0) and expirationTime - GetTime() or nil
+			local remaining = (expirationTime > 0) and expirationTime - GetTime() or 0
 			return name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, remaining
 		end
 	end

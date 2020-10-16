@@ -88,6 +88,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	if eventInfo.short == "gain" then
 		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
 		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
+			-- rermaining nil?
 			A:DoActions(ti, eventInfo, alerts, false)
 		elseif not name then
 			if A:CheckSnapShot(ti, eventInfo) then -- no direct aura info, check for recent spell cast success events
