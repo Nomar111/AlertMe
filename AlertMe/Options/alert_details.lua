@@ -6,7 +6,7 @@ local _G, GetItemIcon = _G, GetItemIcon
 setfenv(1, _G.AlertMe)
 
 function O:ShowAlertDetails(container, eventShort, uid)
-	dprint(3, "O:ShowAlertDetails", container, eventShort, uid)
+	dprint(3, "O:ShowAlertDetails", eventShort, uid)
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- spell selection
 	if A.EventsShort[eventShort].spellSelection == true then
@@ -26,7 +26,7 @@ function O:ShowAlertDetails(container, eventShort, uid)
 end
 
 function O:ShowUnitSelection(container, eventShort, uid)
-	dprint(3, "O:ShowUnitSelection", container, eventShort, uid)
+	dprint(3, "O:ShowUnitSelection", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- unit selection
@@ -48,7 +48,7 @@ function O:ShowUnitSelection(container, eventShort, uid)
 end
 
 function O:ShowDisplaySettings(container, eventShort, uid)
-	dprint(3, "O:ShowDisplaySettings", container, eventShort, uid)
+	dprint(3, "O:ShowDisplaySettings", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- display settings
@@ -59,7 +59,7 @@ function O:ShowDisplaySettings(container, eventShort, uid)
 end
 
 function O:ShowAnnounceSettings(container, eventShort, uid)
-	dprint(3, "O:ShowAnnounceSettings", container, eventShort, uid)
+	dprint(3, "O:ShowAnnounceSettings", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- announce settings
@@ -102,7 +102,7 @@ function O:ShowAnnounceSettings(container, eventShort, uid)
 end
 
 function O:ShowSoundSettings(container, eventShort, uid)
-	dprint(3, "O:ShowSoundSettings", container, eventShort, uid)
+	dprint(3, "O:ShowSoundSettings", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	local soundGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
@@ -125,7 +125,7 @@ function O:ShowSoundSettings(container, eventShort, uid)
 end
 
 function O:ShowSpellSelection(container, eventShort, uid)
-	dprint(3, "O:ShowSpellSelection", container, eventShort, uid)
+	dprint(3, "O:ShowSpellSelection", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	--local spellGroup = O:AttachGroup(container, _, _, 1, _, "Flow")
@@ -163,7 +163,7 @@ function O:ShowSpellSelection(container, eventShort, uid)
 end
 
 function O:InitSpellTable(container, eventShort, uid, db)
-	dprint(3, "O:InitSpellTable", container)
+	dprint(3, "O:InitSpellTable")
 	O.SpellTable = O.AttachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
 end
 

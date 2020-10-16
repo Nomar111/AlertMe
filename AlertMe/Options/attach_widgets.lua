@@ -23,7 +23,7 @@ local LSMTables = {
 -- attach AceGUI widgets
 --**********************************************************************************************************************************
 function O.AttachButton(container, text, width)
-	dprint(3, "O.AttachButton", container, text, width)
+	dprint(3, "O.AttachButton", text, width)
 	local widget = A.Libs.AceGUI:Create("Button")
 	widget:SetText(text)
 	if width then widget:SetWidth(width) end
@@ -32,7 +32,7 @@ function O.AttachButton(container, text, width)
 end
 
 function O.AttachCheckBox(container, label, db, key, width, func)
-	dprint(3, "O.AttachCheckBox", container, label, db, key, width)
+	dprint(3, "O.AttachCheckBox", label, db, key, width)
 	local widget = A.Libs.AceGUI:Create("CheckBox")
 	widget:SetValue(db[key])
 	widget:SetCallback("OnValueChanged", function(_, _, value)
@@ -46,7 +46,7 @@ function O.AttachCheckBox(container, label, db, key, width, func)
 end
 
 function O.AttachColorPicker(container, label, db, key, alpha, width, func)
-	dprint(3, "O.AttachLSM", container, label, db, key, alpha, width, func)
+	dprint(3, "O.AttachLSM", label, db, key, alpha, width, func)
 	local widget = A.Libs.AceGUI:Create("ColorPicker")
 	widget:SetColor(unpack(db[key]))
 	widget:SetLabel(label)
@@ -60,7 +60,7 @@ function O.AttachColorPicker(container, label, db, key, alpha, width, func)
 end
 
 function O.AttachDropdown(container, label, db, key, list, width, func, toolTip)
-	dprint(3, "O.AttachDropdown", container, label, db, key, list, width, func, toolTip)
+	dprint(3, "O.AttachDropdown", label, db, key, list, width, func, toolTip)
 	local widget = A.Libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
@@ -79,7 +79,7 @@ function O.AttachDropdown(container, label, db, key, list, width, func, toolTip)
 end
 
 function O.AttachEditBox(container, label, path, key, width, func, toolTip)
-	dprint(3, "O.AttachEditBox", container, label, path, key, width)
+	dprint(3, "O.AttachEditBox", label, path, key, width)
 	local widget = A.Libs.AceGUI:Create("EditBox")
 	if label then widget:SetLabel(label) end
 	if width then
@@ -102,7 +102,7 @@ function O.AttachEditBox(container, label, path, key, width, func, toolTip)
 end
 
 function O.AttachGroup(container, type, title, format)
-	dprint(3, "O.AttachGroupNew", container, type, title, format)
+	dprint(3, "O.AttachGroupNew", type, title, format)
 	type = type or "simple"
 	local layout = ""
 	if format == nil or format.layout == nil then
@@ -139,7 +139,7 @@ function O.AttachGroup(container, type, title, format)
 end
 
 function O.AttachHeader(container, text)
-	dprint(3, ".:AttachHeader", container, text)
+	dprint(3, ".:AttachHeader", text)
 	local widget = A.Libs.AceGUI:Create("Heading")
 	widget:SetText(text)
 	widget.width = "fill"
@@ -148,7 +148,7 @@ function O.AttachHeader(container, text)
 end
 
 function O.AttachIcon(container, image, size, onClick, toolTip, ofs_y)
-	dprint(3, "O.AttachIcon", container, image, size, onClick, toolTip, ofs_y)
+	dprint(3, "O.AttachIcon", image, size, onClick, toolTip, ofs_y)
 	-- standards
 	ofs_y = ofs_y or 0
 	size = size or 16
@@ -170,7 +170,7 @@ function O.AttachIcon(container, image, size, onClick, toolTip, ofs_y)
 end
 
 function O.AttachLabel(container, text, fontObject, color, absWidth, relWidth)
-	dprint(3, "O.AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
+	dprint(3, "O.AttachLabel", text, fontObject, color,  absWidth, relWidth)
 	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
 	if absWidth ~= nil then
@@ -186,7 +186,7 @@ function O.AttachLabel(container, text, fontObject, color, absWidth, relWidth)
 end
 
 function O.AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
-	dprint(3, "O.AttachLabel", container, text, fontObject, color,  absWidth, relWidth)
+	dprint(3, "O.AttachLabel", text, fontObject, color,  absWidth, relWidth)
 	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
 	if absWidth ~= nil then
@@ -205,7 +205,7 @@ function O.AttachInteractiveLabel(container, text, fontObject, color, absWidth, 
 end
 
 function O.AttachLSM(container, type, label, db, key, width, func)
-	dprint(3, "O.AttachLSM", container, type, label, db, key, width, func)
+	dprint(3, "O.AttachLSM", type, label, db, key, width, func)
 	-- local variables/tables
 	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(LSMTables[type])
@@ -238,7 +238,7 @@ end
 -- end
 
 function O.AttachSlider(container, label, db, key, min, max, step, isPercent, width, func)
-	dprint(3, "O.AttachSlider", container, label, db, key, min, max, step, isPercent, width, func)
+	dprint(3, "O.AttachSlider", label, db, key, min, max, step, isPercent, width, func)
 	local widget = A.Libs.AceGUI:Create("Slider")
 	if label then widget:SetLabel(label) end
 	widget:SetSliderValues(min, max, step)
@@ -255,7 +255,7 @@ function O.AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 end
 
 function O.AttachSpacer(container, width, height)
-	dprint(3, "O.AttachSpacer", container, width, height)
+	dprint(3, "O.AttachSpacer", width, height)
 	local widget = A.Libs.AceGUI:Create("Label")
 	if width then widget:SetWidth(width) end
 	if height then
@@ -271,7 +271,7 @@ function O.AttachSpacer(container, width, height)
 end
 
 function O.SetToolTip(widget, toolTip)
-	dprint(3, "O.Tooltip", widget, toolTip, toolTip.wrap)
+	dprint(3, "O.SetToolTip")
 	-- show
 	local wrap = true
 	if toolTip.wrap ~= nil then	wrap = toolTip.wrap	end

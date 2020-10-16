@@ -97,6 +97,7 @@ function dprint(lvl,...)
 	end
 end
 
+-- debugger
 function VDT_AddData(obj, desc)
 	local vdt = _G.ViragDevTool_AddData or nil
 	if vdt then

@@ -60,7 +60,6 @@ function O:ShowScrollingText(container)
 	-- background alpha
 	O.AttachSlider(alphaGroup, "Background alpha", db, "alpha", 0, 1, 0.01, true, sliderWidth, updateScrolling)
 	O.AttachSpacer(container, _, "small")
-
 	local linesGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	-- visible lines
 	O.AttachSlider(linesGroup, "Visible lines", db, "visibleLines", 1, 12, 1, false, sliderWidth, updateScrolling)

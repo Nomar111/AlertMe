@@ -54,7 +54,7 @@ function A:FakeEvent(ti, eventInfo)
 		dprint(2, "A:FakeEvent", "do actions", _ti.relSpellName, _eventInfo.short)
 		A:DoActions(_ti, _eventInfo, alerts, true)
 	else
-		-- if no snapshot was found, add one for the success event
+		-- if no snapshot was found, add one for cast success event
 		A:AddSnapShot(ti, eventInfo)
 	end
 end

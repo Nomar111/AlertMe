@@ -63,8 +63,6 @@ function A:OnInitialize()
 	P = A.db.profile
 	-- register slash command
 	self:RegisterChatCommand("alertme", "OpenOptions")
-	-- init chatframes/debugging
-	A:InitChatFrames()
 end
 
 function A:OpenOptions()

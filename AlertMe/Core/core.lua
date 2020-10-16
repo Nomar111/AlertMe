@@ -46,7 +46,7 @@ function A:ParseCombatLog(eventName)
 		spellSchool = arg[14]
 	}
 	-- check if trigger event exists in events table, if not abort
-	if A.Events[ti.event] == nil then
+	if not A.Events[ti.event] then
 		dprint(3, "Event not tracked")
 		return
 	end
@@ -84,19 +84,16 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	-- do some checks
 	local check, alerts = A:DoChecks(ti, eventInfo)
 	if not check then return end
-	-- if aura gain event & progress bar is to be displayed special treatment
-	--if A:GetAlertSetting(alertsUnits, showBar, true) and eventInfo.short == "gain" then
+	-- auras need a special treatment
 	if eventInfo.short == "gain" then
 		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
-		if name and ((duration - remaining <= 2) or duration == 0) then
+		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
 			A:DoActions(ti, eventInfo, alerts, false)
 		elseif not name then
-			if A:CheckSnapShot(ti, eventInfo) then
-				-- call actions from snapShot
+			if A:CheckSnapShot(ti, eventInfo) then -- no direct aura info, check for recent spell cast success events
 				A:DoActions(ti, eventInfo, alerts, true)
 			else
-				-- add a snapshot
-				A:AddSnapShot(ti, eventInfo)
+				A:AddSnapShot(ti, eventInfo) -- add a snapshot
 			end
 		end
 	else -- success, interrupt, dispel
@@ -142,10 +139,9 @@ function A:GetAlerts(ti, eventInfo)
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
 		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
-
 	end
 	-- various checks
-	if eventInfo.spellSelection == false then -- spell selection disabled for this event
+	if eventInfo.spellSelection == false then -- spell selection disabled for this event, return all alerts
 		dprint(3, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
@@ -164,7 +160,7 @@ function A:GetAlerts(ti, eventInfo)
 end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
-	dprint(3, "A:CheckUnits",ti , ti.relSpellName, eventInfo.short)
+	dprint(3, "A:CheckUnits", ti.relSpellName, eventInfo.short)
 	-- if no unit selection for this event return
 	if eventInfo.unitSelection == false or alerts_in == true then
 		return alerts_in
