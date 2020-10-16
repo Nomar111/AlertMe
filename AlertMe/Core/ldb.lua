@@ -17,7 +17,7 @@ function A:InitLDB()
 		type = "launcher",
 		text = "AlertMe",
 		iconR = (P.general.enabled) and 1 or 0.5,
-		icon = A.Backgrounds["AlertMe"],
+		icon = A.Backgrounds["AlertMe_Minimap"],
 		tocname = "AlertMe",
 		OnClick = function(self, button)
 			if button == "LeftButton" then

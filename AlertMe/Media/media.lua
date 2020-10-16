@@ -217,6 +217,5 @@ LSM:Register("border", "SeerahScalloped", [[Interface\Addons\AlertMe\Media\borde
 
 -- backgrounds
 LSM:Register("background", "AlertMe_Add", [[Interface\AddOns\AlertMe\Media\background\alertme_add.tga]])
-LSM:Register("background", "AlertMe_Add2", [[Interface\AddOns\AlertMe\Media\background\alertme_add2.tga]])
 LSM:Register("background", "AlertMe_Delete", [[Interface\AddOns\AlertMe\Media\background\alertme_delete.tga]])
 LSM:Register("background", "AlertMe_Minimap", [[Interface\AddOns\AlertMe\Media\background\alertme_minimap.tga]])
