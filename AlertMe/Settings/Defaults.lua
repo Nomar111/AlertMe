@@ -29,7 +29,7 @@ D.profile = {
 		ofs_y = -150,
 		maxLines = 300,
 		visibleLines = 3,
-		fontSize = 14,
+		fontSize = 15,
 		font = "Roboto Condensed Regular",
 		timeVisible = 10,
 		alpha = 0,
@@ -42,7 +42,7 @@ D.profile = {
 			showIcon = true,
 			width = 170,
 			height = 18,
-			alpha = 0.7,
+			alpha = 0.8,
 			fill = false,
 			timeVisible = true,
 			texture = "BantoBar",
@@ -54,12 +54,12 @@ D.profile = {
 		},
 		spells = {
 			point = "CENTER",
-			ofs_x = 200,
+			ofs_x = 400,
 			ofs_y = 150,
 		},
 		auras = {
 			point = "CENTER",
-			ofs_x = 0,
+			ofs_x = 200,
 			ofs_y = 150,
 		}
 	},
@@ -72,7 +72,7 @@ D.profile = {
 		prefix = "** ",
 		postfix = " **",
 		chatFrames = {
-			["*"] = true,
+			["*"] = false,
 		},
 	},
 	alerts = {

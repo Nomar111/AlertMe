@@ -17,7 +17,7 @@ function A:GetUnitAura(ti, eventInfo)
 	dprint(3, "A:GetUnitAura", ti.relSpellName, ti.dstName)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
-	return(A:MatchUnitAura(ti, eventInfo, unit, filter))
+	return A:MatchUnitAura(ti, eventInfo, unit, filter)
 	-- if not name and not ti.delayed then -- only do the first timer
 	-- 	C_Timer.After(0.2, function()
 	-- 		A:ProcessTriggerInfo(ti, eventInfo)

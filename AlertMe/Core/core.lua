@@ -462,7 +462,7 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	elseif colored and not showIcon then
 		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
 	elseif colored and showIcon and icon then
-		local iconSize = P.scrolling.fontSize
+		local iconSize = P.scrolling.fontSize-2.5
 		local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
 		return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
 	end
