@@ -94,7 +94,7 @@
     {
       "namespace": "process-palette",
       "action": "Create zipfile",
-      "command": "Zip.exe -r AlertMe_v1.0.0.zip AlertMe",
+      "command": "Zip.exe -r AlertMe_v1.0.2.zip AlertMe",
       "arguments": [],
       "cwd": "D:\\github\\AlertMe",
       "inputDialogs": [],
