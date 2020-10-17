@@ -113,22 +113,22 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
 		end
 	end
-	if ti.dstIsHostile then
-		local unitFrame = A.GetUnitFrame(ti.dstName)
-		if not unitFrame then
-			unitFrame = A.GetUnitFrame(A:GetUnitNameShort(ti.dstName))
-		end
-		if not unitFrame then
-			unitFrame = A.GetUnitFrame(ti.dstGUID)
-		end
-		unitFrame = A.GetUnitFrame(ti.dstGUID)
-
-		if unitFrame then
-			dprint(1, "A.GetUnitFrame", unitFrame)
-		else
-			dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, A:GetUnitNameShort(ti.dstName), ti.dstGUID)
-		end
-	end
+	-- if ti.dstIsHostile then
+	-- 	local unitFrame = A.GetUnitFrame(ti.dstName)
+	-- 	if not unitFrame then
+	-- 		unitFrame = A.GetUnitFrame(A:GetUnitNameShort(ti.dstName))
+	-- 	end
+	-- 	if not unitFrame then
+	-- 		unitFrame = A.GetUnitFrame(ti.dstGUID)
+	-- 	end
+	-- 	unitFrame = A.GetUnitFrame(ti.dstGUID)
+	--
+	-- 	if unitFrame then
+	-- 		dprint(1, "A.GetUnitFrame", unitFrame)
+	-- 	else
+	-- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, A:GetUnitNameShort(ti.dstName), ti.dstGUID)
+	-- 	end
+	-- end
 end
 
 --**********************************************************************************************************************************
