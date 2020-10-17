@@ -8,7 +8,24 @@ function A:InitLCG()
 	A.GetUnitFrame = A.Libs.LGF.GetUnitFrame
 	A.GetUnitNameplate = A.Libs.LGF.GetUnitNameplate(unit)
 end
-
+-- if ti.dstIsHostile then
+-- 	local unitFrame = A.GetUnitFrame(ti.dstName) or A.GetUnitFrame(ti.dstGUID)
+-- 	if unitFrame then
+-- 		dprint(1, "A.GetUnitFrame", unitFrame)
+-- 	else
+-- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, ti.dstGUID)
+-- 	end
+-- elseif ti.dstIsFriendly then
+-- 	local tbl = {_G.UIParent:GetChildren()}
+-- 	for i, subTable in pairs(tbl) do
+-- 		if subTable.ClassTexture then
+-- 			if subTable.Name:GetText() then
+-- 				dprint(1, subTable.Name:GetText())
+-- 			end
+-- 		end
+-- 	end
+-- 	VDT_AddData(tbl, "tbl")
+-- end
 -- if ti.dstGUID then
 -- 	local unitFrame = A.GetUnitFrame(ti.dstGUID)
 -- 	dprint(1, "A.GetUnitFrame", unitFrame)
