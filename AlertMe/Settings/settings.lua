@@ -18,7 +18,7 @@ A.Events = {
 		optionalArgs = {"auraType"},
 		relSpellName = "spellName",
 		units = {"src","dst"},
-		actions = {"chatAnnounce", "displayBars", "playSound"},
+		actions = {"chatAnnounce", "displayBars", "displayGlows", "playSound"},
 	},
 	["SPELL_AURA_REFRESH"] = {
 		short = "refresh",
@@ -34,7 +34,7 @@ A.Events = {
 		spellSelection = false,
 		unitSelection == false,
 		displaySettings = true,
-		actions = {"hideBars"},
+		actions = {"hideBars", "hideGlows"},
 	},
 	["SPELL_AURA_BROKEN"] = {
 		short = "broken",

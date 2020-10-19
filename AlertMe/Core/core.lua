@@ -78,6 +78,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	if eventInfo.short == "removed" then
 		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
+		A:HideGlows(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -111,6 +112,7 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
+			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
 		end
 	end
 	-- if ti.dstIsHostile then

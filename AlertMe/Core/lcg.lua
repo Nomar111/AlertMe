@@ -5,209 +5,46 @@ setfenv(1, _G.AlertMe)
 
 function A:InitLCG()
 	dprint(3, "A:InitLCG")
-	A.GetUnitFrame = A.Libs.LGF.GetUnitFrame
-	A.GetUnitNameplate = A.Libs.LGF.GetUnitNameplate(unit)
+	A.Glows = {pixel={},particle={}}
 end
 
--- PixelGlow_Start(frame[, color[, N[, frequency[, length[, th[, xOffset[, yOffset[, border[ ,key]]]]]]]])
---
--- Starts glow over target frame with set parameters:
---
--- frame - target frame to set glowing;
--- color - {r,g,b,a}, color of lines and opacity, from 0 to 1. Defaul value is {0.95, 0.95, 0.32, 1};
--- N - number of lines. Defaul value is 8;
--- frequency - frequency, set to negative to inverse direction of rotation. Default value is 0.25;
--- length - length of lines. Default value depends on region size and number of lines;
--- th - thickness of lines. Default value is 2;
--- xOffset,yOffset - offset of glow relative to region border;
--- border - set to true to create border under lines;
--- key - key of glow, allows for multiple glows on one frame;
--- PixelGlow_Stop(frame[, key])
---
--- Stops glow with set key over target frame
---
---
---
--- AutoCastGlow_Start(frame[, color[, N[, frequency[, scale[, xOffset[, yOffset[, key]]]]]]])
---
--- Starts glow over target frame with set parameters:
---
--- frame - target frame to set glowing;
--- color - {r,g,b,a}, color of particles and opacity, from 0 to 1. Defaul value is {0.95, 0.95, 0.32, 1};
--- N - number of particle groups. Each group contains 4 particles. Defaul value is 4;
--- frequency - frequency, set to negative to inverse direction of rotation. Default value is 0.125;
--- scale - scale of particles;
--- xOffset,yOffset - offset of glow relative to region border;
--- key - key of glow, allows for multiple glows on one frame;
--- AutoCastGlow_Stop(frame[, key])
---
---  Stops glow with set key over target frame
--- if ti.dstIsHostile then
--- 	local unitFrame = A.GetUnitFrame(ti.dstName) or A.GetUnitFrame(ti.dstGUID)
--- 	if unitFrame then
--- 		dprint(1, "A.GetUnitFrame", unitFrame)
--- 	else
--- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, ti.dstGUID)
--- 	end
--- elseif ti.dstIsFriendly then
--- 	local tbl = {_G.UIParent:GetChildren()}
--- 	for i, subTable in pairs(tbl) do
--- 		if subTable.ClassTexture then
--- 			if subTable.Name:GetText() then
--- 				dprint(1, subTable.Name:GetText())
--- 			end
--- 		end
--- 	end
--- 	VDT_AddData(tbl, "tbl")
--- end
--- if ti.dstGUID then
--- 	local unitFrame = A.GetUnitFrame(ti.dstGUID)
--- 	dprint(1, "A.GetUnitFrame", unitFrame)
--- 	VDT_AddData(unitFrame, "unitFrame")
--- end
+function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
+	dprint(3, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
+	if not targetFrame then
+		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName. ti.dstGUID)
+		return
+	end
+	local id = ti.dstGUID..ti.spellName
+	for _, alert in pairs(alerts) do
+		if alert.showGlow >= 1 and eventInfo.displaySettings == true then
+			local name, _, _, _, duration = A:GetUnitAura(ti, eventInfo)
+			if duration or snapShot then
+				--A:ShowGlow()
+				if alert.showGlow <= 4 then
+					local db = P.glow.pixel[alert.showGlow]
+					local color, number, frequency, thickness, ofs_x, ofs_y, border = db.color, db.number, db.frequency, db.thickness, db.ofs_x, db.ofs_y, db.border
+					A.Libs.LCG:PixelGlow_Start(targetFrame, color, number, frequency, nil, thickness, ofs_x, ofs_y, border ,id)
+					A.Glows.pixel[id] = targetFrame
+				else
+					local db = P.glow.Particle[alert.showGlow-4]
+					local color, number, frequency, scale, ofs_x, ofs_y  = db.color, db.number, db.frequency, db.scale, db.ofs_x, db.ofs_y
+					A.Libs.LCG:AutoCastGlow_Start(targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
+					A.Glows.particle[id] = targetFrame
+				end
+			end
+		end
+	end
+end
 
-
-
-
--- aura_env.glowStart = function(frame)
---     if glow_type == 3 then
---         LCG.AutoCastGlow_Start(frame, aura_env.config.glowCol, aura_env.config.numGroups, aura_env.config.shineSpeed, aura_env.config.scale, aura_env.config.shineXOff, aura_env.config.shineYOff, aura_env.id)
---     elseif glow_type == 2 then
---         LCG.PixelGlow_Start(frame, aura_env.config.glowCol, aura_env.config.numLines, aura_env.config.pixelSpeed, nil, aura_env.config.thickness, aura_env.config.pixelXOff, aura_env.config.pixelYOff, aura_env.config.border, aura_env.id)
---     else
---         WeakAuras.ShowOverlayGlow(frame, aura_env.config.glowCol)
---     end
--- end
-
--- if glow_type == 3 then
---     aura_env.glowStop = LCG.AutoCastGlow_Stop
--- elseif glow_type == 2 then
---     aura_env.glowStop = LCG.PixelGlow_Stop
--- else
---     aura_env.glowStop = WeakAuras.HideOverlayGlow
--- end
-
--- NOTUSED
- ----------------------------------------------------------------
--- ------------ Generic GetFrame with caching ---------------------
--- ----------------------------------------------------------------
--- GetFrames(target)
---  return table of all frames for unit=target or {}
---
--- GetFrame(target)
---  return one frame for unit=target or nil
---  unitframe addon priority is defined with `frame_priority`
---  if it can't find a priority patterns, it select a random matching frame
--- NOTUSED
---
--- local frame_priority = {
---     -- raid frames
---     [1] = "^Vd1", -- vuhdo
---     [2] = "^Healbot", -- healbot
---     [3] = "^GridLayout", -- grid
---     [4] = "^Grid2Layout", -- grid2
---     [5] = "^ElvUF_Raid40Group", -- elv40
---     [6] = "^ElvUF_RaidGroup", -- elv
---     [7] = "^oUF_bdGrid", -- bdgrid
---     [8] = "^oUF.*raid", -- generic oUF
---     [9] = "^LimeGroup", -- lime
---     [10] = "^SUFHeaderraid", -- suf
---     [11] = "^CompactRaid", -- blizz
---     -- party frames
---     [12] = "^SUFHeaderparty", --suf
---     [13] = "^ElvUF_PartyGroup", -- elv
---     [14] = "^oUF.*party", -- generic oUF
---     [15] = "^PitBull4_Groups_Party", -- pitbull4
---     [16] = "^CompactParty", -- blizz
---     -- player frame
---     [17] = "^SUFUnitplayer",
---     [18] = "^PitBull4_Frames_Player",
---     [19] = "^ElvUF_Player",
---     [20] = "^oUF.*player",
---     [21] = "^PlayerFrame",
--- }
---
--- WA_GetFramesCache = WA_GetFramesCache or {}
--- if not WA_GetFramesCacheListener then
---     WA_GetFramesCacheListener = CreateFrame("Frame")
---     local f = WA_GetFramesCacheListener
---     f:RegisterEvent("PLAYER_REGEN_DISABLED")
---     f:RegisterEvent("PLAYER_REGEN_ENABLED")
---     f:RegisterEvent("GROUP_ROSTER_UPDATE")
---     f:SetScript("OnEvent", function(self, event, ...)
---             WA_GetFramesCache = {}
---     end)
--- end
---
--- local function GetFrames(target)
---     local function FindButtonsForUnit(frame, target)
---         local results = {}
---         if type(frame) == "table" and not frame:IsForbidden() then
---             local type = frame:GetObjectType()
---             if type == "Frame" or type == "Button" then
---                 for _,child in ipairs({frame:GetChildren()}) do
---                     for _,v in pairs(FindButtonsForUnit(child, target)) do
---                         tinsert(results, v)
---                     end
---                 end
---             end
---             if type == "Button" then
---                 local unit = frame:GetAttribute('unit')
---                 if unit and frame:IsVisible() and frame:GetName() then
---                     WA_GetFramesCache[frame] = unit
---                     if UnitIsUnit(unit, target) then
---                         -- print("F:", frame:GetName())
---                         tinsert(results, frame)
---                     end
---                 end
---             end
---         end
---         return results
---     end
---
---     if not UnitExists(target) then
---         if type(target) == "string" and target:find("Player") then
---             target = select(6,GetPlayerInfoByGUID(target))
---         else
---             return {}
---         end
---     end
---
---     local results = {}
---     for frame, unit in pairs(WA_GetFramesCache) do
---         --print("from cache:", frame:GetName())
---         if UnitIsUnit(unit, target) then
---             if frame:GetAttribute('unit') == unit then
---                 tinsert(results, frame)
---             else
---                 results = {}
---                 break
---             end
---         end
---     end
---
---     return #results > 0 and results or FindButtonsForUnit(UIParent, target)
--- end
---
--- local isElvUI = IsAddOnLoaded("ElvUI")
--- local function WhyElvWhy(frame)
---     if isElvUI and frame and frame:GetName():find("^ElvUF_") and frame.Health then
---         return frame.Health
---     else
---         return frame
---     end
--- end
---
---
--- function aura_env.GetFrame(target)
---     local frames = GetFrames(target)
---     if not frames then return nil end
---     for i=1,#frame_priority do
---         for _,frame in pairs(frames) do
---             if (frame:GetName()):find(frame_priority[i]) then
---                 return WhyElvWhy(frame)
---             end
---         end
---     end
---     return WhyElvWhy(frames[1])
--- end
+function A:HideGlow(ti, eventInfo)
+	dprint(3, "A:HideGlow", ti.dstName, eventInfo.short)
+	local id = ti.dstGUID..ti.spellName
+	if A.Glows.pixel[id] then
+		PixelGlow_Stop(A.Glows.pixel[id],id)
+		A.Glows.pixel[id] = nil
+	elseif A.Glows.particle[id] then
+		AutoCastGlow_Stop(A.Glows.pixel[id], id)
+		A.Glows.pixel[id] = nil
+	end
+end
