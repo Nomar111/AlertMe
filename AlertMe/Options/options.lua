@@ -50,7 +50,7 @@ function O:CreateNavTree(container)
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
 		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
-			tree_structure[5].children[tbl.optionsOrder]  = {
+			tree_structure[6].children[tbl.optionsOrder]  = {
 				value = tbl.short,
 				text = tbl.optionsText
 			}

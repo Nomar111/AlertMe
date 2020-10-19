@@ -36,16 +36,16 @@ function O:ShowGlow(container)
 	-- attach color picker
 	O.AttachColorPicker(container, "Color", db, "color", true)
 	-- attach number slider
-	O.AttachSlider(container, labelNumber, db, number, 1, 20, 1, false, 400)
+	O.AttachSlider(container, labelNumber, db, "number", 1, 20, 1, false, 400)
 	-- attach fequency slider
-	O.AttachSlider(container, labelFrequency, db, frequency, -1, 1, 0.005, false, 400)
+	O.AttachSlider(container, labelFrequency, db, "frequency", -1, 1, 0.005, false, 400)
 	-- attach thickness/scale for pixelglow
 	if type == "pixel" then
-		O.AttachSlider(container, "Thickness. Default = 2", db, thickness, 0, 5, 1, false, 400)
+		O.AttachSlider(container, "Thickness. Default = 2", db, "thickness", 0, 5, 1, false, 400)
 	else
-		O.AttachSlider(container, "Scale. Default = 1", db, scale, 0, 5, 0.01, false, 400)
+		O.AttachSlider(container, "Scale. Default = 1", db, "scale", 0, 5, 0.01, false, 400)
 	end
 	-- attach offset sliders
-	O.AttachSlider(container, "Offset X", db, ofs_x, -5, 5, 0.5, false, 400)
-	O.AttachSlider(container, "Offset Y", db, ofs_y, -5, 5, 0.5, false, 400)
+	O.AttachSlider(container, "Offset X", db, "ofs_x", -5, 5, 0.5, false, 400)
+	O.AttachSlider(container, "Offset Y", db, "ofs_y", -5, 5, 0.5, false, 400)
 end

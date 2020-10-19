@@ -77,7 +77,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	if eventInfo.short == "removed" then
 		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
-		A:HideGlows(ti, eventInfo)
+		A:HideGlow(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -410,6 +410,7 @@ function A.RegisterCLEU(event)
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
+		A:HideAllGlows()
 	end
 end
 
@@ -422,6 +423,7 @@ function A.ToggleAddon()
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
+		A:HideAllGlows()
 	end
 	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end

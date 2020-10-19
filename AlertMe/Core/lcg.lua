@@ -63,7 +63,7 @@ function A:HideGlow(ti, eventInfo)
 end
 
 function A:HideAllGlows()
-	dprint(3, "A:HideAllGlows", ti.dstName, eventInfo.short)
+	dprint(3, "A:HideAllGlows")
 	for id, frame in pairs(A.Glows.pixel) do
 		PixelGlow_Stop(frame, id)
 	end
