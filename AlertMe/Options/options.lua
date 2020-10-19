@@ -43,9 +43,10 @@ function O:CreateNavTree(container)
 	tree_structure[2] = {value = "scrolling", text = "Scrolling Text"}
 	tree_structure[3] = {value = "bars", text = "Bar Setup"}
 	tree_structure[4] = {value = "messages", text = "Messages"}
-	tree_structure[5] = {value = "alerts", text = "Alerts", children = {}}
-	tree_structure[6] = {value = "profiles", text = "Profiles"}
-	tree_structure[7] = {value = "info", text = "Info"}
+	tree_structure[5] = {value = "glow", text = "Glow"}
+	tree_structure[6] = {value = "alerts", text = "Alerts", children = {}}
+	tree_structure[7] = {value = "profiles", text = "Profiles"}
+	tree_structure[8] = {value = "info", text = "Info"}
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
 		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
@@ -87,6 +88,7 @@ function O:ShowOptions(container, uniqueValue)
 	elseif lvl1 == "scrolling" then O:ShowScrollingText(container)
 	elseif lvl1 == "bars" then O:ShowBars(container)
 	elseif lvl1 == "messages" then O:ShowMessages(container)
+	elseif lvl1 == "glow" then O:ShowGlow(container)
 	elseif lvl1 == "profiles" then O:ShowProfiles(container)
 	elseif lvl1 == "info" then O:ShowInfo(container)
 	elseif lvl1 == "alerts" and lvl2 ~= nil then O:ShowAlerts(container, lvl2)

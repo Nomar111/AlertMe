@@ -75,6 +75,10 @@ D.profile = {
 			["*"] = false,
 		},
 	},
+	glow = {
+		type = "pixel",
+		color = {1, 0, 0, 1},
+	},
 	alerts = {
 		["**"] = {
 			selectedAlert = "",
