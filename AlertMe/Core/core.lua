@@ -24,12 +24,11 @@ function A:Initialize()
 	A:InitLCD()
 	-- init LDB
 	A:InitLDB()
-	-- init LCG
-	A:InitLCG()
 	-- register for events
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
+	A:HideAllGlows()
 end
 
 function A:ParseCombatLog(eventName)
@@ -115,22 +114,6 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
 		end
 	end
-	-- if ti.dstIsHostile then
-	-- 	local unitFrame = A.GetUnitFrame(ti.dstName)
-	-- 	if not unitFrame then
-	-- 		unitFrame = A.GetUnitFrame(A:GetUnitNameShort(ti.dstName))
-	-- 	end
-	-- 	if not unitFrame then
-	-- 		unitFrame = A.GetUnitFrame(ti.dstGUID)
-	-- 	end
-	-- 	unitFrame = A.GetUnitFrame(ti.dstGUID)
-	--
-	-- 	if unitFrame then
-	-- 		dprint(1, "A.GetUnitFrame", unitFrame)
-	-- 	else
-	-- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, A:GetUnitNameShort(ti.dstName), ti.dstGUID)
-	-- 	end
-	-- end
 end
 
 --**********************************************************************************************************************************

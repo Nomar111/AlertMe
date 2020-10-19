@@ -2,11 +2,24 @@
 local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+A.Glows = {pixel={},particle={}}
 
-function A:InitLCG()
-	dprint(3, "A:InitLCG")
-	A.Glows = {pixel={},particle={}}
-end
+	-- if ti.dstIsHostile then
+	-- 	local unitFrame = A.GetUnitFrame(ti.dstName)
+	-- 	if not unitFrame then
+	-- 		unitFrame = A.GetUnitFrame(A:GetUnitNameShort(ti.dstName))
+	-- 	end
+	-- 	if not unitFrame then
+	-- 		unitFrame = A.GetUnitFrame(ti.dstGUID)
+	-- 	end
+	-- 	unitFrame = A.GetUnitFrame(ti.dstGUID)
+	--
+	-- 	if unitFrame then
+	-- 		dprint(1, "A.GetUnitFrame", unitFrame)
+	-- 	else
+	-- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, A:GetUnitNameShort(ti.dstName), ti.dstGUID)
+	-- 	end
+	-- end
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	dprint(3, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
@@ -44,7 +57,21 @@ function A:HideGlow(ti, eventInfo)
 		PixelGlow_Stop(A.Glows.pixel[id],id)
 		A.Glows.pixel[id] = nil
 	elseif A.Glows.particle[id] then
-		AutoCastGlow_Stop(A.Glows.pixel[id], id)
-		A.Glows.pixel[id] = nil
+		AutoCastGlow_Stop(A.Glows.particle[id], id)
+		A.Glows.particle[id] = nil
 	end
+end
+
+function A:HideAllGlows()
+	dprint(3, "A:HideAllGlows", ti.dstName, eventInfo.short)
+	for id, frame in pairs(A.Glows.pixel) do
+		PixelGlow_Stop(frame, id)
+	end
+	A.Glows.pixel = nil
+	A.Glows.pixel = {}
+	for id, frame in pairs(A.Glows.particle) do
+		PixelGlow_Stop(frame, id)
+	end
+	A.Glows.particle = nil
+	A.Glows.particle = {}
 end
