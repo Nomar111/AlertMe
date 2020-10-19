@@ -28,7 +28,7 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllBars()
-	A:HideAllGlows()
+	--A:HideAllGlows()
 end
 
 function A:ParseCombatLog(eventName)
@@ -77,7 +77,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	if eventInfo.short == "removed" then
 		-- remove auras if needed
 		A:HideBars(ti, eventInfo)
-		A:HideGlow(ti, eventInfo)
+		--A:HideGlow(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -111,7 +111,7 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
-			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
+			--if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
 		end
 	end
 end
@@ -410,7 +410,7 @@ function A.RegisterCLEU(event)
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
-		A:HideAllGlows()
+		--A:HideAllGlows()
 	end
 end
 
@@ -423,7 +423,7 @@ function A.ToggleAddon()
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllBars()
-		A:HideAllGlows()
+		--A:HideAllGlows()
 	end
 	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end

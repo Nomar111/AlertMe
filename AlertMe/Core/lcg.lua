@@ -22,7 +22,7 @@ A.Glows = {pixel={},particle={}}
 	-- end
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
-	dprint(1, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+	dprint(2, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame then
 		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName. ti.dstGUID)
@@ -42,8 +42,8 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 				else
 					local db = P.glow.particle[alert.showGlow-4]
 					local color, number, frequency, scale, ofs_x, ofs_y  = db.color, db.number, db.frequency, db.scale, db.ofs_x, db.ofs_y
-					dprint(1, "AutoCastGlow_Start", targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
-					A.Libs.LCG.AutoCastGlow_Start(targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
+					dprint(1, "AutoCastGlow_Start", targetFrame, nil, nil, nil, nil, nil, nil, id)
+					A.Libs.LCG.AutoCastGlow_Start(targetFrame, nil, nil, nil, nil, nil, nil, id)
 					A.Glows.particle[id] = targetFrame
 				end
 			end
@@ -52,7 +52,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 end
 
 function A:HideGlow(ti, eventInfo)
-	dprint(3, "A:HideGlow", ti.dstName, eventInfo.short)
+	dprint(1, "A:HideGlow", ti.dstName, eventInfo.short)
 	local id = ti.dstGUID..ti.spellName
 	if A.Glows.pixel[id] then
 		A.Libs.LCG.PixelGlow_Stop(A.Glows.pixel[id],id)
