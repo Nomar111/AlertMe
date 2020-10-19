@@ -26,12 +26,12 @@ function O:ShowGlow(container)
 		type = "pixel"
 		db = P.glow.pixel[P.glow.selectedGlow]
 		labelNumber = "Number of lines. Default = 8"
-		frequency = "Frequency. Negative = inverse direction. Default = 0.25"
+		labelFrequency = "Frequency. Negative = inverse direction. Default = 0.25"
 	else
 		type = "particle"
 		db = P.glow.particle[P.glow.selectedGlow-4]
-		labelNumber = "Number of particle groups. Default = 8"
-		frequency = "Frequency. Negative = inverse direction. Default = 0.125"
+		labelNumber = "Number of particle groups. Default = 4"
+		labelFrequency = "Frequency. Negative = inverse direction. Default = 0.125"
 	end
 	-- attach color picker
 	O.AttachColorPicker(container, "Color", db, "color", true)

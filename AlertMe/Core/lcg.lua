@@ -22,7 +22,7 @@ A.Glows = {pixel={},particle={}}
 	-- end
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
-	dprint(3, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+	dprint(1, "A:DisplayGlows", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame then
 		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName. ti.dstGUID)
@@ -37,12 +37,13 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 				if alert.showGlow <= 4 then
 					local db = P.glow.pixel[alert.showGlow]
 					local color, number, frequency, thickness, ofs_x, ofs_y, border = db.color, db.number, db.frequency, db.thickness, db.ofs_x, db.ofs_y, db.border
-					A.Libs.LCG:PixelGlow_Start(targetFrame, color, number, frequency, nil, thickness, ofs_x, ofs_y, border ,id)
+					A.Libs.LCG.PixelGlow_Start(targetFrame, color, number, frequency, nil, thickness, ofs_x, ofs_y, border ,id)
 					A.Glows.pixel[id] = targetFrame
 				else
-					local db = P.glow.Particle[alert.showGlow-4]
+					local db = P.glow.particle[alert.showGlow-4]
 					local color, number, frequency, scale, ofs_x, ofs_y  = db.color, db.number, db.frequency, db.scale, db.ofs_x, db.ofs_y
-					A.Libs.LCG:AutoCastGlow_Start(targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
+					dprint(1, "AutoCastGlow_Start", targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
+					A.Libs.LCG.AutoCastGlow_Start(targetFrame, color, number, frequency, scale, ofs_x, ofs_y, id)
 					A.Glows.particle[id] = targetFrame
 				end
 			end
@@ -54,10 +55,10 @@ function A:HideGlow(ti, eventInfo)
 	dprint(3, "A:HideGlow", ti.dstName, eventInfo.short)
 	local id = ti.dstGUID..ti.spellName
 	if A.Glows.pixel[id] then
-		PixelGlow_Stop(A.Glows.pixel[id],id)
+		A.Libs.LCG.PixelGlow_Stop(A.Glows.pixel[id],id)
 		A.Glows.pixel[id] = nil
 	elseif A.Glows.particle[id] then
-		AutoCastGlow_Stop(A.Glows.particle[id], id)
+		A.Libs.LCG.AutoCastGlow_Stop(A.Glows.particle[id], id)
 		A.Glows.particle[id] = nil
 	end
 end
@@ -65,12 +66,12 @@ end
 function A:HideAllGlows()
 	dprint(3, "A:HideAllGlows")
 	for id, frame in pairs(A.Glows.pixel) do
-		PixelGlow_Stop(frame, id)
+		A.Libs.LCG.PixelGlow_Stop(frame, id)
 	end
 	A.Glows.pixel = nil
 	A.Glows.pixel = {}
 	for id, frame in pairs(A.Glows.particle) do
-		PixelGlow_Stop(frame, id)
+		A.Libs.LCG.AutoCastGlow_Stop(frame, id)
 	end
 	A.Glows.particle = nil
 	A.Glows.particle = {}
