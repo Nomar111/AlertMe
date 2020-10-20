@@ -25,7 +25,6 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	dprint(2, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame then
-		VDT_AddData(ti,"t12")
 		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName)
 		return
 	end
