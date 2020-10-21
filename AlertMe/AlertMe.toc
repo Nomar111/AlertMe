@@ -5,7 +5,7 @@
 ## SavedVariables: AlertMeDB
 ## SavedVariablesPerCharacter: AlertMeDBChr
 ## OptionalDeps: Ace3
-## Version: v1.0.0
+## Version: v1.1.0
 
 Libs\load_libs.xml
 init.lua
