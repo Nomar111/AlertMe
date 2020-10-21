@@ -51,13 +51,14 @@ function O:ShowDisplaySettings(container, eventShort, uid)
 	dprint(3, "O:ShowDisplaySettings", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local glowList = {[-1]="No Glow",[1]="Pixel Glow 1",[2]="Pixel Glow 2",[3]="Pixel Glow 3",[4]="Pixel Glow 4",[5]="Particle Glow 1",[6]="Particle Glow 2",[7]="Particle Glow 3",[8]="Particle Glow 4"}
+	local glowList = {[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
 	-- display settings
 	if A.EventsShort[eventShort].displaySettings == true then
 		local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
 		O.AttachHeader(displayGroup, "Display settings")
 		O.AttachCheckBox(displayGroup, "Show progress bar", db, "showBar", 150)
-		O.AttachDropdown(displayGroup, "Glow on unitframe", db, "showGlow", glowList, 400)
+		O.AttachSpacer(displayGroup, 20)
+		O.AttachDropdown(displayGroup, "Glow unitframe", db, "showGlow", glowList, 220)
 	end
 end
 

@@ -14,6 +14,7 @@ function O:OpenOptions()
 		A.RegisterCLEU("Options")
 		A.Libs.AceGUI:Release(O.OptionsFrame)
 		O.OptionsFrame = nil
+		A:HideAllGUI()
 	end
 	-- check if already open
 	if O.OptionsFrame ~= nil then

@@ -27,8 +27,7 @@ function A:Initialize()
 	-- register for events
 	A.ToggleAddon()
 	-- for reloadui
-	A:HideAllBars()
-	A:HideAllGlows()
+	A:HideAllGUI()
 end
 
 function A:ParseCombatLog(eventName)
@@ -75,9 +74,8 @@ end
 function A:ProcessTriggerInfo(ti, eventInfo)
 	dprint(3, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	if eventInfo.short == "removed" then
-		-- remove auras if needed
-		A:HideBars(ti, eventInfo)
-		A:HideGlow(ti, eventInfo)
+		-- remove gui elements if needed
+		A:HideGUI(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -409,8 +407,7 @@ function A.RegisterCLEU(event)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllBars()
-		A:HideAllGlows()
+		A:HideAllGUI()
 	end
 end
 
@@ -422,8 +419,7 @@ function A.ToggleAddon()
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllBars()
-		A:HideAllGlows()
+		A:HideAllGUI()
 	end
 	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end
@@ -514,4 +510,16 @@ function A:GetReactionColor(ti, rgb)
 	else
 		return A.Colors[color]["hex"]
 	end
+end
+
+function A:HideGUI(ti, eventInfo)
+	dprint(3, "A:HideGUI")
+	A:HideBars(ti, eventInfo)
+	A:HideGlow(ti, eventInfo)
+end
+
+function A:HideAllGUI()
+	dprint(3, "A:HideAllGUI")
+	A:HideAllBars()
+	A:HideAllGlows()
 end

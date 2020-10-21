@@ -77,28 +77,15 @@ D.profile = {
 	},
 	glow = {
 		selectedGlow = 1,
-		pixel = {
-			['*'] = {
-				type = "pixel",
-				color = {0.95, 0.95, 0.32, 1},
-				number = 8,
-				frequency = 0.25,
-				thickness = 2,
-				ofs_x = 0,
-				ofs_y = 0,
-				border = false,
-			},
-		},
-		particle = {
-			['*'] = {
-				type = "particle",
-				color = {0.95, 0.95, 0.32, 1},
-				number = 4,
-				frequency = 0.125,
-				scale  = 1,
-				ofs_x = 0,
-				ofs_y = 0,
-			},
+		['*'] = {
+			type = "pixel",
+			color = {0.95, 0.95, 0.32, 1},
+			number = 8,
+			frequency = 0.25,
+			thickness = 2,
+			ofs_x = -1,
+			ofs_y = -1,
+			border = false,
 		},
 	},
 	alerts = {
