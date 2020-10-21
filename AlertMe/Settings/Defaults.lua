@@ -77,6 +77,7 @@ D.profile = {
 	},
 	glow = {
 		selectedGlow = 1,
+		bgtEnabled = true,
 		['*'] = {
 			type = "pixel",
 			color = {0.95, 0.95, 0.32, 1},

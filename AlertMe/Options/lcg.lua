@@ -13,6 +13,7 @@ function O:ShowGlow(container)
 	end
 	-- header
 	O.AttachHeader(container, "Custom Glow Settings")
+	O.AttachCheckBox(container, "Enable support for BattlegroundTargetsClassic", P.glow, "bgtEnabled", 400)
 	--local group = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	-- Glow Selector
 	local glowList = {[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}

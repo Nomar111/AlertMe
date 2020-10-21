@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-local _G = _G
+local _G, ipairs = _G, ipairs
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 A.Glows = {}
@@ -26,16 +26,12 @@ A.Glows = {}
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	dprint(1, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
+	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
+		targetFrame = A:GetBattleGroundTargetsFrame(ti)
+	end
 	if not targetFrame then
 		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName)
 		return
-	end
-	local frames = {}
-	--frames = _G.UIParent:GetChildren()
-	VDT_AddData(frames, "frames")
-	VDT_AddData(_G.UIParent:GetChildren(), "UIParent")
-	for i,frame in pairs(_G.UIParent:GetChildren()) do
-		tinsert(frames, frame)
 	end
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
@@ -60,10 +56,9 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 end
 
 function A:HideGlow(ti, eventInfo)
-	dprint(1, "A:HideGlow", "name", ti.dstName, "event", eventInfo.short, "spell", ti.spellName)
+	dprint(2, "A:HideGlow", "name", ti.dstName, "event", eventInfo.short, "spell", ti.spellName)
 	local id = ti.dstGUID..ti.spellName
 	if A.Glows[id] then
-		dprint(1, "A:HideGlow", "PixelGlow_Stop", id)
 		A.Libs.LCG.PixelGlow_Stop(A.Glows[id],id)
 		A.Glows[id] = nil
 	end
@@ -76,4 +71,20 @@ function A:HideAllGlows()
 	end
 	A.Glows = nil
 	A.Glows = {}
+end
+
+function A:GetBattleGroundTargetsFrame(ti)
+	dprint(1, "A:GetBattleGroundTargetsFrame", ti.dstName)
+	local name = ti.dstName
+	local nameShort = A:GetUnitNameShort(ti.dstName)
+	local frames = { _G.UIParent:GetChildren() }
+	VDT_AddData(frames, "frames")
+	for _, frame in ipairs(frames) do
+		if frame.name4button then
+			if frame.name4button == name or frame.name4button == nameShort then
+				dprint(1, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
+				return frame
+			end
+		end
+	end
 end

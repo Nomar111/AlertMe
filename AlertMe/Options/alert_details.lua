@@ -51,7 +51,7 @@ function O:ShowDisplaySettings(container, eventShort, uid)
 	dprint(3, "O:ShowDisplaySettings", eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local glowList = {[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
+	local glowList = {[-1]="No Glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
 	-- display settings
 	if A.EventsShort[eventShort].displaySettings == true then
 		local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
