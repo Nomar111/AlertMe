@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-local _G, ipairs = _G, ipairs
+local _G, ipairs, IsAddOnLoaded = _G, ipairs, IsAddOnLoaded
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 A.Glows = {}
@@ -59,6 +59,11 @@ end
 
 function A:GetBattleGroundTargetsFrame(ti)
 	dprint(2, "A:GetBattleGroundTargetsFrame", ti.dstName)
+	local loaded = IsAddOnLoaded("BattlegroundTargets")
+	if not loaded then
+		dprint(2, "A:GetBattleGroundTargetsFrame", "BGT not loaded")
+		return
+	end
 	local name = ti.dstName
 	local nameShort = A:GetUnitNameShort(ti.dstName)
 	local frames = { _G.UIParent:GetChildren() }
