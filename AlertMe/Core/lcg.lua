@@ -14,7 +14,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 		targetFrame = A:GetBattleGroundTargetsFrame(ti)
 	end
 	if not targetFrame then
-		dprint(1, "DisplayGlows", "no target frame found for", ti.dstName)
+		dprint(2, "DisplayGlows", "no target frame found for", ti.dstName)
 		return
 	end
 	local id = ti.dstGUID..ti.spellName
