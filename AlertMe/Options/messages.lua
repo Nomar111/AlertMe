@@ -8,6 +8,10 @@ function O:ShowMessages(container)
 	local db = P.messages
 	-- header
 	O.AttachHeader(container, "Message Settings")
+	O.AttachCheckBox(container, "Enable addon messages", P.messages, "enabled", 300, _)
+	O.AttachSpacer(container, _, "small")
+	O.AttachCheckBox(container, "Enable chat announcements", P.messages, "chatEnabled", 300, _)
+	O.AttachSpacer(container, _, "small")
 	-- chat frames
 	local title = "Post addon messages in the following chat windows (only visible for you)"
 	local chatFramesGroup = O.AttachGroup(container, "inline", title, {fullWidth = true})

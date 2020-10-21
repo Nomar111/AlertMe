@@ -166,6 +166,7 @@ end
 
 function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 	dprint(3, "A:DisplayBars", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+	if not P.bars.auras.enabled then return end
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showBar == true and eventInfo.displaySettings == true then

@@ -31,7 +31,7 @@ function O.AttachButton(container, text, width)
 	return widget
 end
 
-function O.AttachCheckBox(container, label, db, key, width, func)
+function O.AttachCheckBox(container, label, db, key, width, func, toolTip)
 	dprint(3, "O.AttachCheckBox", label, db, key, width)
 	local widget = A.Libs.AceGUI:Create("CheckBox")
 	widget:SetValue(db[key])
@@ -41,6 +41,9 @@ function O.AttachCheckBox(container, label, db, key, width, func)
 	end)
 	widget:SetLabel(label)
 	if width then widget:SetWidth(width) end
+	if toolTip ~= nil then
+		O.SetToolTip(widget, toolTip)
+	end
 	container:AddChild(widget)
 	return widget
 end
@@ -237,8 +240,8 @@ end
 -- 	return edit
 -- end
 
-function O.AttachSlider(container, label, db, key, min, max, step, isPercent, width, func)
-	dprint(3, "O.AttachSlider", label, db, key, min, max, step, isPercent, width, func)
+function O.AttachSlider(container, label, db, key, min, max, step, isPercent, width, func, toolTip)
+	dprint(3, "O.AttachSlider", label, db, key, min, max, step, isPercent, width, func, toolTip)
 	local widget = A.Libs.AceGUI:Create("Slider")
 	if label then widget:SetLabel(label) end
 	widget:SetSliderValues(min, max, step)
@@ -250,6 +253,9 @@ function O.AttachSlider(container, label, db, key, min, max, step, isPercent, wi
 		--if scrolling == true then A:ScrollingTextInitOrUpdate() end
 	end)
 	if width then widget:SetWidth(width) end
+	if toolTip ~= nil then
+		O.SetToolTip(widget, toolTip)
+	end
 	container:AddChild(widget)
 	return widget
 end

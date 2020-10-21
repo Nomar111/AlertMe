@@ -64,6 +64,8 @@ D.profile = {
 		}
 	},
 	messages = {
+		enabled = true,	
+		chatEnabled = true,
 		gain = "%dstName gained %spellName",
 		dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
 		start = "%srcName starts to cast %spellName",
@@ -78,6 +80,7 @@ D.profile = {
 	glow = {
 		selectedGlow = 1,
 		bgtEnabled = true,
+		enabled = true,
 		['*'] = {
 			type = "pixel",
 			color = {0.95, 0.95, 0.32, 1},

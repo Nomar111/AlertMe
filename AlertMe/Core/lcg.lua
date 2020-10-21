@@ -25,6 +25,7 @@ A.Glows = {}
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	dprint(1, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
+	if not P.glow.enabled then return end
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
 		targetFrame = A:GetBattleGroundTargetsFrame(ti)

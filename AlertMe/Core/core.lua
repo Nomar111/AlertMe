@@ -264,30 +264,32 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 		local msgSystem = A:CreateMessage(ti, eventInfo, alert, true, false)
 		local msgScrolling = (P.scrolling.showIcon) and A:CreateMessage(ti, eventInfo, alert, true, true) or  msgSystem
 		-- bg/raid/party
-		if alert.chatChannels == 2 and channel then
+		if alert.chatChannels == 2 and channel and P.messages.chatEnabled then
 			if msgQueue[channel] == nil then msgQueue[channel] = {} end
 			msgQueue[channel][msg] = msg
 		end
 		-- party
-		if alert.chatChannels == 3 and inInstance then
+		if alert.chatChannels == 3 and inInstance and P.messages.chatEnabled then
 			if msgQueue["PARTY"] == nil then msgQueue["PARTY"] = {} end
 			msgQueue["PARTY"][msg] = msg
 		end
 		-- say
-		if alert.chatChannels == 4 and inInstance then
+		if alert.chatChannels == 4 and inInstance and P.messages.chatEnabled then
 			if msgQueue["SAY"] == nil then msgQueue["SAY"] = {} end
 			msgQueue["SAY"][msg] = msg
 		end
 		-- addon messages
-		if alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance) then
+		if (alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance)) and P.messages.enabled then
 			if msgQueue["SYSTEM"] == nil then msgQueue["SYSTEM"] = {} end
 			msgQueue["SYSTEM"][msg] = msgSystem
 		end
 		-- whisper destination unit
 		if eventInfo.dstWhisper == true and ti.dstIsFriendly and not ti.dstIsPlayer then
 			if (alert.dstWhisper == 2 and ti.srcIsPlayer) or alert.dstWhisper == 3 then
-				if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
-				msgQueue["WHISPER"][msg] = msg
+				if P.messages.chatEnabled then
+					if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
+					msgQueue["WHISPER"][msg] = msg
+				end
 			end
 		end
 		-- scrolling messages
