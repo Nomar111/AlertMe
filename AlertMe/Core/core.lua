@@ -243,7 +243,7 @@ end
 --Actions
 --**********************************************************************************************************************************
 function A:ChatAnnounce(ti, alerts, eventInfo)
-	dprint(2, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot")
+	dprint(3, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot")
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil
@@ -279,7 +279,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			msgQueue["SAY"][msg] = msg
 		end
 		-- addon messages
-		if (alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance)) and P.messages.enabled then
+		if (alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance and alert.chatChannels ~= 1)) and P.messages.enabled then
 			if msgQueue["SYSTEM"] == nil then msgQueue["SYSTEM"] = {} end
 			msgQueue["SYSTEM"][msg] = msgSystem
 		end
@@ -315,7 +315,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 end
 
 function A:PlaySound(ti, alerts, eventInfo)
-	dprint(2, "A:PlaySound", ti.relSpellName, eventInfo.short)
+	dprint(3, "A:PlaySound", ti.relSpellName, eventInfo.short)
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue

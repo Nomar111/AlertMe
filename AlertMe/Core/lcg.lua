@@ -6,25 +6,8 @@ local _G, ipairs = _G, ipairs
 setfenv(1, _G.AlertMe)
 A.Glows = {}
 
--- if ti.dstIsHostile then
--- 	local unitFrame = A.GetUnitFrame(ti.dstName)
--- 	if not unitFrame then
--- 		unitFrame = A.GetUnitFrame(A:GetUnitNameShort(ti.dstName))
--- 	end
--- 	if not unitFrame then
--- 		unitFrame = A.GetUnitFrame(ti.dstGUID)
--- 	end
--- 	unitFrame = A.GetUnitFrame(ti.dstGUID)
---
--- 	if unitFrame then
--- 		dprint(1, "A.GetUnitFrame", unitFrame)
--- 	else
--- 		dprint(1, "A.GetUnitFrame", "no unit frame found", ti.dstName, A:GetUnitNameShort(ti.dstName), ti.dstGUID)
--- 	end
--- end
-
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
-	dprint(1, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
+	dprint(2, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
 	if not P.glow.enabled then return end
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
@@ -75,7 +58,7 @@ function A:HideAllGlows()
 end
 
 function A:GetBattleGroundTargetsFrame(ti)
-	dprint(1, "A:GetBattleGroundTargetsFrame", ti.dstName)
+	dprint(2, "A:GetBattleGroundTargetsFrame", ti.dstName)
 	local name = ti.dstName
 	local nameShort = A:GetUnitNameShort(ti.dstName)
 	local frames = { _G.UIParent:GetChildren() }
@@ -83,7 +66,7 @@ function A:GetBattleGroundTargetsFrame(ti)
 	for _, frame in ipairs(frames) do
 		if frame.name4button then
 			if frame.name4button == name or frame.name4button == nameShort then
-				dprint(1, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
+				dprint(2, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
 				return frame
 			end
 		end

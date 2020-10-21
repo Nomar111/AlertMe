@@ -70,7 +70,7 @@ function A:ResetContainerPosition(barType)
 end
 
 function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
-	dprint(2, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
+	dprint(3, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
 	local db = P.bars[barType]
 	-- enabled?
 	if db.enabled == false then return end
@@ -78,7 +78,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	if A.Bars[barType][id] == nil and noCreate == true then return end
 	-- callback for when bar is stopped
 	local function barStopped(_, delBar)
-		dprint(2, "barStopped", delBar, delBar:Get("id"), "stopped")
+		--dprint(3, "barStopped", delBar, delBar:Get("id"), "stopped")
 		local _id = delBar:Get("id")
 		local _barType = delBar:Get("barType")
 		delBar:SetParent(nil)
@@ -177,7 +177,7 @@ function A:DisplayBars(ti, alerts, eventInfo, snapShot)
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				dprint(2, "A:DisplayBars", "no aura info, but snapshot", ti.relSpellName, "remaining", remaining)
+				dprint(3, "A:DisplayBars", "no aura info, but snapshot", ti.relSpellName, "remaining", remaining)
 				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
 				dprint(1, "A:DisplayBars", "no aura duration, no snapshot, abort", ti.relSpellName,  eventInfo.short)

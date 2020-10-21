@@ -51,7 +51,7 @@ function A:FakeEvent(ti, eventInfo)
 	exists, _ti, _eventInfo = A:CheckSnapShot(ti, eventInfo)
 	if exists then
 		-- do whatever is defined in actions
-		dprint(2, "A:FakeEvent", "do actions", _ti.relSpellName, _eventInfo.short)
+		dprint(3, "A:FakeEvent", "do actions", _ti.relSpellName, _eventInfo.short)
 		A:DoActions(_ti, _eventInfo, alerts, true)
 	else
 		-- if no snapshot was found, add one for cast success event
@@ -67,22 +67,22 @@ function A:CheckSnapShot(ti, eventInfo)
 			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["success"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				dprint(2, "A:CheckSnapShot", "aura gain: found match", timeDiff, ti.relSpellName, eventInfo.short)
+				--dprint(3, "A:CheckSnapShot", "aura gain: found match", timeDiff, ti.relSpellName, eventInfo.short)
 				return true, snapShot.ti, snapShot.eventInfo
 			end
 		end
-		dprint(2, "A:CheckSnapShot", "aura gain: no match", timeDiff, ti.relSpellName)
+		--dprint(3, "A:CheckSnapShot", "aura gain: no match", timeDiff, ti.relSpellName)
 		return false
 	elseif eventInfo.short == "success" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"] then
 			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				dprint(2, "A:CheckSnapShot","cast success: found match", timeDiff, ti.relSpellName)
+				dprint(3, "A:CheckSnapShot","cast success: found match", timeDiff, ti.relSpellName)
 				return true, snapShot.ti, snapShot.eventInfo
 			end
 		end
-		dprint(2, "A:CheckSnapShot", "cast success: no match", ti.relSpellName, eventInfo.short)
+		--dprint(3, "A:CheckSnapShot", "cast success: no match", ti.relSpellName, eventInfo.short)
 		return false
 	end
 end
