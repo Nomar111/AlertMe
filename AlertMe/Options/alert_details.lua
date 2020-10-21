@@ -52,13 +52,18 @@ function O:ShowDisplaySettings(container, eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	local glowList = {[-1]="No Glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
+	local ttGlow = {
+		header = "Enable glow on unitframes",
+		lines = {"Works for friendly unitframes by default", "Also works for enemy uniframes if using BattleGroundTargets Classic"},
+		wrap = false
+	}
 	-- display settings
 	if A.EventsShort[eventShort].displaySettings == true then
 		local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
 		O.AttachHeader(displayGroup, "Display settings")
 		O.AttachCheckBox(displayGroup, "Show progress bar", db, "showBar", 150)
-		O.AttachSpacer(displayGroup, 20)
-		O.AttachDropdown(displayGroup, "Glow unitframe", db, "showGlow", glowList, 220)
+		O.AttachSpacer(displayGroup, 9)
+		O.AttachDropdown(displayGroup, _, db, "showGlow", glowList, 150, _, ttGlow)
 	end
 end
 
@@ -74,18 +79,18 @@ function O:ShowAnnounceSettings(container, eventShort, uid)
 	O.AttachDropdown(announceGroup, "Announce in channel", db, "chatChannels", channelList, 140)
 	O.AttachSpacer(announceGroup, 20)
 	-- addon messages
-	local systemList = {[1] = "Always", [2] = "Never", [3] = "If channel not available"}
+	local systemList = {[1] = "Always", [2] = "Never", [3] = "If chan not available"}
 	local toolTip = {
 		header = "Addon messages",
 		lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"},
 		wrap = false
 	}
-	O.AttachDropdown(announceGroup, "Post addon messages", db, "addonMessages", systemList, 170, _, toolTip)
+	O.AttachDropdown(announceGroup, "Post addon messages", db, "addonMessages", systemList, 150, _, toolTip)
 	-- dstwhisper
 	if A.EventsShort[eventShort].dstWhisper == true then
 		local whisperList = {[1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper"}
 		O.AttachSpacer(announceGroup, 20)
-		O.AttachDropdown(announceGroup, "Whisper destination unit", db, "dstWhisper", whisperList, 160)
+		O.AttachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", whisperList, 160)
 	end
 	-- scrolling text
 	toolTip = {

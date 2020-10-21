@@ -64,7 +64,7 @@ D.profile = {
 		}
 	},
 	messages = {
-		enabled = true,	
+		enabled = true,
 		chatEnabled = true,
 		gain = "%dstName gained %spellName",
 		dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
