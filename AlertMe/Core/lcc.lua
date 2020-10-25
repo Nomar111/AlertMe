@@ -105,7 +105,6 @@ local function checkUnits(unit, alerts)
 	return false, errorMessages
 end
 
-
 function A:UNIT_SPELLCAST(event, unit, castGUID, spellId)
 	dprint(2, "A:UNIT_SPELLCAST", event, unit, spellId)
 	-- we need a vlaid GUID and spellId
@@ -116,7 +115,8 @@ function A:UNIT_SPELLCAST(event, unit, castGUID, spellId)
 		return
 	end
 	-- events
-	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED" then
+	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
+	or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 		-- check display settings for that spell
 		local alerts = getAlerts(spellId)
 		if not alerts then return end
@@ -126,11 +126,18 @@ function A:UNIT_SPELLCAST(event, unit, castGUID, spellId)
 			dprint(2, "unitCheck failed", unpack(errorMessages))
 			return
 		end
-		-- show cast bar
-		local name, _, icon, _, endMS = UnitCastingInfo(unit)
-		local remaining = (endMS - (GetTime() * 1000))/1000
+		-- get some info on the casted spell
+		local name, _, icon, _, endMS
+		if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED" then
+			name, _, icon, _, endMS = UnitCastingInfo(unit)
+		elseif event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
+			name, _, icon, _, endMS = UnitChannelInfo(unit)
+		end
+		-- calculate remaining duration & show cast bar
+		remaining = (endMS - (GetTime() * 1000))/1000
 		A:ShowBar(barType, id, name, icon, remaining, true)
-	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_INTERRUPTED" then
+	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
+	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
 		A:HideBar(barType, id)
 	end
 end
