@@ -1,5 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
+-- upvalues
+local InCombatLockdown = InCombatLockdown
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 -- (re)set some variables
@@ -9,6 +11,12 @@ O.config = {}
 -- open the options window
 function O:OpenOptions()
 	dprint(3, "O:OpenOptions")
+	-- check if in combat
+	if InCombatLockdown() then
+		print("Can't open AlertMe options because of ongoing combat.")
+		return
+	end
+	-- close
 	local function close()
 		A:InitSpellOptions()
 		A.RegisterCLEU("Options")
