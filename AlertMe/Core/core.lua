@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-local _G, CombatLogGetCurrentEventInfo, UnitGUID, bit = _G, CombatLogGetCurrentEventInfo, UnitGUID, bit
+local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
 local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
@@ -28,6 +28,10 @@ function A:Initialize()
 	A.ToggleAddon()
 	-- for reloadui
 	A:HideAllGUI()
+	-- LCC
+	A:InitLCC()
+	VDT_AddData(P, "P")
+	VDT_AddData(A.Defaults, "A.Defaults")
 end
 
 function A:ParseCombatLog(eventName)
@@ -108,8 +112,9 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
-			if action == "displayBars" and type(alerts) == "table" then A:DisplayBars(ti, alerts, eventInfo, snapShot) end
+			if action == "displayAuraBars" and type(alerts) == "table" then A:DisplayAuraBars(ti, alerts, eventInfo, snapShot) end
 			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
+			if action == "hideGUI" and type(alerts) == "table" then A:HideGUI(ti, eventInfo) end
 		end
 	end
 end
@@ -516,7 +521,7 @@ end
 
 function A:HideGUI(ti, eventInfo)
 	dprint(3, "A:HideGUI")
-	A:HideBars(ti, eventInfo)
+	A:HideAuraBars(ti, eventInfo)
 	A:HideGlow(ti, eventInfo)
 end
 

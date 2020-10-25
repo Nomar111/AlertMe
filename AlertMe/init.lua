@@ -1,6 +1,6 @@
 -- upvalues
 local _G, LibStub = _G, LibStub
-local GetAddOnMetadata, UnitName, GetRealmName  = GetAddOnMetadata, UnitName, GetRealmName
+local GetAddOnMetadata, GetRealmName  = GetAddOnMetadata, GetRealmName
 -- get engine/addon environment
 local AddonName, Engine = ...
 -- set engine environment as new global environment
@@ -21,11 +21,12 @@ Engine[2] = A.Options   	-- O
 _G.AlertMe = Engine
 
 -- addon upvalues
-print, pairs, type, tcopy, tinsert, unpack = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack
+print, pairs, type, tcopy, tinsert, unpack, bit = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack, _G.bit
 strsplit, tostring, gsub, string, date, next = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date, _G.next
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
 GetSpellInfo, IsShiftKeyDown, GameTooltip, FCF_GetNumActiveChatFrames = _G.GetSpellInfo, _G.IsShiftKeyDown, _G.GameTooltip, _G.FCF_GetNumActiveChatFrames
+UnitName, UnitGUID = _G.UnitName, _G.UnitGUID
 
 -- addon globals
 ADDON_NAME = AddonName
@@ -51,6 +52,7 @@ A.Libs.LCG = LibStub("LibCustomGlow-1.0")
 A.Libs.LGF = LibStub("LibGetFrame-1.0")
 A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
+A.Libs.LCC = LibStub("LibClassicCasterino")
 
 -- addon initialized
 function A:OnInitialize()

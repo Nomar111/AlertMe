@@ -3,7 +3,7 @@ local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 -- create tables
-A.Bars = {auras={}, casts={}}
+A.Bars = {auras={}, spells={}}
 A.Container = {}
 
 function A:GetContainer(barType)
@@ -62,7 +62,7 @@ function A:ResetContainerPosition(barType)
 	dprint(3, "A:ResetContainerPosition", barType)
 	-- reset position
 	local db = P.bars[barType]
-	local def = D.profile.bars[barType]
+	local def = A.Defaults.profile.bars[barType]
 	db.point, db.ofs_x, db.ofs_y = def.point, def.ofs_x, def.ofs_y
 	local f = A:GetContainer(barType)
 	f:ClearAllPoints()
@@ -85,6 +85,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 		if A.Bars and A.Bars[_barType] and A.Bars[_barType][_id] then
 			A.Bars[_barType][_id] = nil
 		end
+		A:ReArrangeBars(_barType)
 	end
 	-- check if already exists
 	if A.Bars[barType][id] == nil then
@@ -99,7 +100,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	end
 	local bar = A.Bars[barType][id]
 	-- update/set bar settings
-	if db.showIcon == true then bar:SetIcon(icon) end
+	if db.showIcon == true and icon then bar:SetIcon(icon) end
 	if db.width <= 140 then
 		label = string.sub(label, 1, 10)
 	elseif db.width <= 160 then
@@ -164,30 +165,31 @@ function A:HideAllBars()
 	end
 end
 
-function A:DisplayBars(ti, alerts, eventInfo, snapShot)
-	dprint(3, "A:DisplayBars", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
+	dprint(3, "A:DisplayAuraBars", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
+	local barType = eventInfo.displaySettings.barType
 	if not P.bars.auras.enabled then return end
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
-		if alert.showBar == true and eventInfo.displaySettings == true then
+		if alert.showBar == true and eventInfo.displaySettings.enabled and eventInfo.displaySettings.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 			if remaining then
-				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				dprint(3, "A:DisplayBars", "no aura info, but snapshot", ti.relSpellName, "remaining", remaining)
-				A:ShowBar("auras", id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+				dprint(3, "A:DisplayAuraBars", "no aura info, but snapshot", ti.relSpellName, "remaining", remaining)
+				A:ShowBar(barType, id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
 			else
-				dprint(1, "A:DisplayBars", "no aura duration, no snapshot, abort", ti.relSpellName,  eventInfo.short)
+				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, abort", ti.relSpellName,  eventInfo.short)
 			end
 		end
 	end
 end
 
-function A:HideBars(ti, eventInfo)
-	dprint(3, "A:HideBars", ti, eventInfo)
+function A:HideAuraBars(ti, eventInfo)
+	dprint(3, "A:HideAuraBars", ti, eventInfo)
 	local id = ti.dstGUID..ti.spellName
-	A:HideBar("auras", id)
+	A:HideBar(eventInfo.displaySettings.barType, id)
 end

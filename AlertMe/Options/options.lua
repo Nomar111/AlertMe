@@ -39,19 +39,19 @@ end
 function O:CreateNavTree(container)
 	dprint(3, "O:CreateNavTree")
 	-- function to draw the groupd
-	local tree_structure = {}
-	tree_structure[1] = {value = "general", text = "General"}
-	tree_structure[2] = {value = "scrolling", text = "Scrolling Text"}
-	tree_structure[3] = {value = "bars", text = "Bar Setup"}
-	tree_structure[4] = {value = "messages", text = "Messages"}
-	tree_structure[5] = {value = "glow", text = "Glow"}
-	tree_structure[6] = {value = "alerts", text = "Alerts", children = {}}
-	tree_structure[7] = {value = "profiles", text = "Profiles"}
-	tree_structure[8] = {value = "info", text = "Info"}
+	local treeStructure = {}
+	treeStructure[1] = {value = "general", text = "General"}
+	treeStructure[2] = {value = "scrolling", text = "Scrolling Text"}
+	treeStructure[3] = {value = "bars", text = "Bar Setup"}
+	treeStructure[4] = {value = "messages", text = "Messages"}
+	treeStructure[5] = {value = "glow", text = "Glow"}
+	treeStructure[6] = {value = "alerts", text = "Alerts", children = {}}
+	treeStructure[7] = {value = "profiles", text = "Profiles"}
+	treeStructure[8] = {value = "info", text = "Info"}
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
 		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
-			tree_structure[6].children[tbl.optionsOrder]  = {
+			treeStructure[6].children[tbl.optionsOrder]  = {
 				value = tbl.short,
 				text = tbl.optionsText
 			}
@@ -62,7 +62,7 @@ function O:CreateNavTree(container)
 	tree:EnableButtonTooltips(false)
 	tree.width = "fill"
 	tree.height = "fill"
-	tree:SetTree(tree_structure)
+	tree:SetTree(treeStructure)
 	-- callbacks
 	local function GroupSelected(widget, event, uniqueValue)
 		dprint(3, widget, event, uniqueValue)
