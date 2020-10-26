@@ -1,35 +1,38 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-local UnitPlayerControlled, UnitIsFriend, UnitIsEnemy = UnitPlayerControlled, UnitIsFriend, UnitIsEnemy
+local UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print = UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
-local barType = "spells"
 
 function A:InitLCC()
 	dprint(3, "A:InitLCC")
+	if not P.bars.spells.enabled then
+		A.Libs.LCC.UnregisterAllCallbacks(A)
+		return
+	end
 	-- register callbacks from lib classic casterino
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_START", "UNIT_SPELLCAST")
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST") -- only for player
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST")
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST")
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST")
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST")
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_UPDATE", "UNIT_SPELLCAST") -- only for player
-	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_STOP", "UNIT_SPELLCAST")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_START", "OnUnitCast")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_DELAYED", "OnUnitCast") -- only for player
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_STOP", "OnUnitCast")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_FAILED", "OnUnitCast")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_INTERRUPTED", "OnUnitCast")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_START", "OnUnitCast")
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_UPDATE", "OnUnitCast") -- only for player
+	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_STOP", "OnUnitCast")
 	-- provide casting/channel info
 	UnitCastingInfo = function(unit)
 		return A.Libs.LCC:UnitCastingInfo(unit) -- name,text,texture,startTimeMS,endTimeMS,isTradeSkill,castID,notInterruptible,spellId
 	end
 	UnitChannelInfo = function(unit)
-		return A.Libs.LCC:UnitChannelInfo(unit)
+		return A.Libs.LCC:UnitChannelInfo(unit)	-- name,text,texture,startTimeMS,endTimeMS,isTradeSkill,castID,notInterruptible,spellId
 	end
+	-- debug
+	--A:DebugLCC()
 end
 
-local function getAlerts(spellId)
-	dprint(3, "checkSpellSettings", spellId)
+local function getAlerts(spellName)
 	-- get spellName
-	local spellName = GetSpellInfo(spellId)
 	if not spellName then return end
 	-- check if spell/event combo exists in spell options
 	local alerts = {}
@@ -46,7 +49,7 @@ local function getAlerts(spellId)
 	end
 end
 
-local function checkUnits(unit, alerts)
+local function checkUnits(unit, unitGUID, alerts)
 	dprint(3, "checkSpellSettings", spellId)
 	-- set some local variables
 	local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
@@ -57,13 +60,22 @@ local function checkUnits(unit, alerts)
 		-- variable to hold the check result for this og
 		local checkFailed = false
 		-- set local variables
-		local GUID = UnitGUID(unit)
 		local units, exclude = alert.options["srcUnits"], alert.options["srcExclude"]
-		local playerControlled = UnitPlayerControlled(unit)
-		local isFriendly = UnitIsFriend(unit, "player")
-		local isHostile = UnitIsEnemy(unit, "player")
-		local isPlayer = (GUID == playerGUID)
-		local isTarget = (GUID == targetGUID)
+		local playerControlled, isFriendly, isHostile
+		if unit ~= "noUnit" then
+			playerControlled, isFriendly, isHostile = UnitPlayerControlled(unit), UnitIsFriend(unit, "player"), UnitIsEnemy(unit, "player")
+		elseif A.GUIDS[unitGUID] then
+			playerControlled = true
+			isFriendly = A.GUIDS[unitGUID].friendly
+			isHostile = not A.GUIDS[unitGUID].friendly
+		else
+			dprint(1, "cannot get unit reaction, assuming...", unit, unitGUID)
+			playerControlled = true
+			isFriendly = false
+			isHostile = true
+		end
+			-- make some assupmtions
+		local isPlayer, isTarget = (unitGUID == playerGUID), (unitGUID == targetGUID)
 		-- player controlled check
 		if not playerControlled and units ~= 6 then
 			tinsert(errorMessages, "unit not player controlled")
@@ -105,39 +117,45 @@ local function checkUnits(unit, alerts)
 	return false, errorMessages
 end
 
-function A:UNIT_SPELLCAST(event, unit, castGUID, spellId)
-	dprint(2, "A:UNIT_SPELLCAST", event, unit, spellId)
-	-- we need a vlaid GUID and spellId
-	local unitGUID, id = UnitGUID(unit), nil
-	if unitGUID and spellId then
-		id = UnitGUID(unit)..spellId
-	else
-		return
-	end
+function A:OnUnitCast(event, unit, unitGUID, unitName, spellName, spellId, icon, castType, startTime, endTime)
+	dprint(2, event, unit, unitGUID, unitName, spellName, spellId, icon, castType, startTime, endTime)
+	local barType = "spells"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
 	or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 		-- check display settings for that spell
-		local alerts = getAlerts(spellId)
+		local alerts = getAlerts(spellName)
 		if not alerts then return end
 		-- unit check
-		local unitCheck, errorMessages = checkUnits(unit, alerts)
+		local unitCheck, errorMessages = checkUnits(unit, unitGUID, alerts)
 		if not unitCheck then
 			dprint(2, "unitCheck failed", unpack(errorMessages))
 			return
 		end
-		-- get some info on the casted spell
-		local name, _, icon, _, endMS
-		if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED" then
-			name, _, icon, _, endMS = UnitCastingInfo(unit)
-		elseif event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-			name, _, icon, _, endMS = UnitChannelInfo(unit)
-		end
 		-- calculate remaining duration & show cast bar
-		remaining = (endMS - (GetTime() * 1000))/1000
-		A:ShowBar(barType, id, name, icon, remaining, true)
+		remaining = (endTime - (GetTime() * 1000))/1000
+		A:ShowBar(barType, unitGUID, unitName, icon, remaining, true)
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
 	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-		A:HideBar(barType, id)
+		A:HideBar(barType, unitGUID)
 	end
+end
+
+function A:DebugLCC()
+	local f = CreateFrame("Frame", nil, UIParent)
+	f:SetScript("OnEvent", function(self, event, ...)
+		return self[event](self, event, ...)
+	end)
+
+	local CastbarEventHandler = function(event, unit, ...)
+		print("A:DebugLCC", event, unit, ...)
+	end
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_START", CastbarEventHandler)
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_DELAYED", CastbarEventHandler) -- only for player
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_STOP", CastbarEventHandler)
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_FAILED", CastbarEventHandler)
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_INTERRUPTED", CastbarEventHandler)
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_START", CastbarEventHandler)
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_UPDATE", CastbarEventHandler) -- only for player
+	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_STOP",CastbarEventHandler)
 end

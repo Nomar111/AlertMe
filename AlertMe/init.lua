@@ -52,7 +52,7 @@ A.Libs.LCG = LibStub("LibCustomGlow-1.0")
 A.Libs.LGF = LibStub("LibGetFrame-1.0")
 A.Libs.LDB = LibStub("LibDataBroker-1.1")
 A.Libs.LDBI = A.Libs.LDB and LibStub("LibDBIcon-1.0", true)
-A.Libs.LCC = LibStub("LibClassicCasterino")
+A.Libs.LCC = LibStub("LibClassicCasterinoAlertMe", true)
 
 -- addon initialized
 function A:OnInitialize()

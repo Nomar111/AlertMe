@@ -9,6 +9,7 @@ A.Container = {}
 function A:GetContainer(barType)
 	dprint(3, "A:GetContainer", barType)
 	local db = P.bars[barType]
+	if not db then dprint(1,"db geht nicht auf", barType) end -- remove when error is found
 	if A.Container[barType] == nil then
 		local f = CreateFrame("Frame", nil, UIParent)
 		f:SetPoint(db.point, db.ofs_x, db.ofs_y)
@@ -71,6 +72,9 @@ end
 
 function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	dprint(3, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
+	if not barType then
+		dprint(1, "nor barType in ShowBar", id, label, icon, duration, reaction, noCreate)
+	end
 	local db = P.bars[barType]
 	-- enabled?
 	if db.enabled == false then return end
@@ -84,8 +88,11 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 		delBar:SetParent(nil)
 		if A.Bars and A.Bars[_barType] and A.Bars[_barType][_id] then
 			A.Bars[_barType][_id] = nil
+			A:ReArrangeBars(_barType)
+			if not _barType then
+				dprint(1, "no barType in barStopped", delBar)
+			end
 		end
-		A:ReArrangeBars(_barType)
 	end
 	-- check if already exists
 	if A.Bars[barType][id] == nil then
@@ -168,6 +175,9 @@ end
 function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
 	dprint(3, "A:DisplayAuraBars", ti.relSpellName, eventInfo.short, "snapShot", snapShot)
 	local barType = eventInfo.displaySettings.barType
+	if not barType then
+		dprint(1, "no bar type", "DisplayAuraBars",  eventInfo.short)
+	end
 	if not P.bars.auras.enabled then return end
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do

@@ -2,11 +2,12 @@
 local A, O = unpack(select(2, ...))
 -- upvalues
 local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
-local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE
+local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
 local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+A.GUIDS = {}
 
 -- init function
 function A:Initialize()
@@ -30,8 +31,10 @@ function A:Initialize()
 	A:HideAllGUI()
 	-- LCC
 	A:InitLCC()
+	VDT_AddData(_G.AlertMe, "AlertMe")
+	VDT_AddData(A, "A")
 	VDT_AddData(P, "P")
-	VDT_AddData(A.Defaults, "A.Defaults")
+	VDT_AddData(A.GUIDS, "A.GUIDS")
 end
 
 function A:ParseCombatLog(eventName)
@@ -49,6 +52,9 @@ function A:ParseCombatLog(eventName)
 		spellName = arg[13],
 		spellSchool = arg[14]
 	}
+	-- create gUID friend/foe info for later use
+	A:PlayerGUIDS(ti.srcGUID, ti.srcName, ti.srcFlags)
+	A:PlayerGUIDS(ti.dstGUID, ti.dstName, ti.dstFlags)
 	-- check if trigger event exists in events table, if not abort
 	if not A.Events[ti.event] then
 		dprint(3, "Event not tracked")
@@ -368,8 +374,8 @@ function A:InitSpellOptions()
 	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
-	VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	--VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	--VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
 		--dprint(3, "Loop1: ", event, alert)
@@ -404,6 +410,13 @@ end
 --**********************************************************************************************************************************
 function A.RegisterCLEU(event)
 	dprint(3, "A.RegisterCLEU", event)
+	-- delete player guids
+	local function deleteGUIDS()
+		if not A.GUIDS then return end
+		for i,_ in pairs (A.GUIDS) do
+			A.GUIDS[i] = nil
+		end
+	end
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
@@ -416,6 +429,9 @@ function A.RegisterCLEU(event)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllGUI()
 	end
+	-- wipe table with player guids
+	deleteGUIDS()
+	--VDT_AddData(A.GUIDS, "GUIDS")
 end
 
 function A.ToggleAddon()
@@ -529,4 +545,23 @@ function A:HideAllGUI()
 	dprint(3, "A:HideAllGUI")
 	A:HideAllBars()
 	A:HideAllGlows()
+end
+
+function A:PlayerGUIDS(guid, name, flags)
+	-- guid provided?
+	if not guid then return end
+	-- exists already?
+	if A.GUIDS[guid] then return end
+	-- player controlled?
+	if not (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) then return end
+	-- friendly?
+	if (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0) then
+		A.GUIDS[guid] = {name = name, friendly = true}
+	elseif (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0) then
+		A.GUIDS[guid] = {name = name, friendly = false}
+	elseif (bit.band(flags, COMBATLOG_OBJECT_REACTION_NEUTRAL) > 0) then
+		A.GUIDS[guid] = {name = name, friendly = true}
+	else
+		dprint(1, "A:PlayerGUIDS", "no reaction lookup possible", guid, name)
+	end
 end

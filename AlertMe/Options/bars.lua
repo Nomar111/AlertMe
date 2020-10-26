@@ -20,7 +20,6 @@ end
 
 function O:ShowBars(container)
 	dprint(3, "O:ShowBars")
-	VDT_AddData(P, "P")
 	-------------------------------------------------------------------------------
 	-- attach bar options depending on selected barType
 	local function attachBarOptions(tabGroup, barType)
@@ -40,7 +39,7 @@ function O:ShowBars(container)
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
 		local enableGroup = O.AttachGroup(tabGroup, "simple", _, {fullWidth = true})
 		-- enable
-		O.AttachCheckBox(enableGroup, "Enable "..barTypeText, db ,"enabled", 140)
+		O.AttachCheckBox(enableGroup, "Enable "..barTypeText, db ,"enabled", 140, A.InitLCC)
 		O.AttachCheckBox(enableGroup, "Unlock bars", db ,"unlocked", 140, containerLock)
 		O.AttachSpacer(container, _, "medium")
 		-- buttons

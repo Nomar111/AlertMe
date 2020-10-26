@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 20
+local MAJOR, MINOR = "LibClassicCasterinoAlertMe", 1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -57,6 +57,7 @@ local castTimeCacheStartTimes = setmetatable({}, { __mode = "v" })
 local AIMED_SHOT = GetSpellInfo(19434)
 local castingAimedShot = false
 local playerGUID = UnitGUID("player")
+local playerName = UnitName("player")
 
 --[[
 function DUMPCASTS()
@@ -88,7 +89,7 @@ local makeCastUID = function(guid, spellName)
     return npcID..spellName
 end
 
-local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime, isSrcEnemyPlayer )
+local function CastStart(srcGUID, srcName, castType, spellName, spellID, overrideCastTime, isSrcEnemyPlayer)
     local _, _, icon, castTime = GetSpellInfo(spellID)
     if castType == "CHANNEL" then
         local channelDuration = classChannelsByAura[spellID] or classChannelsByCast[spellID]
@@ -120,15 +121,16 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
         if srcGUID == playerGUID and spellName == AIMED_SHOT then
             castingAimedShot = true
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
-            callbacks:Fire("UNIT_SPELLCAST_START", "player")
-        end
-        FireToUnits("UNIT_SPELLCAST_START", srcGUID)
+            callbacks:Fire("UNIT_SPELLCAST_START", "player", playerGUID, playerName, spellName, spellID, icon, castType, startTime, endTime)
+        else
+			FireToUnits("UNIT_SPELLCAST_START", srcGUID, srcName, spellName, spellID, icon, castType, startTime, endTime)
+		end
     else
-        FireToUnits("UNIT_SPELLCAST_CHANNEL_START", srcGUID)
+        FireToUnits("UNIT_SPELLCAST_CHANNEL_START", srcGUID, spellName, spellID, icon, castType, startTime, endTime)
     end
 end
 
-local function CastStop(srcGUID, castType, suffix )
+local function CastStop(srcGUID, srcName, castType, suffix)
     local currentCast = casters[srcGUID]
     if currentCast then
         castType = castType or currentCast[1]
@@ -140,11 +142,11 @@ local function CastStop(srcGUID, castType, suffix )
             local event = "UNIT_SPELLCAST_"..suffix
             if srcGUID == playerGUID and castingAimedShot then
                 castingAimedShot = false
-                callbacks:Fire(event, "player")
+                callbacks:Fire(event, "player", playerGUID, playerName)
             end
-            FireToUnits(event, srcGUID)
+            FireToUnits(event, srcGUID, srcName)
         else
-            FireToUnits("UNIT_SPELLCAST_CHANNEL_STOP", srcGUID)
+            FireToUnits("UNIT_SPELLCAST_CHANNEL_STOP", srcGUID, srcName)
         end
     end
 end
@@ -160,12 +162,14 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
     if isSrcPlayer and spellID == 0 then
         spellID = spellNameToID[spellName]
     end
+
     if eventType == "SPELL_CAST_START" then
         if isSrcPlayer then
             local isCasting = classCasts[spellID]
             if isCasting then
                 local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                CastStart(srcGUID, "CAST", spellName, spellID, nil, not isSrcFriendlyPlayer)
+				--print("cast start called2")
+                CastStart(srcGUID, srcName, "CAST", spellName, spellID, nil, not isSrcFriendlyPlayer)
             end
         else
             local castUID = makeCastUID(srcGUID, spellName)
@@ -175,15 +179,17 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
                 spellID = 4036 -- Engineering Icon
             end
             if cachedTime then
-                CastStart(srcGUID, "CAST", spellName, spellID, cachedTime*1000)
+				--print("cast start called2")
+                CastStart(srcGUID, srcName, "CAST", spellName, spellID, cachedTime*1000, _)
             else
                 castTimeCacheStartTimes[srcGUID..castUID] = GetTime()
-                CastStart(srcGUID, "CAST", spellName, spellID, 1500) -- using default 1.5s cast time for now
+				--print("cast start called3")
+                CastStart(srcGUID, srcName, "CAST", spellName, spellID, 1500, _) -- using default 1.5s cast time for now
             end
         end
     elseif eventType == "SPELL_CAST_FAILED" then
 
-            CastStop(srcGUID, "CAST", "FAILED")
+            CastStop(srcGUID, srcName, "CAST", "FAILED")
 
     elseif eventType == "SPELL_CAST_SUCCESS" then
             if isSrcPlayer then
@@ -195,7 +201,8 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
                     local isChanneling = classChannelsByCast[spellID]
                     if isChanneling then
                         local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                        CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
+						--print("cast start called4")
+                        CastStart(srcGUID, srcName, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
                     end
                     return
                 end
@@ -214,13 +221,13 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
                     end
                 end
             end
-            CastStop(srcGUID, nil, "STOP")
+            CastStop(srcGUID, srcName, nil, "STOP")
 
     elseif eventType == "SPELL_INTERRUPT" then
 
-            CastStop(dstGUID, nil, "INTERRUPTED")
+            CastStop(dstGUID, dstName, nil, "INTERRUPTED")
     elseif eventType == "UNIT_DIED" then
-            CastStop(dstGUID, nil, "FAILED")
+            CastStop(dstGUID, dstName, nil, "FAILED", srcName)
 
     elseif  eventType == "SPELL_AURA_APPLIED" or
             eventType == "SPELL_AURA_REFRESH" or
@@ -228,21 +235,22 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
     then
         if isSrcPlayer then
             if crowdControlAuras[spellName] then
-                CastStop(dstGUID, nil, "INTERRUPTED")
+                CastStop(dstGUID, dstName, nil, "INTERRUPTED")
                 return
             end
 
             local isChanneling = classChannelsByAura[spellID]
             if isChanneling then
                 local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
+				--print("cast start called5")
+                CastStart(srcGUID, srcName, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
             end
         end
     elseif eventType == "SPELL_AURA_REMOVED" then
         if isSrcPlayer then
             local isChanneling = classChannelsByAura[spellID]
             if isChanneling then
-                CastStop(srcGUID, "CHANNEL", "STOP")
+                CastStop(srcGUID, srcName, "CHANNEL", "STOP")
             end
         end
     end
@@ -299,9 +307,9 @@ end
 
 
 local Passthrough = function(self, event, unit, ...)
-    if unit == "player" or UnitIsUnit(unit, "player") then
-        callbacks:Fire(event, unit, ...)
-    end
+    -- if unit == "player" or UnitIsUnit(unit, "player") then
+    --     callbacks:Fire(event, unit, playerGUID, playerName, ...)
+    -- end
 end
 f.UNIT_SPELLCAST_START = Passthrough
 f.UNIT_SPELLCAST_DELAYED = Passthrough
@@ -315,7 +323,6 @@ f.UNIT_SPELLCAST_SUCCEEDED = Passthrough
 
 function callbacks.OnUsed()
     f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-
     f:RegisterEvent("UNIT_SPELLCAST_START")
     f:RegisterEvent("UNIT_SPELLCAST_DELAYED")
     f:RegisterEvent("UNIT_SPELLCAST_STOP")
@@ -587,27 +594,21 @@ function f:GROUP_ROSTER_UPDATE()
     end
 end
 
-FireToUnits = function(event, guid, ...)
+FireToUnits = function(event, guid, name, ...)
+	local commonUnit
     for _, unit in ipairs(commonUnits) do
         if UnitGUID(unit) == guid then
-            callbacks:Fire(event, unit, ...)
+			commonUnit = unit
+			break
         end
     end
 
     local partyUnit = partyGUIDtoUnit[guid]
-    if partyUnit then
-        callbacks:Fire(event, partyUnit, ...)
-    end
-
     local raidUnit = raidGUIDtoUnit[guid]
-    if raidUnit then
-        callbacks:Fire(event, raidUnit, ...)
-    end
-
     local nameplateUnit = nameplateGUIDtoUnit[guid]
-    if nameplateUnit then
-        callbacks:Fire(event, nameplateUnit, ...)
-    end
+    local reportUnit = commonUnit or partyUnit or raidUnit or nameplateUnit or "noUnit"
+	-- in case enemy unit is not a nameplate or target, return guid
+	callbacks:Fire(event, reportUnit, guid, name, ...)
 end
 
 crowdControlAuras = { -- from ClassicCastbars
@@ -705,8 +706,9 @@ do
 
             local unit = GetUnitForFreshGUID(guid)
             if unit then
+				local unitName = UnitName(unit)
                 if GetUnitSpeed(unit) ~= 0 then
-                    CastStop(guid, nil, "FAILED")
+                    CastStop(guid, unitName, nil, "FAILED")
                     movecheckGUIDs[guid] = nil
                     return
                 end
