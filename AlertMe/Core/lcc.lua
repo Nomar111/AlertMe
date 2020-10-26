@@ -7,7 +7,7 @@ setfenv(1, _G.AlertMe)
 
 function A:InitLCC()
 	dprint(3, "A:InitLCC")
-	if not P.bars.spells.enabled then
+	if not P.bars.spells.enabled or not P.general.enabled == true then
 		A.Libs.LCC.UnregisterAllCallbacks(A)
 		return
 	end
@@ -20,15 +20,6 @@ function A:InitLCC()
 	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_START", "OnUnitCast")
 	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_UPDATE", "OnUnitCast") -- only for player
 	A.Libs.LCC.RegisterCallback(A,"UNIT_SPELLCAST_CHANNEL_STOP", "OnUnitCast")
-	-- provide casting/channel info
-	UnitCastingInfo = function(unit)
-		return A.Libs.LCC:UnitCastingInfo(unit) -- name,text,texture,startTimeMS,endTimeMS,isTradeSkill,castID,notInterruptible,spellId
-	end
-	UnitChannelInfo = function(unit)
-		return A.Libs.LCC:UnitChannelInfo(unit)	-- name,text,texture,startTimeMS,endTimeMS,isTradeSkill,castID,notInterruptible,spellId
-	end
-	-- debug
-	--A:DebugLCC()
 end
 
 local function getAlerts(spellName)
@@ -141,21 +132,21 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, spellName, spellId, icon,
 	end
 end
 
-function A:DebugLCC()
-	local f = CreateFrame("Frame", nil, UIParent)
-	f:SetScript("OnEvent", function(self, event, ...)
-		return self[event](self, event, ...)
-	end)
-
-	local CastbarEventHandler = function(event, unit, ...)
-		print("A:DebugLCC", event, unit, ...)
-	end
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_START", CastbarEventHandler)
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_DELAYED", CastbarEventHandler) -- only for player
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_STOP", CastbarEventHandler)
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_FAILED", CastbarEventHandler)
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_INTERRUPTED", CastbarEventHandler)
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_START", CastbarEventHandler)
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_UPDATE", CastbarEventHandler) -- only for player
-	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_STOP",CastbarEventHandler)
-end
+-- function A:DebugLCC()
+-- 	local f = CreateFrame("Frame", nil, UIParent)
+-- 	f:SetScript("OnEvent", function(self, event, ...)
+-- 		return self[event](self, event, ...)
+-- 	end)
+--
+-- 	local CastbarEventHandler = function(event, unit, ...)
+-- 		print("A:DebugLCC", event, unit, ...)
+-- 	end
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_START", CastbarEventHandler)
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_DELAYED", CastbarEventHandler) -- only for player
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_STOP", CastbarEventHandler)
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_FAILED", CastbarEventHandler)
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_INTERRUPTED", CastbarEventHandler)
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_START", CastbarEventHandler)
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_UPDATE", CastbarEventHandler) -- only for player
+-- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_STOP",CastbarEventHandler)
+-- end

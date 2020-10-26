@@ -554,7 +554,7 @@ local partyGUIDtoUnit = {}
 local raidGUIDtoUnit = {}
 local nameplateGUIDtoUnit = {}
 local commonUnits = {
-    -- "player",
+    "player",
     "target",
     "targettarget",
     "pet",
@@ -602,11 +602,22 @@ FireToUnits = function(event, guid, name, ...)
 			break
         end
     end
-
+	local reportUnit
     local partyUnit = partyGUIDtoUnit[guid]
     local raidUnit = raidGUIDtoUnit[guid]
     local nameplateUnit = nameplateGUIDtoUnit[guid]
-    local reportUnit = commonUnit or partyUnit or raidUnit or nameplateUnit or "noUnit"
+	if commonUnit then
+		reportUnit = commonUnit
+	elseif partyUnit then
+		reportUnit = partyUnit
+	elseif raidUnit then
+		reportUnit = raidUnit
+	elseif nameplateUnit then
+		reportUnit = nameplateUnit
+	else
+		reportUnit = "noUnit"
+	end
+
 	-- in case enemy unit is not a nameplate or target, return guid
 	callbacks:Fire(event, reportUnit, guid, name, ...)
 end

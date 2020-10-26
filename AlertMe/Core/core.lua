@@ -436,6 +436,9 @@ end
 
 function A.ToggleAddon()
 	dprint(3, "A.ToggleAddon", P.general.enabled)
+	-- (un)register callbacks from casterino
+	A:InitLCC()
+	-- (un)register events
 	if P.general.enabled == true then
 		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
 		A.RegisterCLEU("Toggle")
@@ -548,12 +551,22 @@ function A:HideAllGUI()
 end
 
 function A:PlayerGUIDS(guid, name, flags)
+	dprint(3,"A:PlayerGUIDS",guid, name, flags)
 	-- guid provided?
-	if not guid then return end
+	if not guid then
+		--dprint(2, "no guid")
+		return
+	end
 	-- exists already?
-	if A.GUIDS[guid] then return end
+	if A.GUIDS[guid] then
+		--dprint(2, "guid existing")
+		return
+	end
 	-- player controlled?
-	if not (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) then return end
+	if not (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) then
+		--dprint(2, "npc")
+		return
+	end
 	-- friendly?
 	if (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0) then
 		A.GUIDS[guid] = {name = name, friendly = true}
@@ -564,4 +577,5 @@ function A:PlayerGUIDS(guid, name, flags)
 	else
 		dprint(1, "A:PlayerGUIDS", "no reaction lookup possible", guid, name)
 	end
+	return
 end
