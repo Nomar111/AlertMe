@@ -108,19 +108,29 @@ local function checkUnits(unit, unitGUID, alerts)
 	return false, errorMessages
 end
 
-function A:OnUnitCast(event, unit, unitGUID, unitName, spellName, spellId, icon, castType, startTime, endTime)
-	dprint(2, event, unit, unitGUID, unitName, spellName, spellId, icon, castType, startTime, endTime)
+function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
+	dprint(2, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
 	local barType = "spells"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
 	or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-		-- check display settings for that spell
+		-- check spell settings for that spell
 		local alerts = getAlerts(spellName)
 		if not alerts then return end
-		-- unit check
-		local unitCheck, errorMessages = checkUnits(unit, unitGUID, alerts)
-		if not unitCheck then
-			dprint(2, "unitCheck failed", unpack(errorMessages))
+		-- create arguments for unitcheck
+		local ti = {
+			event = event,
+			srcGUID = unitGUID,
+			srcName = unitName,
+			srcFlags = unitFlags,
+			spellName = spellName,
+			relSpellName = relSpellName,
+		}
+		local eventInfo = A.Events["SPELL_CAST_START"]
+		-- check units
+		local alertsUnit, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+		if not alertsUnit then
+			dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 			return
 		end
 		-- calculate remaining duration & show cast bar

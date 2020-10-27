@@ -8,7 +8,6 @@ local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetIn
 local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
-A.GUIDS = {}
 
 -- init function
 function A:Initialize()
@@ -35,7 +34,6 @@ function A:Initialize()
 	VDT_AddData(_G.AlertMe, "AlertMe")
 	VDT_AddData(A, "A")
 	VDT_AddData(P, "P")
-	VDT_AddData(A.GUIDS, "A.GUIDS")
 end
 
 function A:ParseCombatLog(eventName)
@@ -53,9 +51,6 @@ function A:ParseCombatLog(eventName)
 		spellName = arg[13],
 		spellSchool = arg[14]
 	}
-	-- create gUID friend/foe info for later use
-	A:PlayerGUIDS(ti.srcGUID, ti.srcName, ti.srcFlags)
-	A:PlayerGUIDS(ti.dstGUID, ti.dstName, ti.dstFlags)
 	-- check if trigger event exists in events table, if not abort
 	if not A.Events[ti.event] then
 		dprint(3, "Event not tracked")
@@ -415,13 +410,6 @@ end
 --**********************************************************************************************************************************
 function A.RegisterCLEU(event)
 	dprint(3, "A.RegisterCLEU", event)
-	-- delete player guids
-	local function deleteGUIDS()
-		if not A.GUIDS then return end
-		for i,_ in pairs (A.GUIDS) do
-			A.GUIDS[i] = nil
-		end
-	end
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
@@ -434,9 +422,6 @@ function A.RegisterCLEU(event)
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllGUI()
 	end
-	-- wipe table with player guids
-	deleteGUIDS()
-	--VDT_AddData(A.GUIDS, "GUIDS")
 end
 
 function A.ToggleAddon()
@@ -557,34 +542,4 @@ function A:HideAllGUI()
 	dprint(3, "A:HideAllGUI")
 	A:HideAllBars()
 	A:HideAllGlows()
-end
-
-function A:PlayerGUIDS(guid, name, flags)
-	dprint(3,"A:PlayerGUIDS",guid, name, flags)
-	-- guid provided?
-	if not guid then
-		--dprint(2, "no guid")
-		return
-	end
-	-- exists already?
-	if A.GUIDS[guid] then
-		--dprint(2, "guid existing")
-		return
-	end
-	-- player controlled?
-	if not (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) then
-		--dprint(2, "npc")
-		return
-	end
-	-- friendly?
-	if (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0) then
-		A.GUIDS[guid] = {name = name, friendly = true}
-	elseif (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0) then
-		A.GUIDS[guid] = {name = name, friendly = false}
-	elseif (bit.band(flags, COMBATLOG_OBJECT_REACTION_NEUTRAL) > 0) then
-		A.GUIDS[guid] = {name = name, friendly = true}
-	else
-		dprint(1, "A:PlayerGUIDS", "no reaction lookup possible", guid, name)
-	end
-	return
 end
