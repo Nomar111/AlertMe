@@ -143,7 +143,6 @@ function A:DoChecks(ti, eventInfo)
 end
 
 function A:GetAlerts(ti, eventInfo)
-	dprint(3, "A:GetAlerts", ti.relSpellName, eventInfo.short)
 	local alerts = {}
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
@@ -234,11 +233,12 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 				if not isHostile then
 					tinsert(errorMessages, pre..", ".."hostile player check failed")
 					checkFailed = true
+					dprint(1,"checkFailed set to",checkFailed)
 					break
 				end
 			end
 		end
-		if checkFailed ~= false then
+		if checkFailed ~= true then
 			tinsert(alerts_out, alert)
 		end
 	end
@@ -374,8 +374,8 @@ function A:InitSpellOptions()
 	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
-	--VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	--VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	-- VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	-- VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
 		--dprint(3, "Loop1: ", event, alert)

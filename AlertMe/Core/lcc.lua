@@ -30,7 +30,7 @@ local function getAlerts(spellName)
 	if A.SpellOptions[spellName] and A.SpellOptions[spellName]["start"] then
 		for _, tbl in pairs(A.SpellOptions[spellName]["start"]) do
 			if tbl.options.showBar then
-				tinsert(alerts, tbl)
+				tinsert(alerts, tbl.options)
 			end
 		end
 	end
