@@ -139,7 +139,7 @@ local function CastStart(srcGUID, srcName, srcFlags, castType, spellName, spellI
 			end
 			callbacks:Fire("UNIT_SPELLCAST_START", "player", playerGUID, playerName, srcFlags, spellName, spellID, icon, startTime, endTime)
 		end
-		FireToUnits("UNIT_SPELLCAST_START", srcGUID, srcName, srcFlags, pellName, spellID, icon, startTime, endTime)
+		FireToUnits("UNIT_SPELLCAST_START", srcGUID, srcName, srcFlags, spellName, spellID, icon, startTime, endTime)
 	else
 		FireToUnits("UNIT_SPELLCAST_CHANNEL_START", srcGUID, srcName, srcFlags, spellName, spellID, icon, startTime, endTime)
 	end

@@ -2,6 +2,7 @@
 local A, O = unpack(select(2, ...))
 -- upvalues
 local UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print = UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print
+local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -65,7 +66,7 @@ local function checkUnits(unit, unitGUID, alerts)
 			isFriendly = false
 			isHostile = true
 		end
-			-- make some assupmtions
+		-- make some assupmtions
 		local isPlayer, isTarget = (unitGUID == playerGUID), (unitGUID == targetGUID)
 		-- player controlled check
 		if not playerControlled and units ~= 6 then
@@ -109,7 +110,7 @@ local function checkUnits(unit, unitGUID, alerts)
 end
 
 function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
-	dprint(2, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
+	dprint(3, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
 	local barType = "spells"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
@@ -129,8 +130,6 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		local eventInfo = A.Events["SPELL_CAST_START"]
 		-- check units
 		local alertsUnit, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
-		dprint(1, "alertsUnit", alertsUnit)
-		VDT_AddData(alertsUnit,"alertsUnit")
 		if not alertsUnit then
 			dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 			return
@@ -143,22 +142,3 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		A:HideBar(barType, unitGUID)
 	end
 end
-
--- function A:DebugLCC()
--- 	local f = CreateFrame("Frame", nil, UIParent)
--- 	f:SetScript("OnEvent", function(self, event, ...)
--- 		return self[event](self, event, ...)
--- 	end)
---
--- 	local CastbarEventHandler = function(event, unit, ...)
--- 		print("A:DebugLCC", event, unit, ...)
--- 	end
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_START", CastbarEventHandler)
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_DELAYED", CastbarEventHandler) -- only for player
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_STOP", CastbarEventHandler)
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_FAILED", CastbarEventHandler)
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_INTERRUPTED", CastbarEventHandler)
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_START", CastbarEventHandler)
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_UPDATE", CastbarEventHandler) -- only for player
--- 	A.Libs.LCC.RegisterCallback(f,"UNIT_SPELLCAST_CHANNEL_STOP",CastbarEventHandler)
--- end
