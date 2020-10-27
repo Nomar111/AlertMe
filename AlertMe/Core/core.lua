@@ -233,7 +233,6 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 				if not isHostile then
 					tinsert(errorMessages, pre..", ".."hostile player check failed")
 					checkFailed = true
-					dprint(1,"checkFailed set to",checkFailed)
 					break
 				end
 			end
