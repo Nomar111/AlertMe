@@ -16,8 +16,7 @@
 
 local GetTime, floor, next, wipe = GetTime, floor, next, wipe
 local CreateFrame, error, setmetatable, UIParent = CreateFrame, error, setmetatable, UIParent
-
-if not LibStub then error("LibCandyBar-3.0 requires LibStub.") end
+if not LibStub then	error("LibCandyBar-3.0 requires LibStub.") end
 local cbh = LibStub:GetLibrary("CallbackHandler-1.0")
 if not cbh then error("LibCandyBar-3.0 requires CallbackHandler-1.0") end
 local lib = LibStub:NewLibrary("LibCandyBar-3.0", 96) -- Bump minor on changes
@@ -507,4 +506,3 @@ function lib:New(texture, width, height)
 
 	return bar
 end
-
