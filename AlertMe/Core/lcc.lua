@@ -129,6 +129,8 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		local eventInfo = A.Events["SPELL_CAST_START"]
 		-- check units
 		local alertsUnit, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
+		dprint(1, "alertsUnit", alertsUnit)
+		VDT_AddData(alertsUnit,"alertsUnit")
 		if not alertsUnit then
 			dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 			return

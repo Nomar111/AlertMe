@@ -238,7 +238,7 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 				end
 			end
 		end
-		if not checkFailed then
+		if checkFailed ~= false then
 			tinsert(alerts_out, alert)
 		end
 	end
