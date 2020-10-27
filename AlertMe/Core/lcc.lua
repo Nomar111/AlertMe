@@ -110,7 +110,7 @@ local function checkUnits(unit, unitGUID, alerts)
 end
 
 function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
-	dprint(3, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
+	dprint(2, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
 	local barType = "spells"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
