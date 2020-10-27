@@ -1,6 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
+
 local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
@@ -199,6 +200,10 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 			local isTarget = (GUID == targetGUID)
 			-- write some useful info into ti for later use
 			ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
+			local targetName = UnitName("target")
+			if targetName then ti.targetName = A:GetUnitNameShort(targetName) end
+			local mouseoverName = UnitName("mouseover")
+			if mouseoverName then ti.mouseoverName = A:GetUnitNameShort(mouseoverName) end
 			-- player controlled check
 			if not playerControlled and units ~= 6 then
 				tinsert(errorMessages, pre..", ".."unit not player controlled")
@@ -463,6 +468,8 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
 	local lockout = (ti.lockout) and ti.lockout or ""
+	local targetName = (ti.targetName) and ti.targetName or ""
+	local mouseoverName = (ti.mouseoverName) and ti.mouseoverName or ""
 	local icon
 	-- get message from options
 	local msg = P.messages[eventInfo.short]
@@ -477,6 +484,8 @@ function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
 	msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
 	msg = string.gsub(msg, "%%extraSchool", extraSchool)
 	msg = string.gsub(msg, "%%lockout", lockout)
+	msg = string.gsub(msg, "%%targetName", targetName)
+	msg = string.gsub(msg, "%%mouseoverName", mouseoverName)
 	-- get reaction color
 	local color = A:GetReactionColor(ti)
 	-- return
