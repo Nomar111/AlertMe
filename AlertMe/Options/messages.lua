@@ -5,6 +5,9 @@ setfenv(1, _G.AlertMe)
 
 function O:ShowMessages(container)
 	dprint(3, "O:ShowMessages")
+	-- update chat frames
+	A:InitChatFrames()
+	-- set sv
 	local db = P.messages
 	-- header
 	O.AttachHeader(container, "Message Settings")
@@ -16,7 +19,7 @@ function O:ShowMessages(container)
 	local title = "Post addon messages in the following chat windows (only visible for you)"
 	local chatFramesGroup = O.AttachGroup(container, "inline", title, {fullWidth = true})
 	for name, frame in pairs(A.ChatFrames) do
-			O.AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
+		O.AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
 	-- event specific messages
 	O.AttachHeader(container, "Event specific settings")

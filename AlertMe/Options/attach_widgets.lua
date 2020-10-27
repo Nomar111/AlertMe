@@ -105,7 +105,7 @@ function O.AttachEditBox(container, label, path, key, width, func, toolTip)
 end
 
 function O.AttachGroup(container, type, title, format)
-	dprint(3, "O.AttachGroupNew", type, title, format)
+	dprint(3, "O.AttachGroup", type, title, format)
 	type = type or "simple"
 	local layout = ""
 	if format == nil or format.layout == nil then
@@ -272,6 +272,49 @@ function O.AttachSpacer(container, width, height)
 	else
 		widget:SetText("")
 	end
+	container:AddChild(widget)
+	return widget
+end
+
+function O.AttachTabGroup(container, title, format, path, key, tabs, onSelect)
+	dprint(3, "O.AttachTabGroup", title, format, path, key, tabs, onSelect)
+	local layout = ""
+	if format == nil or format.layout == nil then
+		layout ="Flow"
+	else
+		layout = format.layout
+	end
+	-- create group
+	local widget = A.Libs.AceGUI:Create("TabGroup")
+	widget:SetTitle(title)
+	-- set tabs or return if not provided
+	if not tabs then
+		return
+	else
+		widget:SetTabs(tabs)
+	end
+	-- set tab and callbacks
+	widget:SelectTab(path[key])
+	widget:SetCallback("OnGroupSelected", function(_, event, newKey)
+		path[key] = newKey
+		if onSelect ~= nil then onSelect(widget, newKey) end
+	end)
+	-- format
+	if format then
+		if format.fullWidth == true then widget:SetFullWidth(true) end
+		if format.fullHeight == true then widget:SetFullHeight(true) end
+		if format.autoHeight == false then widget:SetAutoAdjustHeight(false) end
+		if format.relWidth ~= nil then widget:SetRelativeWidth(format.relWidth) end
+		if format.width ~= nil then widget:SetWidth(format.width) end
+		if format.height ~= nil then
+			widget:SetAutoAdjustHeight(false)
+			widget:SetHeight(format.height)
+		end
+	end
+	if layout ~= "none" then
+		widget:SetLayout(layout)
+	end
+	-- attach & return
 	container:AddChild(widget)
 	return widget
 end

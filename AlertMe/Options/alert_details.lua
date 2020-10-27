@@ -30,7 +30,7 @@ function O:ShowUnitSelection(container, eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- unit selection
-	if A.EventsShort[eventShort].unitSelection == true then
+	if A.EventsShort[eventShort].unitSelection then
 		O.AttachHeader(container, "Unit selection")
 		local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities"}
 		local excludeList = {[1] = "---", [2] = "Myself", [3] = "Target"}
@@ -39,7 +39,7 @@ function O:ShowUnitSelection(container, eventShort, uid)
 			O.AttachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
 			O.AttachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
 		end
-		if A.EventsShort[eventShort].units[2] ~= nil and A.EventsShort[eventShort].units[2] == "dst" then
+		if A.EventsShort[eventShort].units[2] and A.EventsShort[eventShort].units[2] == "dst" then
 			O.AttachSpacer(unitsGroup, 20)
 			O.AttachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
 			O.AttachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
@@ -49,6 +49,8 @@ end
 
 function O:ShowDisplaySettings(container, eventShort, uid)
 	dprint(3, "O:ShowDisplaySettings", eventShort, uid)
+	-- check display settings for event
+	if not A.EventsShort[eventShort].displaySettings.enabled then return end
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
 	local glowList = {[-1]="No Glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
@@ -58,10 +60,13 @@ function O:ShowDisplaySettings(container, eventShort, uid)
 		wrap = false
 	}
 	-- display settings
-	if A.EventsShort[eventShort].displaySettings == true then
-		local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
-		O.AttachHeader(displayGroup, "Display settings")
-		O.AttachCheckBox(displayGroup, "Show progress bar", db, "showBar", 150)
+	local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+	O.AttachHeader(displayGroup, "Display settings")
+	if A.EventsShort[eventShort].displaySettings.bar then
+		local label = "Show "..A.EventsShort[eventShort].displaySettings.barTypeText
+		O.AttachCheckBox(displayGroup, label, db, "showBar", 150)
+	end
+	if A.EventsShort[eventShort].displaySettings.glow then
 		O.AttachSpacer(displayGroup, 9)
 		O.AttachDropdown(displayGroup, _, db, "showGlow", glowList, 150, _, ttGlow)
 	end

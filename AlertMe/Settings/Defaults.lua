@@ -40,28 +40,35 @@ D.profile = {
 			enabled = true,
 			unlocked = false,
 			showIcon = true,
-			width = 170,
-			height = 18,
 			alpha = 0.8,
-			fill = false,
 			timeVisible = true,
-			texture = "BantoBar",
 			shadowColor = {0, 0, 0, 0.1},
-			goodColor = {0, 1, 0, 0.7},
-			badColor = {1, 0, 0, 0.7},
 			textColor = {1, 1, 1, 1},
 			backgroundColor = {0, 0, 0, 0.4}
 		},
 		spells = {
 			point = "CENTER",
-			ofs_x = 400,
-			ofs_y = 150,
+			ofs_x = 100,
+			ofs_y = 200,
+			width = 160,
+			height = 18,
+			fill = true,
+			texture = "Diagonal",
+			goodColor = {0, 1, 0, 1},
+			badColor = {1, 0, 0, 1},
 		},
 		auras = {
 			point = "CENTER",
-			ofs_x = 200,
-			ofs_y = 150,
-		}
+			ofs_x = 280,
+			ofs_y = 200,
+			width = 160,
+			height = 18,
+			fill = false,
+			texture = "BantoBar",
+			goodColor = {0, 1, 0, 0.7},
+			badColor = {1, 0, 0, 0.7},
+		},
+		barType = "auras"
 	},
 	messages = {
 		enabled = true,
@@ -93,7 +100,7 @@ D.profile = {
 		},
 	},
 	alerts = {
-		["**"] = {
+		['*'] = {
 			selectedAlert = "",
 			alertDetails = {
 				['*'] = {
@@ -111,6 +118,35 @@ D.profile = {
 					dstExclude = 1,
 					created = false,
 					showBar = true,
+					showGlow = -1,
+					chatChannels = 1,
+					addonMessages = 1,
+					dstWhisper = 1,
+					scrollingText = true,
+					soundSelection = 3,
+					soundFile = "",
+					msgOverride = "",
+				},
+			},
+		},
+		start = {
+			selectedAlert = "",
+			alertDetails = {
+				['*'] = {
+					name = "New alert",
+					active = true,
+					spellNames = {
+						['*'] = {
+							icon = "",
+							soundFile = "",
+						}
+					},
+					srcUnits = 5,
+					srcExclude = 1,
+					dstUnits = 5,
+					dstExclude = 1,
+					created = false,
+					showBar = false,
 					showGlow = -1,
 					chatChannels = 1,
 					addonMessages = 1,

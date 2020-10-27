@@ -7,7 +7,7 @@ setfenv(1, _G.AlertMe)
 A.Glows = {}
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
-	dprint(2, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
+	dprint(3, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
 	if not P.glow.enabled then return end
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
@@ -19,7 +19,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	end
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
-		if alert.showGlow >= 1 and eventInfo.displaySettings == true then
+		if alert.showGlow >= 1 and eventInfo.displaySettings.enabled and eventInfo.displaySettings.glow then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 			if not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
@@ -40,7 +40,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 end
 
 function A:HideGlow(ti, eventInfo)
-	dprint(2, "A:HideGlow", "name", ti.dstName, "event", eventInfo.short, "spell", ti.spellName)
+	dprint(3, "A:HideGlow", "name", ti.dstName, "event", eventInfo.short, "spell", ti.spellName)
 	local id = ti.dstGUID..ti.spellName
 	if A.Glows[id] then
 		A.Libs.LCG.PixelGlow_Stop(A.Glows[id],id)
@@ -58,10 +58,10 @@ function A:HideAllGlows()
 end
 
 function A:GetBattleGroundTargetsFrame(ti)
-	dprint(2, "A:GetBattleGroundTargetsFrame", ti.dstName)
+	dprint(3, "A:GetBattleGroundTargetsFrame", ti.dstName)
 	local loaded = IsAddOnLoaded("BattlegroundTargets")
 	if not loaded then
-		dprint(2, "A:GetBattleGroundTargetsFrame", "BGT not loaded")
+		--dprint(3, "A:GetBattleGroundTargetsFrame", "BGT not loaded")
 		return
 	end
 	local name = ti.dstName
@@ -71,7 +71,7 @@ function A:GetBattleGroundTargetsFrame(ti)
 	for _, frame in ipairs(frames) do
 		if frame.name4button then
 			if frame.name4button == name or frame.name4button == nameShort then
-				dprint(2, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
+				dprint(3, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
 				return frame
 			end
 		end

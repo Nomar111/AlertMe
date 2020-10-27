@@ -5,4 +5,5 @@
 	<Script file='lcg.lua'/>
 	<Script file='scrolling.lua'/>
 	<Script file='bars.lua'/>
+	<Script file='lcc.lua'/>
 </Ui>
