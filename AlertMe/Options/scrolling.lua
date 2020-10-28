@@ -16,7 +16,7 @@ function O:ShowScrollingText(container)
 		A:SetScrollingPosition()
 	end
 	-- add dummy messages for setup
-	local function showScrolling()
+	local function showScrollingTest()
 		A:ShowScrolling()
 		A.ScrollingText:AddMessage("Adding some test messages")
 		A.ScrollingText:AddMessage("Playername gains Blessing of Freedom")
@@ -35,11 +35,12 @@ function O:ShowScrollingText(container)
 	-- button row 1
 	local width = 140
 	local buttonGroup1 = O.AttachGroup(container, "simple", _, {fullWidth = true})
-	O.AttachButton(buttonGroup1, "Show frame", width, showScrolling)
+	O.AttachButton(buttonGroup1, "Show frame", width, showScrollingTest)
 	O.AttachSpacer(buttonGroup1, 20)
 	O.AttachButton(buttonGroup1, "Hide frame", width, A.HideScrolling)
 	O.AttachSpacer(container, _, "small")
 	-- button row 2
+	local buttonGroup2 = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachGroup(container, "simple", _, {fullWidth = true})
 	O.AttachButton(buttonGroup2, "Reset position", width, resetPosition)
 	O.AttachSpacer(buttonGroup2, 20)

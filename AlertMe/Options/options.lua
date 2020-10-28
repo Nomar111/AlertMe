@@ -20,7 +20,7 @@ function O:OpenOptions()
 		A:InitSpellOptions()
 		A.Libs.AceGUI:Release(O.OptionsFrame)
 		O.OptionsFrame = nil
-		A:HideAllGUI()
+		A:HideAllGUIs()
 	end
 	-- check if already open
 	if O.OptionsFrame ~= nil then

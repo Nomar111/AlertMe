@@ -72,7 +72,7 @@ end
 
 function A:CheckSnapShot(ti, eventInfo)
 	-- clear snasphot table of old entries first
-	A:CleanSnapshots()
+	cleanSnapshots()
 	-- if event = gain, check for success events and vice versa
 	if eventInfo.short == "gain" then
 		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then

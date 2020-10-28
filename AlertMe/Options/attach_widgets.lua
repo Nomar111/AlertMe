@@ -26,6 +26,7 @@ function O.AttachButton(container, text, width, func)
 	widget:SetText(text)
 	if width then widget:SetWidth(width) end
 	widget:SetCallback("OnClick", func)
+	container:AddChild(widget)
 	return widget
 end
 
@@ -104,8 +105,8 @@ function O.AttachGroup(container, type, title, format)
 	end
 	-- format
 	if format then
-		if format.fullWidth == true then widget:SetFullWidth(true) end
-		if format.fullHeight == true then widget:SetFullHeight(true) end
+		if format.fullWidth then widget:SetFullWidth(true) end
+		if format.fullHeight then widget:SetFullHeight(true) end
 		if format.autoHeight == false then widget:SetAutoAdjustHeight(false) end
 		if format.relWidth then widget:SetRelativeWidth(format.relWidth) end
 		if format.width then widget:SetWidth(format.width) end

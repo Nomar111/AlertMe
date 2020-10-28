@@ -60,7 +60,7 @@ function O:ShowAlerts(container, eventShort)
 	local topGroup = O.AttachGroup(container, "simple", _, {fullWidth = true})
 	-- alert dropdown
 	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
-	local ddAlert = O.AttachDropdown(topGroup, label, db, "selectedAlert", O:CreateAlertList(eventShort), 230, refresh)
+	local ddAlert = O.AttachDropdown(topGroup, label, db, "selectedAlert", createAlertList(eventShort), 230, refresh)
 	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
 	O.AttachSpacer(topGroup, 20)
 	-- editbox for alertname

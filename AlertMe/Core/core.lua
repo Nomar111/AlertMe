@@ -34,7 +34,7 @@ function A:Initialize()
 	-- register for events
 	A.ToggleAddon()
 	-- for reloadui
-	A:HideAllGUI()
+	A:HideAllGUIs()
 	-- LCC
 	A:InitLCC()
 	VDT_AddData(_G.AlertMe, "AlertMe")
@@ -425,7 +425,7 @@ function A.RegisterCLEU(event)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllGUI()
+		A:HideAllGUIs()
 	end
 end
 
@@ -440,7 +440,7 @@ function A.ToggleAddon()
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllGUI()
+		A:HideAllGUIs()
 	end
 	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end

@@ -85,9 +85,10 @@ function A:SetScrollingPosition(reset)
 	if not A.ScrollingText then return end
 	-- reset position?
 	if reset then
-		db.point = A.Defaults.scolling.point
-		db.ofs_x = A.Defaults.scolling.ofs_x
-		db.ofs_y = A.Defaults.scolling.ofs_y
+		local def = A.Defaults.profile.scrolling
+		db.point = def.point
+		db.ofs_x = def.ofs_x
+		db.ofs_y = def.ofs_y
 	end
 	A.ScrollingText:ClearAllPoints()
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)

@@ -18,7 +18,7 @@ local function updateSpellTable(eventShort, uid)
 		dprint(3, "btnDelSpellOnClick", self)
 		local spellName = self:GetUserData("spellName")
 		db.spellNames[spellName] = nil
-		O:UpdateSpellTable(eventShort, uid)
+		updateSpellTable(eventShort, uid)
 	end
 	-- add
 	local function btnAddSoundOnClick(self)
@@ -73,7 +73,7 @@ local function spellSelection(container, eventShort, uid)
 			local name, _, icon = GetSpellInfo(v.spellID)
 			if name ~= nil and name == text then
 				db.spellNames[text]["icon"] = icon
-				O:UpdateSpellTable(eventShort, uid, db)
+				updateSpellTable(eventShort, uid, db)
 			end
 		end
 		editBox:SetText("")
@@ -89,7 +89,7 @@ local function spellSelection(container, eventShort, uid)
 		_db[_key] = value
 		widget:SetDisabled(true)
 		widget:SetValue("")
-		O:UpdateSpellTable(eventShort, uid)
+		updateSpellTable(eventShort, uid)
 	end)
 	soundSelection:SetDisabled(true)
 	O.SoundSelection = soundSelection
