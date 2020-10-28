@@ -1,7 +1,6 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-
 local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
