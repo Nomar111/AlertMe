@@ -10,7 +10,6 @@ O.config = {}
 -- *************************************************************************************
 -- open the options window
 function O:OpenOptions()
-	dprint(3, "O:OpenOptions")
 	-- check if in combat
 	if InCombatLockdown() then
 		print("Can't open AlertMe options because of ongoing combat.")
@@ -19,7 +18,6 @@ function O:OpenOptions()
 	-- close
 	local function close()
 		A:InitSpellOptions()
-		A.RegisterCLEU("Options")
 		A.Libs.AceGUI:Release(O.OptionsFrame)
 		O.OptionsFrame = nil
 		A:HideAllGUI()
@@ -45,7 +43,6 @@ end
 -- *************************************************************************************
 -- creates navigation tree
 function O:CreateNavTree(container)
-	dprint(3, "O:CreateNavTree")
 	-- function to draw the groupd
 	local treeStructure = {}
 	treeStructure[1] = {value = "general", text = "General"}
@@ -58,11 +55,8 @@ function O:CreateNavTree(container)
 	treeStructure[8] = {value = "info", text = "Info"}
 	-- loop over events and add them as children of alerts
 	for _, tbl in pairs(A.Events) do
-		if tbl.optionsDisplay ~= nil and tbl.optionsDisplay == true then
-			treeStructure[6].children[tbl.optionsOrder]  = {
-				value = tbl.short,
-				text = tbl.optionsText
-			}
+		if tbl.optionsDisplay then
+			treeStructure[6].children[tbl.optionsOrder]  = {value = tbl.short, text = tbl.optionsText }
 		end
 	end
 	-- create the tree group
@@ -73,7 +67,6 @@ function O:CreateNavTree(container)
 	tree:SetTree(treeStructure)
 	-- callbacks
 	local function GroupSelected(widget, event, uniqueValue)
-		dprint(3, widget, event, uniqueValue)
 		-- release content
 		widget:ReleaseChildren()
 		-- create new content container
@@ -90,7 +83,6 @@ function O:CreateNavTree(container)
 end
 
 function O:ShowOptions(container, uniqueValue)
-	dprint(3, "O:ShowOptions", uniqueValue)
 	local delim = "\001"
 	local lvl1, lvl2 = strsplit(delim, uniqueValue)
 	if lvl1 == "general" then O:ShowGeneral(container)
