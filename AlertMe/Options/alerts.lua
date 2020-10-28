@@ -87,7 +87,7 @@ function O:ShowAlerts(container, eventShort)
 		cbActive:SetDisabled(true)
 	end
 	-- show alert details
-	if uid ~= nil and uid ~= "" then
+	if uid and uid ~= "" then
 		O:ShowAlertDetails(container, eventShort, uid)
 	end
 end
