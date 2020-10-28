@@ -15,7 +15,6 @@ local function hideGUI(ti, eventInfo)
 	A:HideGlow(ti, eventInfo)
 end
 
-
 -- init function
 function A:Initialize()
 	-- init examples profile
@@ -538,10 +537,7 @@ function A:GetReactionColor(ti, rgb)
 	end
 end
 
-
-
-function A:HideAllGUI()
-	dprint(3, "A:HideAllGUI")
+function A:HideAllGUIs()
 	A:HideAllBars()
 	A:HideAllGlows()
 end
