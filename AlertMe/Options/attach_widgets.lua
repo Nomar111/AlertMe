@@ -57,7 +57,6 @@ function O.AttachColorPicker(container, label, db, key, alpha, width, func)
 end
 
 function O.AttachDropdown(container, label, db, key, list, width, func, toolTip)
-	dprint(3, "O.AttachDropdown", label, db, key, list, width, func, toolTip)
 	local widget = A.Libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
@@ -74,7 +73,6 @@ function O.AttachDropdown(container, label, db, key, list, width, func, toolTip)
 end
 
 function O.AttachEditBox(container, label, path, key, width, func, toolTip)
-	dprint(3, "O.AttachEditBox", label, path, key, width)
 	local widget = A.Libs.AceGUI:Create("EditBox")
 	if label then widget:SetLabel(label) end
 	if width then
