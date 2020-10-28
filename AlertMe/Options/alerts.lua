@@ -6,9 +6,28 @@ local A, O = unpack(select(2, ...))
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
+local function getSomeAlert(eventShort)
+	local _uid = ""
+	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
+		if details.created then
+			_uid = uid
+		end
+	end
+	return _uid
+end
+
+local function createAlertList(eventShort)
+	local list = {}
+	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
+		if details.created then
+			list[uid] = details.name
+		end
+	end
+	return list
+end
+
 -- creates the general options tab
 function O:ShowAlerts(container, eventShort)
-	dprint(3, "O:ShowAlerts", eventShort)
 	-- clear container so it can call itself
 	container:ReleaseChildren()
 	-- some local variables
@@ -20,23 +39,20 @@ function O:ShowAlerts(container, eventShort)
 	local btnDelToolTip = {lines = {"Delete selected alert"}}
 	-- local functions
 	local function refresh()
-		dprint(3, "refresh")
 		O:ShowAlerts(container, eventShort)
 	end
 	local function btnAddOnClick()
-		dprint(3, "btnAddOnClick")
 		local _uid = tostring(time()) -- create uid (time)
 		db.alertDetails[_uid].created = true -- create entry in alert details
 		db.selectedAlert = _uid
 		refresh()
 	end
 	local function btnDelOnClick()
-		dprint(3, "btnDelOnClick")
 		local _uid = db.selectedAlert
-		if db.alertDetails[_uid] ~= nil then
+		if db.alertDetails[_uid] then
 			db.alertDetails[_uid] = nil
 		end
-		db.selectedAlert = O:GetSomeAlert(eventShort) -- get another uid
+		db.selectedAlert = getSomeAlert(eventShort) -- get another uid
 		refresh()
 	end
 	-- *************************************************************************************
@@ -74,26 +90,4 @@ function O:ShowAlerts(container, eventShort)
 	if uid ~= nil and uid ~= "" then
 		O:ShowAlertDetails(container, eventShort, uid)
 	end
-end
-
-function O:GetSomeAlert(eventShort)
-	dprint(3, "O:GetSomeAlert", eventShort)
-	local _uid = ""
-	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
-		if details.created == true then
-			_uid = uid
-		end
-	end
-	return _uid
-end
-
-function O:CreateAlertList(eventShort)
-	dprint(3, "O:CreateAlertList", eventShort)
-	local list = {}
-	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
-		if details.created == true then
-			list[uid] = details.name
-		end
-	end
-	return list
 end
