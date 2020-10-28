@@ -66,8 +66,7 @@ function A:ToggleScrollingInteractive()
 	A.ScrollingText:EnableMouse(P.scrolling.interactive)
 end
 
-function A:ShowScrolling(setup)
-	dprint(3, "A:ShowScrolling", setup)
+function A:ShowScrolling()
 	-- enabled?
 	local db = P.scrolling
 	if db.enabled == false then return end
@@ -76,15 +75,6 @@ function A:ShowScrolling(setup)
 		A:UpdateScrolling()
 	end
 	A.ScrollingText:Show()
-	-- add dummy messages for setup
-	if setup == true then
-		A.ScrollingText:AddMessage("Adding some test messages")
-		A.ScrollingText:AddMessage("PaladinX gains Blessing of Freedom")
-		A.ScrollingText:AddMessage("TeammateY is sapped")
-		A.ScrollingText:AddMessage("AuraX is dispelled on PlayernameZ (by PlayernameC)")
-		A.ScrollingText:AddMessage("OP Warrior gains Recklessness")
-		A.ScrollingText:AddMessage("MotivatedPriest casts Mana Burn")
-	end
 end
 
 function A:HideScrolling()
