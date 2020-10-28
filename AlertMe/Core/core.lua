@@ -9,6 +9,13 @@ local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetS
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
+-- local functions
+local function hideGUI(ti, eventInfo)
+	A:HideAuraBars(ti, eventInfo)
+	A:HideGlow(ti, eventInfo)
+end
+
+
 -- init function
 function A:Initialize()
 	-- init examples profile
@@ -81,7 +88,7 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 	dprint(3, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	if eventInfo.short == "removed" then
 		-- remove gui elements if needed
-		A:HideGUI(ti, eventInfo)
+		hideGUI(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -116,7 +123,7 @@ function A:DoActions(ti, eventInfo, alerts, snapShot)
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 			if action == "displayAuraBars" and type(alerts) == "table" then A:DisplayAuraBars(ti, alerts, eventInfo, snapShot) end
 			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
-			if action == "hideGUI" and type(alerts) == "table" then A:HideGUI(ti, eventInfo) end
+			if action == "hideGUI" and type(alerts) == "table" then hideGUI(ti, eventInfo) end
 		end
 	end
 end
@@ -531,11 +538,7 @@ function A:GetReactionColor(ti, rgb)
 	end
 end
 
-function A:HideGUI(ti, eventInfo)
-	dprint(3, "A:HideGUI")
-	A:HideAuraBars(ti, eventInfo)
-	A:HideGlow(ti, eventInfo)
-end
+
 
 function A:HideAllGUI()
 	dprint(3, "A:HideAllGUI")
