@@ -7,12 +7,12 @@
 ## OptionalDeps: Ace3
 ## Version: v1.2.0-beta
 
-Libs\load_libs.xml
+Libs\libs.xml
 init.lua
 functions.lua
-Settings\load_settings.xml
-Core\load_core.xml
-Options\load_options.xml
+Settings\settings.xml
+Core\core.xml
+Options\options.xml
 Media\media.lua
 CustomWidgets\AceGUIWidget-WeakAurasIcon.lua
 CustomWidgets\AceGUIContainer-AlertMeScrollFrame.lua

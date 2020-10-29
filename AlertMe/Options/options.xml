@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='attach_widgets.lua'/>
+	<Script file='widgets.lua'/>
 	<Script file='options.lua'/>
 	<Script file='general.lua'/>
 	<Script file='scrolling.lua'/>
@@ -8,6 +8,6 @@
 	<Script file='info.lua'/>
 	<Script file='profiles.lua'/>
 	<Script file='alerts.lua'/>
-	<Script file='alert_details.lua'/>
+	<Script file='details.lua'/>
 	<Script file='lcg.lua'/>
 </Ui>
