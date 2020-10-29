@@ -104,8 +104,6 @@ function VDT_AddData(obj, desc)
 		vdt(obj, desc)
 	end
 end
-<<<<<<< Updated upstream
-=======
 
 -- debug hook
 function dhook(object, method, dbg, dlevel)
@@ -148,4 +146,3 @@ function debug()
 	VDT_AddData(P, "P")
 	--dhook(A, "OnUnitCast")
 end
->>>>>>> Stashed changes
