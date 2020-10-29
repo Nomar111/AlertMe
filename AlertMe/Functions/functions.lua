@@ -105,6 +105,7 @@ function VDT_AddData(obj, desc)
 	end
 end
 
+-- debug hook
 function dhook(object, method, dbg, dlevel)
 	dlevel = dlevel or 1
 	local function hooked(self, ...)
