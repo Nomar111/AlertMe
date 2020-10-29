@@ -1,7 +1,4 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
-local D = A.Defaults
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 -- set default options

@@ -1,15 +1,25 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
---upvalues
-local _G, table, getmetatable, setmetatable, hooksecurefunc = _G, table, getmetatable, setmetatable, hooksecurefunc
--- set engine as new global environment
+-- upvalues
+local _G, FCF_GetNumActiveChatFrames = _G, _G.FCF_GetNumActiveChatFrames
+local getmetatable, setmetatable, hooksecurefunc, gsub, date, tostring = getmetatable, setmetatable, hooksecurefunc, string.gsub, date, tostring
+-- set addon environment
 setfenv(1, _G.AlertMe)
+-- create chtFrames container
+chatFrames = {}
+
+function debug()
+	VDT_AddData(_G.AlertMe, "AlertMe")
+	VDT_AddData(A, "A")
+	VDT_AddData(O, "O")
+	VDT_AddData(P, "P")
+	VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	--dhook(A, "OnUnitCast")
+end
 
 function tcopy(t, deep, seen)
 	seen = seen or {}
 	if t == nil then return nil end
 	if seen[t] then return seen[t] end
-
 	local nt = {}
 	for k, v in pairs(t) do
 		if deep and type(v) == 'table' then
@@ -23,26 +33,25 @@ function tcopy(t, deep, seen)
 	return nt
 end
 
-function A:GetUnitNameShort(name)
+function getShortName(name)
 	-- getUnitName: Returns Unitname without Realm
 	local short = gsub(name, "%-[^|]+", "")
 	return short
 end
 
-function A:InitChatFrames()
-	A.ChatFrames = {}
+function initChatFrames()
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
-			A.ChatFrames[name] = "ChatFrame"..i
+			chatFrames[name] = "ChatFrame"..i
 		end
 	end
 end
-A:InitChatFrames()
+initChatFrames()
 
-function A:SystemMessage(msg)
+function AddonMessage(msg)
 	-- loop through chat frames and post messages
-	for i, name in pairs(A.ChatFrames) do
+	for i, name in pairs(chatFrames) do
 		if P.messages.chatFrames[name] == true then
 			local f = _G[name]
 			f:AddMessage(msg)
@@ -54,11 +63,10 @@ function dprint(lvl,...)
 	--print(lvl,debug_lvl,...)
 	local msg = ""
 	local logmsg = ""
-	local debugLevel = DEBUG_LEVEL
-	local debugLevelLog = DEBUG_LEVEL
-	if A.db then
-		debugLevel =  A.db.profile.general.debugLevel
-		debugLevelLog =  A.db.profile.general.debugLevelLog
+	local debugLevel, debugLevelLog = DEBUG_LEVEL
+	if P then
+		debugLevel =  P.general.debugLevel
+		debugLevelLog = P.general.debugLevelLog
 	end
 	local lvlCheck
 	local color = "FFcfac67"
@@ -80,7 +88,7 @@ function dprint(lvl,...)
 				msg = msg..sep..tostring(args[i])
 			end
 		end
-		A:SystemMessage(prefix..msg)
+		AddonMessage(prefix..msg)
 	end
 	if lvlCheck ~= false and lvl <= debugLevelLog then
 		if #args == 0 then
@@ -91,24 +99,38 @@ function dprint(lvl,...)
 				logmsg = logmsg..sep..tostring(args[i])
 			end
 		end
-		if A.db then
-			tinsert(A.db.profile.log, logmsg)
+		if P then
+			tinsert(P.log, logmsg)
 		end
 	end
 end
-
+--
 -- ViragDevTool
 function VDT_AddData(obj, desc)
-	local vdt = _G.ViragDevTool_AddData or nil
-	if vdt then
+	local vdt = _G.ViragDevTool_AddData
+	if not vdt then
+		print("_G.ViragDevTool_AddData nicht verfürgbar")
+
+	else
 		vdt(obj, desc)
 	end
 end
 
+
 -- debug hook
 function dhook(object, method, dbg, dlevel)
+	--[[
+	dbg = table which entries can be:
+	"string" = key of an argument table
+	true = argument itself
+	false = no display
+	_,nil = return all arguments
+	dhook(A, "CheckUnits", {"event", false, true})
+	dhook(A, "OnUnitCast")
+	]]--
 	dlevel = dlevel or 1
-	local function hooked(self, ...)
+	local function hooked(...)
+		dprint(1,...)
 		if debugs then
 			local args = {...}
 			local msg, sep = method..", ", ", "
@@ -122,27 +144,8 @@ function dhook(object, method, dbg, dlevel)
 				end
 				i = i + 1
 			end
-			dprint(1, msg)
-		else
-			dprint(1, method, ...)
 		end
 		--VDT_AddData(self[method],method)
 	end
 	hooksecurefunc(A, method, hooked)
-	--[[
-	dbg = table which entries can be:
-		"string" = key of an argument table
-		true = argument itself
-		false = no display
-		_,nil = return all arguments
-		dhook(A, "CheckUnits", {"event", false, true})
-		dhook(A, "OnUnitCast")
-	]]--
-end
-
-function debug()
-	VDT_AddData(_G.AlertMe, "AlertMe")
-	VDT_AddData(A, "A")
-	VDT_AddData(P, "P")
-	dhook(A, "OnUnitCast")
 end

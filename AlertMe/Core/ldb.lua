@@ -1,6 +1,6 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
--- set engine as new global environment
+-- upvalues
+local UIParent = UIParent
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 local function getAnchors(frame)

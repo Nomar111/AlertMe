@@ -1,11 +1,10 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
 -- upvalues
-local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
+local _G, CombatLogGetCurrentEventInfo, GetInstanceInfo, gsub = _G, CombatLogGetCurrentEventInfo, GetInstanceInfo, string.gsub
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
-local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
-local PlaySoundFile, StopSound, GetSchoolString, hooksecurefunc = PlaySoundFile, StopSound, GetSchoolString, hooksecurefunc
--- set engine as new global environment
+local IsInInstance, GetNumGroupMembers, UnitGUID, UnitName, C_Timer = IsInInstance, GetNumGroupMembers, UnitGUID, UnitName, C_Timer
+local PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bitband = PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bit.band
+
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 -- local functions
@@ -20,12 +19,12 @@ function A:Initialize()
 	A:InitExamples()
 	-- init LSM
 	A:InitLSM()
+	-- init chat frames
+	initChatFrames()
 	-- init scrolling text frame
 	A:UpdateScrolling()
 	-- init options
 	A:InitSpellOptions()
-	-- init Chatframes
-	A:InitChatFrames()
 	-- init LCD
 	A:InitLCD()
 	-- init LDB
@@ -179,17 +178,17 @@ function A:CheckUnits(ti, eventInfo, alerts_in)
 			-- set local variables
 			local name, GUID, flags = ti[pre.."Name"], ti[pre.."GUID"], ti[pre.."Flags"]
 			local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
-			local playerControlled = (bit.band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
-			local isFriendly = (bit.band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
-			local isHostile = (bit.band(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
+			local playerControlled = (bitband(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
+			local isFriendly = (bitband(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
+			local isHostile = (bitband(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
 			local isPlayer = (GUID == playerGUID)
 			local isTarget = (GUID == targetGUID)
 			-- write some useful info into ti for later use
 			ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
 			local targetName = UnitName("target")
-			if targetName then ti.targetName = A:GetUnitNameShort(targetName) end
+			if targetName then ti.targetName = getShortName(targetName) end
 			local mouseoverName = UnitName("mouseover")
-			if mouseoverName then ti.mouseoverName = A:GetUnitNameShort(mouseoverName) end
+			if mouseoverName then ti.mouseoverName = getShortName(mouseoverName) end
 			-- player controlled check
 			if not playerControlled and units ~= 6 then
 				tinsert(errorMessages, pre..", ".."unit not player controlled")
@@ -247,8 +246,8 @@ end
 local function createMessage(ti, eventInfo, alert, colored, showIcon)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
-	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
-	local dstName = (ti.dstName) and A:GetUnitNameShort(ti.dstName) or ""
+	local srcName = (ti.srcName) and getShortName(ti.srcName) or ""
+	local dstName = (ti.dstName) and getShortName(ti.dstName) or ""
 	local spellName = (ti.spellName) and ti.spellName or ""
 	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
 	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
@@ -263,14 +262,14 @@ local function createMessage(ti, eventInfo, alert, colored, showIcon)
 		msg = alert.msgOverride
 	end
 	-- replace
-	msg = string.gsub(msg, "%%dstName", dstName)
-	msg = string.gsub(msg, "%%srcName", srcName)
-	msg = string.gsub(msg, "%%spellName", spellName)
-	msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
-	msg = string.gsub(msg, "%%extraSchool", extraSchool)
-	msg = string.gsub(msg, "%%lockout", lockout)
-	msg = string.gsub(msg, "%%targetName", targetName)
-	msg = string.gsub(msg, "%%mouseoverName", mouseoverName)
+	msg = gsub(msg, "%%dstName", dstName)
+	msg = gsub(msg, "%%srcName", srcName)
+	msg = gsub(msg, "%%spellName", spellName)
+	msg = gsub(msg, "%%extraSpellName", extraSpellName)
+	msg = gsub(msg, "%%extraSchool", extraSchool)
+	msg = gsub(msg, "%%lockout", lockout)
+	msg = gsub(msg, "%%targetName", targetName)
+	msg = gsub(msg, "%%mouseoverName", mouseoverName)
 	-- get reaction color
 	local color = A:GetReactionColor(ti)
 	-- return
@@ -355,7 +354,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	for chan, messages in pairs(msgQueue) do
 		for _, msg in pairs(messages) do
 			if chan == "SYSTEM" then
-				A:SystemMessage(msg)
+				AddonMessage(msg)
 			elseif chan == "WHISPER" then
 				SendChatMessage(msg, chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
@@ -413,8 +412,6 @@ end
 function A:InitSpellOptions()
 	A.AlertOptions = {}
 	A.SpellOptions = {}
-	-- VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	-- VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
 		A.AlertOptions[event] = {}

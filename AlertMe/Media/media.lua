@@ -1,7 +1,6 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
+-- local variable for LSM
 local LSM = A.Libs.LSM
 
 function A:InitLSM()

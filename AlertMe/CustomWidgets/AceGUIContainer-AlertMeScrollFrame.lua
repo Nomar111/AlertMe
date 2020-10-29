@@ -1,9 +1,8 @@
 --[[-----------------------------------------------------------------------------
 ScrollFrame Container forked for AlertMe from the AceGUI original
 -------------------------------------------------------------------------------]]
-local A, O = unpack(select(2, ...))
 local Type, Version = "AlertMeScrollFrame", 1
-local AceGUI = A.Libs.AceGUI
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs

@@ -1,6 +1,6 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
--- set engine as new global environment
+-- upvalues
+local sub = string.sub
+-- set addon environment
 setfenv(1, _G.AlertMe)
 -- create tables
 A.Bars = {auras={}, spells={}}
@@ -73,7 +73,7 @@ end
 function A:ResetContainerPosition(barType)
 	-- reset position
 	local db = P.bars[barType]
-	local def = A.Defaults.profile.bars[barType]
+	local def = D.profile.bars[barType]
 	db.point, db.ofs_x, db.ofs_y = def.point, def.ofs_x, def.ofs_y
 	local f = getContainer(barType)
 	f:ClearAllPoints()
@@ -112,13 +112,13 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	if db.showIcon == true and icon then bar:SetIcon(icon) end
 	label = label or ""
 	if db.width <= 140 then
-		label = string.sub(label, 1, 10)
+		label = sub(label, 1, 10)
 	elseif db.width <= 160 then
-		label = string.sub(label, 1, 14)
+		label = sub(label, 1, 14)
 	elseif db.width <= 180 then
-		label = string.sub(label, 1, 18)
+		label = sub(label, 1, 18)
 	elseif db.width <= 200 then
-		label = string.sub(label, 1, 22)
+		label = sub(label, 1, 22)
 	end
 	bar:SetLabel(label, 1, 12)
 	bar:SetDuration(duration)
@@ -167,12 +167,12 @@ function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
 		if alert.showBar and eventInfo.displaySettings.enabled and eventInfo.displaySettings.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
 			if remaining then
-				A:ShowBar(barType, id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:ShowBar(barType, id, A:GetUnitNameShort(ti.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
 			else
 				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", ti.relSpellName,  eventInfo.short)
 			end

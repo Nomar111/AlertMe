@@ -1,16 +1,15 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
 -- upvalues
-local _G, ipairs, IsAddOnLoaded = _G, ipairs, IsAddOnLoaded
--- set engine as new global environment
+local _G, IsAddOnLoaded, C_Timer = _G, IsAddOnLoaded, C_Timer
+-- set addon environment
 setfenv(1, _G.AlertMe)
+-- set container for glows
 A.Glows = {}
 
 local function getBattleGroundTargetsFrame(ti)
 	-- check if BGTC is loaded
 	if not IsAddOnLoaded("BattlegroundTargets") then return end
 	local name = ti.dstName
-	local nameShort = A:GetUnitNameShort(ti.dstName)
+	local nameShort = getShortName(ti.dstName)
 	local frames = { _G.UIParent:GetChildren() }
 	for _, frame in ipairs(frames) do
 		if frame.name4button then
@@ -20,7 +19,6 @@ local function getBattleGroundTargetsFrame(ti)
 		end
 	end
 end
-
 
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	if not P.glow.enabled then return end

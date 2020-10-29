@@ -9,7 +9,7 @@
 
 Libs\load_libs.xml
 init.lua
-Functions\load_functions.xml
+functions.lua
 Settings\load_settings.xml
 Core\load_core.xml
 Options\load_options.xml

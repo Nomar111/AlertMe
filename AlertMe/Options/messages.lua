@@ -1,11 +1,9 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 function O:ShowMessages(container)
 	-- update chat frames
-	A:InitChatFrames()
+	initChatFrames()
 	-- set sv
 	local db = P.messages
 	-- header
@@ -17,7 +15,7 @@ function O:ShowMessages(container)
 	-- chat frames
 	local title = "Post addon messages in the following chat windows (only visible for you)"
 	local chatFramesGroup = O.AttachGroup(container, "inline", title, {fullWidth = true})
-	for name, frame in pairs(A.ChatFrames) do
+	for name, frame in pairs(chatFrames) do
 		O.AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
 	-- event specific messages

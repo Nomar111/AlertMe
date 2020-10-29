@@ -1,8 +1,6 @@
 -- upvalues
 local _G, time, tostring = _G, time, tostring
--- get engine environment
-local A, O = unpack(select(2, ...))
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 local function getSomeAlert(eventShort)

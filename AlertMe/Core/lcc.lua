@@ -1,9 +1,7 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
 -- upvalues
-local UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print = UnitPlayerControlled, UnitIsFriend, UnitIsEnemy, print
+local UnitPlayerControlled, UnitIsFriend, UnitIsEnemy = UnitPlayerControlled, UnitIsFriend, UnitIsEnemy
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 function A:InitLCC()

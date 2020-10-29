@@ -1,8 +1,6 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
 -- upvalues
-local _G, GetItemIcon = _G, GetItemIcon
--- set engine as new global environment
+local GetItemIcon, GetSpellInfo = GetItemIcon, GetSpellInfo
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 local function updateSpellTable(eventShort, uid)

@@ -1,8 +1,4 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
---upvalues
-local _G = _G
--- set engine as new global environment
+-- set addon environment
 setfenv(1, _G.AlertMe)
 
 function A:UpdateScrolling()
@@ -85,7 +81,7 @@ function A:SetScrollingPosition(reset)
 	if not A.ScrollingText then return end
 	-- reset position?
 	if reset then
-		local def = A.Defaults.profile.scrolling
+		local def = A.D.profile.scrolling
 		db.point = def.point
 		db.ofs_x = def.ofs_x
 		db.ofs_y = def.ofs_y

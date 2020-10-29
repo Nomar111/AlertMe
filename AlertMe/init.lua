@@ -1,41 +1,31 @@
--- upvalues
-local _G, LibStub = _G, LibStub
-local GetAddOnMetadata, GetRealmName  = GetAddOnMetadata, GetRealmName
--- get engine/addon environment
-local AddonName, Engine = ...
--- set engine environment as new global environment
-setfenv(1, Engine)
-
--- register as ace addon
-local A = LibStub("AceAddon-3.0"):NewAddon(AddonName, "AceConsole-3.0", "AceEvent-3.0")
--- create some tables table so we can use them right away
-A.Defaults = {}
-A.Options = {}
-A.Profile = {profile = {}}
-
--- set engine environment substructure
-Engine[1] = A				-- A
-Engine[2] = A.Options   	-- O
-
--- set wow global
+-- get eaddon environment
+local name, Engine = ...
+-- create addon global and set it to engine environment
 _G.AlertMe = Engine
+-- upvalues
+local _G, LibStub, GetAddOnMetadata, UnitName, tostring = _G, LibStub, GetAddOnMetadata, UnitName, tostring
+-- set engine environment as new global environment
+setfenv(1, _G.AlertMe)
+-- create some later needed tables
+O = { config = {} } -- options
+D = {} -- defaults
+-- register as ace addon
+A = LibStub("AceAddon-3.0"):NewAddon(name, "AceConsole-3.0", "AceEvent-3.0")
 
 -- addon upvalues
-print, pairs, ipairs, type, tcopy, tinsert, unpack, bit = _G.print, _G.pairs, _G.ipairs, _G.type, _G.table.copy, _G.table.insert, _G.unpack, _G.bit
-strsplit, tostring, gsub, string, date, next = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date, _G.next
+GetTime, CreateFrame, GameTooltip, WrapTextInColorCode = _G.GetTime, _G.CreateFrame, _G.GameTooltip, _G.WrapTextInColorCode
+print, unpack, tinsert, pairs, ipairs, type, tostring, next = _G.print, _G.unpack, _G.tinsert, _G.pairs, _G.ipairs, _G.type, _G.tostring, _G.next
+IsShiftKeyDown = _G.IsShiftKeyDown
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
-WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
-GetSpellInfo, IsShiftKeyDown, GameTooltip, FCF_GetNumActiveChatFrames = _G.GetSpellInfo, _G.IsShiftKeyDown, _G.GameTooltip, _G.FCF_GetNumActiveChatFrames
-UnitName, UnitGUID = _G.UnitName, _G.UnitGUID
 
 -- addon globals
 ADDON_NAME = AddonName
-ADDON_VERSION = tostring(GetAddOnMetadata(AddonName, "Version"))
-ADDON_AUTHOR = GetAddOnMetadata(AddonName, "Author")
+ADDON_VERSION = tostring(GetAddOnMetadata(name, "Version"))
+ADDON_AUTHOR = GetAddOnMetadata(name, "Author")
 PLAYER_NAME = UnitName("player")
-REALM_NAME = GetRealmName()
-PLAYER_REALM = PLAYER_NAME.." - "..REALM_NAME
 DEBUG_LEVEL = 1
+-- VDT_AddData(Engine, "Engine")
+-- VDT_AddData(A, "A")
 
 -- libraries
 A.Libs = {}
@@ -56,8 +46,8 @@ A.Libs.LCC = LibStub("LibCCAlertMe", true)
 
 -- addon initialized
 function A:OnInitialize()
-	-- setup database
-	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
+	-- setup saved variables database
+	self.db = A.Libs.AceDB:New("AlertMeDB", D, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
 	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
@@ -65,17 +55,13 @@ function A:OnInitialize()
 	-- define addon global P for profile data
 	P = A.db.profile
 	-- register slash command
-	self:RegisterChatCommand("alertme", "OpenOptions")
-end
-
-function A:OpenOptions()
-	A.Options:OpenOptions()
+	local open = O.OpenOptions
+	self:RegisterChatCommand("alertme", "open")
 end
 
 -- addon enabled
 function A:OnEnable()
 	A:Initialize()
-	--A.Options:OpenOptions()
 end
 
 -- automatically called on profile copy/delete/etc.
@@ -83,5 +69,5 @@ function A:OnProfileEvent(event)
 	-- set global P again
 	P = A.db.profile
 	-- update options table
-	A.Options.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
+	O.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
 end

@@ -4,8 +4,6 @@ setting a label
 Graphical Button.
 -------------------------------------------------------------------------------]]
 -- original code from Wekauras
-
-
 local Type, Version = "WeakAurasIcon", 1
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end

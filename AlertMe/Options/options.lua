@@ -1,8 +1,6 @@
--- get engine environment
-local A, O = unpack(select(2, ...))
 -- upvalues
-local InCombatLockdown = InCombatLockdown
--- set engine as new global environment
+local InCombatLockdown, strsplit = InCombatLockdown, strsplit
+-- set addon environment
 setfenv(1, _G.AlertMe)
 -- (re)set some variables
 O.config = {}
