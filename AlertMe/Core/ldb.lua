@@ -12,6 +12,7 @@ local function getAnchors(frame)
 end
 
 function A:InitLDB()
+	dprint(3, "A:InitLDB")
 	A.AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
 		type = "launcher",
 		text = "AlertMe",
@@ -46,6 +47,7 @@ function A:InitLDB()
 end
 
 function A.UpdateLDBTooltip()
+	dprint(3, "A.UpdateLDBTooltip")
 	-- prepare tooltip text
 	local toolTip = {
 		header = "AlertMe "..ADDON_VERSION,
@@ -71,6 +73,7 @@ function A.UpdateLDBTooltip()
 end
 
 function A.ToggleMinimap(toggle)
+	dprint(3,"A.ToggleMinimap", toggle)
 	if toggle then P.general.minimap.hide = not P.general.minimap.hide end
 	if P.general.minimap.hide then
 		A.Libs.LDBI:Hide("AlertMe")

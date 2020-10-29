@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 --upvalues
-local _G, table, getmetatable, setmetatable, hooksecurefunc = _G, table, getmetatable, setmetatable, hooksecurefunc
+local _G, table, getmetatable, setmetatable = _G, table, getmetatable, setmetatable
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 

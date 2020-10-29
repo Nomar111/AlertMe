@@ -6,29 +6,15 @@ local _G, ipairs, IsAddOnLoaded = _G, ipairs, IsAddOnLoaded
 setfenv(1, _G.AlertMe)
 A.Glows = {}
 
-local function getBattleGroundTargetsFrame(ti)
-	-- check if BGTC is loaded
-	if not IsAddOnLoaded("BattlegroundTargets") then return end
-	local name = ti.dstName
-	local nameShort = A:GetUnitNameShort(ti.dstName)
-	local frames = { _G.UIParent:GetChildren() }
-	for _, frame in ipairs(frames) do
-		if frame.name4button then
-			if frame.name4button == name or frame.name4button == nameShort then
-				return frame
-			end
-		end
-	end
-end
-
-
 function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
+	dprint(3, "A:DisplayGlows", ti.relSpellName, eventInfo.short, ti.dstName, "snapShot", snapShot)
 	if not P.glow.enabled then return end
 	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
 	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
-		targetFrame = getBattleGroundTargetsFrame(ti)
+		targetFrame = A:GetBattleGroundTargetsFrame(ti)
 	end
 	if not targetFrame then
+		dprint(2, "DisplayGlows", "no target frame found for", ti.dstName)
 		return
 	end
 	local id = ti.dstGUID..ti.spellName
@@ -54,6 +40,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 end
 
 function A:HideGlow(ti, eventInfo)
+	dprint(3, "A:HideGlow", "name", ti.dstName, "event", eventInfo.short, "spell", ti.spellName)
 	local id = ti.dstGUID..ti.spellName
 	if A.Glows[id] then
 		A.Libs.LCG.PixelGlow_Stop(A.Glows[id],id)
@@ -62,9 +49,31 @@ function A:HideGlow(ti, eventInfo)
 end
 
 function A:HideAllGlows()
+	dprint(3, "A:HideAllGlows")
 	for id, frame in pairs(A.Glows) do
 		A.Libs.LCG.PixelGlow_Stop(frame, id)
 	end
 	A.Glows = nil
 	A.Glows = {}
+end
+
+function A:GetBattleGroundTargetsFrame(ti)
+	dprint(3, "A:GetBattleGroundTargetsFrame", ti.dstName)
+	local loaded = IsAddOnLoaded("BattlegroundTargets")
+	if not loaded then
+		--dprint(3, "A:GetBattleGroundTargetsFrame", "BGT not loaded")
+		return
+	end
+	local name = ti.dstName
+	local nameShort = A:GetUnitNameShort(ti.dstName)
+	local frames = { _G.UIParent:GetChildren() }
+	VDT_AddData(frames, "frames")
+	for _, frame in ipairs(frames) do
+		if frame.name4button then
+			if frame.name4button == name or frame.name4button == nameShort then
+				dprint(3, "A:GetBattleGroundTargetsFrame", "frame found for", nameShort, frame)
+				return frame
+			end
+		end
+	end
 end

@@ -5,6 +5,7 @@ setfenv(1, _G.AlertMe)
 local LSM = A.Libs.LSM
 
 function A:InitLSM()
+	dprint(3, "A:InitLSM")
 	A.Sounds = LSM:HashTable("sound")
 	A.Statusbars = LSM:HashTable("statusbar")
 	A.Backgrounds = LSM:HashTable("background")

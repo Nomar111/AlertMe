@@ -801,7 +801,9 @@ crowdControlAuras = { -- from ClassicCastbars
 -- 			if timeStart > 0.25 then
 -- 				local unit = GetUnitForFreshGUID(guid)
 -- 				if unit then
+-- 					_G.AlertMe.dprint(1, unit)
 -- 					if GetUnitSpeed(unit) ~= 0 then
+-- 						_G.AlertMe.dprint(1, "stopmoving")
 -- 						CastStop(guid, UnitName(unit), 1297, nil, "INTERRUPTED")
 -- 						movecheckGUIDs[guid] = nil
 -- 						return
@@ -812,6 +814,7 @@ crowdControlAuras = { -- from ClassicCastbars
 -- 			if timeout - elapsed < 0 then
 -- 				movecheckGUIDs[guid] = nil
 -- 			end
+-- 			--_G.AlertMe.dprint(1, guid, movecheckGUIDs[guid])
 -- 			guid, timeout = next(movecheckGUIDs, guid)
 -- 		end
 -- 	end)

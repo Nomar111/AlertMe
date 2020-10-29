@@ -21,7 +21,7 @@ Engine[2] = A.Options   	-- O
 _G.AlertMe = Engine
 
 -- addon upvalues
-print, pairs, ipairs, type, tcopy, tinsert, unpack, bit = _G.print, _G.pairs, _G.ipairs, _G.type, _G.table.copy, _G.table.insert, _G.unpack, _G.bit
+print, pairs, type, tcopy, tinsert, unpack, bit = _G.print, _G.pairs,  _G.type, _G.table.copy, _G.table.insert, _G.unpack, _G.bit
 strsplit, tostring, gsub, string, date, next = _G.strsplit, _G.tostring, _G.gsub, _G.string,  _G.date, _G.next
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 WrapTextInColorCode, GetTime, CreateFrame, C_Timer, UIParent = _G.WrapTextInColorCode, _G.GetTime, _G.CreateFrame, _G.C_Timer, _G.UIParent
@@ -56,6 +56,7 @@ A.Libs.LCC = LibStub("LibCCAlertMe", true)
 
 -- addon initialized
 function A:OnInitialize()
+	dprint(3, "A:OnInitialize")
 	-- setup database
 	self.db = A.Libs.AceDB:New("AlertMeDB", A.Defaults, false)
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
@@ -69,17 +70,25 @@ function A:OnInitialize()
 end
 
 function A:OpenOptions()
+	dprint(3, "A:OpenOptions")
 	A.Options:OpenOptions()
 end
 
 -- addon enabled
 function A:OnEnable()
+	dprint(3, "A:OnEnable")
 	A:Initialize()
 	--A.Options:OpenOptions()
 end
 
+-- addon disabled
+function A:OnDisable()
+	dprint(3, "A:OnDisable")
+end
+
 -- automatically called on profile copy/delete/etc.
 function A:OnProfileEvent(event)
+	dprint(3, "A:OnProfileEvent", event)
 	-- set global P again
 	P = A.db.profile
 	-- update options table

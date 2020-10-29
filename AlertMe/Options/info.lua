@@ -5,6 +5,7 @@ setfenv(1, _G.AlertMe)
 
 -- creates the info tab
 function O:ShowInfo(container)
+	dprint(3, "O:ShowInfo")
 	O.AttachHeader(container, "Addon Info")
 	local text = "Addon: AlertMe"
 	text = text.."\n\nCurrent Version: "..ADDON_VERSION

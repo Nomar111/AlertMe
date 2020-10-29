@@ -4,6 +4,7 @@ local A, O = unpack(select(2, ...))
 setfenv(1, _G.AlertMe)
 
 function O:ShowMessages(container)
+	dprint(3, "O:ShowMessages")
 	-- update chat frames
 	A:InitChatFrames()
 	-- set sv
