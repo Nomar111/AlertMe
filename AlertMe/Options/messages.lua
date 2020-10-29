@@ -7,24 +7,24 @@ function O:ShowMessages(container)
 	-- set sv
 	local db = P.messages
 	-- header
-	O.AttachHeader(container, "Message Settings")
-	O.AttachCheckBox(container, "Enable addon messages", P.messages, "enabled", 300, _)
-	O.AttachSpacer(container, _, "small")
-	O.AttachCheckBox(container, "Enable chat announcements", P.messages, "chatEnabled", 300, _)
-	O.AttachSpacer(container, _, "small")
+	O.attachHeader(container, "Message Settings")
+	O.attachCheckBox(container, "Enable addon messages", P.messages, "enabled", 300, _)
+	O.attachSpacer(container, _, "small")
+	O.attachCheckBox(container, "Enable chat announcements", P.messages, "chatEnabled", 300, _)
+	O.attachSpacer(container, _, "small")
 	-- chat frames
 	local title = "Post addon messages in the following chat windows (only visible for you)"
-	local chatFramesGroup = O.AttachGroup(container, "inline", title, {fullWidth = true})
+	local chatFramesGroup = O.attachGroup(container, "inline", title, {fullWidth = true})
 	for name, frame in pairs(chatFrames) do
-		O.AttachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
+		O.attachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
 	-- event specific messages
-	O.AttachHeader(container, "Event specific settings")
-	O.AttachEditBox(container, "Message on aura gained/refreshed", db, "gain", 1)
-	O.AttachEditBox(container, "Message on spell dispel", db, "dispel", 1)
-	O.AttachEditBox(container, "Message on cast start", db, "start", 1)
-	O.AttachEditBox(container, "Message on cast success", db, "success", 1)
-	O.AttachEditBox(container, "Message on interrupt", db, "interrupt", 1)
-	O.AttachEditBox(container, "Message prefix", db, "prefix", 200)
-	O.AttachEditBox(container, "Message postfix", db, "postfix", 200)
+	O.attachHeader(container, "Event specific settings")
+	O.attachEditBox(container, "Message on aura gained/refreshed", db, "gain", 1)
+	O.attachEditBox(container, "Message on spell dispel", db, "dispel", 1)
+	O.attachEditBox(container, "Message on cast start", db, "start", 1)
+	O.attachEditBox(container, "Message on cast success", db, "success", 1)
+	O.attachEditBox(container, "Message on interrupt", db, "interrupt", 1)
+	O.attachEditBox(container, "Message prefix", db, "prefix", 200)
+	O.attachEditBox(container, "Message postfix", db, "postfix", 200)
 end

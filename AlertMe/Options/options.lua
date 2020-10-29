@@ -68,7 +68,7 @@ function O:CreateNavTree(container)
 		-- release content
 		widget:ReleaseChildren()
 		-- create new content container
-		local contentGroup =  O.AttachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
+		local contentGroup =  O.attachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
 		local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
 		scrollGroup:SetLayout("List")
 		scrollGroup:SetFullHeight(true)

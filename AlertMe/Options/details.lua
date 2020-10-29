@@ -34,31 +34,31 @@ local function updateSpellTable(eventShort, uid)
 	-- loop over all tracked spells/auras
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
-		local rowGroup = O.AttachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
+		local rowGroup = O.attachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
 		-- delete spell icon
-		local btnDelSpell = O.AttachIcon(rowGroup, iconDel, 18, btnDelSpellOnClick, btnDelSpellToolTip, btnDelSpellUserData)
+		local btnDelSpell = O.attachIcon(rowGroup, iconDel, 18, btnDelSpellOnClick, btnDelSpellToolTip, btnDelSpellUserData)
 		btnDelSpell:SetUserData("spellName", spellName)
-		O.AttachSpacer(rowGroup, 10)
+		O.attachSpacer(rowGroup, 10)
 		-- spell/aura icon & spellname
-		O.AttachIcon(rowGroup, tbl.icon, 18)
-		O.AttachSpacer(rowGroup, 5)
+		O.attachIcon(rowGroup, tbl.icon, 18)
+		O.attachSpacer(rowGroup, 5)
 		-- spell/aura name
-		O.AttachLabel(rowGroup, spellName, _, _, 190)
-		O.AttachSpacer(rowGroup, 12)
+		O.attachLabel(rowGroup, spellName, _, _, 190)
+		O.attachSpacer(rowGroup, 12)
 		-- add sound
-		local btnAddSound = O.AttachIcon(rowGroup, iconAdd, 16, btnAddSoundOnClick, btnAddSoundToolTip)
+		local btnAddSound = O.attachIcon(rowGroup, iconAdd, 16, btnAddSoundOnClick, btnAddSoundToolTip)
 		btnAddSound:SetUserData("spellName", spellName)
-		O.AttachSpacer(rowGroup, 10)
+		O.attachSpacer(rowGroup, 10)
 		-- sound label
-		O.AttachLabel(rowGroup, tbl.soundFile, _, _, 200)
+		O.attachLabel(rowGroup, tbl.soundFile, _, _, 200)
 	end
 end
 
 local function spellSelection(container, eventShort, uid)
 	if not A.EventsShort[eventShort].spellSelection then return end
-	O.AttachHeader(container, "Spell/Aura settings")
+	O.attachHeader(container, "Spell/Aura settings")
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local spellGroup = O.AttachGroup(container, "simple", _, {fullWidth = true, layout = "Flow"})
+	local spellGroup = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "Flow"})
 	--*********************************************************************************************************************
 	-- spell edit box
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
@@ -75,9 +75,9 @@ local function spellSelection(container, eventShort, uid)
 		editBox:SetText("")
 	end)
 	spellGroup:AddChild(editBox)
-	O.AttachSpacer(spellGroup,20)
+	O.attachSpacer(spellGroup,20)
 	-- sound selection drowdown (per spell)
-	local soundSelection = O.AttachLSM(spellGroup, "sound", "Set sound alert per spell", db, "dummy", 207)
+	local soundSelection = O.attachLSM(spellGroup, "sound", "Set sound alert per spell", db, "dummy", 207)
 	soundSelection:SetCallback("OnValueChanged", function(widget, _, value)
 		local spellName = widget:GetUserData("spellName")
 		local _db = db.spellNames[spellName]
@@ -92,7 +92,7 @@ local function spellSelection(container, eventShort, uid)
 	O.SoundSelection:SetUserData("key", "soundFile")
 	--*********************************************************************************************************************
 	-- spell table
-	O.SpellTable = O.AttachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
+	O.SpellTable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
 	updateSpellTable(eventShort, uid)
 end
 
@@ -101,18 +101,18 @@ local function unitSelection(container, eventShort, uid)
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- unit selection
 	if A.EventsShort[eventShort].unitSelection then
-		O.AttachHeader(container, "Unit selection")
+		O.attachHeader(container, "Unit selection")
 		local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities"}
 		local excludeList = {[1] = "---", [2] = "Myself", [3] = "Target"}
-		local unitsGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 		if A.EventsShort[eventShort].units[1] == "src" then
-			O.AttachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
-			O.AttachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
+			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
+			O.attachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
 		end
 		if A.EventsShort[eventShort].units[2] and A.EventsShort[eventShort].units[2] == "dst" then
-			O.AttachSpacer(unitsGroup, 20)
-			O.AttachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
-			O.AttachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
+			O.attachSpacer(unitsGroup, 20)
+			O.attachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
+			O.attachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
 		end
 	end
 end
@@ -128,27 +128,27 @@ local function displaySettings(container, eventShort, uid)
 		wrap = false
 	}
 	-- display settings
-	local displayGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
-	O.AttachHeader(displayGroup, "Display settings")
+	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
+	O.attachHeader(displayGroup, "Display settings")
 	if A.EventsShort[eventShort].displaySettings.bar then
 		local label = "Show "..A.EventsShort[eventShort].displaySettings.barTypeText
-		O.AttachCheckBox(displayGroup, label, db, "showBar", 150)
+		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end
 	if A.EventsShort[eventShort].displaySettings.glow then
-		O.AttachSpacer(displayGroup, 9)
-		O.AttachDropdown(displayGroup, _, db, "showGlow", glowList, 150, _, ttGlow)
+		O.attachSpacer(displayGroup, 9)
+		O.attachDropdown(displayGroup, _, db, "showGlow", glowList, 150, _, ttGlow)
 	end
 end
 
 local function announceSettings(container, eventShort, uid)
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- announce settings
-	O.AttachHeader(container, "Text alerts")
-	local announceGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+	O.attachHeader(container, "Text alerts")
+	local announceGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local channelList = {[1] = "Don't announce", [2] = "BG > Raid > Party", [3] = "Party", [4] = "Say"}
 	-- chat channels
-	O.AttachDropdown(announceGroup, "Announce in channel", db, "chatChannels", channelList, 140)
-	O.AttachSpacer(announceGroup, 20)
+	O.attachDropdown(announceGroup, "Announce in channel", db, "chatChannels", channelList, 140)
+	O.attachSpacer(announceGroup, 20)
 	-- addon messages
 	local systemList = {[1] = "Always", [2] = "Never", [3] = "If chan not available"}
 	local toolTip = {
@@ -156,12 +156,12 @@ local function announceSettings(container, eventShort, uid)
 		lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"},
 		wrap = false
 	}
-	O.AttachDropdown(announceGroup, "Post addon messages", db, "addonMessages", systemList, 150, _, toolTip)
+	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", systemList, 150, _, toolTip)
 	-- dstwhisper
 	if A.EventsShort[eventShort].dstWhisper == true then
 		local whisperList = {[1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper"}
-		O.AttachSpacer(announceGroup, 20)
-		O.AttachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", whisperList, 160)
+		O.attachSpacer(announceGroup, 20)
+		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", whisperList, 160)
 	end
 	-- scrolling text
 	toolTip = {
@@ -169,22 +169,22 @@ local function announceSettings(container, eventShort, uid)
 		lines = {"Post messages to Scrolling Text"},
 		wrap = false
 	}
-	O.AttachSpacer(container, _, "small")
-	O.AttachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180, _, toolTip)
-	O.AttachSpacer(container, _, "small")
+	O.attachSpacer(container, _, "small")
+	O.attachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180, _, toolTip)
+	O.attachSpacer(container, _, "small")
 	-- message override
 	toolTip = {
 		header = "Message override",
 		lines = {"Set an alternative chat message","If empty, (event) standard will be used"},
 		wrap = false
 	}
-	O.AttachEditBox(container, "Chat message override", db, "msgOverride", 1, _, toolTip)
+	O.attachEditBox(container, "Chat message override", db, "msgOverride", 1, _, toolTip)
 end
 
 local function soundSettings(container, eventShort, uid)
 	-- local variables & functions
 	local db = P.alerts[eventShort].alertDetails[uid]
-	local soundGroup = O.AttachGroup(container, "simple", _ , { fullWidth = true })
+	local soundGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	-- update states
 	local function updateState()
 		if O.SoundSelectionDefault:GetValue() ~= 2 then
@@ -194,12 +194,12 @@ local function soundSettings(container, eventShort, uid)
 		end
 	end
 	-- sound alerts
-	O.AttachHeader(soundGroup, "Sound alerts")
+	O.attachHeader(soundGroup, "Sound alerts")
 	local list = {[1] = "No sound alerts", [2] = "Play one sound alert for all spells", [3] = "Play individual sound alerts per spell"}
 	local toolTip = {lines = {"Set alerts per spell in the spell table"}, wrap = false}
-	O.SoundSelectionDefault = O.AttachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, toolTip)
-	O.AttachSpacer(soundGroup, 20)
-	O.SoundFile = O.AttachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
+	O.SoundSelectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, toolTip)
+	O.attachSpacer(soundGroup, 20)
+	O.SoundFile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
 	updateState()
 end
 

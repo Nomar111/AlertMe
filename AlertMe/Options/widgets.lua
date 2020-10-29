@@ -24,7 +24,7 @@ local LSMWidgets = {
 --**********************************************************************************************************************************
 -- attach AceGUI widgets
 --**********************************************************************************************************************************
-function AttachButton(container, text, width, func)
+function attachButton(container, text, width, func)
 	local widget = libs.AceGUI:Create("Button")
 	widget:SetText(text)
 	if width then widget:SetWidth(width) end
@@ -33,7 +33,7 @@ function AttachButton(container, text, width, func)
 	return widget
 end
 
-function AttachCheckBox(container, label, db, key, width, func, toolTip)
+function attachCheckBox(container, label, db, key, width, func, toolTip)
 	local widget = libs.AceGUI:Create("CheckBox")
 	widget:SetValue(db[key])
 	widget:SetCallback("OnValueChanged", function(_, _, value)
@@ -47,7 +47,7 @@ function AttachCheckBox(container, label, db, key, width, func, toolTip)
 	return widget
 end
 
-function AttachColorPicker(container, label, db, key, alpha, width, func)
+function attachColorPicker(container, label, db, key, alpha, width, func)
 	local widget = libs.AceGUI:Create("ColorPicker")
 	widget:SetColor(unpack(db[key]))
 	widget:SetLabel(label)
@@ -60,7 +60,7 @@ function AttachColorPicker(container, label, db, key, alpha, width, func)
 	return widget
 end
 
-function AttachDropdown(container, label, db, key, list, width, func, toolTip)
+function attachDropdown(container, label, db, key, list, width, func, toolTip)
 	local widget = libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
@@ -76,7 +76,7 @@ function AttachDropdown(container, label, db, key, list, width, func, toolTip)
 	return widget
 end
 
-function AttachEditBox(container, label, path, key, width, func, toolTip)
+function attachEditBox(container, label, path, key, width, func, toolTip)
 	local widget = libs.AceGUI:Create("EditBox")
 	if label then widget:SetLabel(label) end
 	if width then
@@ -96,7 +96,7 @@ function AttachEditBox(container, label, path, key, width, func, toolTip)
 	return widget
 end
 
-function AttachGroup(container, type, title, format)
+function attachGroup(container, type, title, format)
 	type = type or "simple"
 	local layout = (format and format.layout) and format.layout or "Flow"
 	local widget = {}
@@ -124,7 +124,7 @@ function AttachGroup(container, type, title, format)
 	return widget
 end
 
-function AttachHeader(container, text)
+function attachHeader(container, text)
 	local widget = libs.AceGUI:Create("Heading")
 	widget:SetText(text)
 	widget.width = "fill"
@@ -132,7 +132,7 @@ function AttachHeader(container, text)
 	return widget
 end
 
-function AttachIcon(container, image, size, onClick, toolTip, ofs_y)
+function attachIcon(container, image, size, onClick, toolTip, ofs_y)
 	-- standards
 	ofs_y = ofs_y or 0
 	size = size or 16
@@ -151,7 +151,7 @@ function AttachIcon(container, image, size, onClick, toolTip, ofs_y)
 	return widget
 end
 
-function AttachLabel(container, text, fontObject, color, absWidth, relWidth)
+function attachLabel(container, text, fontObject, color, absWidth, relWidth)
 	fontObject = fontObject or GameFontHighlight
 	local widget = libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
@@ -166,7 +166,7 @@ function AttachLabel(container, text, fontObject, color, absWidth, relWidth)
 	return widget
 end
 
-function AttachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
+function attachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
 	fontObject = fontObject or GameFontHighlight
 	local widget = libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
@@ -184,7 +184,7 @@ function AttachInteractiveLabel(container, text, fontObject, color, absWidth, re
 	return widget
 end
 
-function AttachLSM(container, type, label, db, key, width, func)
+function attachLSM(container, type, label, db, key, width, func)
 	local widget = libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(LSMTables[type])
 	if label then widget:SetLabel(label) end
@@ -199,7 +199,7 @@ function AttachLSM(container, type, label, db, key, width, func)
 	return widget
 end
 
-function AttachSlider(container, label, db, key, min, max, step, isPercent, width, func, toolTip)
+function attachSlider(container, label, db, key, min, max, step, isPercent, width, func, toolTip)
 	local widget = libs.AceGUI:Create("Slider")
 	if label then widget:SetLabel(label) end
 	widget:SetSliderValues(min, max, step)
@@ -215,7 +215,7 @@ function AttachSlider(container, label, db, key, min, max, step, isPercent, widt
 	return widget
 end
 
-function AttachSpacer(container, width, height)
+function attachSpacer(container, width, height)
 	local widget = libs.AceGUI:Create("Label")
 	if width then widget:SetWidth(width) end
 	if height then
@@ -230,7 +230,7 @@ function AttachSpacer(container, width, height)
 	return widget
 end
 
-function AttachTabGroup(container, title, format, path, key, tabs, onSelect)
+function attachTabGroup(container, title, format, path, key, tabs, onSelect)
 	local layout = (format and format.layout) and format.layout or "Flow"
 	local widget = libs.AceGUI:Create("TabGroup")
 	widget:SetTitle(title)
