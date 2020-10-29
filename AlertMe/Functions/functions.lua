@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 --upvalues
-local _G, table, getmetatable, setmetatable = _G, table, getmetatable, setmetatable
+local _G, table, getmetatable, setmetatable, hooksecurefunc = _G, table, getmetatable, setmetatable, hooksecurefunc
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -105,7 +105,6 @@ function VDT_AddData(obj, desc)
 	end
 end
 
--- debug hook
 function dhook(object, method, dbg, dlevel)
 	dlevel = dlevel or 1
 	local function hooked(self, ...)

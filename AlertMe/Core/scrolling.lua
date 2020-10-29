@@ -6,12 +6,10 @@ local _G = _G
 setfenv(1, _G.AlertMe)
 
 function A:UpdateScrolling()
-	dprint(3, "A:UpdateScrolling")
-	-- enabled?
 	local db = P.scrolling
-	if db.enabled == false then return end
+	if not db.enabled then return end
 	-- init frame if it doesnt exist
-	if A.ScrollingText == nil then
+	if not A.ScrollingText then
 		local f = CreateFrame("ScrollingMessageFrame", "AlertMeScrollingText", UIParent)
 		f:SetFrameStrata("LOW")
 		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true , tileSize=16})
@@ -62,59 +60,42 @@ function A:UpdateScrolling()
 end
 
 function A:ToggleScrollingInteractive()
-	dprint(3, "A:ToggleScrollingInteractive")
 	A.ScrollingText:EnableMouse(P.scrolling.interactive)
 end
 
-function A:ShowScrolling(setup)
-	dprint(3, "A:ShowScrolling", setup)
-	-- enabled?
-	local db = P.scrolling
-	if db.enabled == false then return end
+function A:ShowScrolling()
+	if not P.scrolling.enabled then return end
 	-- if not yet initialized, do so
-	if A.ScrollingText == nil then
+	if not A.ScrollingText then
 		A:UpdateScrolling()
 	end
 	A.ScrollingText:Show()
-	-- add dummy messages for setup
-	if setup == true then
-		A.ScrollingText:AddMessage("Adding some test messages")
-		A.ScrollingText:AddMessage("PaladinX gains Blessing of Freedom")
-		A.ScrollingText:AddMessage("TeammateY is sapped")
-		A.ScrollingText:AddMessage("AuraX is dispelled on PlayernameZ (by PlayernameC)")
-		A.ScrollingText:AddMessage("OP Warrior gains Recklessness")
-		A.ScrollingText:AddMessage("MotivatedPriest casts Mana Burn")
-	end
 end
 
 function A:HideScrolling()
-	dprint(3, "A:HideScrolling")
-	-- hide if exsists
-	if A.ScrollingText ~= nil then
+	if A.ScrollingText then
 		A.ScrollingText:Hide()
 	end
 end
 
 function A:SetScrollingPosition(reset)
-	dprint(3, "A:SetScrollingPosition", reset)
-	-- enabled?
 	local db = P.scrolling
-	if db.enabled == false then return end
+	if not db.enabled then return end
 	-- abort if not exists
-	if A.ScrollingText == nil then return end
+	if not A.ScrollingText then return end
 	-- reset position?
-	if reset == true then
-		db.point = "CENTER"
-		db.ofs_x = 0
-		db.ofs_y = -150
+	if reset then
+		local def = A.Defaults.profile.scrolling
+		db.point = def.point
+		db.ofs_x = def.ofs_x
+		db.ofs_y = def.ofs_y
 	end
 	A.ScrollingText:ClearAllPoints()
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
 function A:PostInScrolling(msg)
-	dprint(3, "A:PostInScrolling", msg)
-	if P.scrolling.enabled == true then
+	if P.scrolling.enabled then
 		A:ShowScrolling()
 		A.ScrollingText:AddMessage(msg)
 	end

@@ -5,7 +5,6 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowGeneral(container)
-	dprint(3, "O:ShowGeneral")
 	-- header
 	O.AttachHeader(container, "General Settings")
 	-- addon
@@ -19,16 +18,17 @@ function O:ShowGeneral(container)
 	O.AttachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", 180, A.RegisterCLEU)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
-	O.AttachSpacer(container, _, "small")
+		O.AttachSpacer(container, _, "small")
 		local function deleteLog()
 			P.log = nil
 			P.log = {}
 		end
 		O.AttachSlider(container, "Debug level", P.general, "debugLevel", 0, 3, 1, false, 200)
+		O.AttachSpacer(container, _, "small")
 		O.AttachSlider(container, "Debug level logging", P.general, "debugLevelLog", 0, 3, 1, false, 200)
+		O.AttachSpacer(container, _, "small")
 		O.AttachCheckBox(container, "Debug logging", P.general, "debugLog", 180)
 		O.AttachSpacer(container, _, "small")
-		local btnDeleteLog = O.AttachButton(container, "Delete log table", 200)
-		btnDeleteLog:SetCallback("OnClick", deleteLog)
+		O.AttachButton(container, "Delete log table", 200, deleteLog)
 	end
 end
