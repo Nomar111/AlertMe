@@ -74,9 +74,9 @@ function O:ShowAlerts(container, eventShort)
 	O.AttachSpacer(topGroup, 10)
 	-- delete alert
 	O.AttachIcon(topGroup, iconDel, 18, btnDelOnClick, btnDelToolTip)
-	O.AttachSpacer(topGroup, 10)
+	O.AttachSpacer(topGroup, 8)
 	-- active checkbox
-	local cbActive = O.AttachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 70)
+	local cbActive = O.AttachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 65)
 	if db.alertDetails[uid].created == true then
 		cbActive:SetValue(db.alertDetails[uid].active)
 	else

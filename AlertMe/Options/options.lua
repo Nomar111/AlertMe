@@ -31,8 +31,8 @@ function O:OpenOptions()
 	f:EnableResize(true)
 	f:SetLayout("Flow")
 	f:SetCallback("OnClose", close)
-	f:SetWidth(900)
-	f:SetHeight(680)
+	f:SetWidth(840)
+	f:SetHeight(670)
 	O.OptionsFrame = f
 	-- create navigation
 	O:CreateNavTree(f)

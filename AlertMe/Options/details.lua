@@ -124,7 +124,7 @@ local function displaySettings(container, eventShort, uid)
 	local glowList = {[-1]="No Glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
 	local ttGlow = {
 		header = "Enable glow on unitframes",
-		lines = {"Works for friendly unitframes by default", "Also works for enemy uniframes if using BattleGroundTargets Classic"},
+		lines = {"Works for friendly unitframes by default", "Also works for enemy uniframes if using BGTC*", "*BattlegrounndTargets Classic"},
 		wrap = false
 	}
 	-- display settings
