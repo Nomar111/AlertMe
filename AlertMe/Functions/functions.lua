@@ -1,7 +1,7 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 --upvalues
-local _G, table, getmetatable, setmetatable = _G, table, getmetatable, setmetatable
+local _G, table, getmetatable, setmetatable, hooksecurefunc = _G, table, getmetatable, setmetatable, hooksecurefunc
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
 
@@ -103,4 +103,45 @@ function VDT_AddData(obj, desc)
 	if vdt then
 		vdt(obj, desc)
 	end
+end
+
+function dhook(object, method, dbg, dlevel)
+	dlevel = dlevel or 1
+	local function hooked(self, ...)
+		if debugs then
+			local args = {...}
+			local msg, sep = method..", ", ", "
+			local i = 1
+			while args[i] and dbg[i] ~= nil do
+				local v = dbg[i]
+				if type(args[i]) == "table" and args[i][v] then
+					msg = msg..tostring(args[i][v])..sep
+				elseif dbg[i] then
+					msg = msg..tostring(args[i])..sep
+				end
+				i = i + 1
+			end
+			dprint(1, msg)
+		else
+			dprint(1, method, ...)
+		end
+		--VDT_AddData(ti,"ti")
+	end
+	hooksecurefunc(A, method, hooked)
+	--[[
+	debugs = table which entries can be:
+		"string" = key of an argument table
+		true = argument itself
+		false = no display
+		_,nil = return all arguments
+		dhook(A, "CheckUnits", {"event", false, true})
+		dhook(A, "OnUnitCast", _)
+	]]--
+end
+
+function debug()
+	VDT_AddData(_G.AlertMe, "AlertMe")
+	VDT_AddData(A, "A")
+	VDT_AddData(P, "P")
+	--dhook(A, "OnUnitCast")
 end

@@ -1,13 +1,18 @@
 -- get engine environment
 local A, O = unpack(select(2, ...))
 -- upvalues
-
 local _G, CombatLogGetCurrentEventInfo = _G, CombatLogGetCurrentEventInfo
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 local GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage = GetInstanceInfo, IsInInstance, GetNumGroupMembers, SendChatMessage
-local PlaySoundFile, StopSound, GetSchoolString = PlaySoundFile, StopSound, GetSchoolString
+local PlaySoundFile, StopSound, GetSchoolString, hooksecurefunc = PlaySoundFile, StopSound, GetSchoolString, hooksecurefunc
 -- set engine as new global environment
 setfenv(1, _G.AlertMe)
+
+-- local functions
+local function hideGUI(ti, eventInfo)
+	A:HideAuraBars(ti, eventInfo)
+	A:HideGlow(ti, eventInfo)
+end
 
 -- init function
 function A:Initialize()
@@ -28,16 +33,14 @@ function A:Initialize()
 	-- register for events
 	A.ToggleAddon()
 	-- for reloadui
-	A:HideAllGUI()
+	A:HideAllGUIs()
 	-- LCC
 	A:InitLCC()
-	VDT_AddData(_G.AlertMe, "AlertMe")
-	VDT_AddData(A, "A")
-	VDT_AddData(P, "P")
+	-- Debug
+	debug()
 end
 
 function A:ParseCombatLog(eventName)
-	dprint(3, "A:ParseCombatLog", eventName)
 	local arg = {CombatLogGetCurrentEventInfo()}
 	local ti = {
 		ts = arg[1],
@@ -52,10 +55,7 @@ function A:ParseCombatLog(eventName)
 		spellSchool = arg[14]
 	}
 	-- check if trigger event exists in events table, if not abort
-	if not A.Events[ti.event] then
-		dprint(3, "Event not tracked")
-		return
-	end
+	if not A.Events[ti.event] then return end
 	-- spell cast success sometimes has no destination data - take source data then
 	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
 		ti.dstGUID, ti.dstName, ti.dstFlags = ti.srcGUID, ti.srcName, ti.srcFlags
@@ -78,10 +78,9 @@ function A:ParseCombatLog(eventName)
 end
 
 function A:ProcessTriggerInfo(ti, eventInfo)
-	dprint(3, "A:ProcessTriggerInfo", ti.event, ti.relSpellName)
 	if eventInfo.short == "removed" then
 		-- remove gui elements if needed
-		A:HideGUI(ti, eventInfo)
+		hideGUI(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
@@ -109,14 +108,13 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 end
 
 function A:DoActions(ti, eventInfo, alerts, snapShot)
-	dprint(3, "A:DoActions", eventInfo.short, ti.relSpellName, "snapShot", snapShot)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			if action == "chatAnnounce" and type(alerts) == "table" then A:ChatAnnounce(ti, alerts, eventInfo) end
 			if action == "playSound" and type(alerts) == "table" then A:PlaySound(ti, alerts, eventInfo) end
 			if action == "displayAuraBars" and type(alerts) == "table" then A:DisplayAuraBars(ti, alerts, eventInfo, snapShot) end
 			if action == "displayGlows" and type(alerts) == "table" then A:DisplayGlows(ti, alerts, eventInfo, snapShot) end
-			if action == "hideGUI" and type(alerts) == "table" then A:HideGUI(ti, eventInfo) end
+			if action == "hideGUI" and type(alerts) == "table" then hideGUI(ti, eventInfo) end
 		end
 	end
 end
@@ -125,18 +123,14 @@ end
 --Checks
 --**********************************************************************************************************************************
 function A:DoChecks(ti, eventInfo)
-	dprint(3, "A:DoChecks", ti.relSpellName, eventInfo.short)
 	local alerts, alertsUnits, errorMessage
 	-- check for relevant alerts for spell/event
 	alerts = A:GetAlerts(ti, eventInfo)
-	if not alerts then
-		dprint(3, "no relevant alert found for", eventInfo.short, ti.relSpellName)
-		return false
-	end
+	if not alerts then return false end
 	-- check units
 	alertsUnits, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 	if not alertsUnits then
-		dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
+		--dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 		return false
 	end
 	return true, alertsUnits
@@ -150,12 +144,11 @@ function A:GetAlerts(ti, eventInfo)
 	end
 	-- various checks
 	if eventInfo.spellSelection == false then -- spell selection disabled for this event, return all alerts
-		dprint(3, "no spell sel for this event - ret all", eventInfo.short)
 		for uid, tbl in pairs(A.AlertOptions[eventInfo.short]) do
 			tinsert(alerts, tbl)
 		end
 	elseif not spellOptions then -- check for spell in alerts, check spell/event combo
-		dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
+		return --dprint(3, "spell/event combo not found", ti.relSpellName, eventInfo.short)
 	else
 		for uid, tbl in pairs(spellOptions) do
 			tinsert(alerts, tbl.options)
@@ -168,7 +161,6 @@ function A:GetAlerts(ti, eventInfo)
 end
 
 function A:CheckUnits(ti, eventInfo, alerts_in)
-	dprint(3, "A:CheckUnits", ti.relSpellName, eventInfo.short)
 	-- if no unit selection for this event return
 	if eventInfo.unitSelection == false or alerts_in == true then
 		return alerts_in
@@ -252,8 +244,59 @@ end
 --**********************************************************************************************************************************
 --Actions
 --**********************************************************************************************************************************
+local function createMessage(ti, eventInfo, alert, colored, showIcon)
+	local prefix, postfix = P.messages.prefix, P.messages.postfix
+	-- check possible replacements for being nil
+	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
+	local dstName = (ti.dstName) and A:GetUnitNameShort(ti.dstName) or ""
+	local spellName = (ti.spellName) and ti.spellName or ""
+	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
+	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
+	local lockout = (ti.lockout) and ti.lockout or ""
+	local targetName = (ti.targetName) and ti.targetName or ""
+	local mouseoverName = (ti.mouseoverName) and ti.mouseoverName or ""
+	local icon
+	-- get message from options
+	local msg = P.messages[eventInfo.short]
+	-- override?
+	if alert.msgOverride and alert.msgOverride ~= "" then
+		msg = alert.msgOverride
+	end
+	-- replace
+	msg = string.gsub(msg, "%%dstName", dstName)
+	msg = string.gsub(msg, "%%srcName", srcName)
+	msg = string.gsub(msg, "%%spellName", spellName)
+	msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
+	msg = string.gsub(msg, "%%extraSchool", extraSchool)
+	msg = string.gsub(msg, "%%lockout", lockout)
+	msg = string.gsub(msg, "%%targetName", targetName)
+	msg = string.gsub(msg, "%%mouseoverName", mouseoverName)
+	-- get reaction color
+	local color = A:GetReactionColor(ti)
+	-- return
+	if not colored then
+		return prefix..msg..postfix
+	elseif colored and not showIcon then
+		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+	elseif colored and showIcon then
+		-- get icon
+		if A.SpellOptions[ti.relSpellName] then
+			icon = A.SpellOptions[ti.relSpellName].icon
+		else
+			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+			_, _, icon = GetSpellInfo(spellId)
+		end
+		if icon then
+			local iconSize = P.scrolling.fontSize-2.5
+			local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
+			return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
+		else
+			return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
+		end
+	end
+end
+
 function A:ChatAnnounce(ti, alerts, eventInfo)
-	dprint(3, "A:ChatAnnounce", ti.spellName, eventInfo.short, "snapShot")
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = nil
@@ -270,9 +313,9 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	local msgQueue = {}
 	-- loop through option groups
 	for _, alert in pairs(alerts) do
-		local msg = A:CreateMessage(ti, eventInfo, alert, false, false)
-		local msgSystem = A:CreateMessage(ti, eventInfo, alert, true, false)
-		local msgScrolling = (P.scrolling.showIcon) and A:CreateMessage(ti, eventInfo, alert, true, true) or  msgSystem
+		local msg = createMessage(ti, eventInfo, alert, false, false)
+		local msgSystem = createMessage(ti, eventInfo, alert, true, false)
+		local msgScrolling = (P.scrolling.showIcon) and createMessage(ti, eventInfo, alert, true, true) or  msgSystem
 		-- bg/raid/party
 		if alert.chatChannels == 2 and channel and P.messages.chatEnabled then
 			if msgQueue[channel] == nil then msgQueue[channel] = {} end
@@ -325,13 +368,11 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 end
 
 function A:PlaySound(ti, alerts, eventInfo)
-	dprint(3, "A:PlaySound", ti.relSpellName, eventInfo.short)
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue
 	local function PlaySoundQueue(queue, oldIsPlaying, oldHandle)
-		dprint(3, "PlaySoundQueue", queue, oldIsPlaying, oldHandle)
-		-- stop ols sound if its still plying
+		-- stop old sound if its still plying
 		if oldIsPlaying and oldHandle then
 			StopSound(oldHandle)
 		end
@@ -370,20 +411,17 @@ end
 --Inits
 --**********************************************************************************************************************************
 function A:InitSpellOptions()
-	dprint(3, "A:InitSpellOptions")
 	A.AlertOptions = {}
 	A.SpellOptions = {}
 	-- VDT_AddData(A.AlertOptions, "A.AlertOptions")
 	-- VDT_AddData(A.SpellOptions, "A.SpellOptions")
 	-- loop through events/alerts
 	for event, alert in pairs(P.alerts) do
-		--dprint(3, "Loop1: ", event, alert)
 		A.AlertOptions[event] = {}
 		-- alert details
 		for uid, alertDetails in pairs(alert.alertDetails) do
 			-- check if alert is active and not default value
 			if alertDetails.active == true and alertDetails.created == true then
-				--dprint(3, "Loop2: ", uid, alertDetails)
 				A.AlertOptions[event][uid] = alertDetails
 				-- spells
 				for spellName, spellDetails in pairs(alertDetails.spellNames) do
@@ -408,7 +446,6 @@ end
 -- Register events
 --**********************************************************************************************************************************
 function A.RegisterCLEU(event)
-	dprint(3, "A.RegisterCLEU", event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
@@ -419,12 +456,11 @@ function A.RegisterCLEU(event)
 		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllGUI()
+		A:HideAllGUIs()
 	end
 end
 
 function A.ToggleAddon()
-	dprint(3, "A.ToggleAddon", P.general.enabled)
 	-- (un)register callbacks from casterino
 	A:InitLCC()
 	-- (un)register events
@@ -434,7 +470,7 @@ function A.ToggleAddon()
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		A:HideAllGUI()
+		A:HideAllGUIs()
 	end
 	A.AlertMeBroker.iconR = (P.general.enabled) and 1 or 0.5
 end
@@ -442,61 +478,9 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-function A:CreateMessage(ti, eventInfo, alert, colored, showIcon)
-	dprint(3, "A:CreateMessage")
-	local prefix, postfix = P.messages.prefix, P.messages.postfix
-	-- check possible replacements for being nil
-	local srcName = (ti.srcName) and A:GetUnitNameShort(ti.srcName) or ""
-	local dstName = (ti.dstName) and A:GetUnitNameShort(ti.dstName) or ""
-	local spellName = (ti.spellName) and ti.spellName or ""
-	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
-	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
-	local lockout = (ti.lockout) and ti.lockout or ""
-	local targetName = (ti.targetName) and ti.targetName or ""
-	local mouseoverName = (ti.mouseoverName) and ti.mouseoverName or ""
-	local icon
-	-- get message from options
-	local msg = P.messages[eventInfo.short]
-	-- override?
-	if alert.msgOverride and alert.msgOverride ~= "" then
-		msg = alert.msgOverride
-	end
-	-- replace
-	msg = string.gsub(msg, "%%dstName", dstName)
-	msg = string.gsub(msg, "%%srcName", srcName)
-	msg = string.gsub(msg, "%%spellName", spellName)
-	msg = string.gsub(msg, "%%extraSpellName", extraSpellName)
-	msg = string.gsub(msg, "%%extraSchool", extraSchool)
-	msg = string.gsub(msg, "%%lockout", lockout)
-	msg = string.gsub(msg, "%%targetName", targetName)
-	msg = string.gsub(msg, "%%mouseoverName", mouseoverName)
-	-- get reaction color
-	local color = A:GetReactionColor(ti)
-	-- return
-	if not colored then
-		return prefix..msg..postfix
-	elseif colored and not showIcon then
-		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-	elseif colored and showIcon then
-		-- get icon
-		if A.SpellOptions[ti.relSpellName] then
-			icon = A.SpellOptions[ti.relSpellName].icon
-		else
-			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-			_, _, icon = GetSpellInfo(spellId)
-		end
-		if icon then
-			local iconSize = P.scrolling.fontSize-2.5
-			local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
-			return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
-		else
-			return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-		end
-	end
-end
+
 
 function A:GetReactionColor(ti, rgb)
-	dprint(3, "A:GetReactionColor")
 	-- prepare return value
 	local color = "white"
 	-- aura applied/refresh
@@ -531,14 +515,7 @@ function A:GetReactionColor(ti, rgb)
 	end
 end
 
-function A:HideGUI(ti, eventInfo)
-	dprint(3, "A:HideGUI")
-	A:HideAuraBars(ti, eventInfo)
-	A:HideGlow(ti, eventInfo)
-end
-
-function A:HideAllGUI()
-	dprint(3, "A:HideAllGUI")
+function A:HideAllGUIs()
 	A:HideAllBars()
 	A:HideAllGlows()
 end
