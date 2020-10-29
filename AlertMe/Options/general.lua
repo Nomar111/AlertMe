@@ -13,9 +13,9 @@ function O:ShowGeneral(container)
 	O.AttachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", 180, A.ToggleMinimap)
 	-- zones
 	local zonesGroup = O.AttachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
-	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180)
-	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world", 180)
-	O.AttachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", 180)
+	O.AttachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180, A.RegisterCLEU)
+	O.AttachCheckBox(zonesGroup, "World", P.general.zones, "world", 180, A.RegisterCLEU)
+	O.AttachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", 180, A.RegisterCLEU)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
 		O.AttachSpacer(container, _, "small")
