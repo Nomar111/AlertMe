@@ -126,7 +126,7 @@ function dhook(object, method, dbg, dlevel)
 		else
 			dprint(1, method, ...)
 		end
-		--VDT_AddData(ti,"ti")
+		--VDT_AddData(self[method],method)
 	end
 	hooksecurefunc(A, method, hooked)
 	--[[
@@ -144,5 +144,5 @@ function debug()
 	VDT_AddData(_G.AlertMe, "AlertMe")
 	VDT_AddData(A, "A")
 	VDT_AddData(P, "P")
-	--dhook(A, "OnUnitCast")
+	dhook(A, "OnUnitCast")
 end
