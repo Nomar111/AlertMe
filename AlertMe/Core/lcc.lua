@@ -7,7 +7,6 @@ local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBA
 setfenv(1, _G.AlertMe)
 
 function A:InitLCC()
-	dprint(3, "A:InitLCC")
 	if not P.bars.spells.enabled or not P.general.enabled == true then
 		A.Libs.LCC.UnregisterAllCallbacks(A)
 		return
@@ -42,7 +41,6 @@ local function getAlerts(spellName)
 end
 
 function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
-	dprint(2, event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
 	local barType = "spells"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
@@ -63,7 +61,7 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		-- check units
 		local alertsUnit, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
 		if not alertsUnit then
-			dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
+			--dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
 			return
 		end
 		-- calculate remaining duration & show cast bar

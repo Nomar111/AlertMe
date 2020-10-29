@@ -15,14 +15,12 @@ local function updateSpellTable(eventShort, uid)
 	local btnAddSoundToolTip = {lines={"Set an individual sound alert"}}
 	-- delete
 	local function btnDelSpellOnClick(self)
-		dprint(3, "btnDelSpellOnClick", self)
 		local spellName = self:GetUserData("spellName")
 		db.spellNames[spellName] = nil
 		updateSpellTable(eventShort, uid)
 	end
 	-- add
 	local function btnAddSoundOnClick(self)
-		dprint(3, "btnAddSoundOnClick", self)
 		local spellName = self:GetUserData("spellName")
 		O.SoundSelection:SetUserData("spellName", spellName)
 		local soundFile = db.spellNames[spellName].soundFile

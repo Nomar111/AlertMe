@@ -5,7 +5,6 @@ setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
 function O:ShowGeneral(container)
-	dprint(3, "O:ShowGeneral")
 	-- header
 	O.AttachHeader(container, "General Settings")
 	-- addon
@@ -31,6 +30,5 @@ function O:ShowGeneral(container)
 		O.AttachCheckBox(container, "Debug logging", P.general, "debugLog", 180)
 		O.AttachSpacer(container, _, "small")
 		O.AttachButton(container, "Delete log table", 200, deleteLog)
-
 	end
 end

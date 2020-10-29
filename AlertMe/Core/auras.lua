@@ -96,7 +96,6 @@ function A:CheckSnapShot(ti, eventInfo)
 end
 
 function A:AddSnapShot(ti, eventInfo)
-	--dprint(3, "A:AddSnapShot", ti.relSpellName, eventInfo.short)
 	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
 	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {

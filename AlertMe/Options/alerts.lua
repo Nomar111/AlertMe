@@ -1,4 +1,3 @@
---dprint(3, "alerts.lua")
 -- upvalues
 local _G, time, tostring = _G, time, tostring
 -- get engine environment

@@ -19,7 +19,6 @@ local function getTestBar(barType, i)
 end
 
 function O:ShowBars(container)
-	dprint(3, "O:ShowBars")
 	-------------------------------------------------------------------------------
 	-- attach bar options depending on selected barType
 	local function attachBarOptions(tabGroup, barType)

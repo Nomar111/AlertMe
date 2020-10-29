@@ -6,21 +6,7 @@ setfenv(1, _G.AlertMe)
 A.Bars = {auras={}, spells={}}
 A.Container = {}
 
-local function reArrangeBars(barType)
-	local bars = A.Bars[barType]
-	if not bars then return end
-	local db = P.bars[barType]
-	local container = A:GetContainer(barType)
-	-- sort bars by duration
-	local ofs_y =  db.height + 5
-	for id, bar in pairs(bars) do
-		bar:ClearAllPoints()
-		bar:SetPoint("TOP", container, "TOP", 0, ofs_y*-1)
-		ofs_y = ofs_y + db.height + 5
-	end
-end
-
-function A:GetContainer(barType)
+local function getContainer(barType)
 	local db = P.bars[barType]
 	if A.Container[barType] == nil then
 		local f = CreateFrame("Frame", nil, UIParent)
@@ -56,8 +42,22 @@ function A:GetContainer(barType)
 	return A.Container[barType]
 end
 
+local function reArrangeBars(barType)
+	local bars = A.Bars[barType]
+	if not bars then return end
+	local db = P.bars[barType]
+	local container = getContainer(barType)
+	-- sort bars by duration
+	local ofs_y =  db.height + 5
+	for id, bar in pairs(bars) do
+		bar:ClearAllPoints()
+		bar:SetPoint("TOP", container, "TOP", 0, ofs_y*-1)
+		ofs_y = ofs_y + db.height + 5
+	end
+end
+
 function A:ToggleContainerLock(barType)
-	local f = A:GetContainer(barType)
+	local f = getContainer(barType)
 	local db = P.bars[barType]
 	f:EnableMouse(db.unlocked)
 	f:SetMovable(db.unlocked)
@@ -75,7 +75,7 @@ function A:ResetContainerPosition(barType)
 	local db = P.bars[barType]
 	local def = A.Defaults.profile.bars[barType]
 	db.point, db.ofs_x, db.ofs_y = def.point, def.ofs_x, def.ofs_y
-	local f = A:GetContainer(barType)
+	local f = getContainer(barType)
 	f:ClearAllPoints()
 	f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
@@ -134,7 +134,7 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	bar:SetShadowColor(unpack(db.shadowColor))
 	bar.candyBarBackground:SetVertexColor(unpack(db.backgroundColor))
 	-- position
-	local container = A:GetContainer(barType)
+	local container = getContainer(barType)
 	bar:SetParent(container)
 	reArrangeBars(barType)
 	-- start
