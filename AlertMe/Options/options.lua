@@ -77,12 +77,14 @@ function O:CreateNavTree(container)
 		O:ShowOptions(scrollGroup, uniqueValue)
 	end
 	tree:SetCallback("OnGroupSelected", GroupSelected)
+	tree:SelectByPath(strsplit("\001", P.options.lastMenu))
 	container:AddChild(tree)
+	--tree:SelectByPath("alerts","gain")
 end
 
 function O:ShowOptions(container, uniqueValue)
-	local delim = "\001"
-	local lvl1, lvl2 = strsplit(delim, uniqueValue)
+	P.options.lastMenu = uniqueValue
+	local lvl1, lvl2 = strsplit("\001", uniqueValue)
 	if lvl1 == "general" then O:ShowGeneral(container)
 	elseif lvl1 == "scrolling" then O:ShowScrollingText(container)
 	elseif lvl1 == "bars" then O:ShowBars(container)

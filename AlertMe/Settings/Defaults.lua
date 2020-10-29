@@ -96,6 +96,9 @@ D.profile = {
 			border = false,
 		},
 	},
+	options = {
+		lastMenu = "alerts"
+	},
 	alerts = {
 		['*'] = {
 			selectedAlert = "",
