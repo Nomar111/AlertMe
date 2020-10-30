@@ -49,7 +49,7 @@ function initChatFrames()
 end
 initChatFrames()
 
-function AddonMessage(msg)
+function addonMessage(msg)
 	-- loop through chat frames and post messages
 	for i, name in pairs(chatFrames) do
 		if P.messages.chatFrames[name] == true then
@@ -88,7 +88,7 @@ function dprint(lvl,...)
 				msg = msg..sep..tostring(args[i])
 			end
 		end
-		AddonMessage(prefix..msg)
+		addonMessage(prefix..msg)
 	end
 	if lvlCheck ~= false and lvl <= debugLevelLog then
 		if #args == 0 then

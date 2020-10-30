@@ -354,7 +354,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 	for chan, messages in pairs(msgQueue) do
 		for _, msg in pairs(messages) do
 			if chan == "SYSTEM" then
-				AddonMessage(msg)
+				addonMessage(msg)
 			elseif chan == "WHISPER" then
 				SendChatMessage(msg, chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
