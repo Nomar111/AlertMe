@@ -1,17 +1,14 @@
+-- set addon environment to "O"
+setfenv(1, _G.AlertMe)
+
 -- upvales
 local LSMTables = {
-	sound =  _G.AlertMe.A.Sounds,
-	statusbar =  _G.AlertMe.A.Statusbars,
-	font =  _G.AlertMe.A.Fonts,
-	background =  _G.AlertMe.A.Backgrounds,
-	border =  _G.AlertMe.A.Borders
+	sound = A.Sounds,
+	statusbar = A.Statusbars,
+	font = A.Fonts,
+	background = A.Backgrounds,
+	border = A.Borders
 }
-local _G, libs, pairs = _G, _G.AlertMe.A.Libs, _G.pairs
-
-
--- set addon environment to "O"
-setfenv(1, _G.AlertMe.O)
-local unpack = _G.unpack
 
 local LSMWidgets = {
 	sound = "LSM30_Sound",
@@ -21,11 +18,33 @@ local LSMWidgets = {
 	border = "LSM30_Border"
 }
 
+O.setTooltip = function(widget, tooltip)
+	-- show
+	local wrap = tooltip.wrap or false
+	widget:SetCallback("OnEnter", function()
+		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+		if tooltip.header then
+			O.tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
+		end
+		if tooltip.lines then
+			for _, line in pairs(tooltip.lines) do
+				O.tooltip:AddLine(line, 1, .82, 0, wrap)
+			end
+		end
+		O.tooltip:Show()
+	end)
+	-- hide
+	widget:SetCallback("OnLeave", function()
+		if O.tooltip then O.tooltip:Hide() end
+	end)
+end
+
 --**********************************************************************************************************************************
--- attach AceGUI widgets
+-- O.attach AceGUI widgets
 --**********************************************************************************************************************************
-function attachButton(container, text, width, func)
-	local widget = libs.AceGUI:Create("Button")
+function O.attachButton(container, text, width, func)
+	local widget = A.Libs.AceGUI:Create("Button")
 	widget:SetText(text)
 	if width then widget:SetWidth(width) end
 	widget:SetCallback("OnClick", func)
@@ -33,8 +52,8 @@ function attachButton(container, text, width, func)
 	return widget
 end
 
-function attachCheckBox(container, label, db, key, width, func, toolTip)
-	local widget = libs.AceGUI:Create("CheckBox")
+function O.attachCheckBox(container, label, db, key, width, func, tooltip)
+	local widget = A.Libs.AceGUI:Create("CheckBox")
 	widget:SetValue(db[key])
 	widget:SetCallback("OnValueChanged", function(_, _, value)
 		db[key] = value
@@ -42,13 +61,13 @@ function attachCheckBox(container, label, db, key, width, func, toolTip)
 	end)
 	widget:SetLabel(label)
 	if width then widget:SetWidth(width) end
-	if toolTip then	SetToolTip(widget, toolTip) end
+	if tooltip then	O.setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
 
-function attachColorPicker(container, label, db, key, alpha, width, func)
-	local widget = libs.AceGUI:Create("ColorPicker")
+function O.attachColorPicker(container, label, db, key, alpha, width, func)
+	local widget = A.Libs.AceGUI:Create("ColorPicker")
 	widget:SetColor(unpack(db[key]))
 	widget:SetLabel(label)
 	widget:SetHasAlpha(alpha)
@@ -60,8 +79,8 @@ function attachColorPicker(container, label, db, key, alpha, width, func)
 	return widget
 end
 
-function attachDropdown(container, label, db, key, list, width, func, toolTip)
-	local widget = libs.AceGUI:Create("Dropdown")
+function O.attachDropdown(container, label, db, key, list, width, func, tooltip)
+	local widget = A.Libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
 	if width then widget:SetWidth(width) end
@@ -71,13 +90,13 @@ function attachDropdown(container, label, db, key, list, width, func, toolTip)
 		db[key] = value
 		if func then func() end
 	end)
-	if toolTip then	SetToolTip(widget, toolTip) end
+	if tooltip then	O.setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
 
-function attachEditBox(container, label, path, key, width, func, toolTip)
-	local widget = libs.AceGUI:Create("EditBox")
+function O.attachEditBox(container, label, path, key, width, func, tooltip)
+	local widget = A.Libs.AceGUI:Create("EditBox")
 	if label then widget:SetLabel(label) end
 	if width then
 		if width <= 1 then
@@ -91,20 +110,20 @@ function attachEditBox(container, label, path, key, width, func, toolTip)
 		path[key] = text
 		if func then func() end
 	end)
-	if toolTip then	SetToolTip(widget, toolTip) end
+	if tooltip then	O.setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
 
-function attachGroup(container, type, title, format)
+function O.attachGroup(container, type, title, format)
 	type = type or "simple"
 	local layout = (format and format.layout) and format.layout or "Flow"
 	local widget = {}
 	if type == "inline" then
-		widget = libs.AceGUI:Create("InlineGroup")
+		widget = A.Libs.AceGUI:Create("InlineGroup")
 		widget:SetTitle(title)
 	elseif type == "simple" then
-		widget = libs.AceGUI:Create("SimpleGroup")
+		widget = A.Libs.AceGUI:Create("SimpleGroup")
 	end
 	-- format
 	if format then
@@ -119,25 +138,26 @@ function attachGroup(container, type, title, format)
 		end
 	end
 	if layout ~= "none" then widget:SetLayout(layout) end
-	-- attach & return
+	-- O.attach & return
 	container:AddChild(widget)
 	return widget
 end
 
-function attachHeader(container, text)
-	local widget = libs.AceGUI:Create("Heading")
+function O.attachHeader(container, text)
+	local widget = A.Libs.AceGUI:Create("Heading")
 	widget:SetText(text)
 	widget.width = "fill"
 	container:AddChild(widget)
 	return widget
 end
 
-function attachIcon(container, image, size, onClick, toolTip, ofs_y)
+function O.attachIcon(container, image, size, onClick, tooltip, ofs_y)
+	if not image then return end
 	-- standards
 	ofs_y = ofs_y or 0
 	size = size or 16
 	-- create
-	local widget = libs.AceGUI:Create("Icon")
+	local widget = A.Libs.AceGUI:Create("Icon")
 	widget:SetImage(image)
 	widget:SetImageSize(size, size)
 	widget:SetWidth(size)
@@ -145,15 +165,15 @@ function attachIcon(container, image, size, onClick, toolTip, ofs_y)
 	widget.image:SetPoint("TOP", ofs_y, 0)
 	-- callbacks
 	if onClick then widget:SetCallback("OnClick", onClick) end
-	if toolTip then	SetToolTip(widget, toolTip) end
+	if tooltip then	O.setTooltip(widget, tooltip) end
 	-- add and return
 	container:AddChild(widget)
 	return widget
 end
 
-function attachLabel(container, text, fontObject, color, absWidth, relWidth)
+function O.attachLabel(container, text, fontObject, color, absWidth, relWidth)
 	fontObject = fontObject or GameFontHighlight
-	local widget = libs.AceGUI:Create("InteractiveLabel")
+	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
 	if absWidth then
 		widget:SetWidth(absWidth)
@@ -166,9 +186,9 @@ function attachLabel(container, text, fontObject, color, absWidth, relWidth)
 	return widget
 end
 
-function attachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
+function O.attachInteractiveLabel(container, text, fontObject, color, absWidth, relWidth, func)
 	fontObject = fontObject or GameFontHighlight
-	local widget = libs.AceGUI:Create("InteractiveLabel")
+	local widget = A.Libs.AceGUI:Create("InteractiveLabel")
 	widget:SetText(text)
 	if absWidth then
 		widget:SetWidth(absWidth)
@@ -184,8 +204,8 @@ function attachInteractiveLabel(container, text, fontObject, color, absWidth, re
 	return widget
 end
 
-function attachLSM(container, type, label, db, key, width, func)
-	local widget = libs.AceGUI:Create(LSMWidgets[type])
+function O.attachLSM(container, type, label, db, key, width, func)
+	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(LSMTables[type])
 	if label then widget:SetLabel(label) end
 	widget:SetCallback("OnValueChanged", function(_widget, _, value)
@@ -199,8 +219,8 @@ function attachLSM(container, type, label, db, key, width, func)
 	return widget
 end
 
-function attachSlider(container, label, db, key, min, max, step, isPercent, width, func, toolTip)
-	local widget = libs.AceGUI:Create("Slider")
+function O.attachSlider(container, label, db, key, min, max, step, isPercent, width, func, tooltip)
+	local widget = A.Libs.AceGUI:Create("Slider")
 	if label then widget:SetLabel(label) end
 	widget:SetSliderValues(min, max, step)
 	widget:SetIsPercent(isPercent)
@@ -210,13 +230,13 @@ function attachSlider(container, label, db, key, min, max, step, isPercent, widt
 		if func then func() end
 	end)
 	if width then widget:SetWidth(width) end
-	if toolTip then	SetToolTip(widget, toolTip) end
+	if tooltip then	O.setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
 
-function attachSpacer(container, width, height)
-	local widget = libs.AceGUI:Create("Label")
+function O.attachSpacer(container, width, height)
+	local widget = A.Libs.AceGUI:Create("Label")
 	if width then widget:SetWidth(width) end
 	if height then
 		if height == "small" then widget:SetFontObject(GameFontHighlightSmall) end
@@ -230,9 +250,9 @@ function attachSpacer(container, width, height)
 	return widget
 end
 
-function attachTabGroup(container, title, format, path, key, tabs, onSelect)
+function O.attachTabGroup(container, title, format, path, key, tabs, onSelect)
 	local layout = (format and format.layout) and format.layout or "Flow"
-	local widget = libs.AceGUI:Create("TabGroup")
+	local widget = A.Libs.AceGUI:Create("TabGroup")
 	widget:SetTitle(title)
 	-- set tabs if  provided
 	if tabs then widget:SetTabs(tabs) end
@@ -255,29 +275,7 @@ function attachTabGroup(container, title, format, path, key, tabs, onSelect)
 		end
 	end
 	if layout ~= "none" then widget:SetLayout(layout) end
-	-- attach & return
+	-- O.attach & return
 	container:AddChild(widget)
 	return widget
-end
-
-function SetToolTip(widget, toolTip)
-	-- show
-	local wrap = toolTip.wrap or false
-	widget:SetCallback("OnEnter", function()
-		ToolTip = ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-		ToolTip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
-		if toolTip.header then
-			ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
-		end
-		if toolTip.lines then
-			for _, line in pairs(toolTip.lines) do
-				ToolTip:AddLine(line, 1, .82, 0, wrap)
-			end
-		end
-		ToolTip:Show()
-	end)
-	-- hide
-	widget:SetCallback("OnLeave", function()
-		if ToolTip then ToolTip:Hide() end
-	end)
 end

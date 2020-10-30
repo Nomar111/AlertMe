@@ -7,28 +7,34 @@ setfenv(1, _G.AlertMe)
 chatFrames = {}
 
 function debug()
-	VDT_AddData(_G.AlertMe, "AlertMe")
-	VDT_AddData(A, "A")
-	VDT_AddData(O, "O")
-	VDT_AddData(P, "P")
-	VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	VDT_AddData(A.SpellOptions, "A.SpellOptions")
-	--dhook(A, "OnUnitCast")
+	-- VDT_AddData(_G.AlertMe, "AlertMe")
+	-- VDT_AddData(A, "A")
+	-- VDT_AddData(O, "O")
+	-- VDT_AddData(P, "P")
+	-- VDT_AddData(A.AlertOptions, "A.AlertOptions")
+	-- VDT_AddData(A.SpellOptions, "A.SpellOptions")
+	-- dhook(A, "FakeEvent")
 end
 
 function tcopy(t, deep, seen)
+	-- if t == nil then
+	-- 	dprint(1, "t is nil")
+	-- 	return
+	-- end
+	-- VDT_AddData(t,"t")
 	seen = seen or {}
-	if t == nil then return nil end
-	if seen[t] then return seen[t] end
 	local nt = {}
 	for k, v in pairs(t) do
+		dprint(k,v)
 		if deep and type(v) == 'table' then
 			nt[k] = tcopy(v, deep, seen)
 		else
 			nt[k] = v
 		end
 	end
-	setmetatable(nt, tcopy(getmetatable(t), deep, seen))
+	if getmetatable(t) then
+		setmetatable(nt, tcopy(getmetatable(t), deep, seen))
+	end
 	seen[t] = nt
 	return nt
 end

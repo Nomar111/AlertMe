@@ -3,6 +3,9 @@ setfenv(1, _G.AlertMe)
 
 -- set default options
 D.profile = {
+	dummy = {
+		name = ""
+	},
 	general = {
 		zones = {
 			["*"] = true,
@@ -109,7 +112,7 @@ D.profile = {
 					spellNames = {
 						['*'] = {
 							icon = "",
-							soundFile = "",
+							soundFile = "None",
 						}
 					},
 					srcUnits = 5,
@@ -124,7 +127,7 @@ D.profile = {
 					dstWhisper = 1,
 					scrollingText = true,
 					soundSelection = 3,
-					soundFile = "",
+					soundFile = "None",
 					msgOverride = "",
 				},
 			},
@@ -138,7 +141,7 @@ D.profile = {
 					spellNames = {
 						['*'] = {
 							icon = "",
-							soundFile = "",
+							soundFile = "None",
 						}
 					},
 					srcUnits = 5,
@@ -153,7 +156,7 @@ D.profile = {
 					dstWhisper = 1,
 					scrollingText = true,
 					soundSelection = 3,
-					soundFile = "",
+					soundFile = "None",
 					msgOverride = "",
 				},
 			},

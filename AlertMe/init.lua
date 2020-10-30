@@ -24,8 +24,6 @@ ADDON_VERSION = tostring(GetAddOnMetadata(name, "Version"))
 ADDON_AUTHOR = GetAddOnMetadata(name, "Author")
 PLAYER_NAME = UnitName("player")
 DEBUG_LEVEL = 1
--- VDT_AddData(Engine, "Engine")
--- VDT_AddData(A, "A")
 
 -- libraries
 A.Libs = {}

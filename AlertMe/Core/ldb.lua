@@ -22,7 +22,7 @@ function A:InitLDB()
 			if button == "LeftButton" then
 				if(IsShiftKeyDown()) then
 					P.general.enabled = not P.general.enabled
-					A.UpdateLDBTooltip()
+					A.updateLDBtooltip()
 					A.ToggleAddon()
 				else
 					O:OpenOptions()
@@ -32,42 +32,42 @@ function A:InitLDB()
 			end
 		end,
 		OnEnter = function(self)
-			O.ToolTip = O.ToolTip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-			O.ToolTip:SetOwner(self, "ANCHOR_NONE")
-			A.UpdateLDBTooltip()
-			O.ToolTip:Show()
-			O.ToolTip:SetPoint(getAnchors(self))
+			O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+			O.tooltip:SetOwner(self, "ANCHOR_NONE")
+			A.updateLDBtooltip()
+			O.tooltip:Show()
+			O.tooltip:SetPoint(getAnchors(self))
 		end,
 		OnLeave = function()
-			if O.ToolTip then O.ToolTip:Hide() end
+			if O.tooltip then O.tooltip:Hide() end
 		end,
 	})
 	A.Libs.LDBI:Register("AlertMe", A.AlertMeBroker, P.general.minimap, P.general.minimapPos);
 end
 
-function A.UpdateLDBTooltip()
+function A.updateLDBtooltip()
 	-- prepare tooltip text
-	local toolTip = {
+	local tooltip = {
 		header = "AlertMe "..ADDON_VERSION,
 		lines = {},
 		wrap = false
 	}
-	toolTip.lines[1] = "Left-Click: Show/Hide options"
-	toolTip.lines[2] = "Shift-Left-Click: Enable/Disable addon"
-	toolTip.lines[3] = "Middle-Click: Show/Hide minimap"
+	tooltip.lines[1] = "Left-Click: Show/Hide options"
+	tooltip.lines[2] = "Shift-Left-Click: Enable/Disable addon"
+	tooltip.lines[3] = "Middle-Click: Show/Hide minimap"
 	if P.general.enabled == false then
-		toolTip.lines[4] = "|cffFF0000ADDON IS DISABLED"
+		tooltip.lines[4] = "|cffFF0000ADDON IS DISABLED"
 	end
 	-- set text
-	if toolTip.header then
-		O.ToolTip:SetText(toolTip.header, 1, 1, 1, wrap)
+	if tooltip.header then
+		O.tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
 	end
-	if toolTip.lines then
-		for _, line in pairs(toolTip.lines) do
-			O.ToolTip:AddLine(line, 1, .82, 0, wrap)
+	if tooltip.lines then
+		for _, line in pairs(tooltip.lines) do
+			O.tooltip:AddLine(line, 1, .82, 0, wrap)
 		end
 	end
-	O.ToolTip:Show()
+	O.tooltip:Show()
 end
 
 function A.ToggleMinimap(toggle)

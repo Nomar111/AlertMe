@@ -52,6 +52,8 @@ end
 
 function A:FakeEvent(ti, eventInfo)
 	-- create fake args
+					-- VDT_AddData(ti,"ti")
+					-- VDT_AddData(eventInfo,"eventInfo")
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
 	local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
@@ -60,15 +62,17 @@ function A:FakeEvent(ti, eventInfo)
 	if not check then return end
 	-- check for snapshots
 	local exists
-	exists, _ti, _eventInfo = A:CheckSnapShot(ti, eventInfo)
+	exists, ti, eventInfo = A:CheckSnapShot(_ti, _eventInfo)
 	if exists then -- do whatever is defined in actions
-		A:DoActions(_ti, _eventInfo, alerts, true)
+		A:DoActions(ti, eventInfo, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
 		A:AddSnapShot(ti, eventInfo)
 	end
 end
 
 function A:CheckSnapShot(ti, eventInfo)
+
+
 	-- clear snasphot table of old entries first
 	cleanSnapshots()
 	-- if event = gain, check for success events and vice versa

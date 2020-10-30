@@ -6,7 +6,7 @@ setfenv(1, _G.AlertMe)
 local function getSomeAlert(eventShort)
 	local _uid = ""
 	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
-		if details.created then
+		if details.created == true then
 			_uid = uid
 		end
 	end
@@ -16,7 +16,7 @@ end
 local function createAlertList(eventShort)
 	local list = {}
 	for uid, details in pairs(P.alerts[eventShort].alertDetails) do
-		if details.created then
+		if details.created == true then
 			list[uid] = details.name
 		end
 	end
@@ -30,21 +30,17 @@ function O:ShowAlerts(container, eventShort)
 	-- some local variables
 	local db = P.alerts[eventShort]
 	local uid = db.selectedAlert
-	local iconAdd = A.Backgrounds["AlertMe_Add"]
-	local iconDel = A.Backgrounds["AlertMe_Delete"]
-	local btnAddToolTip = {lines = {"Add new alert"}}
-	local btnDelToolTip = {lines = {"Delete selected alert"}}
 	-- local functions
 	local function refresh()
 		O:ShowAlerts(container, eventShort)
 	end
-	local function btnAddOnClick()
+	local add = function()
 		local _uid = tostring(time()) -- create uid (time)
 		db.alertDetails[_uid].created = true -- create entry in alert details
 		db.selectedAlert = _uid
 		refresh()
 	end
-	local function btnDelOnClick()
+	local delete = function()
 		local _uid = db.selectedAlert
 		if db.alertDetails[_uid] then
 			db.alertDetails[_uid] = nil
@@ -58,30 +54,30 @@ function O:ShowAlerts(container, eventShort)
 	-- alert dropdown
 	local label = "Alerts - "..A.EventsShort[eventShort].optionsText
 	local ddAlert = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(eventShort), 230, refresh)
-	if uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
+	if uid and uid ~= "" then ddAlert:SetValue(db.selectedAlert) end
 	O.attachSpacer(topGroup, 20)
 	-- editbox for alertname
-	local editBox = O.attachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
 	if db.alertDetails[uid].created == true then
+		local editBox = O.attachEditBox(topGroup, "Name of the selected alert", db.alertDetails[uid], "name", 210, refresh)
 		editBox:SetText(db.alertDetails[uid].name)
 	else
+		local editBox = O.attachEditBox(topGroup, "Name of the selected alert", P.dummy, "name", 210, refresh)
 		editBox:SetText("")
 		editBox:SetDisabled(true)
 	end
 	O.attachSpacer(topGroup, 10)
 	-- add alert
-	O.attachIcon(topGroup, iconAdd, 18, btnAddOnClick, btnAddToolTip)
+	local texture, tooltip = A.Backgrounds["AlertMe_Add"],  { lines = {"Add new alert"} }
+	O.attachIcon(topGroup, texture, 18, add, tooltip)
 	O.attachSpacer(topGroup, 10)
 	-- delete alert
-	O.attachIcon(topGroup, iconDel, 18, btnDelOnClick, btnDelToolTip)
+	texture, tooltip = A.Backgrounds["AlertMe_Delete"],  { lines = {"Delete selected alert"} }
+	O.attachIcon(topGroup, texture, 18, delete, tooltip)
 	O.attachSpacer(topGroup, 8)
 	-- active checkbox
-	local cbActive = O.attachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 65)
 	if db.alertDetails[uid].created == true then
+		local cbActive = O.attachCheckBox(topGroup, "Active", db.alertDetails[uid] ,"active", 65)
 		cbActive:SetValue(db.alertDetails[uid].active)
-	else
-		cbActive:SetValue(nil)
-		cbActive:SetDisabled(true)
 	end
 	-- show alert details
 	if uid and uid ~= "" then

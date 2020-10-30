@@ -137,6 +137,7 @@ end
 
 function A:GetAlerts(ti, eventInfo)
 	local alerts = {}
+	VDT_AddData(eventInfo, "eventInfo")
 	local spellOptions
 	if A.SpellOptions[ti.relSpellName] and A.SpellOptions[ti.relSpellName][eventInfo.short] then
 		spellOptions = A.SpellOptions[ti.relSpellName][eventInfo.short]
