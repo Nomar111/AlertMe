@@ -130,7 +130,6 @@ function dhook(object, method, dbg, dlevel)
 	]]--
 	dlevel = dlevel or 1
 	local function hooked(...)
-		dprint(1,...)
 		if debugs then
 			local args = {...}
 			local msg, sep = method..", ", ", "

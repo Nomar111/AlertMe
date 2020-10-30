@@ -16,15 +16,15 @@ end
 -- init function
 function A:Initialize()
 	-- init examples profile
-	A:InitExamples()
+	A:initExamples()
 	-- init LSM
 	A:InitLSM()
 	-- init chat frames
 	initChatFrames()
 	-- init scrolling text frame
-	A:UpdateScrolling()
+	A:updateScrolling()
 	-- init options
-	A:InitSpellOptions()
+	A:initSpellOptions()
 	-- init LCD
 	A:InitLCD()
 	-- init LDB
@@ -358,7 +358,7 @@ function A:ChatAnnounce(ti, alerts, eventInfo)
 			elseif chan == "WHISPER" then
 				SendChatMessage(msg, chan, nil, ti.dstName)
 			elseif chan == "SCROLLING" then
-				A:PostInScrolling(msg, ti.icon)
+				A:postInScrolling(msg, ti.icon)
 			else
 				SendChatMessage(msg, chan, nil, nil)
 			end
@@ -409,7 +409,7 @@ end
 --**********************************************************************************************************************************
 --Inits
 --**********************************************************************************************************************************
-function A:InitSpellOptions()
+function A.initSpellOptions()
 	A.AlertOptions = {}
 	A.SpellOptions = {}
 	-- loop through events/alerts
@@ -442,15 +442,15 @@ end
 --**********************************************************************************************************************************
 -- Register events
 --**********************************************************************************************************************************
-function A.RegisterCLEU(event)
+function A.registerCLEU(event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
 	if (instanceType == "party" or instanceType == "raid") and P.general.zones.instance then
-		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "ParseCombatLog")
 	elseif (instanceType == "pvp" or instanceType == "arena") and P.general.zones.bg then
-		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "ParseCombatLog")
 	elseif instanceType == "none" and P.general.zones.world then
-		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", A.ParseCombatLog)
+		A:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "ParseCombatLog")
 	else
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		A:HideAllGUIs()
@@ -462,8 +462,8 @@ function A.ToggleAddon()
 	A:InitLCC()
 	-- (un)register events
 	if P.general.enabled == true then
-		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
-		A.RegisterCLEU("Toggle")
+		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.registerCLEU)
+		A.registerCLEU("Toggle")
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

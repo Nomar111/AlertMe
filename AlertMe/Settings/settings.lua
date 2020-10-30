@@ -166,7 +166,7 @@ A.Colors = {
 	}
 }
 
-function A:InitExamples()
+function A:initExamples()
 	A.db.profiles.Examples = {
 		["alerts"] = {
 			["gain"] = {

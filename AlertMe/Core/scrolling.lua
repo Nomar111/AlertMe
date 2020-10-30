@@ -1,7 +1,7 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function A:UpdateScrolling()
+function A:updateScrolling()
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- init frame if it doesnt exist
@@ -51,37 +51,37 @@ function A:UpdateScrolling()
 	f:RefreshLayout()
 	f:RefreshDisplay()
 	-- set position according to db
-	A:SetScrollingPosition(false)
-	A:ToggleScrollingInteractive()
+	A:setScrollingPos(false)
+	A:toggleScrollingLocked()
 end
 
-function A:ToggleScrollingInteractive()
+function A:toggleScrollingLocked()
 	A.ScrollingText:EnableMouse(P.scrolling.interactive)
 end
 
-function A:ShowScrolling()
+function A.showScrolling()
 	if not P.scrolling.enabled then return end
 	-- if not yet initialized, do so
 	if not A.ScrollingText then
-		A:UpdateScrolling()
+		A:updateScrolling()
 	end
 	A.ScrollingText:Show()
 end
 
-function A:HideScrolling()
+function A:hideScrolling()
 	if A.ScrollingText then
 		A.ScrollingText:Hide()
 	end
 end
 
-function A:SetScrollingPosition(reset)
+function A:setScrollingPos(reset)
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- abort if not exists
 	if not A.ScrollingText then return end
 	-- reset position?
 	if reset then
-		local def = A.D.profile.scrolling
+		local def = D.profile.scrolling
 		db.point = def.point
 		db.ofs_x = def.ofs_x
 		db.ofs_y = def.ofs_y
@@ -90,9 +90,9 @@ function A:SetScrollingPosition(reset)
 	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:PostInScrolling(msg)
+function A:postInScrolling(msg)
 	if P.scrolling.enabled then
-		A:ShowScrolling()
+		A:showScrolling()
 		A.ScrollingText:AddMessage(msg)
 	end
 end

@@ -15,7 +15,7 @@ function O:OpenOptions()
 	end
 	-- close
 	local function close()
-		A:InitSpellOptions()
+		A:initSpellOptions()
 		A.Libs.AceGUI:Release(O.OptionsFrame)
 		O.OptionsFrame = nil
 		A:HideAllGUIs()
@@ -86,7 +86,7 @@ function O:ShowOptions(container, uniqueValue)
 	P.options.lastMenu = uniqueValue
 	local lvl1, lvl2 = strsplit("\001", uniqueValue)
 	if lvl1 == "general" then O:ShowGeneral(container)
-	elseif lvl1 == "scrolling" then O:ShowScrollingText(container)
+	elseif lvl1 == "scrolling" then O:showScrollingText(container)
 	elseif lvl1 == "bars" then O:ShowBars(container)
 	elseif lvl1 == "messages" then O:ShowMessages(container)
 	elseif lvl1 == "glow" then O:ShowGlow(container)
