@@ -1,6 +1,96 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
+events = {}
+events.SPELL_AURA_APPLIED = {
+	handle = "gain",
+	type = "auras",
+	extraArgs = { "auraType" },
+	checkedSpell = "spellName",
+	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
+}
+events.SPELL_AURA_REFRESH = events.SPELL_AURA_APPLIED		-- handled completely the same as apply
+events.SPELL_AURA_REMOVED = {
+	handle = "removed",
+	optArgs = { "auraType" },
+	checkedSpell = "spellName",
+	-- speecial events doesn't need most of the options, as the normal way of processing is being completely bypasse
+}
+events.SPELL_AURA_BROKEN =  events.SPELL_AURA_REMOVED		-- handled the same as removed
+events.SPELL_AURA_BROKEN_SPELL = events.SPELL_AURA_REMOVED
+events.SPELL_DISPEL = {
+	handle = "dispel",
+	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool", "auraType" },
+	checkedSpell = "extraSpellName",
+	actions = { "chatAnnounce", "hideGUI", "playSound" },
+}
+events.SPELL_CAST_START = {
+	handle = "start",
+	checkedSpell = "spellName",
+	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
+}
+events.SPELL_CAST_SUCCESS = {
+	handle = "success",
+	checkedSpell = "spellName",
+	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
+}
+events.SPELL_INTERRUPT = {
+	handle = "interrupt",
+	extraArgs = { "extraSpellId","extraSpellName","extraSchool" },
+	checkedSpell = "spellName",
+	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
+}
+-- the settings per options category. match to events by handle
+menu = {}
+menu.gain = {
+	type = "aura",
+	text = "On aura gain/refresh",
+	order = 1,
+	spellSelection = true,
+	unitSelection =	{ "src", "dst" },
+	displayOptions = { glow = true, bar = true },
+	dstWhisper = true,
+}
+menu.dispel = {
+	type = "aura",
+	text = "On aura/spell dispel",
+	order = 2,
+	spellSelection = true,
+	unitSelection =	{ "src","dst" },
+	dstWhisper = true,
+}
+menu.start = {
+	type = "spell",
+	text = "On cast start",
+	order = 3,
+	spellSelection = true,
+	unitSelection =	{ "src" },
+	displayOptions = { bar = true },
+}
+menu.success = {
+	type = "success",
+	text = "On cast success",
+	order = 4,
+	spellSelection = true,
+	unitSelection =	{ "src", "dst" },
+	dstWhisper = true,
+}
+menu.interrupt = {
+	type = "success",
+	text = "On cast success",
+	order = 4,
+	spellSelection = true,
+	unitSelection =	{ "src", "dst" },
+	dstWhisper = true,
+}
+menu.interrupt = {
+	type = "spell",
+	text = "On interrupt",
+	order = 5,
+	spellSelection = false,
+	unitSelection =	{ "src", "dst" },
+}
+
 -- central table with event options
 A.Events = {
 	["SPELL_AURA_APPLIED"] = {

@@ -59,7 +59,7 @@ function A:parseCombatLog(eventName)
 	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
 		ti.dstGUID, ti.dstName, ti.dstFlags = ti.srcGUID, ti.srcName, ti.srcFlags
 	elseif ti.event == "SPELL_INTERRUPT" then
-		ti.lockout = A.Lockouts[ti.spellName] or ""
+		ti.lockout = A.lockouts[ti.spellName] or ""
 	end
 	-- set evenInfo (either from master event or from self)
 	local masterEvent = A.Events[ti.event].masterEvent
