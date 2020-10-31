@@ -272,7 +272,7 @@ function lib.GetUnitNameplate(unit)
           return nameplate.kui.HealthBar
         elseif nameplate.extended then
           -- tidyplates
-          --nameplate.extended.visual.healthbar:SetHeight(tidyplatesHeight)
+          --nameplate.extended.visual.healthbar:SetHeight(cleudyplatesHeight)
           return nameplate.extended.visual.healthbar
         elseif nameplate.TPFrame then
           -- tidyplates: threat plates

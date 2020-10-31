@@ -8,9 +8,9 @@ local PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bitband = Play
 setfenv(1, _G.AlertMe)
 
 -- local functions
-local function hideGUI(ti, eventInfo)
-	A:hideAuraBars(ti, eventInfo)
-	A:hideGlow(ti, eventInfo)
+local function hideGUI(cleu, evi)
+	A:hideAuraBars(cleu, evi)
+	A:hideGlow(cleu, evi)
 end
 
 -- init function
@@ -41,7 +41,7 @@ end
 
 function A:parseCombatLog(eventName)
 	local arg = { CombatLogGetCurrentEventInfo() }
-	local ti = {
+	local cleu = {
 		ts = arg[1],
 		event = arg[2],
 		srcGUID = arg[4],
@@ -54,78 +54,79 @@ function A:parseCombatLog(eventName)
 		spellSchool = arg[14]
 	}
 	-- check if trigger event exists in events table, if not abort
-	if not A.Events[ti.event] then return end
+	if not events[cleu.event] then return end
 	-- spell cast success sometimes has no destination data - take source data then
-	if ti.event == "SPELL_CAST_SUCCESS" and ti.dstGUID == "" then
-		ti.dstGUID, ti.dstName, ti.dstFlags = ti.srcGUID, ti.srcName, ti.srcFlags
-	elseif ti.event == "SPELL_INTERRUPT" then
-		ti.lockout = A.lockouts[ti.spellName] or ""
+	if cleu.event == "SPELL_CAST_SUCCESS" and cleu.dstGUID == "" then
+		cleu.dstGUID, cleu.dstName, cleu.dstFlags = cleu.srcGUID, cleu.srcName, cleu.srcFlags
+	elseif cleu.event == "SPELL_INTERRUPT" then
+		cleu.lockout = A.lockouts[cleu.spellName] or ""
 	end
-	-- set evenInfo (either from master event or from self)
-	local masterEvent = A.Events[ti.event].masterEvent
-	local eventInfo = A.Events[masterEvent] or A.Events[ti.event]
+	-- get relevant event/menu infos and merge them into evi (evi)
+	local evi = events[cleu.event]
 	-- get optional arguments if there are any
-	if eventInfo.optionalArgs then
-		for i,v in pairs(eventInfo.optionalArgs) do
-			ti[v] = arg[i+14]
+	if evi.extraArgs then
+		for i, extra in pairs(evi.extraArgs) do
+			cleu[extra] = arg[i+14]
 		end
 	end
 	-- set relevant spell name
-	ti.relSpellName = ti[eventInfo.relSpellName]
-	-- call processTriggerInfo
-	A:processTriggerInfo(ti, eventInfo)
+	cleu.checkedSpell = cleu[evi.checkedSpell]
+	vdt:data(cleu, "cleu")
+	vdt:data(evi, "evi")
+	-- call processCLEU
+	A:processCLEU(cleu, evi)
 end
 
-function A:processTriggerInfo(ti, eventInfo)
-	if eventInfo.short == "removed" then
+function A:processCLEU(cleu, evi)
+	if evi.handle == "removed" then
 		-- remove gui elements if needed
-		hideGUI(ti, eventInfo)
+		hideGUI(cleu, evi)
 		return
-	elseif eventInfo.short == "success" then
+	elseif evi.handle == "success" then
 		-- if spell cast success fake an applay event
-		A:fakeEvent(ti, eventInfo)
+		A:fakeEvent(cleu, evi)
 	end
 	-- do some checks
-	local check, alerts = A:doChecks(ti, eventInfo)
+	local check, alerts = A:doChecks(cleu, evi)
 	if not check then return end
 	-- auras need a special treatment
-	if eventInfo.short == "gain" then
-		local name, _, _, _, duration, _, _, _, _, _, remaining = A:getUnitAura(ti, eventInfo)
+	if evi.handle == "gain" then
+		local name, _, _, _, duration, _, _, _, _, _, remaining = A:getUnitAura(cleu, evi)
 		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
 			-- rermaining nil?
-			A:doActions(ti, eventInfo, alerts, false)
+			A:doActions(cleu, evi, alerts, false)
 		elseif not name then
-			if A:checkSnapShot(ti, eventInfo) then -- no direct aura info, check for recent spell cast success events
-				A:doActions(ti, eventInfo, alerts, true)
+			if A:checkSnapShot(cleu, evi) then -- no direct aura info, check for recent spell cast success events
+				A:doActions(cleu, evi, alerts, true)
 			else
-				A:addSnapShot(ti, eventInfo) -- add a snapshot
+				A:addSnapShot(cleu, evi) -- add a snapshot
 			end
 		end
 	else -- success, interrupt, dispel
-		A:doActions(ti, eventInfo, alerts, false)
+		A:doActions(cleu, evi, alerts, false)
 	end
 end
 
-function A:doActions(ti, eventInfo, alerts, ...)
-	if eventInfo.actions then
-		for _, action in pairs(eventInfo.actions) do
-			A[action](A, ti, alerts, eventInfo, ...)
+function A:doActions(cleu, evi, alerts, ...)
+	if evi.actions then
+		for _, action in pairs(evi.actions) do
+			A[action](A, cleu, evi, alerts, ...)
 		end
 	end
 end
 
 --**********************************************************************************************************************************
 --Checks
-function A:doChecks(ti, eventInfo)
+function A:doChecks(cleu, evi)
 	-- local function to get all the valid alerts for that event
-	local function getAlerts(ti, eventInfo)
+	local function getAlerts(cleu, evi)
 		local alerts, spellOptions =  {}
-		if A.spellOptions[ti.relSpellName] and A.spellOptions[ti.relSpellName][eventInfo.short] then
-			spellOptions = A.spellOptions[ti.relSpellName][eventInfo.short]
+		if A.spellOptions[cleu.checkedSpell] and A.spellOptions[cleu.checkedSpell][evi.handle] then
+			spellOptions = A.spellOptions[cleu.checkedSpell][evi.handle]
 		end
 		-- various checks
-		if eventInfo.spellSelection == false then -- spell selection disabled for this event (interrupt for example), return all alerts from this event
-			for uid, tbl in pairs(A.alertOptions[eventInfo.short]) do
+		if evi.spellSelection == false then -- spell selection disabled for this event (interrupt for example), return all alerts from this event
+			for uid, tbl in pairs(A.alertOptions[evi.handle]) do
 				tinsert(alerts, tbl)
 			end
 		elseif spellOptions then -- check for spell in alerts, check spell/event combo
@@ -143,20 +144,20 @@ function A:doChecks(ti, eventInfo)
 
 	local alerts, _alerts, errors
 	-- check for relevant alerts for spell/event
-	alerts = getAlerts(ti, eventInfo)
+	alerts = getAlerts(cleu, evi)
 	if not alerts then return false end
 	-- check units
-	_alerts, errors = A:checkUnits(ti, eventInfo, alerts)
+	_alerts, errors = A:checkUnits(cleu, evi, alerts)
 	if not _alerts then
-		return false --dprint(3, "unit check failed", ti.relSpellName, unpack(errors))
+		return false --dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
 	else
 		return true, _alerts
 	end
 end
 
-function A:checkUnits(ti, eventInfo, alerts)
+function A:checkUnits(cleu, evi, alerts)
 	-- if no unit selection for this event return
-	if eventInfo.unitSelection == false then return alerts end
+	if not evi.unitSelection then return alerts end
 	-- set some local variables
 	local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
 	-- create return table
@@ -166,9 +167,9 @@ function A:checkUnits(ti, eventInfo, alerts)
 		-- variable to hold the check result for this og
 		local checkFailed = false
 		-- do the relevant checks (src, dst)
-		for _, pre in pairs (eventInfo.units) do
+		for _, pre in pairs (evi.unitSelection) do
 			-- set local variables
-			local name, GUID, flags = ti[pre.."Name"], ti[pre.."GUID"], ti[pre.."Flags"]
+			local name, GUID, flags = cleu[pre.."Name"], cleu[pre.."GUID"], cleu[pre.."Flags"]
 			local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
 			local playerControlled = (bitband(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
 			local isFriendly = (bitband(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
@@ -176,11 +177,11 @@ function A:checkUnits(ti, eventInfo, alerts)
 			local isPlayer = (GUID == playerGUID)
 			local isTarget = (GUID == targetGUID)
 			-- write some useful info into ti for later use
-			ti[pre.."IsTarget"], ti[pre.."IsPlayer"], ti[pre.."IsFriendly"], ti[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
+			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"], cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
 			local targetName = UnitName("target")
-			if targetName then ti.targetName = getShortName(targetName) end
+			if targetName then cleu.targetName = getShortName(targetName) end
 			local mouseoverName = UnitName("mouseover")
-			if mouseoverName then ti.mouseoverName = getShortName(mouseoverName) end
+			if mouseoverName then cleu.mouseoverName = getShortName(mouseoverName) end
 			-- player controlled check
 			if not playerControlled and units ~= 6 then
 				tinsert(errors, pre..", ".."unit not player controlled")
@@ -234,26 +235,19 @@ end
 
 --**********************************************************************************************************************************
 -- actions
-local function createMessage(ti, eventInfo, alert, colored, showIcon)
+local function createMessage(cleu, evi, alert, colored, showIcon)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
-	local srcName = (ti.srcName) and getShortName(ti.srcName) or ""
-	local dstName = (ti.dstName) and getShortName(ti.dstName) or ""
-	local spellName = (ti.spellName) and ti.spellName or ""
-	local extraSpellName = (ti.extraSpellName) and ti.extraSpellName or ""
-	local extraSchool = (ti.extraSchool) and GetSchoolString(ti.extraSchool) or ""
-	local lockout = (ti.lockout) and ti.lockout or ""
-	local targetName = (ti.targetName) and ti.targetName or ""
-	local mouseoverName = (ti.mouseoverName) and ti.mouseoverName or ""
+	local srcName = (cleu.srcName) and getShortName(cleu.srcName) or ""
+	local dstName = (cleu.dstName) and getShortName(cleu.dstName) or ""
+	local spellName = (cleu.spellName) and cleu.spellName or ""
+	local extraSpellName = (cleu.extraSpellName) and cleu.extraSpellName or ""
+	local extraSchool = (cleu.extraSchool) and GetSchoolString(cleu.extraSchool) or ""
+	local lockout = (cleu.lockout) and cleu.lockout or ""
+	local targetName = (cleu.targetName) and cleu.targetName or ""
+	local mouseoverName = (cleu.mouseoverName) and cleu.mouseoverName or ""
 	local icon
-	-- get message from options
-	if type(eventInfo) ~= "table" then
-		dprint(1, "no eventInfo!", ti, eventInfo, alert, colored, showIcon)
-		vdt.data(ti,"ti")
-		vdt.data(eventInfo,"eventInfo")
-		vdt.data(alert,"alert")
-	end
-	local msg = P.messages[eventInfo.short]
+	local msg = P.messages[evi.handle]
 	-- override?
 	if alert.msgOverride and alert.msgOverride ~= "" then
 		msg = alert.msgOverride
@@ -268,7 +262,7 @@ local function createMessage(ti, eventInfo, alert, colored, showIcon)
 	msg = gsub(msg, "%%targetName", targetName)
 	msg = gsub(msg, "%%mouseoverName", mouseoverName)
 	-- get reaction color
-	local color = A:getReactionColor(ti)
+	local color = A:getReactionColor(cleu)
 	-- return
 	if not colored then
 		return prefix..msg..postfix
@@ -276,10 +270,10 @@ local function createMessage(ti, eventInfo, alert, colored, showIcon)
 		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
 	elseif colored and showIcon then
 		-- get icon
-		if A.spellOptions[ti.relSpellName] then
-			icon = A.spellOptions[ti.relSpellName].icon
+		if A.spellOptions[cleu.checkedSpell] then
+			icon = A.spellOptions[cleu.checkedSpell].icon
 		else
-			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
+			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
 			_, _, icon = GetSpellInfo(spellId)
 		end
 		if icon then
@@ -304,7 +298,7 @@ local function getChannel()
 	end
 end
 
-function A:chatAnnounce(ti, alerts, eventInfo)
+function A:chatAnnounce(cleu, evi, alerts, ...)
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
 	local channel = getChannel()
@@ -312,9 +306,9 @@ function A:chatAnnounce(ti, alerts, eventInfo)
 	local msgQueue = {}
 	-- loop through option groups
 	for _, alert in pairs(alerts) do
-		local msg = createMessage(ti, eventInfo, alert, false, false)
-		local msgSystem = createMessage(ti, eventInfo, alert, true, false)
-		local msgScrolling = (P.scrolling.showIcon) and createMessage(ti, eventInfo, alert, true, true) or  msgSystem -- show spell icon in scrolling text frame?
+		local msg = createMessage(cleu, evi, alert, false, false)
+		local msgSystem = createMessage(cleu, evi, alert, true, false)
+		local msgScrolling = (P.scrolling.showIcon) and createMessage(cleu, evi, alert, true, true) or  msgSystem -- show spell icon in scrolling text frame?
 		-- bg/raid/party
 		if alert.chatChannels == 2 and channel and P.messages.chatEnabled then
 			if msgQueue[channel] == nil then msgQueue[channel] = {} end
@@ -336,8 +330,8 @@ function A:chatAnnounce(ti, alerts, eventInfo)
 			msgQueue["SYSTEM"][msg] = msgSystem
 		end
 		-- whisper destination unit
-		if eventInfo.dstWhisper == true and ti.dstIsFriendly and not ti.dstIsPlayer then
-			if (alert.dstWhisper == 2 and ti.srcIsPlayer) or alert.dstWhisper == 3 then
+		if evi.dstWhisper == true and cleu.dstIsFriendly and not cleu.dstIsPlayer then
+			if (alert.dstWhisper == 2 and cleu.srcIsPlayer) or alert.dstWhisper == 3 then
 				if P.messages.chatEnabled then
 					if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
 					msgQueue["WHISPER"][msg] = msg
@@ -356,9 +350,9 @@ function A:chatAnnounce(ti, alerts, eventInfo)
 			if chan == "SYSTEM" then
 				addonMessage(msg)
 			elseif chan == "WHISPER" then
-				SendChatMessage(msg, chan, nil, ti.dstName)
+				SendChatMessage(msg, chan, nil, cleu.dstName)
 			elseif chan == "SCROLLING" then
-				A:postInScrolling(msg, ti.icon)
+				A:postInScrolling(msg, cleu.icon)
 			else
 				SendChatMessage(msg, chan, nil, nil) 		-- say/raid/party/bg
 			end
@@ -366,7 +360,7 @@ function A:chatAnnounce(ti, alerts, eventInfo)
 	end
 end
 
-function A:playSound(ti, alerts, eventInfo)
+function A:playSound(cleu, evi, alerts, ...)
 	local soundQueue = {}
 	local delay = 1.3
 	-- play the sound queue
@@ -394,7 +388,7 @@ function A:playSound(ti, alerts, eventInfo)
 		elseif alert.soundSelection == 2 then					-- [2] = "Play one sound alert for all spells"
 			sound = alert.soundFile
 		elseif alert.soundSelection == 3 then					-- [3] = "Play individual sound alerts per spell"
-			sound = alert.spellNames[ti.spellName].soundFile
+			sound = alert.spellNames[cleu.spellName].soundFile
 		end
 		-- add to soundqueue
 		if not sound or sound == "None" or sound == "" then
@@ -475,23 +469,23 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-function A:getReactionColor(ti, rgb)
+function A:getReactionColor(cleu, rgb)
 	local color = "white"
 	-- check events
-	if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
-		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+	if cleu.event == "SPELL_AURA_APPLIED" or cleu.event == "SPELL_AURA_REFRESH" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
 			color = "green"
 		else
 			color = "red"
 		end
-	elseif ti.event == "SPELL_DISPEL" then
-		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
+	elseif cleu.event == "SPELL_DISPEL" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
 			color = "red"
 		else
 			color = "green"
 		end
-	elseif ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
-		if ti.srcIsFriendly then
+	elseif cleu.event == "SPELL_CAST_START" or cleu.event == "SPELL_CAST_SUCCESS" or cleu.event == "SPELL_INTERRUPT" then
+		if cleu.srcIsFriendly then
 			color =  "green"
 		else
 			color = "red"

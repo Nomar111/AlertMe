@@ -25,7 +25,7 @@ local methods = {
 	-- ["OnRelease"] = nil,
 
 	["SetTitle"] = function(self,title)
-		self.titletext:SetText(title)
+		self.titletext:SetText(cleutle)
 	end,
 
 

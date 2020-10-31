@@ -121,7 +121,7 @@ function O.attachGroup(container, type, title, format)
 	local widget = {}
 	if type == "inline" then
 		widget = A.Libs.AceGUI:Create("InlineGroup")
-		widget:SetTitle(title)
+		widget:SetTitle(cleutle)
 	elseif type == "simple" then
 		widget = A.Libs.AceGUI:Create("SimpleGroup")
 	end
@@ -253,7 +253,7 @@ end
 function O.attachTabGroup(container, title, format, path, key, tabs, onSelect)
 	local layout = (format and format.layout) and format.layout or "Flow"
 	local widget = A.Libs.AceGUI:Create("TabGroup")
-	widget:SetTitle(title)
+	widget:SetTitle(cleutle)
 	-- set tabs if  provided
 	if tabs then widget:SetTabs(tabs) end
 	-- set current tab and callbacks

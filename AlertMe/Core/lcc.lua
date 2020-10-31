@@ -55,12 +55,12 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 			srcName = unitName,
 			srcFlags = unitFlags,
 			spellName = spellName,
-			relSpellName = relSpellName,
+			checkedSpell = checkedSpell,
 		}
-		local eventInfo = A.Events["SPELL_CAST_START"]
+		local evi = events["SPELL_CAST_START"]
 		-- check units
-		local _alerts, errors = A:checkUnits(ti, eventInfo, alerts)
-		if not _alerts then	return end				--dprint(3, "unit check failed", ti.relSpellName, unpack(errors))
+		local _alerts, errors = A:checkUnits(cleu, evi, alerts)
+		if not _alerts then	return end				--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
 		-- calculate remaining duration & show cast bar
 		local remaining = (endTime - (GetTime() * 1000))/1000
 		A:showBar(barType, unitGUID, unitName, icon, remaining, true)

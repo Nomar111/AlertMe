@@ -58,8 +58,8 @@ local function spellSelection(container, handle, uid)
 	local spellGroup = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "Flow"})
 	-- spell edit box
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
-	local text = menus[handle].text or ""
-	editBox:SetLabel("Add "..text.." to be tracked")
+	local text = menus[handle].type or ""
+	editBox:SetLabel("Add "..text)
 	editBox:SetWidth(232)
 	editBox:SetCallback("OnEnterPressed", function(widget, event, input)
 		for i,v in pairs(editBox.predictFrame.buttons) do
@@ -109,17 +109,17 @@ local function unitSelection(container, handle, uid)
 end
 
 local function displaySettings(container, handle, uid)
-	if not menus[handle].displaySettings then return end
+	if not menus[handle].displayOptions then return end
 	local db = P.alerts[handle].alertDetails[uid]
 	-- display settings
 	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	O.attachHeader(displayGroup, "Display settings")
-	if menus[handle].displaySettings.bar then
-		local text = menus[handle].type or ""
-		local label = "Show "..text.."bars"
+	if menus[handle].displayOptions and menus[handle].displayOptions.bar then
+		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
+		local label = "Show "..barTypeText
 		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end
-	if menu[handle].displaySettings.glow then
+	if menus[handle].displayOptions and menus[handle].displayOptions.glow then
 		O.attachSpacer(displayGroup, 9)
 		local glowList = {[-1]="No glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
 		tooltip = {

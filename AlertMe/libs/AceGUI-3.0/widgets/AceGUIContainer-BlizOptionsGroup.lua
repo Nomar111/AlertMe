@@ -89,7 +89,7 @@ local methods = {
 			self.label:SetText("")
 		else
 			content:SetPoint("TOPLEFT", 10, -40)
-			self.label:SetText(title)
+			self.label:SetText(cleutle)
 		end
 		content:SetPoint("BOTTOMRIGHT", -10, 10)
 	end

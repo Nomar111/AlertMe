@@ -1,10 +1,11 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
+-- create events and menus tables and merge them
 events = {}
 events.SPELL_AURA_APPLIED = {
 	handle = "gain",
-	type = "auras",
+	barType = "auras",
 	extraArgs = { "auraType" },
 	checkedSpell = "spellName",
 	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
@@ -12,6 +13,7 @@ events.SPELL_AURA_APPLIED = {
 events.SPELL_AURA_REFRESH = events.SPELL_AURA_APPLIED		-- handled completely the same as apply
 events.SPELL_AURA_REMOVED = {
 	handle = "removed",
+	barType = "auras",
 	optArgs = { "auraType" },
 	checkedSpell = "spellName",
 	-- speecial events doesn't need most of the options, as the normal way of processing is being completely bypasse
@@ -20,22 +22,26 @@ events.SPELL_AURA_BROKEN =  events.SPELL_AURA_REMOVED		-- handled the same as re
 events.SPELL_AURA_BROKEN_SPELL = events.SPELL_AURA_REMOVED
 events.SPELL_DISPEL = {
 	handle = "dispel",
+	barType = "auras",
 	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool", "auraType" },
 	checkedSpell = "extraSpellName",
 	actions = { "chatAnnounce", "hideGUI", "playSound" },
 }
 events.SPELL_CAST_START = {
 	handle = "start",
+	barType = "spells",
 	checkedSpell = "spellName",
 	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
 }
 events.SPELL_CAST_SUCCESS = {
 	handle = "success",
+	barType = "spells",
 	checkedSpell = "spellName",
 	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
 }
 events.SPELL_INTERRUPT = {
 	handle = "interrupt",
+	barType = "spells",
 	extraArgs = { "extraSpellId","extraSpellName","extraSchool" },
 	checkedSpell = "spellName",
 	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
@@ -53,7 +59,7 @@ menus.gain = {
 }
 menus.dispel = {
 	type = "aura",
-	text = "On aura/spell dispel",
+	text = "On dispel",
 	order = 2,
 	spellSelection = true,
 	unitSelection =	{ "src","dst" },
@@ -68,7 +74,7 @@ menus.start = {
 	displayOptions = { bar = true },
 }
 menus.success = {
-	type = "success",
+	type = "spell",
 	text = "On cast success",
 	order = 4,
 	spellSelection = true,
@@ -76,7 +82,7 @@ menus.success = {
 	dstWhisper = true,
 }
 menus.interrupt = {
-	type = "success",
+	type = "spell",
 	text = "On cast success",
 	order = 4,
 	spellSelection = true,
@@ -90,132 +96,143 @@ menus.interrupt = {
 	spellSelection = false,
 	unitSelection =	{ "src", "dst" },
 }
-
--- central table with event options
-A.Events = {
-	["SPELL_AURA_APPLIED"] = {
-		short = "gain",
-		optionsDisplay = true,
-		optionsText = "On aura gain or refresh",
-		optionsOrder = 1,
-		type = "aura",
-		spellSelection = true,
-		unitSelection = true,
-		displaySettings = {enabled = true, bar = true, glow = true, barType = "auras", barTypeText = "aura bars"},
-		dstWhisper = true,
-		optionalArgs = {"auraType"},
-		relSpellName = "spellName",
-		units = {"src","dst"},
-		actions = {"chatAnnounce", "displayAuraBars", "displayGlows", "playSound"},
-	},
-	["SPELL_AURA_REFRESH"] = {
-		short = "refresh",
-		masterEvent = "SPELL_AURA_APPLIED",
-		optionsDisplay = false,
-	},
-	["SPELL_AURA_REMOVED"] = {
-		short = "removed",
-		optionsDisplay = false,
-		optionalArgs = {"auraType"},
-		relSpellName = "spellName",
-		units = {},
-		spellSelection = false,
-		unitSelection == false,
-		displaySettings = {barType = "auras", barTypeText = "aura bars"},
-		--actions = {"hideGUI"},
-	},
-	["SPELL_AURA_BROKEN"] = {
-		short = "broken",
-		masterEvent = "SPELL_AURA_REMOVED",
-		optionsDisplay = false,
-	},
-	["SPELL_AURA_BROKEN_SPELL"] = {
-		short = "broken_spell",
-		masterEvent = "SPELL_AURA_REMOVED",
-		optionsDisplay = false,
-	},
-	["SPELL_DISPEL"] = {
-		short = "dispel",
-		optionsDisplay = true,
-		optionsText = "On dispel",
-		optionsOrder = 2,
-		type = "spell",
-		spellSelection = true,
-		unitSelection = true,
-		displaySettings = {barType = "auras", barTypeText = "aura bars"},
-		dstWhisper = false,
-		optionalArgs = {"extraSpellId","extraSpellName","extraSchool","auraType"},
-		relSpellName = "extraSpellName",
-		units = {"src","dst"},
-		actions = {"chatAnnounce", "hideGUI", "playSound"},
-	},
-	["SPELL_CAST_START"] = {
-		short = "start",
-		optionsDisplay = true,
-		optionsText = "On cast start",
-		optionsOrder = 3,
-		type = "spell",
-		spellSelection = true,
-		unitSelection = true,
-		displaySettings = {enabled = true, bar = true, glow = false, barType = "spells", barTypeText = "cast bars"},
-		dstWhisper = false,
-		relSpellName = "spellName",
-		units = {"src"},
-		actions = {"chatAnnounce", "playSound"},
-	},
-	["SPELL_CAST_SUCCESS"] = {
-		short = "success",
-		optionsDisplay = true,
-		optionsText = "On cast success",
-		optionsOrder = 4,
-		type = "spell",
-		spellSelection = true,
-		unitSelection = true,
-		displaySettings = {enabled = false},
-		dstWhisper = true,
-		relSpellName = "spellName",
-		units = {"src","dst"},
-		actions = {"chatAnnounce", "playSound"},
-
-	},
-	["SPELL_INTERRUPT"] = {
-		short = "interrupt",
-		optionsDisplay = true,
-		optionsText = "On interrupt",
-		optionsOrder = 5,
-		type = "spell",
-		spellSelection = false,
-		unitSelection = true,
-		displaySettings = {enabled = false},
-		dstWhisper = false,
-		optionalArgs = {"extraSpellId","extraSpellName","extraSchool"},
-		relSpellName = "spellName",
-		units = {"src","dst"},
-		actions = {"chatAnnounce", "playSound"},
-		--msg = P.events.msgInterrupt,
-		--actions = {A:GetLockout(), A:chatAnnounce(), A:playSound()},
-	},
-}
-
-A.EventsShort = {}
-for event, tbl in pairs(A.Events) do
-	A.EventsShort[tbl.short] = {
-		event = event,
-		masterEvent = tbl.masterEvent,
-		optionsDisplay = tbl.optionsDisplay,
-		optionsText = tbl.optionsText,
-		optionsOrder = tbl.optionsOrder,
-		type = tbl.type,
-		spellSelection = tbl.spellSelection,
-		unitSelection = tbl.unitSelection,
-		displaySettings = tbl.displaySettings,
-		dstWhisper = tbl.dstWhisper,
-		optionalArgs = tbl.optionalArgs,
-		relSpellName = tbl.relSpellName,
-		units = tbl.units,
-		actions = tbl.actions,
-	}
+-- merge event and menu settings into events  to have an easier time afterwards
+for _, event in pairs(events) do
+	local menu = menus[event.handle]
+	if menu and type(menu) == "table" then
+		for i, setting in pairs(menu) do
+			if not event[i] then				-- don't overwrite existing settings if in conflict
+				event[i] = setting
+			end
+		end
+	end
 end
+--
+-- -- central table with event options
+-- A.Events = {
+-- 	["SPELL_AURA_APPLIED"] = {
+-- 		short = "gain",
+-- 		optionsDisplay = true,
+-- 		optionsText = "On aura gain or refresh",
+-- 		optionsOrder = 1,
+-- 		type = "aura",
+-- 		spellSelection = true,
+-- 		unitSelection = true,
+-- 		displaySettings = {enabled = true, bar = true, glow = true, barType = "auras", barTypeText = "aura bars"},
+-- 		dstWhisper = true,
+-- 		optionalArgs = {"auraType"},
+-- 		checkedSpell = "spellName",
+-- 		units = {"src","dst"},
+-- 		actions = {"chatAnnounce", "displayAuraBars", "displayGlows", "playSound"},
+-- 	},
+-- 	["SPELL_AURA_REFRESH"] = {
+-- 		short = "refresh",
+-- 		masterEvent = "SPELL_AURA_APPLIED",
+-- 		optionsDisplay = false,
+-- 	},
+-- 	["SPELL_AURA_REMOVED"] = {
+-- 		short = "removed",
+-- 		optionsDisplay = false,
+-- 		optionalArgs = {"auraType"},
+-- 		checkedSpell = "spellName",
+-- 		units = {},
+-- 		spellSelection = false,
+-- 		unitSelection == false,
+-- 		displaySettings = {barType = "auras", barTypeText = "aura bars"},
+-- 		--actions = {"hideGUI"},
+-- 	},
+-- 	["SPELL_AURA_BROKEN"] = {
+-- 		short = "broken",
+-- 		masterEvent = "SPELL_AURA_REMOVED",
+-- 		optionsDisplay = false,
+-- 	},
+-- 	["SPELL_AURA_BROKEN_SPELL"] = {
+-- 		short = "broken_spell",
+-- 		masterEvent = "SPELL_AURA_REMOVED",
+-- 		optionsDisplay = false,
+-- 	},
+-- 	["SPELL_DISPEL"] = {
+-- 		short = "dispel",
+-- 		optionsDisplay = true,
+-- 		optionsText = "On dispel",
+-- 		optionsOrder = 2,
+-- 		type = "spell",
+-- 		spellSelection = true,
+-- 		unitSelection = true,
+-- 		displaySettings = {barType = "auras", barTypeText = "aura bars"},
+-- 		dstWhisper = false,
+-- 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool","auraType"},
+-- 		checkedSpell = "extraSpellName",
+-- 		units = {"src","dst"},
+-- 		actions = {"chatAnnounce", "hideGUI", "playSound"},
+-- 	},
+-- 	["SPELL_CAST_START"] = {
+-- 		short = "start",
+-- 		optionsDisplay = true,
+-- 		optionsText = "On cast start",
+-- 		optionsOrder = 3,
+-- 		type = "spell",
+-- 		spellSelection = true,
+-- 		unitSelection = true,
+-- 		displaySettings = {enabled = true, bar = true, glow = false, barType = "spells", barTypeText = "cast bars"},
+-- 		dstWhisper = false,
+-- 		checkedSpell = "spellName",
+-- 		units = {"src"},
+-- 		actions = {"chatAnnounce", "playSound"},
+-- 	},
+-- 	["SPELL_CAST_SUCCESS"] = {
+-- 		short = "success",
+-- 		optionsDisplay = true,
+-- 		optionsText = "On cast success",
+-- 		optionsOrder = 4,
+-- 		type = "spell",
+-- 		spellSelection = true,
+-- 		unitSelection = true,
+-- 		displaySettings = {enabled = false},
+-- 		dstWhisper = true,
+-- 		checkedSpell = "spellName",
+-- 		units = {"src","dst"},
+-- 		actions = {"chatAnnounce", "playSound"},
+--
+-- 	},
+-- 	["SPELL_INTERRUPT"] = {
+-- 		short = "interrupt",
+-- 		optionsDisplay = true,
+-- 		optionsText = "On interrupt",
+-- 		optionsOrder = 5,
+-- 		type = "spell",
+-- 		spellSelection = false,
+-- 		unitSelection = true,
+-- 		displaySettings = {enabled = false},
+-- 		dstWhisper = false,
+-- 		optionalArgs = {"extraSpellId","extraSpellName","extraSchool"},
+-- 		checkedSpell = "spellName",
+-- 		units = {"src","dst"},
+-- 		actions = {"chatAnnounce", "playSound"},
+-- 		--msg = P.events.msgInterrupt,
+-- 		--actions = {A:GetLockout(), A:chatAnnounce(), A:playSound()},
+-- 	},
+-- }
+--
+-- A.EventsShort = {}
+-- for event, tbl in pairs(A.Events) do
+-- 	A.EventsShort[tbl.short] = {
+-- 		event = event,
+-- 		masterEvent = tbl.masterEvent,
+-- 		optionsDisplay = tbl.optionsDisplay,
+-- 		optionsText = tbl.optionsText,
+-- 		optionsOrder = tbl.optionsOrder,
+-- 		type = tbl.type,
+-- 		spellSelection = tbl.spellSelection,
+-- 		unitSelection = tbl.unitSelection,
+-- 		displaySettings = tbl.displayOptions,
+-- 		dstWhisper = tbl.dstWhisper,
+-- 		optionalArgs = tbl.optionalArgs,
+-- 		checkedSpell = tbl.checkedSpell,
+-- 		units = tbl.units,
+-- 		actions = tbl.actions,
+-- 	}
+-- end
 
 -- lockouts
 A.lockouts = {

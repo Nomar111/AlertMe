@@ -116,7 +116,7 @@ local methods = {
 	end,
 
 	["SetTitle"] = function(self, title)
-		self.titletext:SetText(title)
+		self.titletext:SetText(cleutle)
 		self.titlebg:SetWidth((self.titletext:GetWidth() or 0) + 10)
 	end,
 
@@ -229,7 +229,7 @@ local function Constructor()
 	title:EnableMouse(true)
 	title:SetScript("OnMouseDown", Title_OnMouseDown)
 	title:SetScript("OnMouseUp", MoverSizer_OnMouseUp)
-	title:SetAllPoints(titlebg)
+	title:SetAllPoints(cleutlebg)
 
 	local titletext = title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	titletext:SetPoint("TOP", titlebg, "TOP", 0, -14)

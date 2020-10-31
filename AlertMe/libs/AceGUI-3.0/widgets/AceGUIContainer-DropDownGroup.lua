@@ -41,7 +41,7 @@ local methods = {
 	end,
 
 	["SetTitle"] = function(self, title)
-		self.titletext:SetText(title)
+		self.titletext:SetText(cleutle)
 		self.dropdown.frame:ClearAllPoints()
 		if title and title ~= "" then
 			self.dropdown.frame:SetPoint("TOPRIGHT", -2, 0)

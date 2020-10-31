@@ -157,29 +157,29 @@ function A:hideAllBars()
 	end
 end
 
-function A:displayAuraBars(ti, alerts, eventInfo, snapShot)
-	local barType = eventInfo.displaySettings.barType
+function A:displayAuraBars(cleu, evi, alerts, snapShot)
+	local barType = evi.barType
 	-- abort conditions: wrong setting in event, auras disabled
 	if barType ~= "auras" or not P.bars.auras.enabled then return end
-	local id = ti.dstGUID..ti.spellName
+	local id = cleu.dstGUID..cleu.spellName
 	for _, alert in pairs(alerts) do
-		if alert.showBar and eventInfo.displaySettings.enabled and eventInfo.displaySettings.bar then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(ti, eventInfo)
+		if alert.showBar and evi.displayOptions and evi.displayOptions.bar then
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(cleu, evi)
 			if remaining then
-				A:showBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
+				A:showBar(barType, id, getShortName(cleu.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
-				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
+				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
+				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:showBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
+				A:showBar(barType, id, getShortName(cleu.dstName), icon, remaining, true)
 			else
-				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", ti.relSpellName,  eventInfo.short)
+				dprint(1, "A:displayAuraBars", "no aura duration, no snapshot, why am i here?", cleu.checkedSpell,  evi.handle)
 			end
 		end
 	end
 end
 
-function A:hideAuraBars(ti, eventInfo)
-	local id = ti.dstGUID..ti.spellName
-	A:hideBar(eventInfo.displaySettings.barType, id)
+function A:hideAuraBars(cleu, evi)
+	local id = cleu.dstGUID..cleu.spellName
+	A:hideBar(evi.barType, id)
 end

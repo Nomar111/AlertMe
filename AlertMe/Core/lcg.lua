@@ -5,11 +5,11 @@ setfenv(1, _G.AlertMe)
 -- set container for glows
 A.glows = {}
 
-local function getBattleGroundTargetsFrame(ti)
+local function getBattleGroundTargetsFrame(cleu)
 	-- check if BGTC is loaded
 	if not IsAddOnLoaded("BattlegroundTargets") then return end
-	local name = ti.dstName
-	local nameShort = getShortName(ti.dstName)
+	local name = cleu.dstName
+	local nameShort = getShortName(cleu.dstName)
 	local frames = { _G.UIParent:GetChildren() }
 	for _, frame in ipairs(frames) do
 		if frame.name4button then
@@ -20,21 +20,21 @@ local function getBattleGroundTargetsFrame(ti)
 	end
 end
 
-function A:displayGlows(ti, alerts, eventInfo, snapShot)
+function A:displayGlows(cleu, evi, alerts, snapShot)
 	if not P.glow.enabled then return end
-	local targetFrame = A.Libs.LGF.GetUnitFrame(ti.dstGUID)
-	if not targetFrame and ti.dstIsHostile and P.glow.bgtEnabled then
-		targetFrame = getBattleGroundTargetsFrame(ti)
+	local targetFrame = A.Libs.LGF.GetUnitFrame(cleu.dstGUID)
+	if not targetFrame and cleu.dstIsHostile and P.glow.bgtEnabled then
+		targetFrame = getBattleGroundTargetsFrame(cleu)
 	end
 	if not targetFrame then	return 	end-- no battlegroundstarget classic frame found
 	-- set id and loop thorugh alerts (same as bars)
-	local id = ti.dstGUID..ti.spellName
+	local id = cleu.dstGUID..cleu.spellName
 	for _, alert in pairs(alerts) do
-		if alert.showGlow >= 1 and eventInfo.displaySettings.enabled and eventInfo.displaySettings.glow then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(ti, eventInfo)
+		if alert.showGlow >= 1 and evi.displayOptions and evi.displayOptions.glow then
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(cleu, evi)
 			if not duration and snapShot then
-				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
-				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID) --_, _, icon = GetSpellInfo(spellId)
+				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
+				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID) --_, _, icon = GetSpellInfo(spellId)
 			end
 			if remaining and remaining >= 2 then
 				local db = P.glow[alert.showGlow]
@@ -43,15 +43,15 @@ function A:displayGlows(ti, alerts, eventInfo, snapShot)
 				A.glows[id] = targetFrame
 				-- remove glow effect after remaining time in case aura_reomved doesnt get triggered
 				C_Timer.After(remaining, function()
-					A:hideGlow(ti, eventInfo)
+					A:hideGlow(cleu, evi)
 				end)
 			end
 		end
 	end
 end
 
-function A:hideGlow(ti, eventInfo)
-	local id = ti.dstGUID..ti.spellName
+function A:hideGlow(cleu, evi)
+	local id = cleu.dstGUID..cleu.spellName
 	if A.glows[id] then
 		A.Libs.LCG.PixelGlow_Stop(A.glows[id],id)
 		A.glows[id] = nil
