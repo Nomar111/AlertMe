@@ -133,7 +133,7 @@ D.profile = {
 			},
 		},
 		start = {
-			selectedAlert = "",
+			selectedAlert = nil,
 			alertDetails = {
 				['*'] = {
 					name = "New alert",
