@@ -7,8 +7,8 @@ function O:ShowGeneral(container)
 	O.attachHeader(container, "General Settings")
 	-- addon
 	local addonGroup = O.attachGroup(container, "inline", "Addon settings", {fullWidth = true})
-	O.attachCheckBox(addonGroup, "Enable addon", P.general, "enabled", 180, A.ToggleAddon)
-	O.attachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", 180, A.ToggleMinimap)
+	O.attachCheckBox(addonGroup, "Enable addon", P.general, "enabled", 180, A.toggleAddon)
+	O.attachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", 180, A.toggleMinimap)
 	-- zones
 	local zonesGroup = O.attachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
 	O.attachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180, A.registerCLEU)

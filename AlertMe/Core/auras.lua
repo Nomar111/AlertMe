@@ -59,11 +59,11 @@ function A:fakeEvent(ti, eventInfo)
 	if not check then return end
 	-- check for snapshots
 	local exists
-	exists, __ti, __eventInfo = A:CheckSnapShot(_ti, _eventInfo)
+	exists, __ti, __eventInfo = A:checkSnapShot(_ti, _eventInfo)
 	if exists then -- do whatever is defined in actions
 		A:DoActions(__ti, __eventInfo, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
-		A:AddSnapShot(ti, eventInfo)
+		A:addSnapShot(ti, eventInfo)
 	end
 end
 

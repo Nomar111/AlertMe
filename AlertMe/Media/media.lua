@@ -3,7 +3,7 @@ setfenv(1, _G.AlertMe)
 -- local variable for LSM
 local LSM = A.Libs.LSM
 
-function A:InitLSM()
+function A:initLSM()
 	A.Sounds = LSM:HashTable("sound")
 	A.Statusbars = LSM:HashTable("statusbar")
 	A.Backgrounds = LSM:HashTable("background")

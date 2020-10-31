@@ -18,22 +18,22 @@ function A:Initialize()
 	-- init examples profile
 	A:initExamples()
 	-- init LSM
-	A:InitLSM()
+	A:initLSM()
 	-- init chat frames
 	initChatFrames()
 	-- init scrolling text frame
 	A:updateScrolling()
 	-- init options
 	A:initSpellOptions()
-	-- init LCD
-	A:InitLCD()
-	-- init LDB
-	A:InitLDB()
+	-- init LibClassicDuration
+	A:initLCD()
+	-- init LibDataBroker aka minimap icon
+	A:initLDB()
 	-- register for events
-	A.ToggleAddon()
+	A.toggleAddon()
 	-- for reloadui
 	A:HideAllGUIs()
-	-- LCC
+	-- init LibClassicCasterino (AlertMe version)
 	A:InitLCC()
 	-- Debug
 	debug()
@@ -95,10 +95,10 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 			-- rermaining nil?
 			A:DoActions(ti, eventInfo, alerts, false)
 		elseif not name then
-			if A:CheckSnapShot(ti, eventInfo) then -- no direct aura info, check for recent spell cast success events
+			if A:checkSnapShot(ti, eventInfo) then -- no direct aura info, check for recent spell cast success events
 				A:DoActions(ti, eventInfo, alerts, true)
 			else
-				A:AddSnapShot(ti, eventInfo) -- add a snapshot
+				A:addSnapShot(ti, eventInfo) -- add a snapshot
 			end
 		end
 	else -- success, interrupt, dispel
@@ -458,7 +458,7 @@ function A.registerCLEU(event)
 	end
 end
 
-function A.ToggleAddon()
+function A.toggleAddon()
 	-- (un)register callbacks from casterino
 	A:InitLCC()
 	-- (un)register events

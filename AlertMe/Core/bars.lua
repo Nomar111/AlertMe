@@ -3,12 +3,12 @@ local sub = string.sub
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create tables
-A.Bars = {auras={}, spells={}}
-A.Container = {}
+A.bars = {auras={}, spells={}}
+A.container = {}
 
 local function getContainer(barType)
 	local db = P.bars[barType]
-	if A.Container[barType] == nil then
+	if A.container[barType] == nil then
 		local f = CreateFrame("Frame", nil, UIParent)
 		f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 		f:SetWidth(100)
@@ -37,13 +37,13 @@ local function getContainer(barType)
 			f.bg:Hide()
 			f.header:Hide()
 		end
-		A.Container[barType] = f
+		A.container[barType] = f
 	end
-	return A.Container[barType]
+	return A.container[barType]
 end
 
 local function reArrangeBars(barType)
-	local bars = A.Bars[barType]
+	local bars = A.bars[barType]
 	if not bars then return end
 	local db = P.bars[barType]
 	local container = getContainer(barType)
@@ -86,28 +86,28 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	-- enabled?
 	if not db.enabled then return end
 	-- if bar doesnt exists and coCreate, abort
-	if not A.Bars[barType][id] and noCreate then return end
+	if not A.bars[barType][id] and noCreate then return end
 	-- callback for when bar is stopped
 	local function barStopped(_, delBar)
 		local _id = delBar:Get("id")
 		local _barType = delBar:Get("barType")
 		delBar:SetParent(nil)
-		if A.Bars and A.Bars[_barType] and A.Bars[_barType][_id] then
-			A.Bars[_barType][_id] = nil
+		if A.bars and A.bars[_barType] and A.bars[_barType][_id] then
+			A.bars[_barType][_id] = nil
 			reArrangeBars(_barType)
 		end
 	end
 	-- check if already exists
-	if not A.Bars[barType][id] then
+	if not A.bars[barType][id] then
 		local newBar = A.Libs.LCB:New(A.Statusbars[db.texture], db.width, db.height)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
-		A.Bars[barType][id] = newBar
+		A.bars[barType][id] = newBar
 	else
-		A.Bars[barType][id]:Stop()
+		A.bars[barType][id]:Stop()
 		A:ShowBar(barType, id, label, icon, duration, color)
 	end
-	local bar = A.Bars[barType][id]
+	local bar = A.bars[barType][id]
 	-- update/set bar settings
 	if db.showIcon == true and icon then bar:SetIcon(icon) end
 	label = label or ""
@@ -144,16 +144,16 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 end
 
 function A:HideBar(barType, id)
-	if A.Bars[barType][id] then
-		A.Bars[barType][id]:Stop()
+	if A.bars[barType][id] then
+		A.bars[barType][id]:Stop()
 	end
 end
 
 function A:HideAllBars()
-	if not A.Bars then return end
-	for barType,ids in pairs(A.Bars) do
+	if not A.bars then return end
+	for barType,ids in pairs(A.bars) do
 		for id, _ in pairs(ids) do
-			A.Bars[barType][id]:Stop()
+			A.bars[barType][id]:Stop()
 		end
 	end
 end

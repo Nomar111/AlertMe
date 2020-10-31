@@ -11,7 +11,7 @@ local function getAnchors(frame)
 	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
 end
 
-function A:InitLDB()
+function A:initLDB()
 	A.AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
 		type = "launcher",
 		text = "AlertMe",
@@ -23,7 +23,7 @@ function A:InitLDB()
 				if(IsShiftKeyDown()) then
 					P.general.enabled = not P.general.enabled
 					A.updateLDBtooltip()
-					A.ToggleAddon()
+					A.toggleAddon()
 				else
 					O:OpenOptions()
 				end
@@ -70,7 +70,7 @@ function A.updateLDBtooltip()
 	O.tooltip:Show()
 end
 
-function A.ToggleMinimap(toggle)
+function A.toggleMinimap(toggle)
 	if toggle then P.general.minimap.hide = not P.general.minimap.hide end
 	if P.general.minimap.hide then
 		A.Libs.LDBI:Hide("AlertMe")
