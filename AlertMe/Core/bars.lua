@@ -165,7 +165,7 @@ function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showBar and eventInfo.displaySettings.enabled and eventInfo.displaySettings.bar then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(ti, eventInfo)
 			if remaining then
 				A:ShowBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then

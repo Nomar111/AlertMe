@@ -40,7 +40,7 @@ local function matchUnitAura(ti, eventInfo, unit, filter)
 	end
 end
 
-function A:GetUnitAura(ti, eventInfo)
+function A:getUnitAura(ti, eventInfo)
 	local unit = (ti.dstIsTarget == true) and "target" or ti.dstName
 	local filter = (ti.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
 	return matchUnitAura(ti, eventInfo, unit, filter)
@@ -50,7 +50,7 @@ function A:GetUnitAura(ti, eventInfo)
 	-- 	end)
 end
 
-function A:FakeEvent(ti, eventInfo)
+function A:fakeEvent(ti, eventInfo)
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
 	local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
@@ -67,9 +67,7 @@ function A:FakeEvent(ti, eventInfo)
 	end
 end
 
-function A:CheckSnapShot(ti, eventInfo)
-
-
+function A:checkSnapShot(ti, eventInfo)
 	-- clear snasphot table of old entries first
 	cleanSnapshots()
 	-- if event = gain, check for success events and vice versa
@@ -94,7 +92,7 @@ function A:CheckSnapShot(ti, eventInfo)
 	end
 end
 
-function A:AddSnapShot(ti, eventInfo)
+function A:addSnapShot(ti, eventInfo)
 	if not A.snapshots[ti.dstGUID] then A.snapshots[ti.dstGUID] = {} end
 	if not A.snapshots[ti.dstGUID][ti.relSpellName] then A.snapshots[ti.dstGUID][ti.relSpellName] = {} end
 	A.snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {
@@ -104,7 +102,7 @@ function A:AddSnapShot(ti, eventInfo)
 	}
 end
 
-function A:InitLCD()
+function A:initLCD()
 	-- LibClassicDurations
 	A.Libs.LCD:Register("AlertMe")
 	A.Libs.LCD.enableEnemyBuffTracking = true

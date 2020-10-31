@@ -32,7 +32,7 @@ function A:DisplayGlows(ti, alerts, eventInfo, snapShot)
 	local id = ti.dstGUID..ti.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showGlow >= 1 and eventInfo.displaySettings.enabled and eventInfo.displaySettings.glow then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(ti, eventInfo)
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(ti, eventInfo)
 			if not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID) --_, _, icon = GetSpellInfo(spellId)

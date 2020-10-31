@@ -83,14 +83,14 @@ function A:ProcessTriggerInfo(ti, eventInfo)
 		return
 	elseif eventInfo.short == "success" then
 		-- if spell cast success fake an applay event
-		A:FakeEvent(ti, eventInfo)
+		A:fakeEvent(ti, eventInfo)
 	end
 	-- do some checks
 	local check, alerts = A:DoChecks(ti, eventInfo)
 	if not check then return end
 	-- auras need a special treatment
 	if eventInfo.short == "gain" then
-		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(ti, eventInfo)
+		local name, _, _, _, duration, _, _, _, _, _, remaining = A:getUnitAura(ti, eventInfo)
 		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
 			-- rermaining nil?
 			A:DoActions(ti, eventInfo, alerts, false)
