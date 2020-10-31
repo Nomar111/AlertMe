@@ -6,23 +6,44 @@ setfenv(1, _G.AlertMe)
 O.config = {}
 
 -- *************************************************************************************
--- creates navigation tree
+-- prepare the widgets & functions
+local function showOptions(container, uniqueValue)			-- 	uniqueValue = the value from tree widget
+	P.options.lastMenu = uniqueValue
+	local lvl1, lvl2 = strsplit("\001", uniqueValue)
+	if lvl1 == "showAlerts" and lvl2 then
+		O[lvl1](O, container, lvl2)
+	elseif lvl1 ~= "showAlerts" then
+		O[lvl1](O, container)
+	end
+end
+
+local function groupSelected(widget, event, uniqueValue)	-- will be the callback function for clicking a tree item
+	-- release content
+	widget:ReleaseChildren()
+	-- create new content container
+	local contentGroup =  O.attachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
+	local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
+	scrollGroup:SetLayout("List")
+	scrollGroup:SetFullHeight(true)
+	scrollGroup:SetFullWidth(true)
+	contentGroup:AddChild(scrollGroup)
+	showOptions(scrollGroup, uniqueValue)
+end
+
 local function createNavTree(container)
 	-- function to draw the groupd
 	local treeStructure = {}
-	treeStructure[1] = {value = "general", text = "General"}
-	treeStructure[2] = {value = "scrolling", text = "Scrolling Text"}
-	treeStructure[3] = {value = "bars", text = "Bar Setup"}
-	treeStructure[4] = {value = "messages", text = "Messages"}
-	treeStructure[5] = {value = "glow", text = "Glow"}
-	treeStructure[6] = {value = "alerts", text = "Alerts", children = {}}
-	treeStructure[7] = {value = "profiles", text = "Profiles"}
-	treeStructure[8] = {value = "info", text = "Info"}
-	-- loop over events and add them as children of alerts
-	for _, tbl in pairs(A.Events) do
-		if tbl.optionsDisplay then
-			treeStructure[6].children[tbl.optionsOrder]  = {value = tbl.short, text = tbl.optionsText }
-		end
+	treeStructure[1] = {value = "showGeneral", text = "General"}
+	treeStructure[2] = {value = "showScrollingText", text = "Scrolling Text"}
+	treeStructure[3] = {value = "showBars", text = "Bar Setup"}
+	treeStructure[4] = {value = "showMessages", text = "Messages"}
+	treeStructure[5] = {value = "showGlow", text = "Glow"}
+	treeStructure[6] = {value = "showAlerts", text = "Alerts", children = {}}
+	treeStructure[7] = {value = "showProfiles", text = "Profiles"}
+	treeStructure[8] = {value = "showInfo", text = "Info"}
+	-- loop over alert submenus
+	for handle, menu in pairs(menus) do
+		treeStructure[6].children[menu.order]  = { value = handle, text = menu.text }
 	end
 	-- create the tree group
 	local tree = A.Libs.AceGUI:Create("TreeGroup")
@@ -30,33 +51,20 @@ local function createNavTree(container)
 	tree.width = "fill"
 	tree.height = "fill"
 	tree:SetTree(treeStructure)
-	-- callbacks
-	local function GroupSelected(widget, event, uniqueValue)
-		-- release content
-		widget:ReleaseChildren()
-		-- create new content container
-		local contentGroup =  O.attachGroup(widget, "simple", _,  {fullWidth = true, fullHeight = true , layout = "none"})
-		local scrollGroup = A.Libs.AceGUI:Create("ScrollFrame")
-		scrollGroup:SetLayout("List")
-		scrollGroup:SetFullHeight(true)
-		scrollGroup:SetFullWidth(true)
-		contentGroup:AddChild(scrollGroup)
-		O:showOptions(scrollGroup, uniqueValue)
-	end
-	tree:SetCallback("OnGroupSelected", GroupSelected)
-	tree:SelectByPath(strsplit("\001", P.options.lastMenu))
+	tree:SetCallback("OnGroupSelected", groupSelected)
+	tree:SelectByPath(strsplit("\001", P.options.lastMenu))			-- if initially called set the last selected menu
 	container:AddChild(tree)
 end
 
 -- *************************************************************************************
 -- open the options window
 function O:openOptions()
-	-- check if in combat
+	-- no options during combat - safety first!
 	if InCombatLockdown() then
 		print("Can't open AlertMe options because of ongoing combat.")
 		return
 	end
-	-- close
+	-- callback for closing
 	local function close()
 		A:initSpellOptions()
 		A.Libs.AceGUI:Release(O.options)
@@ -64,7 +72,7 @@ function O:openOptions()
 		A:hideAllGUIs()
 	end
 	-- check if already open
-	if O.options ~= nil then
+	if O.options then
 		close()
 		return
 	end
@@ -79,18 +87,4 @@ function O:openOptions()
 	O.options = f
 	-- create navigation
 	createNavTree(f)
-end
-
-function O:showOptions(container, uniqueValue)
-	P.options.lastMenu = uniqueValue
-	local lvl1, lvl2 = strsplit("\001", uniqueValue)
-	if lvl1 == "general" then O:showGeneral(container)
-	elseif lvl1 == "scrolling" then O:showScrollingText(container)
-	elseif lvl1 == "bars" then O:showBars(container)
-	elseif lvl1 == "messages" then O:showMessages(container)
-	elseif lvl1 == "glow" then O:showGlow(container)
-	elseif lvl1 == "profiles" then O:showProfiles(container)
-	elseif lvl1 == "info" then O:showInfo(container)
-	elseif lvl1 == "alerts" and lvl2 ~= nil then O:showAlerts(container, lvl2)
-	end
 end

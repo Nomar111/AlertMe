@@ -3,9 +3,6 @@ setfenv(1, _G.AlertMe)
 
 -- set default options
 D.profile = {
-	dummy = {
-		name = ""
-	},
 	general = {
 		zones = {
 			["*"] = true,
@@ -102,9 +99,12 @@ D.profile = {
 	options = {
 		lastMenu = "alerts"
 	},
+	dummy = {
+		name = ""
+	},
 	alerts = {
 		['*'] = {
-			selectedAlert = "",
+			selectedAlert = nil,
 			alertDetails = {
 				['*'] = {
 					name = "New alert",

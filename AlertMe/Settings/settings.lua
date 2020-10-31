@@ -41,8 +41,8 @@ events.SPELL_INTERRUPT = {
 	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
 }
 -- the settings per options category. match to events by handle
-menu = {}
-menu.gain = {
+menus = {}
+menus.gain = {
 	type = "aura",
 	text = "On aura gain/refresh",
 	order = 1,
@@ -51,7 +51,7 @@ menu.gain = {
 	displayOptions = { glow = true, bar = true },
 	dstWhisper = true,
 }
-menu.dispel = {
+menus.dispel = {
 	type = "aura",
 	text = "On aura/spell dispel",
 	order = 2,
@@ -59,7 +59,7 @@ menu.dispel = {
 	unitSelection =	{ "src","dst" },
 	dstWhisper = true,
 }
-menu.start = {
+menus.start = {
 	type = "spell",
 	text = "On cast start",
 	order = 3,
@@ -67,7 +67,7 @@ menu.start = {
 	unitSelection =	{ "src" },
 	displayOptions = { bar = true },
 }
-menu.success = {
+menus.success = {
 	type = "success",
 	text = "On cast success",
 	order = 4,
@@ -75,7 +75,7 @@ menu.success = {
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
-menu.interrupt = {
+menus.interrupt = {
 	type = "success",
 	text = "On cast success",
 	order = 4,
@@ -83,7 +83,7 @@ menu.interrupt = {
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
-menu.interrupt = {
+menus.interrupt = {
 	type = "spell",
 	text = "On interrupt",
 	order = 5,
