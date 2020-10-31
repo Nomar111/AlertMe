@@ -1,29 +1,29 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create table for snapshots
-A.Snapshots = {}
+A.snapshots = {}
 
 local function cleanSnapshots()
 	local now = GetTime()
-	for d, dstGUID in pairs(A.Snapshots) do
+	for d, dstGUID in pairs(A.snapshots) do
 		for s, relSpellName in pairs(dstGUID) do
 			for e, short in pairs(relSpellName) do
 				if now - short.ts > 10 then
-					A.Snapshots[d][s][e] = nil
+					A.snapshots[d][s][e] = nil
 				end
 			end
 		end
 	end
-	for d, dstGUID in pairs(A.Snapshots) do
+	for d, dstGUID in pairs(A.snapshots) do
 		for s, relSpellName in pairs(dstGUID) do
 			if not next(relSpellName) then
-				A.Snapshots[d][s] = nil
+				A.snapshots[d][s] = nil
 			end
 		end
 	end
-	for d, dstGUID in pairs(A.Snapshots) do
+	for d, dstGUID in pairs(A.snapshots) do
 		if not next(dstGUID) then
-			A.Snapshots[d] = nil
+			A.snapshots[d] = nil
 		end
 	end
 end
@@ -51,9 +51,6 @@ function A:GetUnitAura(ti, eventInfo)
 end
 
 function A:FakeEvent(ti, eventInfo)
-	-- create fake args
-					-- VDT_AddData(ti,"ti")
-					-- VDT_AddData(eventInfo,"eventInfo")
 	local _ti = tcopy(ti)
 	_ti.event = "SPELL_AURA_APPLIED"
 	local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
@@ -62,9 +59,9 @@ function A:FakeEvent(ti, eventInfo)
 	if not check then return end
 	-- check for snapshots
 	local exists
-	exists, ti, eventInfo = A:CheckSnapShot(_ti, _eventInfo)
+	exists, __ti, __eventInfo = A:CheckSnapShot(_ti, _eventInfo)
 	if exists then -- do whatever is defined in actions
-		A:DoActions(ti, eventInfo, alerts, true)
+		A:DoActions(__ti, __eventInfo, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
 		A:AddSnapShot(ti, eventInfo)
 	end
@@ -77,8 +74,8 @@ function A:CheckSnapShot(ti, eventInfo)
 	cleanSnapshots()
 	-- if event = gain, check for success events and vice versa
 	if eventInfo.short == "gain" then
-		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["success"] then
-			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["success"]
+		if A.snapshots[ti.dstGUID] and A.snapshots[ti.dstGUID][ti.relSpellName] and A.snapshots[ti.dstGUID][ti.relSpellName]["success"] then
+			local snapShot = A.snapshots[ti.dstGUID][ti.relSpellName]["success"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
 				return true, snapShot.ti, snapShot.eventInfo
@@ -86,8 +83,8 @@ function A:CheckSnapShot(ti, eventInfo)
 		end
 		return false
 	elseif eventInfo.short == "success" then
-		if A.Snapshots[ti.dstGUID] and A.Snapshots[ti.dstGUID][ti.relSpellName] and A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"] then
-			local snapShot = A.Snapshots[ti.dstGUID][ti.relSpellName]["gain"]
+		if A.snapshots[ti.dstGUID] and A.snapshots[ti.dstGUID][ti.relSpellName] and A.snapshots[ti.dstGUID][ti.relSpellName]["gain"] then
+			local snapShot = A.snapshots[ti.dstGUID][ti.relSpellName]["gain"]
 			local timeDiff = GetTime() - snapShot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
 				return true, snapShot.ti, snapShot.eventInfo
@@ -98,9 +95,9 @@ function A:CheckSnapShot(ti, eventInfo)
 end
 
 function A:AddSnapShot(ti, eventInfo)
-	if not A.Snapshots[ti.dstGUID] then A.Snapshots[ti.dstGUID] = {} end
-	if not A.Snapshots[ti.dstGUID][ti.relSpellName] then A.Snapshots[ti.dstGUID][ti.relSpellName] = {} end
-	A.Snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {
+	if not A.snapshots[ti.dstGUID] then A.snapshots[ti.dstGUID] = {} end
+	if not A.snapshots[ti.dstGUID][ti.relSpellName] then A.snapshots[ti.dstGUID][ti.relSpellName] = {} end
+	A.snapshots[ti.dstGUID][ti.relSpellName][eventInfo.short] = {
 		ts = GetTime(),
 		ti = tcopy(ti),
 		eventInfo = tcopy(eventInfo)

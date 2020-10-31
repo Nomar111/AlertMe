@@ -17,11 +17,6 @@ function debug()
 end
 
 function tcopy(t, deep, seen)
-	-- if t == nil then
-	-- 	dprint(1, "t is nil")
-	-- 	return
-	-- end
-	-- VDT_AddData(t,"t")
 	seen = seen or {}
 	local nt = {}
 	for k, v in pairs(t) do
