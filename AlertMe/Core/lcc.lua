@@ -35,6 +35,8 @@ local function getAlerts(spellName)
 	-- return if table
 	if type(alerts) == "table" and #alerts > 0 then
 		return alerts
+	else
+		return false
 	end
 end
 

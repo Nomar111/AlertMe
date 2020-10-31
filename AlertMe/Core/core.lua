@@ -110,18 +110,12 @@ function A:doActions(ti, eventInfo, alerts, ...)
 	if eventInfo.actions then
 		for _, action in pairs(eventInfo.actions) do
 			A[action](A, ti, alerts, eventInfo, ...)
-			-- if action == "chatAnnounce" and type(alerts) == "table" then A:chatAnnounce(ti, alerts, eventInfo) end
-			-- if action == "playSound" and type(alerts) == "table" then A:playSound(ti, alerts, eventInfo) end
-			-- if action == "displayAuraBars" and type(alerts) == "table" then A:displayAuraBars(ti, alerts, eventInfo, snapShot) end
-			-- if action == "displayGlows" and type(alerts) == "table" then A:displayGlows(ti, alerts, eventInfo, snapShot) end
-			-- if action == "hideGUI" and type(alerts) == "table" then hideGUI(ti, eventInfo) end
 		end
 	end
 end
 
 --**********************************************************************************************************************************
 --Checks
---**********************************************************************************************************************************
 function A:doChecks(ti, eventInfo)
 	-- local function to get all the valid alerts for that event
 	local function getAlerts(ti, eventInfo)
@@ -239,8 +233,7 @@ function A:checkUnits(ti, eventInfo, alerts)
 end
 
 --**********************************************************************************************************************************
---Actions
---**********************************************************************************************************************************
+-- actions
 local function createMessage(ti, eventInfo, alert, colored, showIcon)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	-- check possible replacements for being nil
@@ -482,29 +475,22 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-
-
 function A:getReactionColor(ti, rgb)
-	-- prepare return value
 	local color = "white"
-	-- aura applied/refresh
+	-- check events
 	if ti.event == "SPELL_AURA_APPLIED" or ti.event == "SPELL_AURA_REFRESH" then
 		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
 			color = "green"
 		else
 			color = "red"
 		end
-	end
-	-- spell dispel
-	if ti.event == "SPELL_DISPEL" then
+	elseif ti.event == "SPELL_DISPEL" then
 		if (ti.dstIsFriendly and ti.auraType == "BUFF") or (ti.dstIsHostile and ti.auraType == "DEBUFF") then
 			color = "red"
 		else
 			color = "green"
 		end
-	end
-	-- spell cast start / success / interrupt
-	if ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
+	elseif ti.event == "SPELL_CAST_START" or ti.event == "SPELL_CAST_SUCCESS" or ti.event == "SPELL_INTERRUPT" then
 		if ti.srcIsFriendly then
 			color =  "green"
 		else
@@ -512,10 +498,10 @@ function A:getReactionColor(ti, rgb)
 		end
 	end
 	-- return RGB or HEX
-	if rgb == "rgb" then
-		return unpack(A.Colors[color]["rgb"])
+	if rgb then
+		return unpack(A.colors[color]["rgb"])
 	else
-		return A.Colors[color]["hex"]
+		return A.colors[color]["hex"]
 	end
 end
 

@@ -2,7 +2,7 @@
 setfenv(1, _G.AlertMe)
 
 -- creates / refreshes the profiles tab
-function O:ShowProfiles(container)
+function O:showProfiles(container)
 	-- get options table and override order
 	O.config.profiles = A.Libs.AceDBOptions:GetOptionsTable(A.db)
 	-- register options table and assign to frame

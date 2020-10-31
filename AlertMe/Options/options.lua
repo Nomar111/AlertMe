@@ -81,8 +81,6 @@ function O:openOptions()
 	createNavTree(f)
 end
 
-
-
 function O:showOptions(container, uniqueValue)
 	P.options.lastMenu = uniqueValue
 	local lvl1, lvl2 = strsplit("\001", uniqueValue)
@@ -92,7 +90,7 @@ function O:showOptions(container, uniqueValue)
 	elseif lvl1 == "messages" then O:showMessages(container)
 	elseif lvl1 == "glow" then O:showGlow(container)
 	elseif lvl1 == "profiles" then O:showProfiles(container)
-	elseif lvl1 == "info" then OsShowInfo(container)
+	elseif lvl1 == "info" then O:showInfo(container)
 	elseif lvl1 == "alerts" and lvl2 ~= nil then O:showAlerts(container, lvl2)
 	end
 end

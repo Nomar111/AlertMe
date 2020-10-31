@@ -128,7 +128,7 @@ for event, tbl in pairs(A.Events) do
 end
 
 -- lockouts
-A.Lockouts = {
+A.lockouts = {
 	["Counterspell"] = "10",
 	["Spell Lock"] = "8",
 	["Shield Bash"] = "6",
@@ -139,7 +139,7 @@ A.Lockouts = {
 }
 
 -- colors
-A.Colors = {
+A.colors = {
 	red = {
 		hex = "FFde4037",
 		rgb = {1,0,0}
