@@ -4,7 +4,7 @@ local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBA
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function A:InitLCC()
+function A:initLCC()
 	if not P.bars.spells.enabled or not P.general.enabled == true then
 		A.Libs.LCC.UnregisterAllCallbacks(A)
 		return
@@ -25,15 +25,15 @@ local function getAlerts(spellName)
 	if not spellName then return end
 	-- check if spell/event combo exists in spell options
 	local alerts = {}
-	if A.SpellOptions[spellName] and A.SpellOptions[spellName]["start"] then
-		for _, tbl in pairs(A.SpellOptions[spellName]["start"]) do
+	if A.spellOptions[spellName] and A.spellOptions[spellName]["start"] then
+		for _, tbl in pairs(A.spellOptions[spellName]["start"]) do
 			if tbl.options.showBar then
 				tinsert(alerts, tbl.options)
 			end
 		end
 	end
 	-- return if table
-	if type(alerts) == "table" and #alerts >= 1 then
+	if type(alerts) == "table" and #alerts > 0 then
 		return alerts
 	end
 end
@@ -57,16 +57,13 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		}
 		local eventInfo = A.Events["SPELL_CAST_START"]
 		-- check units
-		local alertsUnit, errorMessages = A:CheckUnits(ti, eventInfo, alerts)
-		if not alertsUnit then
-			--dprint(3, "unit check failed", ti.relSpellName, unpack(errorMessages))
-			return
-		end
+		local _alerts, errors = A:checkUnits(ti, eventInfo, alerts)
+		if not _alerts then	return end				--dprint(3, "unit check failed", ti.relSpellName, unpack(errors))
 		-- calculate remaining duration & show cast bar
-		remaining = (endTime - (GetTime() * 1000))/1000
-		A:ShowBar(barType, unitGUID, unitName, icon, remaining, true)
+		local remaining = (endTime - (GetTime() * 1000))/1000
+		A:showBar(barType, unitGUID, unitName, icon, remaining, true)
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
 	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-		A:HideBar(barType, unitGUID)
+		A:hideBar(barType, unitGUID)
 	end
 end

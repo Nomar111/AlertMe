@@ -1,5 +1,5 @@
 -- upvalues
-local _G, FCF_GetNumActiveChatFrames = _G, _G.FCF_GetNumActiveChatFrames
+local _G, FCF_GetNumActiveChatFrames, AlertMe = _G, _G.FCF_GetNumActiveChatFrames, AlertMe
 local getmetatable, setmetatable, hooksecurefunc, gsub, date, tostring = getmetatable, setmetatable, hooksecurefunc, string.gsub, date, tostring
 -- set addon environment
 setfenv(1, _G.AlertMe)
@@ -7,13 +7,18 @@ setfenv(1, _G.AlertMe)
 chatFrames = {}
 
 function debug()
-	-- VDT_AddData(_G.AlertMe, "AlertMe")
-	-- VDT_AddData(A, "A")
-	-- VDT_AddData(O, "O")
-	-- VDT_AddData(P, "P")
-	-- VDT_AddData(A.AlertOptions, "A.AlertOptions")
-	-- VDT_AddData(A.SpellOptions, "A.SpellOptions")
-	-- dhook(A, "FakeEvent")
+	vdt:data(_G.AlertMe, "AlertMe")
+	-- vdt:data(A, "A")
+	-- vdt:data(O, "O")
+	-- vdt:data(P, "P")
+	vdt:data(A.alertOptions, "A.alertOptions")
+	vdt:data(A.spellOptions, "A.spellOptions")
+	-- **********************************************************
+	-- function hooking in VDT:
+	-- vdt:func("AlertMe")						-- all functions
+	-- vdt:func("AlertMe.A")					-- all functions in A
+	-- vdt:func("AlertMe.A", "checkUnits")		-- only the function "checkUnits" in A
+	-- dhook(A, "checkUnits", {true, true} )
 end
 
 function tcopy(t, deep, seen)
@@ -105,15 +110,19 @@ function dprint(lvl,...)
 		end
 	end
 end
---
--- ViragDevTool
-function VDT_AddData(obj, desc)
-	local vdt = _G.ViragDevTool_AddData
-	if not vdt then
-		print("_G.ViragDevTool_AddData nicht verfürgbar")
 
-	else
+-- ViragDevTool
+vdt = {}
+function vdt:data(obj, desc)
+	local vdt = _G.ViragDevTool_AddData
+	if vdt then
 		vdt(obj, desc)
+	end
+end
+function vdt:func(obj, fcall)
+	local vdt = _G.ViragDevTool
+	if vdt then
+		vdt:StartLogFunctionCalls(obj, fcall)
 	end
 end
 
@@ -126,12 +135,12 @@ function dhook(object, method, dbg, dlevel)
 	true = argument itself
 	false = no display
 	_,nil = return all arguments
-	dhook(A, "CheckUnits", {"event", false, true})
+	dhook(A, "checkUnits", {"event", false, true})
 	dhook(A, "OnUnitCast")
 	]]--
 	dlevel = dlevel or 1
 	local function hooked(...)
-		if debugs then
+		if dbg then
 			local args = {...}
 			local msg, sep = method..", ", ", "
 			local i = 1

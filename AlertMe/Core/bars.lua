@@ -56,7 +56,7 @@ local function reArrangeBars(barType)
 	end
 end
 
-function A:ToggleContainerLock(barType)
+function A:toggleContainerLock(barType)
 	local f = getContainer(barType)
 	local db = P.bars[barType]
 	f:EnableMouse(db.unlocked)
@@ -70,7 +70,7 @@ function A:ToggleContainerLock(barType)
 	end
 end
 
-function A:ResetContainerPosition(barType)
+function A:resetContainerPosition(barType)
 	-- reset position
 	local db = P.bars[barType]
 	local def = D.profile.bars[barType]
@@ -80,10 +80,9 @@ function A:ResetContainerPosition(barType)
 	f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
-	--dprint(3, "A:ShowBar", barType, id, label, icon, duration, color, noCreate)
-	local db = P.bars[barType]
+function A:showBar(barType, id, label, icon, duration, reaction, noCreate)
 	-- enabled?
+	local db = P.bars[barType]
 	if not db.enabled then return end
 	-- if bar doesnt exists and coCreate, abort
 	if not A.bars[barType][id] and noCreate then return end
@@ -99,13 +98,13 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	end
 	-- check if already exists
 	if not A.bars[barType][id] then
-		local newBar = A.Libs.LCB:New(A.Statusbars[db.texture], db.width, db.height)
+		local newBar = A.Libs.LCB:New(A.statusbars[db.texture], db.width, db.height)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
 		A.bars[barType][id] = newBar
 	else
 		A.bars[barType][id]:Stop()
-		A:ShowBar(barType, id, label, icon, duration, color)
+		A:showBar(barType, id, label, icon, duration, color)
 	end
 	local bar = A.bars[barType][id]
 	-- update/set bar settings
@@ -143,13 +142,13 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	A.Libs.LCB.RegisterCallback(A, "LibCandyBar_Stop", barStopped)
 end
 
-function A:HideBar(barType, id)
+function A:hideBar(barType, id)
 	if A.bars[barType][id] then
 		A.bars[barType][id]:Stop()
 	end
 end
 
-function A:HideAllBars()
+function A:hideAllBars()
 	if not A.bars then return end
 	for barType,ids in pairs(A.bars) do
 		for id, _ in pairs(ids) do
@@ -158,7 +157,7 @@ function A:HideAllBars()
 	end
 end
 
-function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
+function A:displayAuraBars(ti, alerts, eventInfo, snapShot)
 	local barType = eventInfo.displaySettings.barType
 	-- abort conditions: wrong setting in event, auras disabled
 	if barType ~= "auras" or not P.bars.auras.enabled then return end
@@ -167,12 +166,12 @@ function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
 		if alert.showBar and eventInfo.displaySettings.enabled and eventInfo.displaySettings.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(ti, eventInfo)
 			if remaining then
-				A:ShowBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
+				A:showBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(ti.relSpellName)
 				remaining = A.Libs.LCD:GetDurationForRank(ti.relSpellName, spellID, ti.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:ShowBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
+				A:showBar(barType, id, getShortName(ti.dstName), icon, remaining, true)
 			else
 				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", ti.relSpellName,  eventInfo.short)
 			end
@@ -180,7 +179,7 @@ function A:DisplayAuraBars(ti, alerts, eventInfo, snapShot)
 	end
 end
 
-function A:HideAuraBars(ti, eventInfo)
+function A:hideAuraBars(ti, eventInfo)
 	local id = ti.dstGUID..ti.spellName
-	A:HideBar(eventInfo.displaySettings.barType, id)
+	A:hideBar(eventInfo.displaySettings.barType, id)
 end

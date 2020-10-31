@@ -103,7 +103,7 @@ A.Events = {
 		units = {"src","dst"},
 		actions = {"chatAnnounce", "playSound"},
 		--msg = P.events.msgInterrupt,
-		--actions = {A:GetLockout(), A:ChatAnnounce(), A:PlaySound()},
+		--actions = {A:GetLockout(), A:chatAnnounce(), A:playSound()},
 	},
 }
 

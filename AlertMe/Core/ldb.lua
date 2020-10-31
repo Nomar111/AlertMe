@@ -16,7 +16,7 @@ function A:initLDB()
 		type = "launcher",
 		text = "AlertMe",
 		iconR = (P.general.enabled) and 1 or 0.5,
-		icon = A.Backgrounds["AlertMe_Minimap"],
+		icon = A.backgrounds["AlertMe_Minimap"],
 		tocname = "AlertMe",
 		OnClick = function(self, button)
 			if button == "LeftButton" then
@@ -25,10 +25,10 @@ function A:initLDB()
 					A.updateLDBtooltip()
 					A.toggleAddon()
 				else
-					O:OpenOptions()
+					O:openOptions()
 				end
 			elseif button == "MiddleButton" then
-				A.ToggleMinimap(true)
+				A.toggleMinimap(true)
 			end
 		end,
 		OnEnter = function(self)
@@ -49,15 +49,10 @@ function A.updateLDBtooltip()
 	-- prepare tooltip text
 	local tooltip = {
 		header = "AlertMe "..ADDON_VERSION,
-		lines = {},
+		lines = {"Left-Click: Show/Hide options", "Shift-Left-Click: Enable/Disable addon", "Middle-Click: Show/Hide minimap"},
 		wrap = false
 	}
-	tooltip.lines[1] = "Left-Click: Show/Hide options"
-	tooltip.lines[2] = "Shift-Left-Click: Enable/Disable addon"
-	tooltip.lines[3] = "Middle-Click: Show/Hide minimap"
-	if P.general.enabled == false then
-		tooltip.lines[4] = "|cffFF0000ADDON IS DISABLED"
-	end
+	if not P.general.enabled then tooltip.lines[4] = "|cffFF0000ADDON IS DISABLED" end
 	-- set text
 	if tooltip.header then
 		O.tooltip:SetText(tooltip.header, 1, 1, 1, wrap)

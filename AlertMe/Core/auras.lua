@@ -46,7 +46,7 @@ function A:getUnitAura(ti, eventInfo)
 	return matchUnitAura(ti, eventInfo, unit, filter)
 	-- if not name and not ti.delayed then -- only do the first timer
 	-- 	C_Timer.After(0.2, function()
-	-- 		A:ProcessTriggerInfo(ti, eventInfo)
+	-- 		A:processTriggerInfo(ti, eventInfo)
 	-- 	end)
 end
 
@@ -55,13 +55,13 @@ function A:fakeEvent(ti, eventInfo)
 	_ti.event = "SPELL_AURA_APPLIED"
 	local _eventInfo = A.Events["SPELL_AURA_APPLIED"]
 	-- get alerts for fake args
-	local check, alerts = A:DoChecks(_ti, _eventInfo)
+	local check, alerts = A:doChecks(_ti, _eventInfo)
 	if not check then return end
 	-- check for snapshots
 	local exists
 	exists, __ti, __eventInfo = A:checkSnapShot(_ti, _eventInfo)
 	if exists then -- do whatever is defined in actions
-		A:DoActions(__ti, __eventInfo, alerts, true)
+		A:doActions(__ti, __eventInfo, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
 		A:addSnapShot(ti, eventInfo)
 	end

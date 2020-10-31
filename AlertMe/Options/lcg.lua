@@ -1,11 +1,11 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function O:ShowGlow(container)
+function O:showGlow(container)
 	-- clear container so it can call itself
 	container:ReleaseChildren()
 	local function refresh()
-		O:ShowGlow(container)
+		O:showGlow(container)
 	end
 	local ttFrequency = {
 		header = "Frequency",

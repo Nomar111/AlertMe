@@ -5,7 +5,7 @@ function A:updateScrolling()
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- init frame if it doesnt exist
-	if not A.ScrollingText then
+	if not scrollingText then
 		local f = CreateFrame("ScrollingMessageFrame", "AlertMeScrollingText", UIParent)
 		f:SetFrameStrata("LOW")
 		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true , tileSize=16})
@@ -33,18 +33,18 @@ function A:updateScrolling()
 				self:Hide()
 			end
 		end)
-		A.ScrollingText = f
+		scrollingText = f
 		-- hide frame after init
-		A.ScrollingText:Hide()
+		scrollingText:Hide()
 	end
 	-- update settings
-	local f = A.ScrollingText
+	local f = scrollingText
 	f:SetWidth(db.width)
 	f:SetHeight(db.fontSize * db.visibleLines)
 	local align = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
 	f:SetJustifyH(align[db.align])
 	f:SetFading(db.fading)
-	f:SetFont(A.Fonts[db.font], db.fontSize)
+	f:SetFont(A.fonts[db.font], db.fontSize)
 	f:SetMaxLines(db.maxLines)
 	f:SetTimeVisible(db.timeVisible)
 	f:SetBackdropColor(0, 0, 0, db.alpha)
@@ -56,21 +56,21 @@ function A:updateScrolling()
 end
 
 function A:toggleScrollingLocked()
-	A.ScrollingText:EnableMouse(P.scrolling.interactive)
+	scrollingText:EnableMouse(P.scrolling.interactive)
 end
 
 function A.showScrolling()
 	if not P.scrolling.enabled then return end
 	-- if not yet initialized, do so
-	if not A.ScrollingText then
+	if not scrollingText then
 		A:updateScrolling()
 	end
-	A.ScrollingText:Show()
+	scrollingText:Show()
 end
 
 function A:hideScrolling()
-	if A.ScrollingText then
-		A.ScrollingText:Hide()
+	if scrollingText then
+		scrollingText:Hide()
 	end
 end
 
@@ -78,7 +78,7 @@ function A:setScrollingPos(reset)
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- abort if not exists
-	if not A.ScrollingText then return end
+	if not scrollingText then return end
 	-- reset position?
 	if reset then
 		local def = D.profile.scrolling
@@ -86,13 +86,13 @@ function A:setScrollingPos(reset)
 		db.ofs_x = def.ofs_x
 		db.ofs_y = def.ofs_y
 	end
-	A.ScrollingText:ClearAllPoints()
-	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
+	scrollingText:ClearAllPoints()
+	scrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
 function A:postInScrolling(msg)
 	if P.scrolling.enabled then
 		A:showScrolling()
-		A.ScrollingText:AddMessage(msg)
+		scrollingText:AddMessage(msg)
 	end
 end

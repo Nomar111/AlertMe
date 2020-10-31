@@ -24,7 +24,7 @@ local function createAlertList(eventShort)
 end
 
 -- creates the general options tab
-function O:ShowAlerts(container, eventShort)
+function O:showAlerts(container, eventShort)
 	-- clear container so it can call itself
 	container:ReleaseChildren()
 	-- some local variables
@@ -32,7 +32,7 @@ function O:ShowAlerts(container, eventShort)
 	local uid = db.selectedAlert
 	-- local functions
 	local function refresh()
-		O:ShowAlerts(container, eventShort)
+		O:showAlerts(container, eventShort)
 	end
 	local add = function()
 		local _uid = tostring(time()) -- create uid (time)
@@ -67,11 +67,11 @@ function O:ShowAlerts(container, eventShort)
 	end
 	O.attachSpacer(topGroup, 10)
 	-- add alert
-	local texture, tooltip = A.Backgrounds["AlertMe_Add"],  { lines = {"Add new alert"} }
+	local texture, tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Add new alert"} }
 	O.attachIcon(topGroup, texture, 18, add, tooltip)
 	O.attachSpacer(topGroup, 10)
 	-- delete alert
-	texture, tooltip = A.Backgrounds["AlertMe_Delete"],  { lines = {"Delete selected alert"} }
+	texture, tooltip = A.backgrounds["AlertMe_Delete"],  { lines = {"Delete selected alert"} }
 	O.attachIcon(topGroup, texture, 18, delete, tooltip)
 	O.attachSpacer(topGroup, 8)
 	-- active checkbox
@@ -81,6 +81,6 @@ function O:ShowAlerts(container, eventShort)
 	end
 	-- show alert details
 	if uid and uid ~= "" then
-		O:ShowAlertDetails(container, eventShort, uid)
+		O:showAlertDetails(container, eventShort, uid)
 	end
 end

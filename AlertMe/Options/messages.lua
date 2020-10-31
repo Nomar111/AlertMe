@@ -1,7 +1,7 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function O:ShowMessages(container)
+function O:showMessages(container)
 	-- update chat frames
 	initChatFrames()
 	-- set sv

@@ -20,7 +20,7 @@ local function updateSpellTable(eventShort, uid)
 		local rowGroup = O.attachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
 		-- delete spell icon
 		local del = {}
-		del.texture, del.tooltip = A.Backgrounds["AlertMe_Delete"],  { lines = {"Delete spell/aurable"} }
+		del.texture, del.tooltip = A.backgrounds["AlertMe_Delete"],  { lines = {"Delete spell/aurable"} }
 		del.onClick = function(widget)
 			db.spellNames[widget:GetUserData("spellName")] = nil
 			updateSpellTable(eventShort, uid)
@@ -36,7 +36,7 @@ local function updateSpellTable(eventShort, uid)
 		O.attachSpacer(rowGroup, 12)
 		-- add sound
 		local add = {}
-		add.texture, add.tooltip = A.Backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
+		add.texture, add.tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
 		add.onClick = function(widget)
 			local _spellName = widget:GetUserData("spellName")
 			local _soundFile = db.spellNames[_spellName].soundFile
@@ -184,7 +184,7 @@ local function soundSettings(container, eventShort, uid)
 	updateState()
 end
 
-function O:ShowAlertDetails(container, eventShort, uid)
+function O:showAlertDetails(container, eventShort, uid)
 	local db = P.alerts[eventShort].alertDetails[uid]
 	-- spell selection
 	spellSelection(container, eventShort, uid)

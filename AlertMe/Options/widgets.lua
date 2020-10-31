@@ -3,10 +3,10 @@ setfenv(1, _G.AlertMe)
 
 -- upvales
 local LSMTables = {
-	sound = A.Sounds,
-	statusbar = A.Statusbars,
-	font = A.Fonts,
-	background = A.Backgrounds,
+	sound = A.sounds,
+	statusbar = A.statusbars,
+	font = A.fonts,
+	background = A.backgrounds,
 	border = A.Borders
 }
 
@@ -18,7 +18,7 @@ local LSMWidgets = {
 	border = "LSM30_Border"
 }
 
-O.setTooltip = function(widget, tooltip)
+local function setTooltip(widget, tooltip)
 	-- show
 	local wrap = tooltip.wrap or false
 	widget:SetCallback("OnEnter", function()
@@ -61,7 +61,7 @@ function O.attachCheckBox(container, label, db, key, width, func, tooltip)
 	end)
 	widget:SetLabel(label)
 	if width then widget:SetWidth(width) end
-	if tooltip then	O.setTooltip(widget, tooltip) end
+	if tooltip then	setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
@@ -90,7 +90,7 @@ function O.attachDropdown(container, label, db, key, list, width, func, tooltip)
 		db[key] = value
 		if func then func() end
 	end)
-	if tooltip then	O.setTooltip(widget, tooltip) end
+	if tooltip then	setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
@@ -110,7 +110,7 @@ function O.attachEditBox(container, label, path, key, width, func, tooltip)
 		path[key] = text
 		if func then func() end
 	end)
-	if tooltip then	O.setTooltip(widget, tooltip) end
+	if tooltip then	setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
@@ -165,7 +165,7 @@ function O.attachIcon(container, image, size, onClick, tooltip, ofs_y)
 	widget.image:SetPoint("TOP", ofs_y, 0)
 	-- callbacks
 	if onClick then widget:SetCallback("OnClick", onClick) end
-	if tooltip then	O.setTooltip(widget, tooltip) end
+	if tooltip then	setTooltip(widget, tooltip) end
 	-- add and return
 	container:AddChild(widget)
 	return widget
@@ -230,7 +230,7 @@ function O.attachSlider(container, label, db, key, min, max, step, isPercent, wi
 		if func then func() end
 	end)
 	if width then widget:SetWidth(width) end
-	if tooltip then	O.setTooltip(widget, tooltip) end
+	if tooltip then	setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end

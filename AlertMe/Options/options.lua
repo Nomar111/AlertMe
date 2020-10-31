@@ -6,41 +6,8 @@ setfenv(1, _G.AlertMe)
 O.config = {}
 
 -- *************************************************************************************
--- open the options window
-function O:OpenOptions()
-	-- check if in combat
-	if InCombatLockdown() then
-		print("Can't open AlertMe options because of ongoing combat.")
-		return
-	end
-	-- close
-	local function close()
-		A:initSpellOptions()
-		A.Libs.AceGUI:Release(O.OptionsFrame)
-		O.OptionsFrame = nil
-		A:HideAllGUIs()
-	end
-	-- check if already open
-	if O.OptionsFrame ~= nil then
-		close()
-		return
-	end
-	-- create main frame for options
-	local f = A.Libs.AceGUI:Create("Frame")
-	f:SetTitle("AlertMe Options")
-	f:EnableResize(true)
-	f:SetLayout("Flow")
-	f:SetCallback("OnClose", close)
-	f:SetWidth(840)
-	f:SetHeight(670)
-	O.OptionsFrame = f
-	-- create navigation
-	O:CreateNavTree(f)
-end
-
--- *************************************************************************************
 -- creates navigation tree
-function O:CreateNavTree(container)
+local function createNavTree(container)
 	-- function to draw the groupd
 	local treeStructure = {}
 	treeStructure[1] = {value = "general", text = "General"}
@@ -74,24 +41,58 @@ function O:CreateNavTree(container)
 		scrollGroup:SetFullHeight(true)
 		scrollGroup:SetFullWidth(true)
 		contentGroup:AddChild(scrollGroup)
-		O:ShowOptions(scrollGroup, uniqueValue)
+		O:showOptions(scrollGroup, uniqueValue)
 	end
 	tree:SetCallback("OnGroupSelected", GroupSelected)
 	tree:SelectByPath(strsplit("\001", P.options.lastMenu))
 	container:AddChild(tree)
-	--tree:SelectByPath("alerts","gain")
 end
 
-function O:ShowOptions(container, uniqueValue)
+-- *************************************************************************************
+-- open the options window
+function O:openOptions()
+	-- check if in combat
+	if InCombatLockdown() then
+		print("Can't open AlertMe options because of ongoing combat.")
+		return
+	end
+	-- close
+	local function close()
+		A:initSpellOptions()
+		A.Libs.AceGUI:Release(O.options)
+		O.options = nil
+		A:hideAllGUIs()
+	end
+	-- check if already open
+	if O.options ~= nil then
+		close()
+		return
+	end
+	-- create main frame for options
+	local f = A.Libs.AceGUI:Create("Frame")
+	f:SetTitle("AlertMe Options")
+	f:EnableResize(true)
+	f:SetLayout("Flow")
+	f:SetCallback("OnClose", close)
+	f:SetWidth(840)
+	f:SetHeight(670)
+	O.options = f
+	-- create navigation
+	createNavTree(f)
+end
+
+
+
+function O:showOptions(container, uniqueValue)
 	P.options.lastMenu = uniqueValue
 	local lvl1, lvl2 = strsplit("\001", uniqueValue)
-	if lvl1 == "general" then O:ShowGeneral(container)
+	if lvl1 == "general" then O:showGeneral(container)
 	elseif lvl1 == "scrolling" then O:showScrollingText(container)
-	elseif lvl1 == "bars" then O:ShowBars(container)
-	elseif lvl1 == "messages" then O:ShowMessages(container)
-	elseif lvl1 == "glow" then O:ShowGlow(container)
-	elseif lvl1 == "profiles" then O:ShowProfiles(container)
-	elseif lvl1 == "info" then O:ShowInfo(container)
-	elseif lvl1 == "alerts" and lvl2 ~= nil then O:ShowAlerts(container, lvl2)
+	elseif lvl1 == "bars" then O:showBars(container)
+	elseif lvl1 == "messages" then O:showMessages(container)
+	elseif lvl1 == "glow" then O:showGlow(container)
+	elseif lvl1 == "profiles" then O:showProfiles(container)
+	elseif lvl1 == "info" then OsShowInfo(container)
+	elseif lvl1 == "alerts" and lvl2 ~= nil then O:showAlerts(container, lvl2)
 	end
 end
