@@ -49,7 +49,7 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		local alerts = getAlerts(spellName)
 		if not alerts then return end
 		-- create arguments for unitcheck
-		local ti = {
+		local cleu = {
 			event = event,
 			srcGUID = unitGUID,
 			srcName = unitName,

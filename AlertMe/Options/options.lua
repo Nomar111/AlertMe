@@ -10,9 +10,9 @@ O.config = {}
 local function showOptions(container, uniqueValue)			-- 	uniqueValue = the value from tree widget
 	P.options.lastMenu = uniqueValue
 	local lvl1, lvl2 = strsplit("\001", uniqueValue)
-	if lvl1 == "showAlerts" and lvl2 then
+	if lvl1 == "ShowAlerts" and lvl2 then
 		O[lvl1](O, container, lvl2)
-	elseif lvl1 ~= "showAlerts" then
+	elseif lvl1 ~= "ShowAlerts" then
 		O[lvl1](O, container)
 	end
 end
@@ -67,7 +67,7 @@ function O:OpenOptions()
 	-- callback for closing
 	local function close()
 		A:InitSpellOptions()
-		A.Libs.AceGUI:Release(O.options)
+		A.Libs.AceGUI:Release(O.Options)
 		O.Options = nil
 		A:HideAllGUIs()
 	end

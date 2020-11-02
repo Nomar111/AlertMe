@@ -164,7 +164,7 @@ function A:DisplayAuraBars(cleu, evi, alerts, snapShot)
 	local id = cleu.dstGUID..cleu.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showBar and evi.displayOptions and evi.displayOptions.bar then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(cleu, evi)
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(cleu, evi)
 			if remaining then
 				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, true)
 			elseif not duration and snapShot then

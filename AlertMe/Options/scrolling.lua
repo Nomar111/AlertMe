@@ -16,12 +16,12 @@ function O:ShowScrollingText(container)
 	-- add dummy messages for setup
 	local function showScrollingTest()
 		A:ShowScrolling()
-		scrollingText:AddMessage("Adding some test messages")
-		scrollingText:AddMessage("Playername gains Blessing of Freedom")
-		scrollingText:AddMessage("Teammate is sapped")
-		scrollingText:AddMessage("Blessing of Protection is dispelled on Player (by Player)")
-		scrollingText:AddMessage("Warrior gains Recklessness")
-		scrollingText:AddMessage("Priest casts Mana Burn")
+		A.ScrollingText:AddMessage("Adding some test messages")
+		A.ScrollingText:AddMessage("Playername gains Blessing of Freedom")
+		A.ScrollingText:AddMessage("Teammate is sapped")
+		A.ScrollingText:AddMessage("Blessing of Protection is dispelled on Player (by Player)")
+		A.ScrollingText:AddMessage("Warrior gains Recklessness")
+		A.ScrollingText:AddMessage("Priest casts Mana Burn")
 	end
 	-- header
 	O.attachHeader(container, "Scrolling Text Settings")

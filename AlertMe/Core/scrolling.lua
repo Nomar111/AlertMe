@@ -38,7 +38,7 @@ function A:UpdateScrolling()
 		A.ScrollingText:Hide()
 	end
 	-- update settings
-	local f = scrollingText
+	local f = A.ScrollingText
 	f:SetWidth(db.width)
 	f:SetHeight(db.fontSize * db.visibleLines)
 	local align = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
@@ -78,7 +78,7 @@ function A:SetScrollingPos(reset)
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- abort if not exists
-	if not scrollingText then return end
+	if not A.ScrollingText then return end
 	-- reset position?
 	if reset then
 		local def = D.profile.scrolling

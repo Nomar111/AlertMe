@@ -17,7 +17,7 @@ function debug()
 	-- function hooking in VDT:
 	-- vdt:func("AlertMe")						-- all functions
 	-- vdt:func("AlertMe.A")					-- all functions in A
-	-- vdt:func("AlertMe.A", "CheckUnits")		-- only the function "CheckUnits" in A
+	--vdt:func("AlertMe.A", "CheckUnits")		-- only the function "CheckUnits" in A
 	-- dhook(A, "CheckUnits", {true, true} )
 end
 
@@ -94,7 +94,7 @@ function dprint(lvl,...)
 				msg = msg..sep..tostring(args[i])
 			end
 		end
-		addonMessage(prefix..msg)
+		AddonMessage(prefix..msg)
 	end
 	if lvlCheck ~= false and lvl <= debugLevelLog then
 		if #args == 0 then

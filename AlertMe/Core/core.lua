@@ -72,8 +72,6 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 	end
 	-- set relevant spell name
 	cleu.checkedSpell = cleu[evi.checkedSpell]
-	vdt:data(cleu, "cleu")
-	vdt:data(evi, "evi")
 	-- call ProcessCLEU
 	A:ProcessCLEU(cleu, evi)
 end
@@ -92,7 +90,7 @@ function A:ProcessCLEU(cleu, evi)
 	if not check then return end
 	-- auras need a special treatment
 	if evi.handle == "gain" then
-		local name, _, _, _, duration, _, _, _, _, _, remaining = A:getUnitAura(cleu, evi)
+		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(cleu, evi)
 		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
 			-- rermaining nil?
 			A:DoActions(cleu, evi, alerts, false)
@@ -168,6 +166,7 @@ function A:CheckUnits(cleu, evi, alerts)
 		local checkFailed = false
 		-- do the relevant checks (src, dst)
 		for _, pre in pairs (evi.unitSelection) do
+			--vdt:data(cleu, "cleu")
 			-- set local variables
 			local name, GUID, flags = cleu[pre.."Name"], cleu[pre.."GUID"], cleu[pre.."Flags"]
 			local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
@@ -453,7 +452,7 @@ end
 
 function A.ToggleAddon()
 	-- (un)register callbacks from casterino
-	A:initLCC()
+	A:InitLCC()
 	-- (un)register events
 	if P.general.enabled == true then
 		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)

@@ -31,7 +31,7 @@ events.SPELL_CAST_START = {
 	handle = "start",
 	barType = "spells",
 	checkedSpell = "spellName",
-	actions = { "ChatAnnounce", "displayAuraBars", "displayGlows", "PlaySound" },
+	actions = { "ChatAnnounce", "DisplayAuraBars", "DisplayGlows", "PlaySound" },
 }
 events.SPELL_CAST_SUCCESS = {
 	handle = "success",
