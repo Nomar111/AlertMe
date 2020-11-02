@@ -1,5 +1,5 @@
 -- upvalues
-local sub = string.sub
+local sub, GetSpellInfo = string.sub, GetSpellInfo
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create tables

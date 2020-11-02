@@ -7,12 +7,6 @@ local PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bitband = Play
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
--- local functions
-local function HideGUI(cleu, evi)
-	A:HideAuraBars(cleu, evi)
-	A:HideGlow(cleu, evi)
-end
-
 -- init function
 function A:Initialize()
 	-- init examples profile
@@ -496,6 +490,11 @@ function A:GetReactionColor(cleu, rgb)
 	else
 		return A.colors[color]["hex"]
 	end
+end
+
+function A:HideGUI(cleu, evi)
+	A:HideAuraBars(cleu, evi)
+	A:HideGlow(cleu, evi)
 end
 
 function A:HideAllGUIs()
