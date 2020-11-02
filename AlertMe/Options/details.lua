@@ -3,8 +3,8 @@ local GetItemIcon, GetSpellInfo = GetItemIcon, GetSpellInfo
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-local function updateSpellTable(handle, uid)
-	O.spellTable:ReleaseChildren()
+local function updateSpelltable(handle, uid)
+	O.Spelltable:ReleaseChildren()
 	-- get saved vars
 	local db = P.alerts[handle].alertDetails[uid]
 	-- scroll frame
@@ -12,7 +12,7 @@ local function updateSpellTable(handle, uid)
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
-	O.spellTable:AddChild(scrollGroup)
+	O.Spelltable:AddChild(scrollGroup)
 	-- loop over all tracked spells/auras
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
@@ -20,11 +20,11 @@ local function updateSpellTable(handle, uid)
 		-- delete spell icon
 		local del = {}
 		del.texture, del.tooltip = A.backgrounds["AlertMe_Delete"],  { lines = {"Delete item from spell table"} }
-		del.onClick = function(widget)
+		del.OnClick = function(widget)
 			db.spellNames[widget:GetUserData("spellName")] = nil
-			updateSpellTable(handle, uid)
+			updateSpelltable(handle, uid)
 		end
-		local iconDelSpell = O.attachIcon(rowGroup, del.texture, 18, del.onClick, del.tooltip)
+		local iconDelSpell = O.attachIcon(rowGroup, del.texture, 18, del.OnClick, del.tooltip)
 		iconDelSpell:SetUserData("spellName", spellName)
 		O.attachSpacer(rowGroup, 10)
 		-- spell/aura icon & spellname
@@ -36,14 +36,14 @@ local function updateSpellTable(handle, uid)
 		-- add sound
 		local add = {}
 		add.texture, add.tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
-		add.onClick = function(widget)
+		add.OnClick = function(widget)
 			local _spellName = widget:GetUserData("spellName")
 			local _soundFile = db.spellNames[_spellName].soundFile
-			if _spellName  then O.soundSelection:SetUserData("spellName", _spellName) end
-			if _soundFile then O.soundSelection:SetValue(_soundFile) end
-			O.soundSelection:SetDisabled(false)
+			if _spellName  then O.Soundselection:SetUserData("spellName", _spellName) end
+			if _soundFile then O.Soundselection:SetValue(_soundFile) end
+			O.Soundselection:SetDisabled(false)
 		end
-		local iconAddSound = O.attachIcon(rowGroup, add.texture, 16, add.onClick, add.tooltip)
+		local iconAddSound = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
 		iconAddSound:SetUserData("spellName", spellName)
 		O.attachSpacer(rowGroup, 10)
 		-- sound label
@@ -66,7 +66,7 @@ local function spellSelection(container, handle, uid)
 			local name, _, icon = GetSpellInfo(v.spellID)
 			if name ~= nil and name == input then
 				db.spellNames[name]["icon"] = icon
-				updateSpellTable(handle, uid, db)
+				updateSpelltable(handle, uid, db)
 			end
 		end
 		editBox:SetText("")
@@ -79,14 +79,14 @@ local function spellSelection(container, handle, uid)
 		P.alerts[handle].alertDetails[uid].spellNames[_spellName].soundFile = value
 		widget:SetDisabled(true)
 		widget:SetValue("")
-		updateSpellTable(handle, uid)
+		updateSpelltable(handle, uid)
 	end)
 	lsm:SetDisabled(true)
-	O.soundSelection = lsm
-	O.soundSelection:SetUserData("key", "None")
+	O.Soundselection = lsm
+	O.Soundselection:SetUserData("key", "None")
 	-- spell table
-	O.spellTable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
-	updateSpellTable(handle, uid)
+	O.Spelltable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
+	updateSpelltable(handle, uid)
 end
 
 local function unitSelection(container, handle, uid)
@@ -163,7 +163,7 @@ local function soundSettings(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	local soundGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
-		if O.soundSelectionDefault:GetValue() ~= 2 then
+		if O.SoundselectionDefault:GetValue() ~= 2 then
 			O.SoundFile:SetDisabled(true)
 		else
 			O.SoundFile:SetDisabled(false)
@@ -173,7 +173,7 @@ local function soundSettings(container, handle, uid)
 	O.attachHeader(soundGroup, "Sound alerts")
 	local list = { [1] = "No sound alerts", [2] = "Play one sound", [3] = "Play individual sounds" }
 	local tooltip = { lines = { "Set alerts in the spell table" } }
-	O.soundSelectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, tooltip)
+	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, tooltip)
 	O.attachSpacer(soundGroup, 20)
 	O.SoundFile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
 	updateState()
