@@ -164,9 +164,9 @@ local function soundSettings(container, handle, uid)
 	local soundGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
 		if O.SoundselectionDefault:GetValue() ~= 2 then
-			O.SoundFile:SetDisabled(true)
+			O.Soundfile:SetDisabled(true)
 		else
-			O.SoundFile:SetDisabled(false)
+			O.Soundfile:SetDisabled(false)
 		end
 	end
 	-- sound alerts
@@ -175,7 +175,7 @@ local function soundSettings(container, handle, uid)
 	local tooltip = { lines = { "Set alerts in the spell table" } }
 	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, tooltip)
 	O.attachSpacer(soundGroup, 20)
-	O.SoundFile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
+	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
 	updateState()
 end
 

@@ -7,26 +7,10 @@ function O:ShowGlow(container)
 	local function refresh()
 		O:ShowGlow(container)
 	end
-	local ttFrequency = {
-		header = "Frequency",
-		lines = {"Negative = inverse direction", "Default = 0.25"},
-		wrap = false
-	}
-	local ttLines = {
-		header = "Number of lines",
-		lines = {"Default = 8"},
-		wrap = false
-	}
-	local ttBGT = {
-		header = "BGTC Support",
-		lines = {"Deactivate if you experience performance issues"},
-		wrap = false
-	}
-	local ttThickness = {
-		header = "Thickness",
-		lines = {"Default = 2"},
-		wrap = false
-	}
+	local ttFrequency = { header = "Frequency", lines = { "Negative = inverse direction", "Default = 0.25" }, wrap = false }
+	local ttLines = { header = "Number of lines", lines = { "Default = 8" }, wrap = false }
+	local ttBGT = { header = "BGTC Support", lines = { "Deactivate if you experience performance issues" },	wrap = false }
+	local ttThickness = { header = "Thickness", lines = { "Default = 2" }, wrap = false	}
 	local db = P.glow[P.glow.selectedGlow]
 	-- header
 	O.attachHeader(container, "Glow Settings")
