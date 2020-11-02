@@ -97,7 +97,7 @@ D.profile = {
 		},
 	},
 	options = {
-		lastMenu = "alerts"
+		lastMenu = "ShowAlerts"
 	},
 	dummy = {
 		name = ""
