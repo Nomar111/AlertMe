@@ -73,7 +73,7 @@ end
 function A:ProcessCLEU(cleu, evi)
 	if evi.handle == "removed" then
 		-- remove gui elements if needed
-		HideGUI(cleu, evi)
+		A:HideGUI(cleu, evi)
 		return
 	elseif evi.handle == "success" then
 		-- if spell cast success fake an applay event
