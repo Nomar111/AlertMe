@@ -34,7 +34,7 @@ function A:InitLDB()
 		OnEnter = function(self)
 			O.Tooltip = O.Tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
 			O.Tooltip:SetOwner(self, "ANCHOR_NONE")
-			A.updateLDBtooltip()
+			A.UpdateLDBtooltip()
 			O.Tooltip:Show()
 			O.Tooltip:SetPoint(getAnchors(self))
 		end,
@@ -42,7 +42,7 @@ function A:InitLDB()
 			if O.Tooltip then O.Tooltip:Hide() end
 		end,
 	})
-	A.Libs.LDBI:Register("AlertMe", A.AlertMeBroker, P.general.minimap, P.general.minimapPos);
+	A.Libs.LDBI:Register("AlertMe", A.AlertMeBroker, P.general.minimap, P.general.minimapPos)
 end
 
 function A.UpdateLDBtooltip()
@@ -65,7 +65,7 @@ function A.UpdateLDBtooltip()
 	O.Tooltip:Show()
 end
 
-function A.toggleMinimap(toggle)
+function A.ToggleMinimap(toggle)
 	if toggle then P.general.minimap.hide = not P.general.minimap.hide end
 	if P.general.minimap.hide then
 		A.Libs.LDBI:Hide("AlertMe")

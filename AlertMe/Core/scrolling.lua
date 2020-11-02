@@ -5,7 +5,7 @@ function A:UpdateScrolling()
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- init frame if it doesnt exist
-	if not ScrollingText then
+	if not A.ScrollingText then
 		local f = CreateFrame("ScrollingMessageFrame", "AlertMeScrollingText", UIParent)
 		f:SetFrameStrata("LOW")
 		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true , tileSize=16})
@@ -56,21 +56,21 @@ function A:UpdateScrolling()
 end
 
 function A:ToggleScrollingLocked()
-	scrollingText:EnableMouse(P.scrolling.interactive)
+	A.ScrollingText:EnableMouse(P.scrolling.interactive)
 end
 
 function A.ShowScrolling()
 	if not P.scrolling.enabled then return end
 	-- if not yet initialized, do so
-	if not scrollingText then
+	if not A.ScrollingText then
 		A:UpdateScrolling()
 	end
-	scrollingText:Show()
+	A.ScrollingText:Show()
 end
 
 function A:HideScrolling()
-	if scrollingText then
-		scrollingText:Hide()
+	if A.ScrollingText then
+		A.ScrollingText:Hide()
 	end
 end
 
@@ -86,13 +86,13 @@ function A:SetScrollingPos(reset)
 		db.ofs_x = def.ofs_x
 		db.ofs_y = def.ofs_y
 	end
-	scrollingText:ClearAllPoints()
-	scrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
+	A.ScrollingText:ClearAllPoints()
+	A.ScrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
 function A:PostInScrolling(msg)
 	if P.scrolling.enabled then
 		A:ShowScrolling()
-		scrollingText:AddMessage(msg)
+		A.ScrollingText:AddMessage(msg)
 	end
 end

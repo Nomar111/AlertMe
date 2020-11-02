@@ -456,8 +456,8 @@ function A.ToggleAddon()
 	A:initLCC()
 	-- (un)register events
 	if P.general.enabled == true then
-		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.registerCLEU)
-		A.registerCLEU("Toggle")
+		A:RegisterEvent("PLAYER_ENTERING_WORLD", A.RegisterCLEU)
+		A.RegisterCLEU("Toggle")
 	else
 		A:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		A:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
