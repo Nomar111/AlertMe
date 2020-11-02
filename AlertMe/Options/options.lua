@@ -11,9 +11,13 @@ local function showOptions(container, uniqueValue)			-- 	uniqueValue = the value
 	P.options.lastMenu = uniqueValue
 	local lvl1, lvl2 = strsplit("\001", uniqueValue)
 	if lvl1 == "ShowAlerts" and lvl2 then
-		O[lvl1](O, container, lvl2)
+		if O[lvl1] then
+			O[lvl1](O, container, lvl2)
+		end
 	elseif lvl1 ~= "ShowAlerts" then
-		O[lvl1](O, container)
+		if O[lvl1] then
+			O[lvl1](O, container)
+		end
 	end
 end
 
