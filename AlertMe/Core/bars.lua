@@ -56,7 +56,7 @@ local function reArrangeBars(barType)
 	end
 end
 
-function A:toggleContainerLock(barType)
+function A:ToggleContainerLock(barType)
 	local f = getContainer(barType)
 	local db = P.bars[barType]
 	f:EnableMouse(db.unlocked)
@@ -70,7 +70,7 @@ function A:toggleContainerLock(barType)
 	end
 end
 
-function A:resetContainerPosition(barType)
+function A:ResetContainerPosition(barType)
 	-- reset position
 	local db = P.bars[barType]
 	local def = D.profile.bars[barType]
@@ -80,7 +80,7 @@ function A:resetContainerPosition(barType)
 	f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:showBar(barType, id, label, icon, duration, reaction, noCreate)
+function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	-- enabled?
 	local db = P.bars[barType]
 	if not db.enabled then return end
@@ -104,7 +104,7 @@ function A:showBar(barType, id, label, icon, duration, reaction, noCreate)
 		A.bars[barType][id] = newBar
 	else
 		A.bars[barType][id]:Stop()
-		A:showBar(barType, id, label, icon, duration, color)
+		A:ShowBar(barType, id, label, icon, duration, color)
 	end
 	local bar = A.bars[barType][id]
 	-- update/set bar settings
@@ -142,13 +142,13 @@ function A:showBar(barType, id, label, icon, duration, reaction, noCreate)
 	A.Libs.LCB.RegisterCallback(A, "LibCandyBar_Stop", barStopped)
 end
 
-function A:hideBar(barType, id)
+function A:HideBar(barType, id)
 	if A.bars[barType][id] then
 		A.bars[barType][id]:Stop()
 	end
 end
 
-function A:hideAllBars()
+function A:HideAllBars()
 	if not A.bars then return end
 	for barType,ids in pairs(A.bars) do
 		for id, _ in pairs(ids) do
@@ -157,7 +157,7 @@ function A:hideAllBars()
 	end
 end
 
-function A:displayAuraBars(cleu, evi, alerts, snapShot)
+function A:DisplayAuraBars(cleu, evi, alerts, snapShot)
 	local barType = evi.barType
 	-- abort conditions: wrong setting in event, auras disabled
 	if barType ~= "auras" or not P.bars.auras.enabled then return end
@@ -166,20 +166,20 @@ function A:displayAuraBars(cleu, evi, alerts, snapShot)
 		if alert.showBar and evi.displayOptions and evi.displayOptions.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(cleu, evi)
 			if remaining then
-				A:showBar(barType, id, getShortName(cleu.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, true)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
 				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:showBar(barType, id, getShortName(cleu.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, true)
 			else
-				dprint(1, "A:displayAuraBars", "no aura duration, no snapshot, why am i here?", cleu.checkedSpell,  evi.handle)
+				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", cleu.checkedSpell,  evi.handle)
 			end
 		end
 	end
 end
 
-function A:hideAuraBars(cleu, evi)
+function A:HideAuraBars(cleu, evi)
 	local id = cleu.dstGUID..cleu.spellName
-	A:hideBar(evi.barType, id)
+	A:HideBar(evi.barType, id)
 end

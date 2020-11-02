@@ -22,21 +22,21 @@ local function setTooltip(widget, tooltip)
 	-- show
 	local wrap = tooltip.wrap or false
 	widget:SetCallback("OnEnter", function()
-		O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-		O.tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+		O.Tooltip = O.Tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+		O.Tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
 		if tooltip.header then
-			O.tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
+			O.Tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
 		end
 		if tooltip.lines then
 			for _, line in pairs(tooltip.lines) do
-				O.tooltip:AddLine(line, 1, .82, 0, wrap)
+				O.Tooltip:AddLine(line, 1, .82, 0, wrap)
 			end
 		end
-		O.tooltip:Show()
+		O.Tooltip:Show()
 	end)
 	-- hide
 	widget:SetCallback("OnLeave", function()
-		if O.tooltip then O.tooltip:Hide() end
+		if O.Tooltip then O.Tooltip:Hide() end
 	end)
 end
 

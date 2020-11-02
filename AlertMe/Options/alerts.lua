@@ -25,7 +25,7 @@ local function createAlertList(handle)
 end
 
 -- creates the general options tab
-function O:showAlerts(container, handle)
+function O:ShowAlerts(container, handle)
 	-- clear container so it can be called repeatedly
 	container:ReleaseChildren()
 	-- get last selected alert uid
@@ -33,7 +33,7 @@ function O:showAlerts(container, handle)
 	local uid = db.selectedAlert
 	-- prepare functions for user interaction
 	local function refresh()
-		O:showAlerts(container, handle)
+		O:ShowAlerts(container, handle)
 	end
 	local add = function()
 		local _uid = tostring(time())			-- create uid (time)
@@ -82,6 +82,6 @@ function O:showAlerts(container, handle)
 	end
 	-- show alert details
 	if uid and uid ~= "" then
-		O:showAlertDetails(container, handle, uid)
+		O:ShowAlertDetails(container, handle, uid)
 	end
 end

@@ -4,7 +4,7 @@ local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBA
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function A:initLCC()
+function A:InitLCC()
 	if not P.bars.spells.enabled or not P.general.enabled == true then
 		A.Libs.LCC.UnregisterAllCallbacks(A)
 		return
@@ -59,13 +59,13 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		}
 		local evi = events["SPELL_CAST_START"]
 		-- check units
-		local _alerts, errors = A:checkUnits(cleu, evi, alerts)
+		local _alerts, errors = A:CheckUnits(cleu, evi, alerts)
 		if not _alerts then	return end				--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
 		-- calculate remaining duration & show cast bar
 		local remaining = (endTime - (GetTime() * 1000))/1000
-		A:showBar(barType, unitGUID, unitName, icon, remaining, true)
+		A:ShowBar(barType, unitGUID, unitName, icon, remaining, true)
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
 	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-		A:hideBar(barType, unitGUID)
+		A:HideBar(barType, unitGUID)
 	end
 end

@@ -2,7 +2,7 @@
 setfenv(1, _G.AlertMe)
 
 -- creates the general options tab
-function O:showGeneral(container)
+function O:ShowGeneral(container)
 	-- header
 	O.attachHeader(container, "General Settings")
 	-- addon

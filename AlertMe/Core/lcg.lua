@@ -9,7 +9,7 @@ local function getBattleGroundTargetsFrame(cleu)
 	-- check if BGTC is loaded
 	if not IsAddOnLoaded("BattlegroundTargets") then return end
 	local name = cleu.dstName
-	local nameShort = getShortName(cleu.dstName)
+	local nameShort = GetShortName(cleu.dstName)
 	local frames = { _G.UIParent:GetChildren() }
 	for _, frame in ipairs(frames) do
 		if frame.name4button then
@@ -20,7 +20,7 @@ local function getBattleGroundTargetsFrame(cleu)
 	end
 end
 
-function A:displayGlows(cleu, evi, alerts, snapShot)
+function A:DisplayGlows(cleu, evi, alerts, snapShot)
 	if not P.glow.enabled then return end
 	local targetFrame = A.Libs.LGF.GetUnitFrame(cleu.dstGUID)
 	if not targetFrame and cleu.dstIsHostile and P.glow.bgtEnabled then
@@ -31,7 +31,7 @@ function A:displayGlows(cleu, evi, alerts, snapShot)
 	local id = cleu.dstGUID..cleu.spellName
 	for _, alert in pairs(alerts) do
 		if alert.showGlow >= 1 and evi.displayOptions and evi.displayOptions.glow then
-			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:getUnitAura(cleu, evi)
+			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(cleu, evi)
 			if not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
 				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID) --_, _, icon = GetSpellInfo(spellId)
@@ -43,14 +43,14 @@ function A:displayGlows(cleu, evi, alerts, snapShot)
 				A.glows[id] = targetFrame
 				-- remove glow effect after remaining time in case aura_reomved doesnt get triggered
 				C_Timer.After(remaining, function()
-					A:hideGlow(cleu, evi)
+					A:HideGlow(cleu, evi)
 				end)
 			end
 		end
 	end
 end
 
-function A:hideGlow(cleu, evi)
+function A:HideGlow(cleu, evi)
 	local id = cleu.dstGUID..cleu.spellName
 	if A.glows[id] then
 		A.Libs.LCG.PixelGlow_Stop(A.glows[id],id)
@@ -58,7 +58,7 @@ function A:hideGlow(cleu, evi)
 	end
 end
 
-function A:hideAllGlows()
+function A:HideAllGlows()
 	for id, frame in pairs(A.glows) do
 		A.Libs.LCG.PixelGlow_Stop(frame, id)
 	end

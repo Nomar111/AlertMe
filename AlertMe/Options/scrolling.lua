@@ -1,7 +1,7 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function O:showScrollingText(container)
+function O:ShowScrollingText(container)
 	local db = P.scrolling
 	local sliderWidth = 190
 	-- local function

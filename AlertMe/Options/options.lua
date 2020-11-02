@@ -33,14 +33,14 @@ end
 local function createNavTree(container)
 	-- function to draw the groupd
 	local treeStructure = {}
-	treeStructure[1] = {value = "showGeneral", text = "General"}
-	treeStructure[2] = {value = "showScrollingText", text = "Scrolling Text"}
-	treeStructure[3] = {value = "showBars", text = "Bar Setup"}
-	treeStructure[4] = {value = "showMessages", text = "Messages"}
-	treeStructure[5] = {value = "showGlow", text = "Glow"}
-	treeStructure[6] = {value = "showAlerts", text = "Alerts", children = {}}
-	treeStructure[7] = {value = "showProfiles", text = "Profiles"}
-	treeStructure[8] = {value = "showInfo", text = "Info"}
+	treeStructure[1] = {value = "ShowGeneral", text = "General"}
+	treeStructure[2] = {value = "ShowScrollingText", text = "Scrolling Text"}
+	treeStructure[3] = {value = "ShowBars", text = "Bar Setup"}
+	treeStructure[4] = {value = "ShowMessages", text = "Messages"}
+	treeStructure[5] = {value = "ShowGlow", text = "Glow"}
+	treeStructure[6] = {value = "ShowAlerts", text = "Alerts", children = {}}
+	treeStructure[7] = {value = "ShowProfiles", text = "Profiles"}
+	treeStructure[8] = {value = "ShowInfo", text = "Info"}
 	-- loop over alert submenus
 	for handle, menu in pairs(menus) do
 		treeStructure[6].children[menu.order]  = { value = handle, text = menu.text }
@@ -58,7 +58,7 @@ end
 
 -- *************************************************************************************
 -- open the options window
-function O:openOptions()
+function O:OpenOptions()
 	-- no options during combat - safety first!
 	if InCombatLockdown() then
 		print("Can't open AlertMe options because of ongoing combat.")
@@ -66,13 +66,13 @@ function O:openOptions()
 	end
 	-- callback for closing
 	local function close()
-		A:initSpellOptions()
+		A:InitSpellOptions()
 		A.Libs.AceGUI:Release(O.options)
-		O.options = nil
-		A:hideAllGUIs()
+		O.Options = nil
+		A:HideAllGUIs()
 	end
 	-- check if already open
-	if O.options then
+	if O.Options then
 		close()
 		return
 	end
@@ -84,7 +84,7 @@ function O:openOptions()
 	f:SetCallback("OnClose", close)
 	f:SetWidth(840)
 	f:SetHeight(670)
-	O.options = f
+	O.Options = f
 	-- create navigation
 	createNavTree(f)
 end

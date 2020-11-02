@@ -17,8 +17,8 @@ function debug()
 	-- function hooking in VDT:
 	-- vdt:func("AlertMe")						-- all functions
 	-- vdt:func("AlertMe.A")					-- all functions in A
-	-- vdt:func("AlertMe.A", "checkUnits")		-- only the function "checkUnits" in A
-	-- dhook(A, "checkUnits", {true, true} )
+	-- vdt:func("AlertMe.A", "CheckUnits")		-- only the function "CheckUnits" in A
+	-- dhook(A, "CheckUnits", {true, true} )
 end
 
 function tcopy(t, deep, seen)
@@ -39,13 +39,13 @@ function tcopy(t, deep, seen)
 	return nt
 end
 
-function getShortName(name)
+function GetShortName(name)
 	-- getUnitName: Returns Unitname without Realm
 	local short = gsub(name, "%-[^|]+", "")
 	return short
 end
 
-function initChatFrames()
+function InitChatFrames()
 	for i = 1, FCF_GetNumActiveChatFrames() do
 		local name = _G["ChatFrame"..i.."Tab"]:GetText()
 		if name ~= "Combat Log" then
@@ -53,9 +53,9 @@ function initChatFrames()
 		end
 	end
 end
-initChatFrames()
+InitChatFrames()
 
-function addonMessage(msg)
+function AddonMessage(msg)
 	-- loop through chat frames and post messages
 	for i, name in pairs(chatFrames) do
 		if P.messages.chatFrames[name] == true then
@@ -135,7 +135,7 @@ function dhook(object, method, dbg, dlevel)
 	true = argument itself
 	false = no display
 	_,nil = return all arguments
-	dhook(A, "checkUnits", {"event", false, true})
+	dhook(A, "CheckUnits", {"event", false, true})
 	dhook(A, "OnUnitCast")
 	]]--
 	dlevel = dlevel or 1

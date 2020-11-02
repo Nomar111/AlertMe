@@ -11,7 +11,7 @@ local function getAnchors(frame)
 	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
 end
 
-function A:initLDB()
+function A:InitLDB()
 	A.AlertMeBroker = A.Libs.LDB:NewDataObject("AlertMe", {
 		type = "launcher",
 		text = "AlertMe",
@@ -22,30 +22,30 @@ function A:initLDB()
 			if button == "LeftButton" then
 				if(IsShiftKeyDown()) then
 					P.general.enabled = not P.general.enabled
-					A.updateLDBtooltip()
-					A.toggleAddon()
+					A.UpdateLDBtooltip()
+					A.ToggleAddon()
 				else
-					O:openOptions()
+					O:OpenOptions()
 				end
 			elseif button == "MiddleButton" then
-				A.toggleMinimap(true)
+				A.ToggleMinimap(true)
 			end
 		end,
 		OnEnter = function(self)
-			O.tooltip = O.tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
-			O.tooltip:SetOwner(self, "ANCHOR_NONE")
+			O.Tooltip = O.Tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")
+			O.Tooltip:SetOwner(self, "ANCHOR_NONE")
 			A.updateLDBtooltip()
-			O.tooltip:Show()
-			O.tooltip:SetPoint(getAnchors(self))
+			O.Tooltip:Show()
+			O.Tooltip:SetPoint(getAnchors(self))
 		end,
 		OnLeave = function()
-			if O.tooltip then O.tooltip:Hide() end
+			if O.Tooltip then O.Tooltip:Hide() end
 		end,
 	})
 	A.Libs.LDBI:Register("AlertMe", A.AlertMeBroker, P.general.minimap, P.general.minimapPos);
 end
 
-function A.updateLDBtooltip()
+function A.UpdateLDBtooltip()
 	-- prepare tooltip text
 	local tooltip = {
 		header = "AlertMe "..ADDON_VERSION,
@@ -55,14 +55,14 @@ function A.updateLDBtooltip()
 	if not P.general.enabled then tooltip.lines[4] = "|cffFF0000ADDON IS DISABLED" end
 	-- set text
 	if tooltip.header then
-		O.tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
+		O.Tooltip:SetText(tooltip.header, 1, 1, 1, wrap)
 	end
 	if tooltip.lines then
 		for _, line in pairs(tooltip.lines) do
-			O.tooltip:AddLine(line, 1, .82, 0, wrap)
+			O.Tooltip:AddLine(line, 1, .82, 0, wrap)
 		end
 	end
-	O.tooltip:Show()
+	O.Tooltip:Show()
 end
 
 function A.toggleMinimap(toggle)

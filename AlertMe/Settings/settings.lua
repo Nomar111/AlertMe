@@ -8,7 +8,7 @@ events.SPELL_AURA_APPLIED = {
 	barType = "auras",
 	extraArgs = { "auraType" },
 	checkedSpell = "spellName",
-	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
+	actions = { "ChatAnnounce","DisplayAuraBars","DisplayGlows","PlaySound" },
 }
 events.SPELL_AURA_REFRESH = events.SPELL_AURA_APPLIED		-- handled completely the same as apply
 events.SPELL_AURA_REMOVED = {
@@ -25,26 +25,26 @@ events.SPELL_DISPEL = {
 	barType = "auras",
 	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool", "auraType" },
 	checkedSpell = "extraSpellName",
-	actions = { "chatAnnounce", "hideGUI", "playSound" },
+	actions = { "ChatAnnounce", "HideGUI", "PlaySound" },
 }
 events.SPELL_CAST_START = {
 	handle = "start",
 	barType = "spells",
 	checkedSpell = "spellName",
-	actions = { "chatAnnounce","displayAuraBars","displayGlows","playSound" },
+	actions = { "ChatAnnounce", "displayAuraBars", "displayGlows", "PlaySound" },
 }
 events.SPELL_CAST_SUCCESS = {
 	handle = "success",
 	barType = "spells",
 	checkedSpell = "spellName",
-	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
+	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast events
 }
 events.SPELL_INTERRUPT = {
 	handle = "interrupt",
 	barType = "spells",
-	extraArgs = { "extraSpellId","extraSpellName","extraSchool" },
+	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool" },
 	checkedSpell = "spellName",
-	actions = { "chatAnnounce", "playSound" }, -- progress bar gets called by unit_cast events
+	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast events
 }
 -- the settings per options category. match to events by handle
 menus = {}
@@ -147,7 +147,7 @@ A.colors = {
 	}
 }
 
-function A:initExamples()
+function A:InitExamples()
 	A.db.profiles.Examples = {
 		["alerts"] = {
 			["gain"] = {

@@ -16,7 +16,7 @@ local function getTestBar(barType, i)
 	return unpack(testBars[barType][i])
 end
 
-function O:showBars(container)
+function O:ShowBars(container)
 	-------------------------------------------------------------------------------
 	-- attach bar options depending on selected barType
 	local function attachBarOptions(tabGroup, barType)
@@ -24,19 +24,19 @@ function O:showBars(container)
 		local db = P.bars[barType]
 		-- onclick functions
 		local function containerLock()
-			A:toggleContainerLock(barType)
+			A:ToggleContainerLock(barType)
 		end
 		local function updateTestBar()
 			local id, label, icon, duration, reaction = getTestBar(barType, 1)
-			A:showBar(barType, id, label, icon, duration, reaction, true)
+			A:ShowBar(barType, id, label, icon, duration, reaction, true)
 			id, label, icon, duration, reaction = getTestBar(barType, 2)
-			A:showBar(barType, id, label, icon, duration, reaction, true)
+			A:ShowBar(barType, id, label, icon, duration, reaction, true)
 		end
 		-- header
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
 		local enableGroup = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
 		-- enable
-		O.attachCheckBox(enableGroup, "Enable "..barTypeText, db ,"enabled", 140, A.initLCC)
+		O.attachCheckBox(enableGroup, "Enable "..barTypeText, db ,"enabled", 140, A.InitLCC)
 		O.attachCheckBox(enableGroup, "Unlock bars", db ,"unlocked", 140, containerLock)
 		O.attachSpacer(container, _, "medium")
 		-- buttons
@@ -44,20 +44,20 @@ function O:showBars(container)
 		-- show
 		local btnShow = O.attachButton(buttonGroup, "Show test bars", 120)
 		btnShow:SetCallback("OnClick", function()
-			A:showBar(barType, getTestBar(barType, 1))
-			A:showBar(barType, getTestBar(barType, 2))
+			A:ShowBar(barType, getTestBar(barType, 1))
+			A:ShowBar(barType, getTestBar(barType, 2))
 		end)
 		-- hide
 		O.attachSpacer(buttonGroup, 20)
 		local btnHide = O.attachButton(buttonGroup, "Hide test bars", 120)
 		btnHide:SetCallback("OnClick", function()
-			A:hideBar(barType, "Testbar1")
-			A:hideBar(barType, "Testbar2")
+			A:HideBar(barType, "Testbar1")
+			A:HideBar(barType, "Testbar2")
 		end)
 		-- reset
 		O.attachSpacer(buttonGroup, 20)
 		local btnReset = O.attachButton(buttonGroup, "Reset position", 120)
-		btnReset:SetCallback("OnClick", function() A:resetContainerPosition(barType) end)
+		btnReset:SetCallback("OnClick", function() A:ResetContainerPosition(barType) end)
 		O.attachSpacer(tabGroup, _, "medium")
 		-- texture
 		local textureGroup = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})

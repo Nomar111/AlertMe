@@ -179,7 +179,7 @@ local function soundSettings(container, handle, uid)
 	updateState()
 end
 
-function O:showAlertDetails(container, handle, uid)
+function O:ShowAlertDetails(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	-- spell selection
 	spellSelection(container, handle, uid)

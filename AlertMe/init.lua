@@ -59,7 +59,7 @@ end
 
 -- addon enabled
 function A:OnEnable()
-	A:initialize()
+	A:Initialize()
 end
 
 -- automatically called on profile copy/delete/etc.

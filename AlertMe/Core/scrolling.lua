@@ -1,11 +1,11 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
-function A:updateScrolling()
+function A:UpdateScrolling()
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- init frame if it doesnt exist
-	if not scrollingText then
+	if not ScrollingText then
 		local f = CreateFrame("ScrollingMessageFrame", "AlertMeScrollingText", UIParent)
 		f:SetFrameStrata("LOW")
 		f:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",tile=true , tileSize=16})
@@ -33,9 +33,9 @@ function A:updateScrolling()
 				self:Hide()
 			end
 		end)
-		scrollingText = f
+		A.ScrollingText = f
 		-- hide frame after init
-		scrollingText:Hide()
+		A.ScrollingText:Hide()
 	end
 	-- update settings
 	local f = scrollingText
@@ -51,30 +51,30 @@ function A:updateScrolling()
 	f:RefreshLayout()
 	f:RefreshDisplay()
 	-- set position according to db
-	A:setScrollingPos(false)
-	A:toggleScrollingLocked()
+	A:SetScrollingPos(false)
+	A:ToggleScrollingLocked()
 end
 
-function A:toggleScrollingLocked()
+function A:ToggleScrollingLocked()
 	scrollingText:EnableMouse(P.scrolling.interactive)
 end
 
-function A.showScrolling()
+function A.ShowScrolling()
 	if not P.scrolling.enabled then return end
 	-- if not yet initialized, do so
 	if not scrollingText then
-		A:updateScrolling()
+		A:UpdateScrolling()
 	end
 	scrollingText:Show()
 end
 
-function A:hideScrolling()
+function A:HideScrolling()
 	if scrollingText then
 		scrollingText:Hide()
 	end
 end
 
-function A:setScrollingPos(reset)
+function A:SetScrollingPos(reset)
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- abort if not exists
@@ -90,9 +90,9 @@ function A:setScrollingPos(reset)
 	scrollingText:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:postInScrolling(msg)
+function A:PostInScrolling(msg)
 	if P.scrolling.enabled then
-		A:showScrolling()
+		A:ShowScrolling()
 		scrollingText:AddMessage(msg)
 	end
 end

@@ -40,59 +40,55 @@ local function matchUnitAura(cleu, evi, unit, filter)
 	end
 end
 
-function A:getUnitAura(cleu, evi)
+function A:GetUnitAura(cleu, evi)
 	local unit = (cleu.dstIsTarget == true) and "target" or cleu.dstName
 	local filter = (cleu.auraType == "BUFF") and "HELPFUL" or "HARMFUL"
 	return matchUnitAura(cleu, evi, unit, filter)
-	-- if not name and not cleu.delayed then -- only do the first timer
-	-- 	C_Timer.After(0.2, function()
-	-- 		A:processCLEU(cleu, evi)
-	-- 	end)
 end
 
-function A:fakeEvent(cleu, evi)
+function A:FakeEvent(cleu, evi)
 	local _cleu = tcopy(cleu)
 	_cleu.event = "SPELL_AURA_APPLIED"
 	local _evi = events["SPELL_AURA_APPLIED"]
 	-- get alerts for fake args
-	local check, alerts = A:doChecks(_cleu, _evi)
+	local check, alerts = A:DoChecks(_cleu, _evi)
 	if not check then return end
 	-- check for snapshots
 	local exists
-	exists, __cleu, __evi = A:checkSnapShot(_cleu, _evi)
+	exists, __cleu, __evi = A:CheckSnapshot(_cleu, _evi)
 	if exists then -- do whatever is defined in actions
-		A:doActions(__cleu, __evi, alerts, true)
+		A:DoActions(__cleu, __evi, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
-		A:addSnapShot(cleu, evi)
+		A:AddSnapshot(cleu, evi)
 	end
 end
 
-function A:checkSnapShot(cleu, evi)
+function A:CheckSnapshot(cleu, evi)
 	-- clear snasphot table of old entries first
 	cleanSnapshots()
 	-- if event = gain, check for success events and vice versa
 	if evi.handle == "gain" then
 		if A.snapshots[cleu.dstGUID] and A.snapshots[cleu.dstGUID][cleu.checkedSpell] and A.snapshots[cleu.dstGUID][cleu.checkedSpell]["success"] then
-			local snapShot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["success"]
-			local timeDiff = GetTime() - snapShot.ts
+			local snapshot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["success"]
+			local timeDiff = GetTime() - snapshot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				return true, snapShot.ti, snapShot.evi
+				return true, snapshot.ti, snapshot.evi
 			end
 		end
 		return false
 	elseif evi.handle == "success" then
 		if A.snapshots[cleu.dstGUID] and A.snapshots[cleu.dstGUID][cleu.checkedSpell] and A.snapshots[cleu.dstGUID][cleu.checkedSpell]["gain"] then
-			local snapShot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["gain"]
-			local timeDiff = GetTime() - snapShot.ts
+			local snapshot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["gain"]
+			local timeDiff = GetTime() - snapshot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				return true, snapShot.ti, snapShot.evi
+				return true, snapshot.ti, snapshot.evi
 			end
 		end
 		return false
 	end
 end
 
-function A:addSnapShot(cleu, evi)
+function A:AddSnapshot(cleu, evi)
 	if not A.snapshots[cleu.dstGUID] then A.snapshots[cleu.dstGUID] = {} end
 	if not A.snapshots[cleu.dstGUID][cleu.checkedSpell] then A.snapshots[cleu.dstGUID][cleu.checkedSpell] = {} end
 	A.snapshots[cleu.dstGUID][cleu.checkedSpell][evi.handle] = {
@@ -102,7 +98,7 @@ function A:addSnapShot(cleu, evi)
 	}
 end
 
-function A:initLCD()
+function A:InitLCD()
 	-- LibClassicDurations
 	A.Libs.LCD:Register("AlertMe")
 	A.Libs.LCD.enableEnemyBuffTracking = true
