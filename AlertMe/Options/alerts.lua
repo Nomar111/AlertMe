@@ -1,5 +1,3 @@
--- upvalues
-local _G, time, tostring = _G, time, tostring
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
