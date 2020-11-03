@@ -76,7 +76,7 @@ do
 	end
 
 	local function SetTitle(self,title)
-		self.titletext:SetText(cleutle)
+		self.titletext:SetText(title)
 	end
 
 	local function SetStatusText(self,text)

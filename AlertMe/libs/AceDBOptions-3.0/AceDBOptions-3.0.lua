@@ -189,7 +189,7 @@ elseif LOCALE == "ruRU" then
 	L["reset_sub"] = "Сброс текущего профиля на стандартный"
 elseif LOCALE == "itIT" then
 	L["choose"] = "Profili Esistenti"
-	L["choose_desc"] = "Puoi creare un nuovo profilo digitando il nome della casella di testo, oppure scegliendone uno tra i profili già esistencleu."
+	L["choose_desc"] = "Puoi creare un nuovo profilo digitando il nome della casella di testo, oppure scegliendone uno tra i profili già esistenti."
 	L["choose_sub"] = "Seleziona uno dei profili attualmente disponibili."
 	L["copy"] = "Copia Da"
 	L["copy_desc"] = "Copia le impostazioni da un profilo esistente, nel profilo attivo in questo momento."
@@ -206,7 +206,7 @@ elseif LOCALE == "itIT" then
 	L["profiles_sub"] = "Gestisci Profili"
 	L["reset"] = "Reimposta Profilo"
 	L["reset_desc"] = "Riporta il tuo profilo attivo alle sue impostazioni predefinite, nel caso in cui la tua configurazione si sia corrotta, o semplicemente tu voglia re-inizializzarla."
-	L["reset_sub"] = "Reimposta il profilo ai suoi valori predefinicleu."
+	L["reset_sub"] = "Reimposta il profilo ai suoi valori predefiniti."
 elseif LOCALE == "ptBR" then
 	L["choose"] = "Perfis Existentes"
 	L["choose_desc"] = "Você pode tanto criar um perfil novo tanto digitando um nome na caixa de texto, quanto escolher um dos perfis já existentes."

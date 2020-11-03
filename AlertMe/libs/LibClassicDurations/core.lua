@@ -1042,7 +1042,6 @@ function lib:ToggleDebug()
 end
 
 function lib:MonitorUnit(unit)
-	print(unit)
     if not lib.debug then
         lib.debug = CreateFrame("Frame")
         local debugGUID = UnitGUID(unit)

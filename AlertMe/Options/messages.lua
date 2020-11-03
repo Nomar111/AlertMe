@@ -9,21 +9,21 @@ function O:ShowMessages(container)
 	local db = P.messages
 	-- header
 	O.attachHeader(container, "Message Settings")
-	O.attachCheckBox(container, "Enable addon messages", P.messages, "enabled", 300, _)
+	O.attachCheckBox(container, "Enable addon messages", db, "enabled", 300, _)
 	O.attachSpacer(container, _, "small")
-	O.attachCheckBox(container, "Enable chat announcements", P.messages, "chatEnabled", 300, _)
+	O.attachCheckBox(container, "Enable chat announcements", db, "chatEnabled", 300, _)
 	O.attachSpacer(container, _, "small")
 	-- chat frames
-	local title = "Post addon messages in the following chat windows (only visible for you)"
-	local chatFramesGroup = O.attachGroup(container, "inline", title, {fullWidth = true})
+	local label = "Post addon messages (only visible for you) in"
+	local chatFramesGroup = O.attachGroup(container, "inline", "", {fullWidth = true})
 	for name, frame in pairs(chatFrames) do
 		O.attachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
 	-- event specific messages
 	local function defaults()
-		for handle, defmsg in pairs(A.messages) do
-			if P.messages[i] then
-				P.messages[i] = defmsg
+		for handle, default in pairs(A.messages) do
+			if P.messages[handle] then
+				P.messages[handle] = default
 			end
 		end
 		O:ShowMessages(container)
