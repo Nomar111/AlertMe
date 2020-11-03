@@ -1,6 +1,6 @@
 -- upvalues
 local _G, FCF_GetNumActiveChatFrames, AlertMe = _G, _G.FCF_GetNumActiveChatFrames, AlertMe
-local getmetatable, setmetatable, hooksecurefunc, gsub, date, tostring = getmetatable, setmetatable, hooksecurefunc, string.gsub, date, tostring
+local getmetatable, setmetatable, hooksecurefunc, date = getmetatable, setmetatable, hooksecurefunc, date
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create chtFrames container

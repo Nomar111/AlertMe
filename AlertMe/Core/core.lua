@@ -1,5 +1,5 @@
 -- upvalues
-local _G, CombatLogGetCurrentEventInfo, GetInstanceInfo, gsub = _G, CombatLogGetCurrentEventInfo, GetInstanceInfo, string.gsub
+local _G, CombatLogGetCurrentEventInfo, GetInstanceInfo = _G, CombatLogGetCurrentEventInfo, GetInstanceInfo
 local COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL = COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL
 local IsInInstance, GetNumGroupMembers, UnitGUID, UnitName, C_Timer = IsInInstance, GetNumGroupMembers, UnitGUID, UnitName, C_Timer
 local PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bitband = PlaySoundFile, StopSound, SendChatMessage, GetSchoolString, bit.band
@@ -209,35 +209,33 @@ end
 -- actions
 local function createMessage(cleu, evi, alert, colored, showIcon)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
+	local r, icon, msg = {}
 	-- get target and mouseover names
-	local targetName = UnitName("target") or ""
-	if targetName ~= "" then targetName = GetShortName(targetName) end
-	local mouseoverName = UnitName("mouseover") or ""
-	if mouseoverName ~= "" then mouseoverName = GetShortName(mouseoverName) end
+	r.targetName = UnitName("target") or ""
+	r.targetName = GetShortName(r.targetName)
+	r.mouseoverName = UnitName("mouseover") or ""
+	r.mouseoverName = GetShortName(r.mouseoverName)
 	-- check possible replacements for being nil
-	local srcName = (cleu.srcName) and GetShortName(cleu.srcName) or ""
-	local dstName = (cleu.dstName) and GetShortName(cleu.dstName) or ""
-	local spellName = (cleu.spellName) and cleu.spellName or ""
-	local extraSpellName = (cleu.extraSpellName) and cleu.extraSpellName or ""
-	local extraSchool = (cleu.extraSchool) and GetSchoolString(cleu.extraSchool) or ""
-	local lockout = (cleu.lockout) and cleu.lockout or ""
-	local missType = (cleu.missType) and A.missTypes[cleu.missType] or ""
-	local icon
-	local msg = P.messages[evi.handle]
-	-- override?
+	r.srcName = (cleu.srcName) and GetShortName(cleu.srcName) or nil
+	r.dstName = (cleu.dstName) and GetShortName(cleu.dstName) or nil
+	r.spellName = (cleu.spellName) and cleu.spellName or nil
+	r.extraSpellName = (cleu.extraSpellName) and cleu.extraSpellName or nil
+	r.extraSchool = (cleu.extraSchool) and GetSchoolString(cleu.extraSchool) or nil
+	r.lockout = (cleu.lockout) and cleu.lockout or nil
+	r.missType = (cleu.missType) and A.missTypes[cleu.missType] or nil
+	-- get standard message or message override
 	if alert.msgOverride and alert.msgOverride ~= "" then
 		msg = alert.msgOverride
+	else
+		msg = P.messages[evi.handle]
 	end
 	-- replace
-	msg = gsub(msg, "%%dstName", dstName)
-	msg = gsub(msg, "%%srcName", srcName)
-	msg = gsub(msg, "%%spellName", spellName)
-	msg = gsub(msg, "%%extraSpellName", extraSpellName)
-	msg = gsub(msg, "%%extraSchool", extraSchool)
-	msg = gsub(msg, "%%lockout", lockout)
-	msg = gsub(msg, "%%targetName", targetName)
-	msg = gsub(msg, "%%mouseoverName", mouseoverName)
-	msg = gsub(msg, "%%missType", missType)
+	for _, pattern in pairs(A.patterns) do
+		local replacement = r[sub(pattern,3)]
+		if replacement then
+			msg = gsub(msg, pattern, replacement)
+		end
+	end
 	-- get reaction color
 	local color = A:GetReactionColor(cleu)
 	-- return

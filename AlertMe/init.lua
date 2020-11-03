@@ -3,7 +3,7 @@ local name, Engine = ...
 -- create addon global and set it to engine environment
 _G.AlertMe = Engine
 -- upvalues
-local _G, LibStub, GetAddOnMetadata, UnitName, tostring = _G, LibStub, GetAddOnMetadata, UnitName, tostring
+local _G, LibStub, GetAddOnMetadata, UnitName = _G, LibStub, GetAddOnMetadata, UnitName
 -- set engine environment as new global environment
 setfenv(1, _G.AlertMe)
 -- create some later needed tables
@@ -14,7 +14,8 @@ A = LibStub("AceAddon-3.0"):NewAddon(name, "AceConsole-3.0", "AceEvent-3.0")
 
 -- addon upvalues
 GetTime, CreateFrame, GameTooltip, WrapTextInColorCode = _G.GetTime, _G.CreateFrame, _G.GameTooltip, _G.WrapTextInColorCode
-print, unpack, tinsert, pairs, ipairs, type, tostring, next = _G.print, _G.unpack, _G.tinsert, _G.pairs, _G.ipairs, _G.type, _G.tostring, _G.next
+print, unpack, tinsert, pairs, ipairs, type, next = _G.print, _G.unpack, _G.tinsert, _G.pairs, _G.ipairs, _G.type, _G.next
+gsub, sub, tostring = _G.string.gsub, _G.string.sub, _G.tostring
 IsShiftKeyDown = _G.IsShiftKeyDown
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 

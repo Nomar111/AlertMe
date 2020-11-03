@@ -166,7 +166,6 @@ A.units.excludes = {
 	end
 }
 
-
 -- lockouts
 A.lockouts = {
 	["Counterspell"] = "10",
@@ -178,32 +177,16 @@ A.lockouts = {
 	["Kick"] = "5",
 }
 
+A.patterns = {"%%srcName","%%dstName", "%%spellName", "%%extraSpellName", "%%extraSchool", "%%lockout", "%%targetName", "%%mouseoverName", "%%missType"}
+
 -- colors
 A.colors = {
-	red = {
-		hex = "FFde4037",
-		rgb = {1,0,0}
-	},
-	green = {
-		hex = "FF27d942",
-		rgb = {0,1,0}
-	},
-	yellow = {
-		hex = "FFcfac67",
-		rgb = {0,1,1}
-	},
-	white = {
-		hex = "FFFFFFFF",
-		rgb = {1,1,1}
-	},
-	blue = {
-		hex = "FF657ddb",
-		rgb = {0,0,1}
-	},
-	gold = {
-		hex = "FFDAA520",
-		rgb = {218/255,165/255,32/255}
-	}
+	red = {	hex = "FFde4037", rgb = {1,0,0} },
+	green = { hex = "FF27d942",	rgb = {0,1,0} },
+	yellow = { hex = "FFcfac67", rgb = {0,1,1} },
+	white = { hex = "FFFFFFFF", rgb = {1,1,1} },
+	blue = { hex = "FF657ddb", rgb = {0,0,1} },
+	gold = { hex = "FFDAA520", rgb = {218/255,165/255,32/255} }
 }
 
 function A:InitExamples()
