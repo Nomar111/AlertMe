@@ -106,8 +106,8 @@ A.menus.interrupt = {
 A.messages = {
 	gain = "%dstName gained %spellName",
 	dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
-	start = "%srcName casts %spellName",
-	success = "%srcName used %spellName on %dstName",
+	start = "%srcName starts to cast %spellName",
+	success = "%srcName has casted %spellName on %dstName",
 	missed = "%srcName's %spellName missed on %dstName (%missType)",
 	interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
 }

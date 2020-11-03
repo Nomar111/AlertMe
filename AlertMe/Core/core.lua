@@ -219,13 +219,6 @@ function A:CheckUnits(cleu, evi, alerts)
 					break
 				end
 			end
-			elseif units == 3 then -- hostile player check
-				if not isHostile then
-					tinsert(errors, pre..", ".."hostile player check failed")
-					checkFailed = true
-					break
-				end
-			end
 		end
 		if checkFailed ~= true then
 			tinsert(_alerts, alert)
