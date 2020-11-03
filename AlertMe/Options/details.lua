@@ -93,7 +93,6 @@ local function unitSelection(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
-		-- local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities", [7] = "Hostile NPCs"}
 		local unitsList = A.units.getList()
 		local excludeList = A.units.excludes.getList()
 		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })

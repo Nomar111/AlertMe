@@ -118,7 +118,7 @@ A.messages = {
 	gain = "%dstName gained %spellName",
 	dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
 	start = "%srcName starts to cast %spellName",
-	success = "%srcName has casted %spellName on %dstName",
+	success = "%srcName casted %spellName on %dstName",
 	missed = "%srcName's %spellName missed on %dstName (%missType)",
 	interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
 }
@@ -144,7 +144,7 @@ A.units = {
 	[5] = {	label = "Myself", order = 5, checks = {	isPlayer = true, } },
 	[6] = {	label = "All entities",	order = 7 },
 	[7] = {	label = "Hostile NPCs",	order = 6, checks = { isPlayer = false,	isHostile = true } },
-	returnList = function()
+	getList = function()
 		local ret = {}
 		for i, tbl in ipairs(A.units) do
 			ret[i] = tbl.label

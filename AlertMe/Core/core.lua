@@ -141,7 +141,8 @@ function A:DoChecks(cleu, evi)
 	-- check units
 	_alerts, errors = A:CheckUnits(cleu, evi, alerts)
 	if not _alerts then
-		return false --dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
+		--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
+		return false
 	else
 		return true, _alerts
 	end
@@ -160,63 +161,35 @@ function A:CheckUnits(cleu, evi, alerts)
 		local checkFailed = false
 		-- do the relevant checks (src, dst)
 		for _, pre in pairs (evi.unitSelection) do
-			--vdt:data(cleu, "cleu")
 			-- set local variables
+			local c = {}
 			local name, GUID, flags = cleu[pre.."Name"], cleu[pre.."GUID"], cleu[pre.."Flags"]
-			local units, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
-			local playerControlled = (bitband(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
-			local isFriendly = (bitband(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
-			local isHostile = (bitband(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
-			local isPlayer = (GUID == playerGUID)
-			local isTarget = (GUID == targetGUID)
+			local unit, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
+			c.playerControlled = (bitband(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
+			c.isFriendly = (bitband(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
+			c.isHostile = (bitband(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
+			c.isPlayer = (GUID == playerGUID)
+			c.isTarget = (GUID == targetGUID)
 			-- write some useful info into ti for later use
-			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"], cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = isTarget, isPlayer, isFriendly, isHostile
-			local targetName = UnitName("target")
-			if targetName then cleu.targetName = GetShortName(targetName) end
-			local mouseoverName = UnitName("mouseover")
-			if mouseoverName then cleu.mouseoverName = GetShortName(mouseoverName) end
-			-- player controlled check
-			if not  units ~= 6 then  -- all entities
-				if not playerControlled and units ~= 7 then
-					tinsert(errors, pre..", ".."unit not playercontrolled")
-					checkFailed = true
-					break
-				elseif playerControlled and units == 7 then
-					tinsert(errors, pre..", ".."unit not an NPC")
-					checkFailed = true
-					break
+			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"], cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = c.isTarget, c.isPlayer, c.isFriendly, c.isHostile
+			-- checks to be done defined in A.units
+			if A.units[unit].checks then
+				for condition, ref in pairs(A.units[unit].checks) do
+					if c[condition] ~= ref then
+						tinsert(errors, pre..", "..condition.." failed")
+						checkFailed = true
+						break
+					end
 				end
 			end
-			-- exclude check -- 1 = none, 2 = myself, 3 = target
-			if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
-				tinsert(errors, pre..", ".."exclude check failed")
-				checkFailed = true
-				break
-			end
-			-- do other checks
-			if units == 4 then -- target check
-				if not isTarget then
-					tinsert(errors, pre..", ".."target check failed")
-					checkFailed = true
-					break
-				end
-			elseif units == 5 then  -- player check
-				if not isPlayer then
-					tinsert(errors, pre..", ".."player check failed")
-					checkFailed = true
-					break
-				end
-			elseif units == 2 then -- friendly player check
-				if not isFriendly then
-					tinsert(errors, pre..", ".."friendly player check failed")
-					checkFailed = true
-					break
-				end
-			elseif units == 3 then -- hostile player check
-				if not isHostile then
-					tinsert(errors, pre..", ".."hostile player check failed")
-					checkFailed = true
-					break
+			-- checks to be done defined in A.units.excludes
+			if A.units.excludes[exclude].checks then
+				for condition, ref in pairs(A.units.excludes[exclude].checks) do
+					if c[condition] == ref then
+						tinsert(errors, pre..", exclude, "..condition.." failed")
+						checkFailed = true
+						break
+					end
 				end
 			end
 		end
@@ -236,6 +209,11 @@ end
 -- actions
 local function createMessage(cleu, evi, alert, colored, showIcon)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
+	-- get target and mouseover names
+	local targetName = UnitName("target") or ""
+	if targetName ~= "" then targetName = GetShortName(targetName) end
+	local mouseoverName = UnitName("mouseover") or ""
+	if mouseoverName ~= "" then mouseoverName = GetShortName(mouseoverName) end
 	-- check possible replacements for being nil
 	local srcName = (cleu.srcName) and GetShortName(cleu.srcName) or ""
 	local dstName = (cleu.dstName) and GetShortName(cleu.dstName) or ""
@@ -243,8 +221,6 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 	local extraSpellName = (cleu.extraSpellName) and cleu.extraSpellName or ""
 	local extraSchool = (cleu.extraSchool) and GetSchoolString(cleu.extraSchool) or ""
 	local lockout = (cleu.lockout) and cleu.lockout or ""
-	local targetName = (cleu.targetName) and cleu.targetName or ""
-	local mouseoverName = (cleu.mouseoverName) and cleu.mouseoverName or ""
 	local missType = (cleu.missType) and A.missTypes[cleu.missType] or ""
 	local icon
 	local msg = P.messages[evi.handle]
