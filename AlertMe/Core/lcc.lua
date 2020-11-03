@@ -57,7 +57,7 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 			spellName = spellName,
 			checkedSpell = checkedSpell,
 		}
-		local evi = events["SPELL_CAST_START"]
+		local evi = A.events["SPELL_CAST_START"]
 		-- check units
 		local _alerts, errors = A:CheckUnits(cleu, evi, alerts)
 		if not _alerts then	return end				--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))

@@ -1,54 +1,59 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
--- create events and menus tables and merge them
-events = {}
-events.SPELL_AURA_APPLIED = {
+-- create A.events and A.menus tables and merge them
+A.events = {}
+A.events.SPELL_AURA_APPLIED = {
 	handle = "gain",
 	barType = "auras",
 	extraArgs = { "auraType" },
 	checkedSpell = "spellName",
 	actions = { "ChatAnnounce","DisplayAuraBars","DisplayGlows","PlaySound" },
 }
-events.SPELL_AURA_REFRESH = events.SPELL_AURA_APPLIED		-- handled completely the same as apply
-events.SPELL_AURA_REMOVED = {
+A.events.SPELL_AURA_REFRESH = A.events.SPELL_AURA_APPLIED		-- handled completely the same as apply
+A.events.SPELL_AURA_REMOVED = {
 	handle = "removed",
 	barType = "auras",
 	optArgs = { "auraType" },
 	checkedSpell = "spellName",
-	-- speecial events doesn't need most of the options, as the normal way of processing is being completely bypasse
+	-- speecial A.events doesn't need most of the options, as the normal way of processing is being completely bypasse
 }
-events.SPELL_AURA_BROKEN =  events.SPELL_AURA_REMOVED		-- handled the same as removed
-events.SPELL_AURA_BROKEN_SPELL = events.SPELL_AURA_REMOVED
-events.SPELL_DISPEL = {
+A.events.SPELL_AURA_BROKEN =  A.events.SPELL_AURA_REMOVED		-- handled the same as removed
+A.events.SPELL_AURA_BROKEN_SPELL = A.events.SPELL_AURA_REMOVED
+A.events.SPELL_DISPEL = {
 	handle = "dispel",
 	barType = "auras",
 	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool", "auraType" },
 	checkedSpell = "extraSpellName",
 	actions = { "ChatAnnounce", "HideGUI", "PlaySound" },
 }
-events.SPELL_CAST_START = {
+A.events.SPELL_CAST_START = {
 	handle = "start",
 	barType = "spells",
 	checkedSpell = "spellName",
 	actions = { "ChatAnnounce", "DisplayAuraBars", "DisplayGlows", "PlaySound" },
 }
-events.SPELL_CAST_SUCCESS = {
+A.events.SPELL_CAST_SUCCESS = {
 	handle = "success",
 	barType = "spells",
 	checkedSpell = "spellName",
-	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast events
+	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast A.events
 }
-events.SPELL_INTERRUPT = {
+A.events.SPELL_INTERRUPT = {
 	handle = "interrupt",
-	barType = "spells",
 	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool" },
 	checkedSpell = "spellName",
-	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast events
+	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast A.events
 }
--- the settings per options category. match to events by handle
-menus = {}
-menus.gain = {
+A.events.SPELL_MISSED = {
+	handle = "missed",
+	extraArgs = { "missType", "isOffHand", "amountMissed", "critical" },
+	checkedSpell = "spellName",
+	actions = { "ChatAnnounce", "PlaySound" },
+}
+-- the settings per options category. match to A.events by handle
+A.menus = {}
+A.menus.gain = {
 	type = "aura",
 	text = "On aura gain/refresh",
 	order = 1,
@@ -57,7 +62,7 @@ menus.gain = {
 	displayOptions = { glow = true, bar = true },
 	dstWhisper = true,
 }
-menus.dispel = {
+A.menus.dispel = {
 	type = "aura",
 	text = "On dispel",
 	order = 2,
@@ -65,7 +70,7 @@ menus.dispel = {
 	unitSelection =	{ "src","dst" },
 	dstWhisper = true,
 }
-menus.start = {
+A.menus.start = {
 	type = "spell",
 	text = "On cast start",
 	order = 3,
@@ -73,7 +78,7 @@ menus.start = {
 	unitSelection =	{ "src" },
 	displayOptions = { bar = true },
 }
-menus.success = {
+A.menus.success = {
 	type = "spell",
 	text = "On cast success",
 	order = 4,
@@ -81,24 +86,37 @@ menus.success = {
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
-menus.interrupt = {
+A.menus.missed = {
 	type = "spell",
-	text = "On cast success",
-	order = 4,
+	text = "On spell missed (resisted,...)",
+	order = 5,
 	spellSelection = true,
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
-menus.interrupt = {
+A.menus.interrupt = {
 	type = "spell",
 	text = "On interrupt",
-	order = 5,
-	spellSelection = false,
+	order = 6,
+	spellSelection = true,
 	unitSelection =	{ "src", "dst" },
+	dstWhisper = true,
 }
--- merge event and menu settings into events  to have an easier time afterwards
-for _, event in pairs(events) do
-	local menu = menus[event.handle]
+
+A.messages = {
+	gain = "%dstName gained %spellName",
+	dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
+	start = "%srcName casts %spellName",
+	success = "%srcName used %spellName on %dstName",
+	missed = "%srcName's %spellName missed on %dstName (%missType)",
+	interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+}
+
+
+
+-- merge event and menu settings into A.events  to have an easier time afterwards
+for _, event in pairs(A.events) do
+	local menu = A.menus[event.handle]
 	if menu and type(menu) == "table" then
 		for i, setting in pairs(menu) do
 			if not event[i] then				-- don't overwrite existing settings if in conflict

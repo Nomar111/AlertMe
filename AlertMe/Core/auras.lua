@@ -49,7 +49,7 @@ end
 function A:FakeEvent(cleu, evi)
 	local _cleu = tcopy(cleu)
 	_cleu.event = "SPELL_AURA_APPLIED"
-	local _evi = events["SPELL_AURA_APPLIED"]
+	local _evi = A.events["SPELL_AURA_APPLIED"]
 	-- get alerts for fake args
 	local check, alerts = A:DoChecks(_cleu, _evi)
 	if not check then return end

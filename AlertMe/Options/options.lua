@@ -45,8 +45,8 @@ local function createNavTree(container)
 	treeStructure[6] = {value = "ShowAlerts", text = "Alerts", children = {}}
 	treeStructure[7] = {value = "ShowProfiles", text = "Profiles"}
 	treeStructure[8] = {value = "ShowInfo", text = "Info"}
-	-- loop over alert submenus
-	for handle, menu in pairs(menus) do
+	-- loop over alert submenu
+	for handle, menu in pairs(A.menus) do
 		treeStructure[6].children[menu.order]  = { value = handle, text = menu.text }
 	end
 	-- create the tree group

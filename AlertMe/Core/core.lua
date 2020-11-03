@@ -36,7 +36,7 @@ end
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 	local arg = { CombatLogGetCurrentEventInfo() }
 	-- check if trigger event exists in events table, if not abort
-	if not events[arg[2]] then return end
+	if not A.events[arg[2]] then return end
 	-- create table with relevant cleu arguments
 	local cleu = {
 		ts = arg[1],
@@ -57,7 +57,7 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 		cleu.lockout = A.lockouts[cleu.spellName] or ""	-- set lockout timers for interrupts
 	end
 	-- get relevant event/menu infos and merge them into evi (evi)
-	local evi = events[cleu.event]
+	local evi = A.events[cleu.event]
 	-- get optional arguments if there are any
 	if evi.extraArgs then
 		for i, extra in pairs(evi.extraArgs) do
@@ -239,6 +239,7 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 	local lockout = (cleu.lockout) and cleu.lockout or ""
 	local targetName = (cleu.targetName) and cleu.targetName or ""
 	local mouseoverName = (cleu.mouseoverName) and cleu.mouseoverName or ""
+	local missType = (cleu.missType) and cleu.missType or ""
 	local icon
 	local msg = P.messages[evi.handle]
 	-- override?
@@ -254,6 +255,7 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 	msg = gsub(msg, "%%lockout", lockout)
 	msg = gsub(msg, "%%targetName", targetName)
 	msg = gsub(msg, "%%mouseoverName", mouseoverName)
+	msg = gsub(msg, "%%missType", missType)
 	-- get reaction color
 	local color = A:GetReactionColor(cleu)
 	-- return

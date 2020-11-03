@@ -52,13 +52,13 @@ local function updateSpelltable(handle, uid)
 end
 
 local function spellSelection(container, handle, uid)
-	if not menus[handle].spellSelection then return end
+	if not A.menus[handle].spellSelection then return end
 	O.attachHeader(container, "Spell/Aura settings")
 	local db = P.alerts[handle].alertDetails[uid]
 	local spellGroup = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "Flow"})
 	-- spell edit box
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
-	local text = menus[handle].type or ""
+	local text = A.menus[handle].type or ""
 	editBox:SetLabel("Add "..text)
 	editBox:SetWidth(232)
 	editBox:SetCallback("OnEnterPressed", function(widget, event, input)
@@ -91,16 +91,16 @@ end
 
 local function unitSelection(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
-	if menus[handle].unitSelection then
+	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
 		local unitsList = {[1] = "All players", [2] = "Friendly players", [3] = "Hostile players", [4] = "Target", [5] = "Myself", [6] = "All entities"}
 		local excludeList = {[1] = "---", [2] = "Myself", [3] = "Target"}
 		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
-		if menus[handle].unitSelection[1] == "src" then
+		if A.menus[handle].unitSelection[1] == "src" then
 			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
 			O.attachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
 		end
-		if menus[handle].unitSelection[2] then
+		if A.menus[handle].unitSelection[2] then
 			O.attachSpacer(unitsGroup, 20)
 			O.attachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
 			O.attachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
@@ -109,17 +109,17 @@ local function unitSelection(container, handle, uid)
 end
 
 local function displaySettings(container, handle, uid)
-	if not menus[handle].displayOptions then return end
+	if not A.menus[handle].displayOptions then return end
 	local db = P.alerts[handle].alertDetails[uid]
 	-- display settings
 	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	O.attachHeader(displayGroup, "Display settings")
-	if menus[handle].displayOptions and menus[handle].displayOptions.bar then
+	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.bar then
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
 		local label = "Show "..barTypeText
 		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end
-	if menus[handle].displayOptions and menus[handle].displayOptions.glow then
+	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.glow then
 		O.attachSpacer(displayGroup, 9)
 		local glowList = {[-1]="No glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
 		tooltip = {
@@ -144,7 +144,7 @@ local function announceSettings(container, handle, uid)
 	local tooltip = {header = "Addon messages", lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"} }
 	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, 150, _, tooltip)
 	-- destination whisper
-	if menus[handle].dstWhisper then
+	if A.menus[handle].dstWhisper then
 		O.attachSpacer(announceGroup, 20)
 		list = { [1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper" }
 		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", list, 160)

@@ -56,7 +56,7 @@ function O:ShowAlerts(container, handle)
 	-- if there is none (and selected == nil) then redirect to dummy
 	local path = db.alertDetails[uid] or P.dummy
 	-- alert dropdown
-	local text = menus[handle].text or ""
+	local text = A.menus[handle].text or ""
 	local label = "Alerts - "..text
 	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), 230, refresh)
 	if uid then widget:SetValue(db.selectedAlert) end
