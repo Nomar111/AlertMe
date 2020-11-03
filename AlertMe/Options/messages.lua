@@ -7,15 +7,19 @@ function O:ShowMessages(container)
 	InitChatFrames()
 	-- set sv
 	local db = P.messages
+	local tooltip
 	-- header
 	O.attachHeader(container, "Message Settings")
-	O.attachCheckBox(container, "Enable addon messages", db, "enabled", 300, _)
-	O.attachSpacer(container, _, "small")
-	O.attachCheckBox(container, "Enable chat announcements", db, "chatEnabled", 300, _)
-	O.attachSpacer(container, _, "small")
+	local enableGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
+	tooltip = { lines = { "enable/disable addon messages", "which are only visible for you"}, wrap = false }
+	O.attachCheckBox(enableGroup, "Enable addon messages", db, "enabled", 220, _, tooltip)
+	O.attachSpacer(enableGroup, 20)
+	tooltip = { lines = { "enable/disable chat announcements in:", "/raid /bg /party /say"}, wrap = false }
+	O.attachCheckBox(enableGroup, "Enable chat announcements", db, "chatEnabled", 230, _, tooltip)
+	O.attachSpacer(enableGroup, _, "small")
 	-- chat frames
-	local label = "Post addon messages (only visible for you) in"
-	local chatFramesGroup = O.attachGroup(container, "inline", "", {fullWidth = true})
+	local label = "Post addon messages (only visible for you) in:"
+	local chatFramesGroup = O.attachGroup(container, "inline", label, {fullWidth = true})
 	for name, frame in pairs(chatFrames) do
 		O.attachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
 	end
@@ -37,6 +41,10 @@ function O:ShowMessages(container)
 	O.attachEditBox(container, "Message on cast success", db, "success", 1)
 	O.attachEditBox(container, "Message on spell missed", db, "missed", 1)
 	O.attachEditBox(container, "Message on interrupt", db, "interrupt", 1)
-	O.attachEditBox(container, "Message prefix", db, "prefix", 200)
-	O.attachEditBox(container, "Message postfix", db, "postfix", 200)
+	local prefixGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
+	O.attachEditBox(prefixGroup, "Message prefix", db, "prefix", 200)
+	O.attachSpacer(prefixGroup, 20)
+	O.attachEditBox(prefixGroup, "Message postfix", db, "postfix", 200)
+	-- label = "Usable replacements depending on event:\n%srcName, %dstName, %spellName, %extraSpellName, %extraSchool, %lockout, %targetName, %mouseoverName, %missType "
+	-- O.attachLabel(container, label, _, _, _, 1)
 end

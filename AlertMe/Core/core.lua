@@ -176,10 +176,16 @@ function A:CheckUnits(cleu, evi, alerts)
 			local mouseoverName = UnitName("mouseover")
 			if mouseoverName then cleu.mouseoverName = GetShortName(mouseoverName) end
 			-- player controlled check
-			if not playerControlled and units ~= 6 then
-				tinsert(errors, pre..", ".."unit not player controlled")
-				checkFailed = true
-				break
+			if not  units ~= 6 then  -- all entities
+				if not playerControlled and units ~= 7 then
+					tinsert(errors, pre..", ".."unit not playercontrolled")
+					checkFailed = true
+					break
+				elseif playerControlled and units == 7 then
+					tinsert(errors, pre..", ".."unit not an NPC")
+					checkFailed = true
+					break
+				end
 			end
 			-- exclude check -- 1 = none, 2 = myself, 3 = target
 			if (exclude == 3 and isTarget) or (exclude == 2 and isPlayer) then
@@ -213,6 +219,13 @@ function A:CheckUnits(cleu, evi, alerts)
 					break
 				end
 			end
+			elseif units == 3 then -- hostile player check
+				if not isHostile then
+					tinsert(errors, pre..", ".."hostile player check failed")
+					checkFailed = true
+					break
+				end
+			end
 		end
 		if checkFailed ~= true then
 			tinsert(_alerts, alert)
@@ -239,7 +252,7 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 	local lockout = (cleu.lockout) and cleu.lockout or ""
 	local targetName = (cleu.targetName) and cleu.targetName or ""
 	local mouseoverName = (cleu.mouseoverName) and cleu.mouseoverName or ""
-	local missType = (cleu.missType) and cleu.missType or ""
+	local missType = (cleu.missType) and A.missTypes[cleu.missType] or ""
 	local icon
 	local msg = P.messages[evi.handle]
 	-- override?

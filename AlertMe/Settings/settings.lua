@@ -88,7 +88,7 @@ A.menus.success = {
 }
 A.menus.missed = {
 	type = "spell",
-	text = "On spell missed (resisted,...)",
+	text = "On spell missed",
 	order = 5,
 	spellSelection = true,
 	unitSelection =	{ "src", "dst" },
@@ -110,6 +110,19 @@ A.messages = {
 	success = "%srcName used %spellName on %dstName",
 	missed = "%srcName's %spellName missed on %dstName (%missType)",
 	interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+}
+
+A.missTypes = {
+	ABSORB = "absorbed",
+	BLOCK = "blocked",
+	DEFLECT = "deflected",
+	DODGE = "dodged",
+	EVADE = "evaded",
+	IMMUNE = "immune",
+	MISS = "missed",
+	PARRY = "parried",
+	REFLECT = "reflected",
+	RESIST = "resisted"
 }
 
 
