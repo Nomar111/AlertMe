@@ -94,7 +94,7 @@
     {
       "namespace": "process-palette",
       "action": "Create zipfile",
-      "command": "Zip.exe -r AlertMe_v1.0.X.zip AlertMe",
+      "command": "Zip.exe -r AlertMe_v1.X.X.zip AlertMe",
       "arguments": [],
       "cwd": "D:\\github\\AlertMe",
       "inputDialogs": [],
@@ -116,7 +116,7 @@
       "successOutput": "{stdout}",
       "errorOutput": "{stdout}\n{stderr}",
       "fatalOutput": "Failed to execute : {fullCommand}\n{stdout}\n{stderr}",
-      "startMessage": "",
+      "startMessage": null,
       "successMessage": "Executed : {fullCommand}",
       "errorMessage": "Executed : {fullCommand}\nReturned with code {exitStatus}\n{stderr}",
       "fatalMessage": "Failed to execute : {fullCommand}\n{stdout}\n{stderr}",
