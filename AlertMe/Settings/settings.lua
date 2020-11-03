@@ -102,6 +102,17 @@ A.menus.interrupt = {
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
+-- merge event and menu settings into A.events  to have an easier time afterwards
+for _, event in pairs(A.events) do
+	local menu = A.menus[event.handle]
+	if menu and type(menu) == "table" then
+		for i, setting in pairs(menu) do
+			if not event[i] then		-- don't overwrite existing settings if in conflict
+				event[i] = setting
+			end
+		end
+	end
+end
 
 A.messages = {
 	gain = "%dstName gained %spellName",
@@ -125,19 +136,36 @@ A.missTypes = {
 	RESIST = "resisted"
 }
 
-
-
--- merge event and menu settings into A.events  to have an easier time afterwards
-for _, event in pairs(A.events) do
-	local menu = A.menus[event.handle]
-	if menu and type(menu) == "table" then
-		for i, setting in pairs(menu) do
-			if not event[i] then				-- don't overwrite existing settings if in conflict
-				event[i] = setting
-			end
+A.units = {
+	[1] = {	label = "All players", order = 1, checks = { playerControlled = true }	},
+	[2] = {	label = "Friendly players",	order = 2, checks = { playerControlled = true, isFriendly = true } },
+	[3] = {	label = "Hostile players", order = 3, checks = { playerControlled = true, isHostile = true } },
+	[4] = {	label = "Target", order = 4, checks = { isTarget = true } },
+	[5] = {	label = "Myself", order = 5, checks = {	isPlayer = true, } },
+	[6] = {	label = "All entities",	order = 7 },
+	[7] = {	label = "Hostile NPCs",	order = 6, checks = { isPlayer = false,	isHostile = true } },
+	returnList = function()
+		local ret = {}
+		for i, tbl in ipairs(A.units) do
+			ret[i] = tbl.label
 		end
+		return ret
 	end
-end
+ }
+
+A.units.excludes = {
+	[1] = { label = "-----", order = 1 },
+	[2] = {	label = "Myself", order = 2, checks = { isPlayer = true} },
+	[3] = {	label = "Target", order = 3, checks = { isTarget = true	} },
+	getList = function()
+		local ret = {}
+		for i, tbl in ipairs(A.units.excludes) do
+			ret[i] = tbl.label
+		end
+		return ret
+	end
+}
+
 
 -- lockouts
 A.lockouts = {

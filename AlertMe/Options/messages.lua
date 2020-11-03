@@ -35,12 +35,18 @@ function O:ShowMessages(container)
 	O.attachHeader(container, "Event specific settings")
 	O.attachButton(container, "Reset to default", 150, defaults)
 	O.attachSpacer(container, _, "small")
-	O.attachEditBox(container, "Message on aura gained/refreshed", db, "gain", 1)
-	O.attachEditBox(container, "Message on spell dispel", db, "dispel", 1)
-	O.attachEditBox(container, "Message on cast start", db, "start", 1)
-	O.attachEditBox(container, "Message on cast success", db, "success", 1)
-	O.attachEditBox(container, "Message on spell missed", db, "missed", 1)
-	O.attachEditBox(container, "Message on interrupt", db, "interrupt", 1)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %spellName" } }
+	O.attachEditBox(container, "Message on aura gained/refreshed", db, "gain", 1, _, tooltip)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %extraSpellName" } }
+	O.attachEditBox(container, "Message on spell dispel", db, "dispel", 1, _, tooltip)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %spellName, %targetName (= your target), %mouseoverName(= your mouseover)" } }
+	O.attachEditBox(container, "Message on cast start", db, "start", 1, _, tooltip)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %spellName" } }
+	O.attachEditBox(container, "Message on cast success", db, "success", 1, _, tooltip)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %spellName, %missType (= resisted, dodged...)" } }
+	O.attachEditBox(container, "Message on spell missed", db, "missed", 1, _, tooltip)
+	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %extraSpellName, %lockout (= lockout in s), %extraSchool (= locked spell school)" } }
+	O.attachEditBox(container, "Message on interrupt", db, "interrupt", 1, _, tooltip)
 	local prefixGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
 	O.attachEditBox(prefixGroup, "Message prefix", db, "prefix", 200)
 	O.attachSpacer(prefixGroup, 20)
