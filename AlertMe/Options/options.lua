@@ -92,3 +92,9 @@ function O:OpenOptions()
 	-- create navigation
 	createNavTree(f)
 end
+
+function O:ReOpenOptions()
+	A.Libs.AceGUI:Release(O.Options)
+	O.Options = nil
+	O:OpenOptions()
+end

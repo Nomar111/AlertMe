@@ -24,11 +24,13 @@ function A:InitLDB()
 					P.general.enabled = not P.general.enabled
 					A.UpdateLDBtooltip()
 					A.ToggleAddon()
+					O:ReOpenOptions()
 				else
 					O:OpenOptions()
 				end
 			elseif button == "MiddleButton" then
 				A.ToggleMinimap(true)
+				O:ReOpenOptions()
 			end
 		end,
 		OnEnter = function(self)
