@@ -71,7 +71,6 @@ function A:ToggleContainerLock(barType)
 end
 
 function A:ResetContainerPosition(barType)
-	-- reset position
 	local db = P.bars[barType]
 	local def = D.profile.bars[barType]
 	db.point, db.ofs_x, db.ofs_y = def.point, def.ofs_x, def.ofs_y
@@ -80,11 +79,10 @@ function A:ResetContainerPosition(barType)
 	f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
-	-- enabled?
+function A:ShowBar(barType, id, label, icon, duration, colorGood, noCreate)
 	local db = P.bars[barType]
-	if not db.enabled then return end
-	-- if bar doesnt exists and coCreate, abort
+	if not db.enabled or not id or not duration or not barType then return end
+	-- if bar doesnt exists and noCreate, abort
 	if not A.bars[barType][id] and noCreate then return end
 	-- callback for when bar is stopped
 	local function barStopped(_, delBar)
@@ -97,34 +95,35 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 		end
 	end
 	-- check if already exists
-	if not A.bars[barType][id] then
+	if not A.bars[barType][id] then			-- create new bar if it doesn't exist
 		local newBar = A.Libs.LCB:New(A.statusbars[db.texture], db.width, db.height)
 		newBar:Set("id", id)
 		newBar:Set("barType", barType)
 		A.bars[barType][id] = newBar
-	else
+	else									-- stop existing bar and call ShowBar again
 		A.bars[barType][id]:Stop()
 		A:ShowBar(barType, id, label, icon, duration, color)
 	end
 	local bar = A.bars[barType][id]
 	-- update/set bar settings
 	if db.showIcon == true and icon then bar:SetIcon(icon) end
-	label = label or ""
-	if db.width <= 140 then
-		label = sub(label, 1, 10)
-	elseif db.width <= 160 then
-		label = sub(label, 1, 14)
-	elseif db.width <= 180 then
-		label = sub(label, 1, 18)
-	elseif db.width <= 200 then
-		label = sub(label, 1, 22)
+	if label then
+		if db.width <= 140 then
+			label = sub(label, 1, 10)
+		elseif db.width <= 160 then
+			label = sub(label, 1, 14)
+		elseif db.width <= 180 then
+			label = sub(label, 1, 18)
+		elseif db.width <= 200 then
+			label = sub(label, 1, 22)
+		end
+		bar:SetLabel(label, 1, 12)
 	end
-	bar:SetLabel(label, 1, 12)
 	bar:SetDuration(duration)
 	bar:SetFill(db.fill)
 	bar:SetTimeVisibility(db.timeVisible)
 	-- colors
-	if reaction == true then
+	if colorGood then
 		bar:SetColor(unpack(db.goodColor))
 	else
 		bar:SetColor(unpack(db.badColor))

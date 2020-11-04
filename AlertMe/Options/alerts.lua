@@ -56,7 +56,7 @@ function O:ShowAlerts(container, handle)
 	-- alert dropdown
 	local text = A.menus[handle].text or ""
 	local label = "Alerts".." - "..text
-	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), 230, refresh)
+	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), _, 230, refresh)
 	if uid then widget:SetValue(db.selectedAlert) end
 	O.attachSpacer(topGroup, 20)
 	-- editbox for alertname

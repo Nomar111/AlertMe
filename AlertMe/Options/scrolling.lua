@@ -15,13 +15,22 @@ function O:ShowScrollingText(container)
 	end
 	-- add dummy messages for setup
 	local function showScrollingTest()
-		A:ShowScrolling()
-		A.ScrollingText:AddMessage("Adding some test messages")
-		A.ScrollingText:AddMessage("Playername gains Blessing of Freedom")
-		A.ScrollingText:AddMessage("Teammate is sapped")
-		A.ScrollingText:AddMessage("Blessing of Protection is dispelled on Player (by Player)")
-		A.ScrollingText:AddMessage("Warrior gains Recklessness")
-		A.ScrollingText:AddMessage("Priest casts Mana Burn")
+		if A.ScrollingText:GetNumMessages() > 20 then
+			A:ShowScrolling()
+		else
+			local size = P.scrolling.fontSize - 2.5
+			size = size..":"..size
+			local messages = {
+				"|cFF27d942** |r |T135812:"..size..":0:0|t Playername starts to cast Fireball |T135812:"..size..":0:0|t |cFF27d942 **|r",
+				"|cFF27d942** |r |T135843:"..size..":0:0|t Playername gained Frost Armor |T135843:"..size..":0:0|t |cFF27d942 **|r",
+				"|cFFde4037** |r |T135807:"..size..":0:0|t Vampiric Duskbat resisted Playername's Fire Blast |T135807:"..size..":0:0|t |cFFde4037 **|r",
+			}
+			for i=1, 15 do
+				for _, msg in pairs(messages) do
+					A:PostInScrolling(msg)
+				end
+			end
+		end
 	end
 	-- header
 	O.attachHeader(container, "Scrolling Text Settings")
@@ -70,7 +79,7 @@ function O:ShowScrollingText(container)
 	-- align
 	local alignGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
 	local list = {[1] = "CENTER", [2] = "LEFT", [3] = "RIGHT"}
-	O.attachDropdown(alignGroup, "Alignment", db, "align", list, sliderWidth, A.UpdateScrolling)
+	O.attachDropdown(alignGroup, "Alignment", db, "align", list, _, sliderWidth, A.UpdateScrolling)
 	O.attachSpacer(alignGroup, 20)
 	O.attachCheckBox(alignGroup, "Show spell icon", db, "showIcon", sliderWidth)
 	O.attachSpacer(container, _, "large")

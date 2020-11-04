@@ -59,8 +59,6 @@ function A:OnInitialize()
 	-- register slash command
 	local open = O.OpenOptions
 	self:RegisterChatCommand("alertme", "open")
-	-- set locale
-	L = A.Libs.AceLocale:GetLocale("AlertMe")
 end
 
 -- addon enabled

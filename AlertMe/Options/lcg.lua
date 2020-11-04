@@ -23,7 +23,7 @@ function O:ShowGlow(container)
 	local topGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
 	local sliderWidth = 200
 	-- Glow Selector
-	O.attachDropdown(topGroup, "Glow Preset", P.glow, "selectedGlow", glowList, sliderWidth, refresh)
+	O.attachDropdown(topGroup, "Glow Preset", P.glow, "selectedGlow", glowList, _, sliderWidth, refresh)
 	O.attachSpacer(topGroup, 20)
 	-- attach color picker
 	O.attachColorPicker(topGroup, " Glow Color", db, "color", true)

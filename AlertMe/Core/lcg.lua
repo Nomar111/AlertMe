@@ -21,27 +21,31 @@ local function getBattleGroundTargetsFrame(cleu)
 end
 
 function A:DisplayGlows(cleu, evi, alerts, snapShot)
-	if not P.glow.enabled then return end
+	-- check event and glow options
+	if not P.glow.enabled or not evi.displayOptions or not evi.displayOptions.glow then return end
+	-- get target frame of destination unit
 	local targetFrame = A.Libs.LGF.GetUnitFrame(cleu.dstGUID)
-	if not targetFrame and cleu.dstIsHostile and P.glow.bgtEnabled then
+	if not targetFrame and cleu.dstIsHostile and P.glow.bgtEnabled then		-- get BGT enemy unitframe
 		targetFrame = getBattleGroundTargetsFrame(cleu)
 	end
-	if not targetFrame then	return 	end-- no battlegroundstarget classic frame found
+	if not targetFrame then	return end										-- no unitframe available
 	-- set id and loop thorugh alerts (same as bars)
 	local id = cleu.dstGUID..cleu.spellName
 	for _, alert in pairs(alerts) do
-		if alert.showGlow >= 1 and evi.displayOptions and evi.displayOptions.glow then
+		if alert.showGlow >= 1 then
+			-- get relevant spell info
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(cleu, evi)
 			if not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
-				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID) --_, _, icon = GetSpellInfo(spellId)
+				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID)
 			end
-			if remaining and remaining >= 2 then
+			-- only display glow if a remaining time can be gotten
+			if remaining and remaining >= 1 then
 				local db = P.glow[alert.showGlow]
 				local color, number, frequency, thickness, ofs_x, ofs_y, border = db.color, db.number, db.frequency, db.thickness, db.ofs_x, db.ofs_y, db.border
 				A.Libs.LCG.PixelGlow_Start(targetFrame, color, number, frequency, nil, thickness, ofs_x, ofs_y, border ,id)
 				A.glows[id] = targetFrame
-				-- remove glow effect after remaining time in case aura_reomved doesnt get triggered
+				-- remove glow effect after remaining time in case aura_removed doesnt get triggered
 				C_Timer.After(remaining, function()
 					A:HideGlow(cleu, evi)
 				end)
@@ -53,7 +57,7 @@ end
 function A:HideGlow(cleu, evi)
 	local id = cleu.dstGUID..cleu.spellName
 	if A.glows[id] then
-		A.Libs.LCG.PixelGlow_Stop(A.glows[id],id)
+		A.Libs.LCG.PixelGlow_Stop(A.glows[id], id)
 		A.glows[id] = nil
 	end
 end

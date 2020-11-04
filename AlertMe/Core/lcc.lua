@@ -42,24 +42,24 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
 	or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-		-- check spell settings for that spell
+		-- get valid alerts for that spell
 		local alerts = getAlerts(spellName)
 		if not alerts then return end
-		-- create arguments for unitcheck
+		-- create cleu arguments for unitcheck
 		local cleu = {
 			event = event,
 			srcGUID = unitGUID,
 			srcName = unitName,
 			srcFlags = unitFlags,
 			spellName = spellName,
-			checkedSpell = checkedSpell,
+			checkedSpell = spellName,
 		}
 		local evi = A.events["SPELL_CAST_START"]
 		-- check units
 		local _alerts, errors = A:CheckUnits(cleu, evi, alerts)
-		if not _alerts then	return end				--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
+		if not _alerts then	return end	--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
 		-- calculate remaining duration & show cast bar
-		local remaining = (endTime - (GetTime() * 1000))/1000
+		local remaining = (endTime - (GetTime() * 1000)) / 1000
 		A:ShowBar(barType, unitGUID, unitName, icon, remaining, true)
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
 	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then

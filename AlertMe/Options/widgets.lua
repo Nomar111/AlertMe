@@ -79,12 +79,12 @@ function O.attachColorPicker(container, label, db, key, alpha, width, func)
 	return widget
 end
 
-function O.attachDropdown(container, label, db, key, list, width, func, tooltip)
+function O.attachDropdown(container, label, db, key, list, order, width, func, tooltip)
 	local widget = A.Libs.AceGUI:Create("Dropdown")
 	if label then widget:SetLabel(label) end
 	widget:SetMultiselect(false)
 	if width then widget:SetWidth(width) end
-	if list then widget:SetList(list) end
+	if list then widget:SetList(list, order)  end
 	widget:SetValue(db[key])
 	widget:SetCallback("OnValueChanged", function(_, _, value)
 		db[key] = value

@@ -31,7 +31,7 @@ A.events.SPELL_CAST_START = {
 	handle = "start",
 	barType = "spells",
 	checkedSpell = "spellName",
-	actions = { "ChatAnnounce", "DisplayAuraBars", "DisplayGlows", "PlaySound" },
+	actions = { "ChatAnnounce", "DisplayGlows", "PlaySound" },
 }
 A.events.SPELL_CAST_SUCCESS = {
 	handle = "success",
@@ -116,11 +116,11 @@ end
 
 A.messages = {
 	gain = "%dstName gained %spellName",
-	dispel = "%extraSpellName dispelled on %dstName -- by %srcName",
+	dispel = "%extraSpellName dispelled on %dstName (by %srcName)",
 	start = "%srcName starts to cast %spellName",
 	success = "%srcName casted %spellName on %dstName",
-	missed = "%srcName's %spellName missed on %dstName (%missType)",
-	interrupt = "%srcName interrupted %dstName -- %extraSchool locked for %lockout s",
+	missed = "%dstName %missType %srcName's %spellName",
+	interrupt = "%srcName interrupted %dstName (%extraSchool locked for %lockout s)",
 }
 
 A.missTypes = {
@@ -129,7 +129,7 @@ A.missTypes = {
 	DEFLECT = "deflected",
 	DODGE = "dodged",
 	EVADE = "evaded",
-	IMMUNE = "immune",
+	IMMUNE = "is immune to",
 	MISS = "missed",
 	PARRY = "parried",
 	REFLECT = "reflected",
@@ -137,17 +137,24 @@ A.missTypes = {
 }
 
 A.units = {
-	[1] = {	label = "All players", order = 1, checks = { playerControlled = true }	},
-	[2] = {	label = "Friendly players",	order = 2, checks = { playerControlled = true, isFriendly = true } },
-	[3] = {	label = "Hostile players", order = 3, checks = { playerControlled = true, isHostile = true } },
-	[4] = {	label = "Target", order = 4, checks = { isTarget = true } },
-	[5] = {	label = "Myself", order = 5, checks = {	isPlayer = true, } },
-	[6] = {	label = "All entities",	order = 7 },
-	[7] = {	label = "Hostile NPCs",	order = 6, checks = { isPlayer = false,	isHostile = true } },
+	[1] = {	label = "All players", order = 3, checks = { playerControlled = true }	},
+	[2] = {	label = "Friendly players",	order = 4, checks = { playerControlled = true, isFriendly = true } },
+	[3] = {	label = "Hostile players", order = 5, checks = { playerControlled = true, isHostile = true } },
+	[4] = {	label = "Target", order = 2, checks = { isTarget = true } },
+	[5] = {	label = "Myself", order = 1, checks = {	isPlayer = true, } },
+	[6] = {	label = "All entities",	order = 6 },
+	[7] = {	label = "Hostile NPCs",	order = 7, checks = { isPlayer = false,	isHostile = true } },
 	getList = function()
 		local ret = {}
 		for i, tbl in ipairs(A.units) do
 			ret[i] = tbl.label
+		end
+		return ret
+	end,
+	getOrder = function()
+		local ret = {}
+		for i, tbl in ipairs(A.units) do
+			ret[tbl.order] = i
 		end
 		return ret
 	end

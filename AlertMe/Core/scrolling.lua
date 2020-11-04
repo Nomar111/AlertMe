@@ -61,7 +61,6 @@ end
 
 function A.ShowScrolling()
 	if not P.scrolling.enabled then return end
-	-- if not yet initialized, do so
 	if not A.ScrollingText then
 		A:UpdateScrolling()
 	end

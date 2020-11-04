@@ -41,9 +41,9 @@ function tcopy(t, deep, seen)
 end
 
 function GetShortName(name)
-	-- getUnitName: Returns Unitname without Realm
-	local short = gsub(name, "%-[^|]+", "")
-	return short
+	if name and type(name) == "string" then
+		return gsub(name, "%-[^|]+", "")
+	end
 end
 
 function InitChatFrames()
@@ -116,6 +116,7 @@ end
 vdt = {}
 function vdt:data(obj, desc)
 	local vdt = _G.ViragDevTool_AddData
+	desc = desc or tostring(obj)
 	if vdt then
 		vdt(obj, desc)
 	end

@@ -39,7 +39,7 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 	if not A.events[arg[2]] then return end
 	-- create table with relevant cleu arguments
 	local cleu = {
-		ts = arg[1],
+		--ts = arg[1],
 		event = arg[2],
 		srcGUID = arg[4],
 		srcName = arg[5],
@@ -71,28 +71,25 @@ function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)
 end
 
 function A:ProcessCLEU(cleu, evi)
-	if evi.handle == "removed" then
-		-- remove gui elements if needed
+	if evi.handle == "removed" then					-- remove gui elements if needed
 		A:HideGUI(cleu, evi)
 		return
-	elseif evi.handle == "success" then
-		-- if spell cast success fake an applay event
+	elseif evi.handle == "success" then				-- if spell cast success fake an apply event
 		A:FakeEvent(cleu, evi)
 	end
 	-- do some checks
 	local check, alerts = A:DoChecks(cleu, evi)
 	if not check then return end
-	-- auras need a special treatment
+	-- aura gains need special treatment
 	if evi.handle == "gain" then
 		local name, _, _, _, duration, _, _, _, _, _, remaining = A:GetUnitAura(cleu, evi)
 		if name and ((duration - remaining <= 2) or duration == 0) then	-- aura has a duration or was recently applied
-			-- rermaining nil?
 			A:DoActions(cleu, evi, alerts, false)
 		elseif not name then
-			if A:CheckSnapshot(cleu, evi) then -- no direct aura info, check for recent spell cast success events
+			if A:CheckSnapshot(cleu, evi) then 		-- no direct aura info, check for recent spell cast success events
 				A:DoActions(cleu, evi, alerts, true)
 			else
-				A:AddSnapshot(cleu, evi) -- add a snapshot
+				A:AddSnapshot(cleu, evi) 			-- add a snapshot
 			end
 		end
 	else -- success, interrupt, dispel
@@ -100,27 +97,19 @@ function A:ProcessCLEU(cleu, evi)
 	end
 end
 
-function A:DoActions(cleu, evi, alerts, ...)
-	if evi.actions then
-		for _, action in pairs(evi.actions) do
-			A[action](A, cleu, evi, alerts, ...)
-		end
-	end
-end
-
 --**********************************************************************************************************************************
 --Checks
 local function getAlerts(cleu, evi)
 	local alerts, spellOptions =  {}
+	-- get all alert options for this spell/event
 	if A.spellOptions[cleu.checkedSpell] and A.spellOptions[cleu.checkedSpell][evi.handle] then
 		spellOptions = A.spellOptions[cleu.checkedSpell][evi.handle]
 	end
-	-- various checks
-	if not evi.spellSelection then -- spell selection disabled for this event (interrupt for example), return all alerts from this event
+	if not evi.spellSelection then 		-- if spell selection is disabled return all alerts
 		for uid, tbl in pairs(A.alertOptions[evi.handle]) do
 			tinsert(alerts, tbl)
 		end
-	elseif spellOptions then -- check for spell in alerts, check spell/event combo
+	elseif spellOptions then 			-- spell/event combo existing: add alerts
 		for uid, tbl in pairs(spellOptions) do
 			tinsert(alerts, tbl.options)
 		end
@@ -149,30 +138,28 @@ function A:DoChecks(cleu, evi)
 end
 
 function A:CheckUnits(cleu, evi, alerts)
-	-- if no unit selection for this event return
+	-- if that event has no unit selection return alerts
 	if not evi.unitSelection then return alerts end
-	-- set some local variables
+	-- prepare local variables
 	local playerGUID, targetGUID = UnitGUID("player"), UnitGUID("target")
-	-- create return table
 	local _alerts , errors = {}, {}
-	-- loop over the option groups
+	-- loop over the alerts
 	for _, alert in pairs(alerts) do
-		-- variable to hold the check result for this og
+		-- variable to hold the check result for this alert
 		local checkFailed = false
-		-- do the relevant checks (src, dst)
+		-- do all unit checks for source/destination units
 		for _, pre in pairs (evi.unitSelection) do
-			-- set local variables
 			local c = {}
 			local name, GUID, flags = cleu[pre.."Name"], cleu[pre.."GUID"], cleu[pre.."Flags"]
 			local unit, exclude = alert[pre.."Units"], alert[pre.."Exclude"]
 			c.playerControlled = (bitband(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)
 			c.isFriendly = (bitband(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0)
 			c.isHostile = (bitband(flags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0)
-			c.isPlayer = (GUID == playerGUID)
-			c.isTarget = (GUID == targetGUID)
+			c.isTarget, c.isPlayer = (GUID == targetGUID), (GUID == playerGUID)
 			-- write some useful info into ti for later use
-			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"], cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = c.isTarget, c.isPlayer, c.isFriendly, c.isHostile
-			-- checks to be done defined in A.units
+			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"] = c.isTarget, c.isPlayer
+			cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = c.isFriendly, c.isHostile
+			-- loop over required checks as defined in A.units
 			if A.units[unit].checks then
 				for condition, ref in pairs(A.units[unit].checks) do
 					if c[condition] ~= ref then
@@ -182,10 +169,10 @@ function A:CheckUnits(cleu, evi, alerts)
 					end
 				end
 			end
-			-- checks to be done defined in A.units.excludes
+			-- loop over checks as defined in A.units.excludes
 			if A.units.excludes[exclude].checks then
 				for condition, ref in pairs(A.units.excludes[exclude].checks) do
-					if c[condition] == ref then
+					if c[condition] == ref then	-- since it's exclude we check for equal
 						tinsert(errors, pre..", exclude, "..condition.." failed")
 						checkFailed = true
 						break
@@ -207,14 +194,67 @@ end
 
 --**********************************************************************************************************************************
 -- actions
-local function createMessage(cleu, evi, alert, colored, showIcon)
+function A:DoActions(cleu, evi, alerts, ...)
+	if evi.actions then
+		for _, action in pairs(evi.actions) do
+			A[action](A, cleu, evi, alerts, ...)
+		end
+	end
+end
+
+local function getReactionColor(cleu, evi, rgb)
+	local color = "white"
+	-- check events
+	if evi.handle == "gain" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
+			color = "green"
+		else
+			color = "red"
+		end
+	elseif evi.handle == "dispel" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
+			color = "red"
+		else
+			color = "green"
+		end
+	elseif evi.handle == "start" or evi.handle == "success" or evi.handle == "interrupt" then
+		if cleu.srcIsFriendly then
+			color =  "green"
+		else
+			color = "red"
+		end
+	elseif evi.handle == "missed" then
+		if cleu.srcIsFriendly then
+			color =  "red"
+		else
+			color = "green"
+		end
+	end
+	-- return RGB or HEX
+	if rgb then
+		return unpack(A.colors[color]["rgb"])
+	else
+		return A.colors[color]["hex"]
+	end
+end
+
+local function getIcon(spellName)
+	local icon
+	if A.spellOptions[spellName] then
+		icon = A.spellOptions[spellName].icon
+	else
+		local spellId = A.Libs.LCD:GetLastRankSpellIDByName(spellName)
+		_, _, icon = GetSpellInfo(spellId)
+	end
+	return icon
+end
+
+local function createMessage(cleu, evi, alert, plain)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	local r, icon, msg = {}
-	-- get target and mouseover names
-	r.targetName = UnitName("target") or ""
-	r.targetName = GetShortName(r.targetName)
-	r.mouseoverName = UnitName("mouseover") or ""
-	r.mouseoverName = GetShortName(r.mouseoverName)
+	-- get current target and mouseover unit names
+	r.targetName = GetShortName(UnitName("target")) or nil
+	r.mouseoverName = GetShortName(UnitName("mouseover")) or nil
 	-- check possible replacements for being nil
 	r.srcName = (cleu.srcName) and GetShortName(cleu.srcName) or nil
 	r.dstName = (cleu.dstName) and GetShortName(cleu.dstName) or nil
@@ -223,13 +263,13 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 	r.extraSchool = (cleu.extraSchool) and GetSchoolString(cleu.extraSchool) or nil
 	r.lockout = (cleu.lockout) and cleu.lockout or nil
 	r.missType = (cleu.missType) and A.missTypes[cleu.missType] or nil
-	-- get standard message or message override
+	-- get standard event message or message override from alert
 	if alert.msgOverride and alert.msgOverride ~= "" then
 		msg = alert.msgOverride
 	else
 		msg = P.messages[evi.handle]
 	end
-	-- replace
+	-- replace patterns
 	for _, pattern in pairs(A.patterns) do
 		local replacement = r[sub(pattern,3)]
 		if replacement then
@@ -237,27 +277,18 @@ local function createMessage(cleu, evi, alert, colored, showIcon)
 		end
 	end
 	-- get reaction color
-	local color = A:GetReactionColor(cleu)
+	local color = getReactionColor(cleu, evi)
 	-- return
-	if not colored then
+	if plain then
 		return prefix..msg..postfix
-	elseif colored and not showIcon then
-		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
-	elseif colored and showIcon then
-		-- get icon
-		if A.spellOptions[cleu.checkedSpell] then
-			icon = A.spellOptions[cleu.checkedSpell].icon
-		else
-			local spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
-			_, _, icon = GetSpellInfo(spellId)
-		end
-		if icon then
-			local iconSize = P.scrolling.fontSize-2.5
-			local iconText = " |T"..icon..":"..iconSize..":"..iconSize..":0:0|t "
+	else -- not plain = colored/icon
+		icon = getIcon(cleu.checkedSpell)
+		if P.scrolling.showIcon and icon then
+			local size = P.scrolling.fontSize - 2.5
+			local iconText = " |T"..icon..":"..size..":"..size..":0:0|t "
 			return WrapTextInColorCode(prefix, color)..iconText..msg..iconText..WrapTextInColorCode(postfix, color)
-		else
-			return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
 		end
+		return WrapTextInColorCode(prefix, color)..msg..WrapTextInColorCode(postfix, color)
 	end
 end
 
@@ -269,115 +300,104 @@ local function getChannel()
 			return "RAID"
 		end
 	elseif GetNumGroupMembers() > 0 then
-		return "Party"
+		return "PARTY"
 	end
 end
 
 function A:ChatAnnounce(cleu, evi, alerts, ...)
 	-- get possible channels
 	local inInstance, instanceType = IsInInstance()
+	local isGrouped = (GetNumGroupMembers() > 0)
 	local channel = getChannel()
 	-- create queue for messages
-	local msgQueue = {}
-	-- loop through option groups
+	local msgQueue = { INSTANCE_CHAT = {}, RAID = {}, PARTY = {}, SAY = {}, SYSTEM = {}, WHISPER = {}, SCROLLING = {} }
+	-- loop through alerts and prepare message queue
 	for _, alert in pairs(alerts) do
-		local msg = createMessage(cleu, evi, alert, false, false)
-		local msgSystem = createMessage(cleu, evi, alert, true, false)
-		local msgScrolling = (P.scrolling.showIcon) and createMessage(cleu, evi, alert, true, true) or  msgSystem -- show spell icon in scrolling text frame?
-		-- bg/raid/party
-		if alert.chatChannels == 2 and channel and P.messages.chatEnabled then
-			if msgQueue[channel] == nil then msgQueue[channel] = {} end
-			msgQueue[channel][msg] = msg
-		end
-		-- party
-		if alert.chatChannels == 3 and inInstance and P.messages.chatEnabled then
-			if msgQueue["PARTY"] == nil then msgQueue["PARTY"] = {} end
-			msgQueue["PARTY"][msg] = msg
-		end
-		-- say
-		if alert.chatChannels == 4 and inInstance and P.messages.chatEnabled then
-			if msgQueue["SAY"] == nil then msgQueue["SAY"] = {} end
-			msgQueue["SAY"][msg] = msg
-		end
-		-- addon messages
-		if (alert.addonMessages == 1 or (alert.addonMessages == 3 and not inInstance and alert.chatChannels ~= 1)) and P.messages.enabled then
-			if msgQueue["SYSTEM"] == nil then msgQueue["SYSTEM"] = {} end
-			msgQueue["SYSTEM"][msg] = msgSystem
+		local msg = createMessage(cleu, evi, alert, true)
+		local colmsg = createMessage(cleu, evi, alert)
+		-- chat messages to other people (only possible in instances)
+		if P.messages.chatEnabled and inInstance then				-- options setting
+			if alert.chatChannels == 2 and channel then				-- bg/raid/party
+				msgQueue[channel][msg] = msg
+			elseif alert.chatChannels == 3 and isGrouped then		-- party
+				msgQueue["PARTY"][msg] = msg
+			elseif alert.chatChannels == 4 then						-- say
+				msgQueue["SAY"][msg] = msg
+			end
 		end
 		-- whisper destination unit
-		if evi.dstWhisper == true and cleu.dstIsFriendly and not cleu.dstIsPlayer then
-			if (alert.dstWhisper == 2 and cleu.srcIsPlayer) or alert.dstWhisper == 3 then
-				if P.messages.chatEnabled then
-					if msgQueue["WHISPER"] == nil then msgQueue["WHISPER"] = {} end
-					msgQueue["WHISPER"][msg] = msg
-				end
+		if P.messages.chatEnabled and cleu.dstIsFriendly and not cleu.dstIsPlayer then
+			if (alert.dstWhisper == 2 and cleu.srcIsPlayer) 		-- whisper if cast by me
+			or alert.dstWhisper == 3 then							-- whisper
+				msgQueue["WHISPER"][msg] = msg
 			end
 		end
-		-- scrolling messages
-		if alert.scrollingText and P.scrolling.enabled then
-			if not msgQueue["SCROLLING"] then msgQueue["SCROLLING"] = {} end
-			msgQueue["SCROLLING"][msg] = msgScrolling
+		-- addon/system messages
+		if P.messages.enabled then 									-- options setting
+			if alert.addonMessages == 1 							-- always display system messages
+			or (alert.addonMessages == 3 and not channel and alert.chatChannels ~= 1) then	-- if channel not available
+				msgQueue["SYSTEM"][msg] = colmsg
+			end
+		end
+		-- scrolling text
+		if P.scrolling.enabled and alert.scrollingText then
+			msgQueue["SCROLLING"][msg] = colmsg
 		end
 	end
+
 	-- loop through message queue and send messages
-	for chan, messages in pairs(msgQueue) do
-		for _, msg in pairs(messages) do
-			if chan == "SYSTEM" then
-				AddonMessage(msg)
-			elseif chan == "WHISPER" then
-				SendChatMessage(msg, chan, nil, cleu.dstName)
-			elseif chan == "SCROLLING" then
-				A:PostInScrolling(msg, cleu.icon)
-			else
-				SendChatMessage(msg, chan, nil, nil) 		-- say/raid/party/bg
+	for _channel, messages in pairs(msgQueue) do
+		for _, message in pairs(messages) do
+			if _channel == "SYSTEM" then
+				AddonMessage(message)
+			elseif _channel == "WHISPER" then
+				SendChatMessage(message, _channel, nil, cleu.dstName)
+			elseif _channel == "SCROLLING" then
+				A:PostInScrolling(message)
+			else -- say/raid/party/bg
+				SendChatMessage(message, _channel, nil, nil)
 			end
+		end
+	end
+end
+
+local function playSoundQueue(queue, oldplaying, oldhandle)
+	local delay = 1.3
+	-- stop old sound if its still plying
+	if oldplaying and oldhandle then
+		StopSound(oldhandle)
+	end
+	-- loop & iterate
+	for sound, _ in pairs(queue) do
+		local isPlaying, handle = PlaySoundFile(A.sounds[sound])
+		queue[sound] = nil
+		if next(queue) then
+			C_Timer.After(delay, function() playQueue(queue, isPlaying, handle) end)
+		else
+			break
 		end
 	end
 end
 
 function A:PlaySound(cleu, evi, alerts, ...)
 	local soundQueue = {}
-	local delay = 1.3
-	-- play the sound queue
-	local function playQueue(queue, oldplaying, oldhandle)
-		-- stop old sound if its still plying
-		if oldplaying and oldhandle then
-			StopSound(oldhandle)
-		end
-		-- loop & iterate
-		for sound, _ in pairs(queue) do
-			local isPlaying, handle = PlaySoundFile(A.sounds[sound])
-			queue[sound] = nil
-			if next(queue) then
-				C_Timer.After(delay, function() playQueue(queue, isPlaying, handle) end)
-			else
-				break
-			end
-		end
-	end
 	-- loop alerts
 	for _, alert in pairs(alerts) do
-		--{[1] = "No sound alerts", , [3] = "Play individual sound alerts per spell"
-		if alert.soundSelection == 1 then 						-- [1] = "No sound alerts"
-			break
-		elseif alert.soundSelection == 2 then					-- [2] = "Play one sound alert for all spells"
+		if alert.soundSelection == 2 then					-- [2] = "Play one sound alert for all spells"
 			sound = alert.soundFile
-		elseif alert.soundSelection == 3 then					-- [3] = "Play individual sound alerts per spell"
+		elseif alert.soundSelection == 3 then				-- [3] = "Play individual sound alerts per spell"
 			sound = alert.spellNames[cleu.spellName].soundFile
 		end
 		-- add to soundqueue
-		if not sound or sound == "None" or sound == "" then
-			break
-		else
+		if sound and sound ~= "None" and sound ~= "" then
 			soundQueue[sound] = true
 		end
 	end
-	playQueue(soundQueue)
+	playSoundQueue(soundQueue)
 end
 
 --**********************************************************************************************************************************
---Inits
---**********************************************************************************************************************************
+--Build tables with alert/spell data
 function A.InitSpellOptions()
 	A.alertOptions = {}
 	A.spellOptions = {}
@@ -410,7 +430,6 @@ end
 
 --**********************************************************************************************************************************
 -- Register events
---**********************************************************************************************************************************
 function A.RegisterCLEU(event)
 	local name, instanceType = GetInstanceInfo()
 	-- check against instance type and settings
@@ -444,36 +463,6 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-function A:GetReactionColor(cleu, rgb)
-	local color = "white"
-	-- check events
-	if cleu.event == "SPELL_AURA_APPLIED" or cleu.event == "SPELL_AURA_REFRESH" then
-		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
-			color = "green"
-		else
-			color = "red"
-		end
-	elseif cleu.event == "SPELL_DISPEL" then
-		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
-			color = "red"
-		else
-			color = "green"
-		end
-	elseif cleu.event == "SPELL_CAST_START" or cleu.event == "SPELL_CAST_SUCCESS" or cleu.event == "SPELL_INTERRUPT" then
-		if cleu.srcIsFriendly then
-			color =  "green"
-		else
-			color = "red"
-		end
-	end
-	-- return RGB or HEX
-	if rgb then
-		return unpack(A.colors[color]["rgb"])
-	else
-		return A.colors[color]["hex"]
-	end
-end
-
 function A:HideGUI(cleu, evi)
 	A:HideAuraBars(cleu, evi)
 	A:HideGlow(cleu, evi)

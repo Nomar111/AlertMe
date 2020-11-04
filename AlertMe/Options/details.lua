@@ -93,17 +93,18 @@ local function unitSelection(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
-		local unitsList = A.units.getList()
-		local excludeList = A.units.excludes.getList()
+		local units = A.units.getList()
+		local order = A.units.getOrder()
+		local excludes = A.units.excludes.getList()
 		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 		if A.menus[handle].unitSelection[1] == "src" then
-			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", unitsList, 140)
-			O.attachDropdown(unitsGroup, "excluding", db, "srcExclude", excludeList, 100)
+			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", units, order, 140)
+			O.attachDropdown(unitsGroup, "excluding", db, "srcExclude", excludes, _, 100)
 		end
 		if A.menus[handle].unitSelection[2] then
 			O.attachSpacer(unitsGroup, 20)
-			O.attachDropdown(unitsGroup, "Target units", db, "dstUnits", unitsList, 140)
-			O.attachDropdown(unitsGroup, "excluding", db, "dstExclude", excludeList, 100)
+			O.attachDropdown(unitsGroup, "Target units", db, "dstUnits", units, order, 140)
+			O.attachDropdown(unitsGroup, "excluding", db, "dstExclude", excludes, _, 100)
 		end
 	end
 end
@@ -126,7 +127,7 @@ local function displaySettings(container, handle, uid)
 			header = "Enable glow on unitframes",
 			lines = { "Works for friendly unitframes by default", "Also works for enemy uniframes if using BGTC*", "*BattlegrounndTargets Classic" },
 		}
-		O.attachDropdown(displayGroup, _, db, "showGlow", glowList, 150, _, tooltip)
+		O.attachDropdown(displayGroup, _, db, "showGlow", glowList, _, 150, _, tooltip)
 	end
 end
 
@@ -137,17 +138,17 @@ local function announceSettings(container, handle, uid)
 	local announceGroup = O.attachGroup(container, "simple", _ , { fullWidth = true } )
 	-- chat channels
 	local list = { [1] = "Don't announce", [2] = "BG > Raid > Party", [3] = "Party", [4] = "Say" }
-	O.attachDropdown(announceGroup, "Announce in channel", db, "chatChannels", list, 140)
+	O.attachDropdown(announceGroup, "Announce in channel", db, "chatChannels", list, _, 140)
 	O.attachSpacer(announceGroup, 20)
 	-- addon messages
 	list = { [1] = "Always", [2] = "Never", [3] = "If chan not available" }
 	local tooltip = {header = "Addon messages", lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"} }
-	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, 150, _, tooltip)
+	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, _, 150, _, tooltip)
 	-- destination whisper
 	if A.menus[handle].dstWhisper then
 		O.attachSpacer(announceGroup, 20)
 		list = { [1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper" }
-		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", list, 160)
+		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", list, _, 160)
 	end
 	O.attachSpacer(container, _, "small")
 	-- scrolling text
@@ -173,7 +174,7 @@ local function soundSettings(container, handle, uid)
 	O.attachHeader(soundGroup, "Sound alerts")
 	local list = { [1] = "No sound alerts", [2] = "Play one sound", [3] = "Play individual sounds" }
 	local tooltip = { lines = { "Set alerts in the spell table" } }
-	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, 245, updateState, tooltip)
+	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, _, 245, updateState, tooltip)
 	O.attachSpacer(soundGroup, 20)
 	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
 	updateState()
