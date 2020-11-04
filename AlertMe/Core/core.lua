@@ -427,7 +427,7 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
-function A:GetReactionColor(cleu, evi, rgb)
+function A:GetReactionColor(cleu, evi, option)
 	local color = "white"
 	-- check events
 	if evi.handle == "gain" then
@@ -456,10 +456,10 @@ function A:GetReactionColor(cleu, evi, rgb)
 		end
 	end
 	-- return RGB or HEX
-	if rgb == "rgb" then
+	if option == "rgb" then
 		return unpack(A.colors[color]["rgb"])
-	elseif rgb == "text" then
-		return (color=="red") and "bad" or "good"
+	elseif option == "reaction" then
+		return (color == "green") and true or false
 	else
 		return A.colors[color]["hex"]
 	end

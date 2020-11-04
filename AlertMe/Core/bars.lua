@@ -88,7 +88,7 @@ local function barStopped(_, delBar)
 	end
 end
 
-function A:ShowBar(barType, id, label, icon, duration, goodBad, noCreate)
+function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
 	local db = P.bars[barType]
 	if not db.enabled or not id or not duration or not barType then return end
 	-- if bar doesnt exists and noCreate, abort
@@ -121,9 +121,9 @@ function A:ShowBar(barType, id, label, icon, duration, goodBad, noCreate)
 	bar:SetDuration(duration)
 	bar:SetFill(db.fill)
 	bar:SetTimeVisibility(db.timeVisible)
-	-- colors
-	if goodBad then
-		bar:SetColor(unpack(db[goodBad.."Color"]))
+	-- set color depending on reaction (true = green/good)
+	if reaction then
+		bar:SetColor(unpack(db.goodColor))
 	else
 		bar:SetColor(unpack(db.badColor))
 	end
@@ -161,17 +161,17 @@ function A:DisplayAuraBars(cleu, evi, alerts, snapShot)
 	if barType ~= "auras" or not P.bars.auras.enabled then return end
 	local id = cleu.dstGUID..cleu.spellName
 	-- get color scheme for bar
-	local goodBad = A:GetReactionColor(cleu, evi, "text")
+	local reaction = A:GetReactionColor(cleu, evi, "reaction")
 	for _, alert in pairs(alerts) do
 		if alert.showBar and evi.displayOptions and evi.displayOptions.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(cleu, evi)
 			if remaining then
-				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, goodBad)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, reaction)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
 				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, goodBad)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, reaction)
 			else
 				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", cleu.checkedSpell,  evi.handle)
 			end
