@@ -99,7 +99,7 @@ A.menus.interrupt = {
 	type = "spell",
 	text = "On interrupt",
 	order = 6,
-	spellSelection = true,
+	spellSelection = false,
 	unitSelection =	{ "src", "dst" },
 	dstWhisper = true,
 }
@@ -195,6 +195,38 @@ A.lists.excludes = {
 	getList = getList,
 	getOrder = getOrder,
 }
+A.lists.soundsel = {
+	[1] = { label = "No sound alerts", order = 1 },
+	[2] = { label = "Play one sound", order = 3 },
+	[3] = { label = "Play individual sounds", order = 2 },
+	tooltip = { lines = { "Set individual sounds in the spell table" } },
+	getList = getList,
+	getOrder = getOrder,
+}
+A.lists.dstwhisper = {
+	[1] = { label = "Don't whisper", order = 1 },
+	[2] = { label = "Whisper if cast by me", order = 2 },
+	[3] = { label = "Whisper", order = 3 },
+	getList = getList,
+}
+A.lists.addonmsg = {
+	[1] = { label = "Always", order = 2 },
+	[2] = { label = "Never", order = 3 },
+	[3] = { label = "If chan not available", order = 1 },
+	tooltip = { header = "Addon messages", lines = { "Only visible for you", "Set chat frames in Options-Messages" } },
+	getList = getList,
+	getOrder = getOrder,
+}
+A.lists.channels = {
+	[1] = { label = "Don't announce", order = 1 },
+	[2] = { label = "BG > Raid > Party", order = 2 },
+	[3] = { label = "Party", order = 3 },
+	[4] = { label = "Say", order = 4 },
+	getList = getList,
+	getOrder = getOrder,
+}
+
+
 
 --*********************************************************************************************
 -- create Example profile

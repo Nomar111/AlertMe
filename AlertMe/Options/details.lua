@@ -102,12 +102,10 @@ local function spellSelection(container, handle, uid)
 end
 
 local function unitSelection(container, handle, uid)
-	local db = P.alerts[handle].alertDetails[uid]
+	local db, units, order, excludes  = P.alerts[handle].alertDetails[uid]
 	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
-		local units = A.lists.units:getList()
-		local order = A.lists.units:getOrder()
-		local excludes = A.lists.excludes:getList()
+		units, order, excludes = A.lists.units:getList(), A.lists.units:getOrder(), A.lists.excludes:getList()
 		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 		if A.menus[handle].unitSelection[1] == "src" then
 			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", units, order, 140)
@@ -123,53 +121,51 @@ end
 
 local function displaySettings(container, handle, uid)
 	if not A.menus[handle].displayOptions then return end
-	local db = P.alerts[handle].alertDetails[uid]
-	-- display settings
+	local db, tooltip, label = P.alerts[handle].alertDetails[uid]
 	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	O.attachHeader(displayGroup, "Display settings")
+	-- show progress bar
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.bar then
-		local barTypeText = (A.menus[handle].type == "aura") and "aura bars" or "cast bars"
-		local label = "Show".." "..barTypeText
+		label = (A.menus[handle].type == "aura") and "Show aura bars" or "Show cast bars"
 		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end
+	-- show glow
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.glow then
 		O.attachSpacer(displayGroup, 9)
-		local tooltip = { lines = { "Select glow on unitframes", "Configure the presets in 'Glow' options" } }
+		tooltip = { header = "Glow on uniframes", lines = { "Glow presets can bet edited in Options-Glow" } }
 		O.attachDropdown(displayGroup, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
 	end
 end
 
 local function announceSettings(container, handle, uid)
-	local db = P.alerts[handle].alertDetails[uid]
+	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
 	-- announce settings
 	O.attachHeader(container, "Text alerts")
 	local announceGroup = O.attachGroup(container, "simple", _ , { fullWidth = true } )
 	-- chat channels
-	local list = { [1] = "Don't announce", [2] = "BG > Raid > Party", [3] = "Party", [4] = "Say" }
+	list = A.lists.channels:getList()
 	O.attachDropdown(announceGroup, "Announce in channel", db, "chatChannels", list, _, 140)
 	O.attachSpacer(announceGroup, 20)
-	-- addon messages
-	list = { [1] = "Always", [2] = "Never", [3] = "If chan not available" }
-	local tooltip = {header = "Addon messages", lines = {"Addon messages are only visible to yourself", "Chat windows are setup in 'Messages'"} }
-	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, _, 150, _, tooltip)
-	-- destination whisper
+	-- addon/system messages
+	list, order, tooltip = A.lists.addonmsg:getList(), A.lists.addonmsg:getOrder(), A.lists.addonmsg.tooltip
+	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, order, 150, _, tooltip)
+	-- dstwhisper
 	if A.menus[handle].dstWhisper then
 		O.attachSpacer(announceGroup, 20)
-		list = { [1] = "Don't whisper", [2] = "Whisper if cast by me",  [3] = "Whisper" }
+		list = A.lists.dstwhisper:getList()
 		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", list, _, 160)
 	end
 	O.attachSpacer(container, _, "small")
 	-- scrolling text
-	tooltip = {	header = "Scrolling Text",lines = { "Post messages to Scrolling Text" } }
-	O.attachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180, _, tooltip)
+	O.attachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180)
 	O.attachSpacer(container, _, "small")
 	-- message override
-	tooltip = {	header = "Message override", lines = { "Set an alternative chat message","If empty, (event) standard will be used" } }
+	tooltip = {	header = "Message override", lines = { "Override the standard text message" } }
 	O.attachEditBox(container, "Chat message override", db, "msgOverride", 1, _, tooltip)
 end
 
 local function soundSettings(container, handle, uid)
-	local db = P.alerts[handle].alertDetails[uid]
+	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
 	local soundGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
 		if O.SoundselectionDefault:GetValue() ~= 2 then
@@ -180,9 +176,8 @@ local function soundSettings(container, handle, uid)
 	end
 	-- sound alerts
 	O.attachHeader(soundGroup, "Sound alerts")
-	local list = { [1] = "No sound alerts", [2] = "Play one sound", [3] = "Play individual sounds" }
-	local tooltip = { lines = { "Set alerts in the spell table" } }
-	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, _, 245, updateState, tooltip)
+	list, order, tooltip = A.lists.soundsel:getList(), A.lists.soundsel:getOrder(), A.lists.soundsel.tooltip
+	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, order, 225, updateState, tooltip)
 	O.attachSpacer(soundGroup, 20)
 	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
 	updateState()
