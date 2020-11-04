@@ -9,7 +9,7 @@ A.events.SPELL_AURA_APPLIED = {
 	barType = "auras",
 	extraArgs = { "auraType" },
 	checkedSpell = "spellName",
-	actions = { "ChatAnnounce","DisplayAuraBars","DisplayGlows","PlaySound" },
+	actions = { "ChatAnnounce", "DisplayAuraBars", "DisplayGlows", "PlaySound" },
 }
 A.events.SPELL_AURA_REFRESH = A.events.SPELL_AURA_APPLIED		-- handled completely the same as apply
 A.events.SPELL_AURA_REMOVED = {
@@ -26,7 +26,7 @@ A.events.SPELL_DISPEL = {
 	barType = "auras",
 	extraArgs = { "extraSpellId", "extraSpellName", "extraSchool", "auraType" },
 	checkedSpell = "extraSpellName",
-	actions = { "ChatAnnounce", "HideGUI", "PlaySound" },
+	actions = { "HideGUI", "ChatAnnounce", "PlaySound" },
 }
 A.events.SPELL_CAST_START = {
 	handle = "start",
