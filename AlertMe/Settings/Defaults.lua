@@ -41,7 +41,8 @@ D.profile = {
 			timeVisible = true,
 			shadowColor = {0, 0, 0, 0.1},
 			textColor = {1, 1, 1, 1},
-			backgroundColor = {0, 0, 0, 0.4}
+			backgroundColor = {0, 0, 0, 0.4},
+			growUp = false,
 		},
 		spells = {
 			point = "CENTER",

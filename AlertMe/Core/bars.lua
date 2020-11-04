@@ -43,13 +43,15 @@ end
 local function reArrangeBars(barType)
 	local bars = A.bars[barType]
 	if not bars then return end
-	local db = P.bars[barType]
+	local db, ofs_y, m = P.bars[barType]
 	local container = getContainer(barType)
+	ofs_y = 14
+	m = (db.growUp) and 1 or -1
 	-- sort bars by duration
-	local ofs_y =  db.height + 5
+
 	for id, bar in pairs(bars) do
 		bar:ClearAllPoints()
-		bar:SetPoint("TOP", container, "TOP", 0, ofs_y*-1)
+		bar:SetPoint("TOP", container, "TOP", 0, ofs_y*m)
 		ofs_y = ofs_y + db.height + 5
 	end
 end
