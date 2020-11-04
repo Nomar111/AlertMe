@@ -8,6 +8,7 @@ local _G, LibStub, GetAddOnMetadata = _G, LibStub, GetAddOnMetadata
 setfenv(1, _G.AlertMe)
 -- create some later needed tables
 O = { config = {} } -- options
+L = {} -- locales
 D = {} -- defaults
 -- register as ace addon
 A = LibStub("AceAddon-3.0"):NewAddon(name, "AceConsole-3.0", "AceEvent-3.0")
@@ -35,6 +36,7 @@ A.Libs.AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 A.Libs.AceConfigDialog = LibStub("AceConfigDialog-3.0")
 A.Libs.AceDB = LibStub("AceDB-3.0")
 A.Libs.AceDBOptions = LibStub("AceDBOptions-3.0")
+--A.Libs.AceLocale = LibStub("AceLocale-3.0")
 A.Libs.LSM = LibStub("LibSharedMedia-3.0")
 A.Libs.LCD = LibStub("LibClassicDurations")
 A.Libs.LCB = LibStub("LibCandyBar-3.0")
@@ -57,6 +59,8 @@ function A:OnInitialize()
 	-- register slash command
 	local open = O.OpenOptions
 	self:RegisterChatCommand("alertme", "open")
+	-- set locale
+	L = A.Libs.AceLocale:GetLocale("AlertMe")
 end
 
 -- addon enabled

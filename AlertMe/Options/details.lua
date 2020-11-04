@@ -59,7 +59,7 @@ local function spellSelection(container, handle, uid)
 	-- spell edit box
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
 	local text = A.menus[handle].type or ""
-	editBox:SetLabel("Add "..text)
+	editBox:SetLabel("Add".." "..text)
 	editBox:SetWidth(232)
 	editBox:SetCallback("OnEnterPressed", function(widget, event, input)
 		for i,v in pairs(editBox.predictFrame.buttons) do
@@ -116,7 +116,7 @@ local function displaySettings(container, handle, uid)
 	O.attachHeader(displayGroup, "Display settings")
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.bar then
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
-		local label = "Show "..barTypeText
+		local label = "Show".." "..barTypeText
 		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.glow then

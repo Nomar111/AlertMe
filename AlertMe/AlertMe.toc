@@ -9,6 +9,7 @@
 
 Libs\libs.xml
 init.lua
+#Locales\locales.xml
 functions.lua
 Settings\settings.xml
 Core\core.xml

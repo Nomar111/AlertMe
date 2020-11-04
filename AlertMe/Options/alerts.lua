@@ -55,7 +55,7 @@ function O:ShowAlerts(container, handle)
 	local path = db.alertDetails[uid] or P.dummy
 	-- alert dropdown
 	local text = A.menus[handle].text or ""
-	local label = "Alerts - "..text
+	local label = "Alerts".." - "..text
 	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), 230, refresh)
 	if uid then widget:SetValue(db.selectedAlert) end
 	O.attachSpacer(topGroup, 20)

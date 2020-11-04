@@ -36,7 +36,7 @@ function O:ShowBars(container)
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
 		local enableGroup = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
 		-- enable
-		O.attachCheckBox(enableGroup, "Enable "..barTypeText, db ,"enabled", 140, A.InitLCC)
+		O.attachCheckBox(enableGroup, "Enable".." "..barTypeText, db ,"enabled", 140, A.InitLCC)
 		O.attachCheckBox(enableGroup, "Unlock bars", db ,"unlocked", 140, containerLock)
 		O.attachSpacer(container, _, "medium")
 		-- buttons
