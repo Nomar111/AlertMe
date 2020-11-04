@@ -202,42 +202,6 @@ function A:DoActions(cleu, evi, alerts, ...)
 	end
 end
 
-local function getReactionColor(cleu, evi, rgb)
-	local color = "white"
-	-- check events
-	if evi.handle == "gain" then
-		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
-			color = "green"
-		else
-			color = "red"
-		end
-	elseif evi.handle == "dispel" then
-		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
-			color = "red"
-		else
-			color = "green"
-		end
-	elseif evi.handle == "start" or evi.handle == "success" or evi.handle == "interrupt" then
-		if cleu.srcIsFriendly then
-			color =  "green"
-		else
-			color = "red"
-		end
-	elseif evi.handle == "missed" then
-		if cleu.srcIsFriendly then
-			color =  "red"
-		else
-			color = "green"
-		end
-	end
-	-- return RGB or HEX
-	if rgb then
-		return unpack(A.colors[color]["rgb"])
-	else
-		return A.colors[color]["hex"]
-	end
-end
-
 local function getIcon(spellName)
 	local icon
 	if A.spellOptions[spellName] then
@@ -277,7 +241,7 @@ local function createMessage(cleu, evi, alert, plain)
 		end
 	end
 	-- get reaction color
-	local color = getReactionColor(cleu, evi)
+	local color = A:GetReactionColor(cleu, evi)
 	-- return
 	if plain then
 		return prefix..msg..postfix
@@ -463,6 +427,44 @@ end
 --**********************************************************************************************************************************
 -- Various
 --**********************************************************************************************************************************
+function A:GetReactionColor(cleu, evi, rgb)
+	local color = "white"
+	-- check events
+	if evi.handle == "gain" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
+			color = "green"
+		else
+			color = "red"
+		end
+	elseif evi.handle == "dispel" then
+		if (cleu.dstIsFriendly and cleu.auraType == "BUFF") or (cleu.dstIsHostile and cleu.auraType == "DEBUFF") then
+			color = "red"
+		else
+			color = "green"
+		end
+	elseif evi.handle == "start" or evi.handle == "success" or evi.handle == "interrupt" then
+		if cleu.srcIsFriendly then
+			color =  "green"
+		else
+			color = "red"
+		end
+	elseif evi.handle == "missed" then
+		if cleu.srcIsFriendly then
+			color =  "red"
+		else
+			color = "green"
+		end
+	end
+	-- return RGB or HEX
+	if rgb == "rgb" then
+		return unpack(A.colors[color]["rgb"])
+	elseif rgb == "text" then
+		return (color=="red") and "bad" or "good"
+	else
+		return A.colors[color]["hex"]
+	end
+end
+
 function A:HideGUI(cleu, evi)
 	A:HideAuraBars(cleu, evi)
 	A:HideGlow(cleu, evi)

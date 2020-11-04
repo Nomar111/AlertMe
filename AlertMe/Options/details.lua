@@ -116,7 +116,7 @@ local function displaySettings(container, handle, uid)
 	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	O.attachHeader(displayGroup, "Display settings")
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.bar then
-		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
+		local barTypeText = (A.menus[handle].type == "aura") and "aura bars" or "cast bars"
 		local label = "Show".." "..barTypeText
 		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
 	end

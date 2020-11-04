@@ -79,21 +79,22 @@ function A:ResetContainerPosition(barType)
 	f:SetPoint(db.point, db.ofs_x, db.ofs_y)
 end
 
-function A:ShowBar(barType, id, label, icon, duration, colorGood, noCreate)
+-- callback for when bar is stopped
+local function barStopped(_, delBar)
+	local _id = delBar:Get("id")
+	local _barType = delBar:Get("barType")
+	delBar:SetParent(nil)
+	if A.bars and A.bars[_barType] and A.bars[_barType][_id] then
+		A.bars[_barType][_id] = nil
+		reArrangeBars(_barType)
+	end
+end
+
+function A:ShowBar(barType, id, label, icon, duration, goodBad, noCreate)
 	local db = P.bars[barType]
 	if not db.enabled or not id or not duration or not barType then return end
 	-- if bar doesnt exists and noCreate, abort
 	if not A.bars[barType][id] and noCreate then return end
-	-- callback for when bar is stopped
-	local function barStopped(_, delBar)
-		local _id = delBar:Get("id")
-		local _barType = delBar:Get("barType")
-		delBar:SetParent(nil)
-		if A.bars and A.bars[_barType] and A.bars[_barType][_id] then
-			A.bars[_barType][_id] = nil
-			reArrangeBars(_barType)
-		end
-	end
 	-- check if already exists
 	if not A.bars[barType][id] then			-- create new bar if it doesn't exist
 		local newBar = A.Libs.LCB:New(A.statusbars[db.texture], db.width, db.height)
@@ -123,8 +124,8 @@ function A:ShowBar(barType, id, label, icon, duration, colorGood, noCreate)
 	bar:SetFill(db.fill)
 	bar:SetTimeVisibility(db.timeVisible)
 	-- colors
-	if colorGood then
-		bar:SetColor(unpack(db.goodColor))
+	if goodBad then
+		bar:SetColor(unpack(db[goodBad.."Color"]))
 	else
 		bar:SetColor(unpack(db.badColor))
 	end
@@ -161,16 +162,18 @@ function A:DisplayAuraBars(cleu, evi, alerts, snapShot)
 	-- abort conditions: wrong setting in event, auras disabled
 	if barType ~= "auras" or not P.bars.auras.enabled then return end
 	local id = cleu.dstGUID..cleu.spellName
+	-- get color scheme for bar
+	local goodBad = A:GetReactionColor(cleu, evi, "text")
 	for _, alert in pairs(alerts) do
 		if alert.showBar and evi.displayOptions and evi.displayOptions.bar then
 			local name, icon, _, _, duration, expirationTime, _, _, _, spellId, remaining = A:GetUnitAura(cleu, evi)
 			if remaining then
-				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, goodBad)
 			elseif not duration and snapShot then
 				spellId = A.Libs.LCD:GetLastRankSpellIDByName(cleu.checkedSpell)
 				remaining = A.Libs.LCD:GetDurationForRank(cleu.checkedSpell, spellID, cleu.srcGUID)
 				_, _, icon = GetSpellInfo(spellId)
-				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, true)
+				A:ShowBar(barType, id, GetShortName(cleu.dstName), icon, remaining, goodBad)
 			else
 				dprint(1, "A:DisplayAuraBars", "no aura duration, no snapshot, why am i here?", cleu.checkedSpell,  evi.handle)
 			end

@@ -60,7 +60,8 @@ function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spe
 		if not _alerts then	return end	--dprint(3, "unit check failed", cleu.checkedSpell, unpack(errors))
 		-- calculate remaining duration & show cast bar
 		local remaining = (endTime - (GetTime() * 1000)) / 1000
-		A:ShowBar(barType, unitGUID, unitName, icon, remaining, true)
+		local goodBad = (cleu.srcIsFriendly) and "good" or "bad"
+		A:ShowBar(barType, unitGUID, unitName, icon, remaining, goodBad)
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_STOP"
 	or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
 		A:HideBar(barType, unitGUID)

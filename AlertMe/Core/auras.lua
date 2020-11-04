@@ -54,8 +54,7 @@ function A:FakeEvent(cleu, evi)
 	local check, alerts = A:DoChecks(_cleu, _evi)
 	if not check then return end
 	-- check for snapshots
-	local exists
-	exists, __cleu, __evi = A:CheckSnapshot(_cleu, _evi)
+	local exists, __cleu, __evi = A:CheckSnapshot(_cleu, _evi)
 	if exists then -- do whatever is defined in actions
 		A:DoActions(__cleu, __evi, alerts, true)
 	else -- if no snapshot was found, add one for cast success event
@@ -72,7 +71,7 @@ function A:CheckSnapshot(cleu, evi)
 			local snapshot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["success"]
 			local timeDiff = GetTime() - snapshot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				return true, snapshot.ti, snapshot.evi
+				return true, snapshot.cleu, snapshot.evi
 			end
 		end
 		return false
@@ -81,7 +80,7 @@ function A:CheckSnapshot(cleu, evi)
 			local snapshot = A.snapshots[cleu.dstGUID][cleu.checkedSpell]["gain"]
 			local timeDiff = GetTime() - snapshot.ts
 			if timeDiff >= 0 and timeDiff < 2 then
-				return true, snapshot.ti, snapshot.evi
+				return true, snapshot.cleu, snapshot.evi
 			end
 		end
 		return false

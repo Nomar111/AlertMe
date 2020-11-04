@@ -4,12 +4,12 @@ setfenv(1, _G.AlertMe)
 -- prepare settings for test bars
 local testBars = {
 	auras = {
-		{"Testbar1", "Hostile player", 134715, 40, false}, -- fap
-		{"Testbar2", "Friendly player", 136048, 20, true}, -- innervate
+		{"Testbar1", "Hostile player", 134715, 40, "bad"}, -- fap
+		{"Testbar2", "Friendly player", 136048, 20, "good"}, -- innervate
 	},
 	spells = {
-		{"Testbar1", "Greater Heal", 135915, 3, false}, -- greater heal
-		{"Testbar2", "Resurrection", 135955, 10, false}, -- resurrection
+		{"Testbar1", "Greater Heal", 135915, 3, "good"}, -- greater heal
+		{"Testbar2", "Resurrection", 135955, 10, "bad"}, -- resurrection
 	}
 }
 local function getTestBar(barType, i)
@@ -27,10 +27,10 @@ function O:ShowBars(container)
 			A:ToggleContainerLock(barType)
 		end
 		local function updateTestBar()
-			local id, label, icon, duration, reaction = getTestBar(barType, 1)
-			A:ShowBar(barType, id, label, icon, duration, reaction, true)
-			id, label, icon, duration, reaction = getTestBar(barType, 2)
-			A:ShowBar(barType, id, label, icon, duration, reaction, true)
+			local id, label, icon, duration, goodBad = getTestBar(barType, 1)
+			A:ShowBar(barType, id, label, icon, duration, goodBad, true)
+			id, label, icon, duration, goodBad = getTestBar(barType, 2)
+			A:ShowBar(barType, id, label, icon, duration, goodBad, true)
 		end
 		-- header
 		local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
