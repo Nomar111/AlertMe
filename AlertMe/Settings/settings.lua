@@ -1,7 +1,8 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
--- create A.events and A.menus tables and merge them
+--*********************************************************************************************
+-- Events and menu settings
 A.events = {}
 A.events.SPELL_AURA_APPLIED = {
 	handle = "gain",
@@ -114,6 +115,8 @@ for _, event in pairs(A.events) do
 	end
 end
 
+--*********************************************************************************************
+-- various tables
 A.messages = {
 	gain = "%dstName gained %spellName",
 	dispel = "%extraSpellName dispelled on %dstName (by %srcName)",
@@ -136,44 +139,6 @@ A.missTypes = {
 	RESIST = "resisted"
 }
 
-A.units = {
-	[1] = {	label = "All players", order = 3, checks = { playerControlled = true }	},
-	[2] = {	label = "Friendly players",	order = 4, checks = { playerControlled = true, isFriendly = true } },
-	[3] = {	label = "Hostile players", order = 5, checks = { playerControlled = true, isHostile = true } },
-	[4] = {	label = "Target", order = 2, checks = { isTarget = true } },
-	[5] = {	label = "Myself", order = 1, checks = {	isPlayer = true, } },
-	[6] = {	label = "All entities",	order = 6 },
-	[7] = {	label = "Hostile NPCs",	order = 7, checks = { isPlayer = false,	isHostile = true } },
-	getList = function()
-		local ret = {}
-		for i, tbl in ipairs(A.units) do
-			ret[i] = tbl.label
-		end
-		return ret
-	end,
-	getOrder = function()
-		local ret = {}
-		for i, tbl in ipairs(A.units) do
-			ret[tbl.order] = i
-		end
-		return ret
-	end
- }
-
-A.units.excludes = {
-	[1] = { label = "-----", order = 1 },
-	[2] = {	label = "Myself", order = 2, checks = { isPlayer = true} },
-	[3] = {	label = "Target", order = 3, checks = { isTarget = true	} },
-	getList = function()
-		local ret = {}
-		for i, tbl in ipairs(A.units.excludes) do
-			ret[i] = tbl.label
-		end
-		return ret
-	end
-}
-
--- lockouts
 A.lockouts = {
 	["Counterspell"] = "10",
 	["Spell Lock"] = "8",
@@ -186,7 +151,6 @@ A.lockouts = {
 
 A.patterns = {"%%srcName","%%dstName", "%%spellName", "%%extraSpellName", "%%extraSchool", "%%lockout", "%%targetName", "%%mouseoverName", "%%missType"}
 
--- colors
 A.colors = {
 	red = {	hex = "FFde4037", rgb = {1,0,0} },
 	green = { hex = "FF27d942",	rgb = {0,1,0} },
@@ -196,6 +160,44 @@ A.colors = {
 	gold = { hex = "FFDAA520", rgb = {218/255,165/255,32/255} }
 }
 
+--*********************************************************************************************
+-- lists for dropdowns
+local function getList(self)
+	local ret = {}
+	for i, tbl in ipairs(self) do
+		ret[i] = tbl.label
+	end
+	return ret
+end
+local function getOrder(self)
+	local ret = {}
+	for i, tbl in ipairs(self) do
+		ret[tbl.order] = i
+	end
+	return ret
+end
+A.lists = {}
+A.lists.units = {
+	[1] = {	label = "All players", order = 3, checks = { playerControlled = true }	},
+	[2] = {	label = "Friendly players",	order = 4, checks = { playerControlled = true, isFriendly = true } },
+	[3] = {	label = "Hostile players", order = 5, checks = { playerControlled = true, isHostile = true } },
+	[4] = {	label = "Target", order = 2, checks = { isTarget = true } },
+	[5] = {	label = "Myself", order = 1, checks = {	isPlayer = true, } },
+	[6] = {	label = "All entities",	order = 6 },
+	[7] = {	label = "Hostile NPCs",	order = 7, checks = { isPlayer = false,	isHostile = true } },
+	getList = getList,
+	getOrder = getOrder,
+}
+A.lists.excludes = {
+	[1] = { label = "-----", order = 1 },
+	[2] = {	label = "Myself", order = 2, checks = { isPlayer = true} },
+	[3] = {	label = "Target", order = 3, checks = { isTarget = true	} },
+	getList = getList,
+	getOrder = getOrder,
+}
+
+--*********************************************************************************************
+-- create Example profile
 function A:InitExamples()
 	A.db.profiles.Examples = {
 		["alerts"] = {

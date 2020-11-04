@@ -93,9 +93,9 @@ local function unitSelection(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
-		local units = A.units.getList()
-		local order = A.units.getOrder()
-		local excludes = A.units.excludes.getList()
+		local units = A.lists.units:getList()
+		local order = A.lists.units:getOrder()
+		local excludes = A.lists.excludes:getList()
 		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
 		if A.menus[handle].unitSelection[1] == "src" then
 			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", units, order, 140)

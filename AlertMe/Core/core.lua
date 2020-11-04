@@ -159,9 +159,9 @@ function A:CheckUnits(cleu, evi, alerts)
 			-- write some useful info into ti for later use
 			cleu[pre.."IsTarget"], cleu[pre.."IsPlayer"] = c.isTarget, c.isPlayer
 			cleu[pre.."IsFriendly"], cleu[pre.."IsHostile"] = c.isFriendly, c.isHostile
-			-- loop over required checks as defined in A.units
-			if A.units[unit].checks then
-				for condition, ref in pairs(A.units[unit].checks) do
+			-- loop over required checks as defined in A.lists.units
+			if A.lists.units[unit].checks then
+				for condition, ref in pairs(A.lists.units[unit].checks) do
 					if c[condition] ~= ref then
 						tinsert(errors, pre..", "..condition.." failed")
 						checkFailed = true
@@ -169,9 +169,9 @@ function A:CheckUnits(cleu, evi, alerts)
 					end
 				end
 			end
-			-- loop over checks as defined in A.units.excludes
-			if A.units.excludes[exclude].checks then
-				for condition, ref in pairs(A.units.excludes[exclude].checks) do
+			-- loop over checks as defined in A.lists.excludes
+			if A.lists.excludes[exclude].checks then
+				for condition, ref in pairs(A.lists.excludes[exclude].checks) do
 					if c[condition] == ref then	-- since it's exclude we check for equal
 						tinsert(errors, pre..", exclude, "..condition.." failed")
 						checkFailed = true
