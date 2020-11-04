@@ -13,8 +13,8 @@ function debug()
 	vdt:data(O, "O")
 	vdt:data(P, "P")
 	vdt:data(A.lists, "A.lists")
-	-- vdt:data(A.alertOptions, "A.alertOptions")
-	-- vdt:data(A.spellOptions, "A.spellOptions")
+	vdt:data(A.alertOptions, "A.alertOptions")
+	vdt:data(A.spellOptions, "A.spellOptions")
 	-- **********************************************************
 	-- function hooking in VDT:
 	-- vdt:func("AlertMe")						-- all functions

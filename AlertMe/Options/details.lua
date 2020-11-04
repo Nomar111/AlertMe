@@ -1,5 +1,3 @@
--- upvalues
-local GetItemIcon, GetSpellInfo = GetItemIcon, GetSpellInfo
 -- set addon environment
 setfenv(1, _G.AlertMe)
 

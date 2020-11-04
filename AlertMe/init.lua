@@ -17,7 +17,7 @@ A = LibStub("AceAddon-3.0"):NewAddon(name, "AceConsole-3.0", "AceEvent-3.0")
 CreateFrame, GameTooltip, WrapTextInColorCode = _G.CreateFrame, _G.GameTooltip, _G.WrapTextInColorCode
 print, unpack, tinsert, pairs, ipairs, type, next = _G.print, _G.unpack, _G.tinsert, _G.pairs, _G.ipairs, _G.type, _G.next
 gsub, sub, tostring = _G.string.gsub, _G.string.sub, _G.tostring
-IsShiftKeyDown, UnitGUID, UnitName = _G.IsShiftKeyDown, _G.UnitGUID, _G.UnitName
+IsShiftKeyDown, UnitGUID, UnitName, GetSpellInfo = _G.IsShiftKeyDown, _G.UnitGUID, _G.UnitName, _G.GetSpellInfo
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 GetTime, date, time = _G.GetTime, _G.date, _G.time
 

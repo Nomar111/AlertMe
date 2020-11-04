@@ -1,5 +1,3 @@
--- upvalues
-local GetSpellInfo = GetSpellInfo
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create tables
