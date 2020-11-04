@@ -20,6 +20,7 @@ local LSMWidgets = {
 
 local function setTooltip(widget, tooltip)
 	-- show
+	if not tooltip then return end
 	local wrap = tooltip.wrap or false
 	widget:SetCallback("OnEnter", function()
 		O.Tooltip = O.Tooltip or CreateFrame("GameTooltip", "AlertMeTooltip", UIParent, "GameTooltipTemplate")

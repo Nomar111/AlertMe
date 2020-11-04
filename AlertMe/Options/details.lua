@@ -3,6 +3,18 @@ local GetItemIcon, GetSpellInfo = GetItemIcon, GetSpellInfo
 -- set addon environment
 setfenv(1, _G.AlertMe)
 
+local function getGlowList()
+	local ret = {}
+	ret[-1] = "No glow"
+	for i=1, 8 do
+		if P.glow[i].name == "Glow Preset" then
+			P.glow[i].name = "Glow Preset "..i
+		end
+		ret[i] = P.glow[i].name
+	end
+	return ret
+end
+
 local function updateSpelltable(handle, uid)
 	O.Spelltable:ReleaseChildren()
 	-- get saved vars
@@ -122,12 +134,8 @@ local function displaySettings(container, handle, uid)
 	end
 	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.glow then
 		O.attachSpacer(displayGroup, 9)
-		local glowList = {[-1]="No glow",[1]="Glow Preset 1",[2]="Glow Preset 2",[3]="Glow Preset 3",[4]="Glow Preset 4",[5]="Glow Preset 5",[6]="Glow Preset 6",[7]="Glow Preset 7",[8]="Glow Preset 8"}
-		tooltip = {
-			header = "Enable glow on unitframes",
-			lines = { "Works for friendly unitframes by default", "Also works for enemy uniframes if using BGTC*", "*BattlegrounndTargets Classic" },
-		}
-		O.attachDropdown(displayGroup, _, db, "showGlow", glowList, _, 150, _, tooltip)
+		local tooltip = { lines = { "Select glow on unitframes", "Configure the presets in 'Glow' options" } }
+		O.attachDropdown(displayGroup, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
 	end
 end
 
