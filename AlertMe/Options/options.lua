@@ -94,7 +94,9 @@ function O:OpenOptions()
 end
 
 function O:ReOpenOptions()
-	A.Libs.AceGUI:Release(O.Options)
-	O.Options = nil
-	O:OpenOptions()
+	if O.Options then
+		A.Libs.AceGUI:Release(O.Options)
+		O.Options = nil
+		O:OpenOptions()
+	end
 end
