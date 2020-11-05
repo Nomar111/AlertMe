@@ -17,7 +17,6 @@ local testBars = {
 ------------------------------------------------------------------------------
 -- attach bar options (=tab=) depending on selected barType
 local function attachBarOptions(tabgroup, barType)
-	vdt:data(tabgroup)
 	tabgroup:ReleaseChildren()
 	local sliderWidth = 200
 	local db, group = P.bars[barType]
@@ -87,27 +86,6 @@ end
 
 function O:ShowBars(container)
 	container:ReleaseChildren()
-	local function showTestBars()
-		for barType, tbl in pairs(testBars) do
-			for i, a in ipairs(tbl) do
-				local id, loop = "testbar_"..i, true
-				A:ShowBar(barType, id, a[1], a[2], a[3], a[4], loop)
-			end
-		end
-	end
-	local function hideTestBars()
-		for barType, tbl in pairs(testBars) do
-			for i, _ in ipairs(tbl) do
-				local id = "testbar_"..i
-				A:HideBar(barType, id)
-			end
-		end
-	end
-	local function resetPositions()
-		for barType, _ in pairs(testBars) do
-			A:ResetContainerPosition(barType)
-		end
-	end
 	local function lockTestBars()
 		for barType, _ in pairs(testBars) do
 			P.bars[barType].unlocked = false
@@ -122,6 +100,30 @@ function O:ShowBars(container)
 		end
 		O:ShowBars(container)
 	end
+	local function showTestBars()
+		for barType, tbl in pairs(testBars) do
+			for i, a in ipairs(tbl) do
+				local id, loop = "testbar_"..i, true
+				A:ShowBar(barType, id, a[1], a[2], a[3], a[4], loop)
+			end
+		end
+		unlockTestBars()
+	end
+	local function hideTestBars()
+		for barType, tbl in pairs(testBars) do
+			for i, _ in ipairs(tbl) do
+				local id = "testbar_"..i
+				A:HideBar(barType, id)
+			end
+		end
+		lockTestBars()
+	end
+	local function resetPositions()
+		for barType, _ in pairs(testBars) do
+			A:ResetContainerPosition(barType)
+		end
+	end
+
 	-- callback for dropdown
 	local function onSelect(tabgroup, barType)
 		tabgroup:ReleaseChildren() -- release all existing

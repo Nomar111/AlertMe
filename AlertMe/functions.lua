@@ -10,9 +10,7 @@ chatFrames = {}
 function debug()
 	vdt:data(_G.AlertMe, "AlertMe")
 	vdt:data(A, "A")
-	vdt:data(O, "O")
 	vdt:data(P, "P")
-	vdt:data(A.bars, "A.bars")
 	--vdt:data(A.alertOptions, "A.alertOptions")
 	--vdt:data(A.spellOptions, "A.spellOptions")
 	-- **********************************************************
