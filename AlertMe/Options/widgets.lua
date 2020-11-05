@@ -76,6 +76,7 @@ function O.attachColorPicker(container, label, db, key, alpha, width, func)
 		db[key] = {r,g,b,a}
 		if func then func() end
 	end)
+	if width then widget:SetWidth(width) end
 	container:AddChild(widget)
 	return widget
 end
@@ -206,6 +207,7 @@ function O.attachInteractiveLabel(container, text, fontObject, color, absWidth, 
 end
 
 function O.attachLSM(container, type, label, db, key, width, func)
+	dprint(1,db[key])
 	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(LSMTables[type])
 	if label then widget:SetLabel(label) end
@@ -226,7 +228,7 @@ function O.attachSlider(container, label, db, key, min, max, step, isPercent, wi
 	widget:SetSliderValues(min, max, step)
 	widget:SetIsPercent(isPercent)
 	widget:SetValue(db[key])
-	widget:SetCallback("OnMouseUp", function(_, _, value)
+	widget:SetCallback("OnValueChanged", function(_, _, value)		-- "OnMouseUp"
 		db[key] = value
 		if func then func() end
 	end)

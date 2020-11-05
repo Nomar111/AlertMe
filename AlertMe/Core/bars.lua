@@ -23,7 +23,7 @@ local function getContainer(barType)
 		f.bg = bg
 		local header = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		header:SetAllPoints(f)
-		header:SetText("Drag here")
+		header:SetText("drag "..barType)
 		f.header = header
 		-- container moveable? can't use toggle function
 		f:EnableMouse(db.unlocked)
@@ -47,12 +47,11 @@ local function reArrangeBars(barType)
 	local container = getContainer(barType)
 	ofs_y = 14
 	m = (db.growUp) and 1 or -1
-	-- sort bars by duration
-
+	-- sort bars by duration --
 	for id, bar in pairs(bars) do
 		bar:ClearAllPoints()
-		bar:SetPoint("TOP", container, "TOP", 0, ofs_y*m)
-		ofs_y = ofs_y + db.height + 5
+		bar:SetPoint("TOP", container, "TOP", 0, ofs_y * m)
+		ofs_y = ofs_y + db.height + db.spacing
 	end
 end
 
@@ -81,31 +80,38 @@ end
 
 -- callback for when bar is stopped
 local function barStopped(_, delBar)
-	local _id = delBar:Get("id")
-	local _barType = delBar:Get("barType")
+	local id, barType, a = delBar:Get("id"), delBar:Get("barType"), delBar:Get("args")
+	-- get pointer or abort
+	if not (A.bars and A.bars[barType] and A.bars[barType][id]) then return end
+	local ending = (delBar.remaining and delBar.remaining < 0.3) and true or false -- find out if bar was stopped on purpose
+	-- release table
 	delBar:SetParent(nil)
-	if A.bars and A.bars[_barType] and A.bars[_barType][_id] then
-		A.bars[_barType][_id] = nil
-		reArrangeBars(_barType)
+	A.bars[barType][id] = nil
+	if a.loop and ending then	-- if set to loop and bar ran out naturally, then loop/repeat with original args
+		A:ShowBar(a.barType, a.id, a.label, a.icon, a.duration, a.reaction, a.loop)
+	else
+		reArrangeBars(barType)	-- if not rearrange
 	end
 end
 
-function A:ShowBar(barType, id, label, icon, duration, reaction, noCreate)
+
+function A:ShowBar(barType, id, label, icon, duration, reaction, loop)
 	local db = P.bars[barType]
-	if not db.enabled or not id or not duration or not barType then return end
-	-- if bar doesnt exists and noCreate, abort
-	if not A.bars[barType][id] and noCreate then return end
+	if not db.enabled or not id or not duration then return end
 	-- check if already exists
-	if not A.bars[barType][id] then			-- create new bar if it doesn't exist
-		local newBar = A.Libs.LCB:New(A.statusbars[db.texture], db.width, db.height)
-		newBar:Set("id", id)
-		newBar:Set("barType", barType)
-		A.bars[barType][id] = newBar
-	else									-- stop existing bar and call ShowBar again
-		A.bars[barType][id]:Stop()
-		A:ShowBar(barType, id, label, icon, duration, color)
-	end
 	local bar = A.bars[barType][id]
+	if not bar then			-- create new bar if it doesn't exist
+		local args = { barType=barType, id=id, label=label, icon=icon, duration=duration, reaction=reaction, loop=loop }
+		bar = A.Libs.LCB:New(A.statusbars[db.texture], db.width, db.height)
+		bar:Set("id", id)
+		bar:Set("barType", barType)
+		bar:Set("args", args)
+		A.bars[barType][id] = bar
+	else
+		bar:SetWidth(db.width)
+		bar:SetHeight(db.height)
+		bar:SetTexture(A.statusbars[db.texture])
+	end
 	-- update/set bar settings
 	if db.showIcon == true and icon then bar:SetIcon(icon) end
 	if label then
