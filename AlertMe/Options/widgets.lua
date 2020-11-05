@@ -44,11 +44,12 @@ end
 --**********************************************************************************************************************************
 -- O.attach AceGUI widgets
 --**********************************************************************************************************************************
-function O.attachButton(container, text, width, func)
+function O.attachButton(container, text, width, func, tooltip)
 	local widget = A.Libs.AceGUI:Create("Button")
 	widget:SetText(text)
 	if width then widget:SetWidth(width) end
 	widget:SetCallback("OnClick", func)
+	if tooltip then	setTooltip(widget, tooltip) end
 	container:AddChild(widget)
 	return widget
 end
@@ -207,7 +208,6 @@ function O.attachInteractiveLabel(container, text, fontObject, color, absWidth, 
 end
 
 function O.attachLSM(container, type, label, db, key, width, func)
-	dprint(1,db[key])
 	local widget = A.Libs.AceGUI:Create(LSMWidgets[type])
 	widget:SetList(LSMTables[type])
 	if label then widget:SetLabel(label) end

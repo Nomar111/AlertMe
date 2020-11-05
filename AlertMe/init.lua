@@ -16,7 +16,7 @@ A = LibStub("AceAddon-3.0"):NewAddon(name, "AceConsole-3.0", "AceEvent-3.0")
 -- addon upvalues
 CreateFrame, GameTooltip, WrapTextInColorCode = _G.CreateFrame, _G.GameTooltip, _G.WrapTextInColorCode
 print, unpack, tinsert, pairs, ipairs, type, next = _G.print, _G.unpack, _G.tinsert, _G.pairs, _G.ipairs, _G.type, _G.next
-gsub, sub, tostring, tonumber = _G.string.gsub, _G.string.sub, _G.tostring, _G.tonumber
+string, tostring, tonumber = _G.string, _G.tostring, _G.tonumber
 IsShiftKeyDown, UnitGUID, UnitName, GetSpellInfo = _G.IsShiftKeyDown, _G.UnitGUID, _G.UnitName, _G.GetSpellInfo
 GameFontHighlight, GameFontHighlightLarge, GameFontHighlightSmall = _G.GameFontHighlight, _G.GameFontHighlightLarge, _G.GameFontHighlightSmall
 GetTime, date, time = _G.GetTime, _G.date, _G.time
@@ -63,6 +63,7 @@ end
 
 -- addon enabled
 function A:OnEnable()
+	if P.bars.spells then P.bars.spells = nil end
 	A:Initialize()
 end
 

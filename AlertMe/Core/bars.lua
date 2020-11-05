@@ -1,7 +1,7 @@
 -- set addon environment
 setfenv(1, _G.AlertMe)
 -- create tables
-A.bars = {auras={}, spells={}}
+A.bars = {auras={}, casts={}}
 A.container = {}
 
 local function getContainer(barType)
@@ -43,10 +43,16 @@ end
 local function reArrangeBars(barType)
 	local bars = A.bars[barType]
 	if not bars then return end
-	local db, ofs_y, m = P.bars[barType]
+	local db = P.bars[barType]
 	local container = getContainer(barType)
-	ofs_y = 14
-	m = (db.growUp) and 1 or -1
+	local ofs_y, m
+	if db.growUp then
+		m = 1
+		ofs_y = db.height				-- initial offset = bar height
+	else
+		m = -1
+		ofs_y = container:GetHeight()	-- initial offset = container height
+	end
 	-- sort bars by duration --
 	for id, bar in pairs(bars) do
 		bar:ClearAllPoints()
@@ -111,18 +117,19 @@ function A:ShowBar(barType, id, label, icon, duration, reaction, loop)
 		bar:SetWidth(db.width)
 		bar:SetHeight(db.height)
 		bar:SetTexture(A.statusbars[db.texture])
+		bar:SetIcon(nil)
 	end
 	-- update/set bar settings
 	if db.showIcon == true and icon then bar:SetIcon(icon) end
 	if label then
 		if db.width <= 140 then
-			label = sub(label, 1, 10)
+			label = string.sub(label, 1, 10)
 		elseif db.width <= 160 then
-			label = sub(label, 1, 14)
+			label = string.sub(label, 1, 14)
 		elseif db.width <= 180 then
-			label = sub(label, 1, 18)
+			label = string.sub(label, 1, 18)
 		elseif db.width <= 200 then
-			label = sub(label, 1, 22)
+			label = string.sub(label, 1, 22)
 		end
 		bar:SetLabel(label, 1, 12)
 	end

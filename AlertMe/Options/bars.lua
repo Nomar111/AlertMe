@@ -8,7 +8,7 @@ local testBars = {
 		{"Hostile player", 134715, 40, false}, -- fap
 		{"Friendly player", 136048, 20, true}, -- innervate
 	},
-	spells = {
+	casts = {
 		{"Greater Heal", 135915, 3, true}, -- greater heal
 		{"Resurrection", 135955, 10, false}, -- resurrection
 	}
@@ -16,8 +16,9 @@ local testBars = {
 
 ------------------------------------------------------------------------------
 -- attach bar options (=tab=) depending on selected barType
-local function attachBarOptions(tabGroup, barType)
-	tabGroup:ReleaseChildren()
+local function attachBarOptions(tabgroup, barType)
+	vdt:data(tabgroup)
+	tabgroup:ReleaseChildren()
 	local sliderWidth = 200
 	local db, group = P.bars[barType]
 	-- callbacks
@@ -39,48 +40,49 @@ local function attachBarOptions(tabGroup, barType)
 		end
 		A:ResetContainerPosition(barType)
 		updateTestBars()
-		attachBarOptions(tabGroup, P.bars.barType)
+		attachBarOptions(tabgroup, P.bars.barType)
 	end
-	local barTypeText = (barType == "auras") and "aura bars" or "cast bars"
 	-- enable...
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
-	O.attachCheckBox(group, "Enable".." "..barTypeText, db ,"enabled", 140, A.InitLCC)
-	O.attachCheckBox(group, "Unlock bars", db ,"unlocked", 140, containerLock)
-	O.attachSpacer(tabGroup, _, "medium")
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
+	O.attachCheckBox(group, "Enable".." "..firstLower(db.label), db ,"enabled", 160, A.InitLCC)
+	O.attachCheckBox(group, "Unlock bars", db ,"unlocked", 120, containerLock)
+	O.attachSpacer(tabgroup, _, "small")
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
 	O.attachLSM(group, "statusbar", "Bar texture", db, "texture", sliderWidth - 4, updateTestBars)
-	O.attachSpacer(group, 23)
-	O.attachSpacer(tabGroup, _, "medium")
+	O.attachSpacer(tabgroup, _, "medium")
 	-- icon / fill
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
-	O.attachCheckBox(group, "Show icon", db ,"showIcon", 153, updateTestBars)
-	O.attachCheckBox(group, "Show rem. time", db ,"timeVisible", 180, updateTestBars)
-	O.attachCheckBox(group, "Fill up (ltr)", db ,"fill", 90, updateTestBars)
-	O.attachSpacer(tabGroup, _, "small")
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
+	O.attachCheckBox(group, "Show icon", db ,"showIcon", 100, updateTestBars)
+	O.attachCheckBox(group, "Show remaining", db ,"timeVisible", 135, updateTestBars)
+	O.attachCheckBox(group, "Fill up (left-to-right)", db ,"fill", 140, updateTestBars)
+
+	O.attachSpacer(tabgroup, _, "small")
 	-- width/height
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
 	O.attachSlider(group, "Set width", db, "width", 40, 400, 5, false, sliderWidth, updateTestBars)
 	O.attachSpacer(group, 20)
 	O.attachSlider(group, "Set height", db, "height", 1, 50, 1, false, sliderWidth, updateTestBars)
-	O.attachSpacer(tabGroup, _, "medium")
+	O.attachSpacer(tabgroup, _, "medium")
 	-- spacing
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
 	O.attachSlider(group, "Bar spacing", db, "spacing", 0, 20, 1, false, sliderWidth, updateTestBars)
 	O.attachSpacer(group, 22)
 	O.attachCheckBox(group, "Grow upwards", db ,"growUp", 160, updateTestBars)
-	O.attachSpacer(tabGroup, _, "large")
+	O.attachSpacer(tabgroup, _, "large")
 	-- colors
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
-	local width = 155
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
+	local width = 145
 	O.attachColorPicker(group, "Bar color (good)", db, "goodColor", true, width, updateTestBars)
 	O.attachColorPicker(group, "Bar color (harm)", db, "badColor", true, width, updateTestBars)
 	O.attachColorPicker(group, "Background color", db, "backgroundColor", true, width, updateTestBars)
-	O.attachSpacer(tabGroup, _, "small")
-	group = O.attachGroup(tabGroup, "simple", _, {fullWidth = true})
+	O.attachSpacer(tabgroup, _, "small")
+	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
 	O.attachColorPicker(group, "Text color", db, "textColor", true, width, updateTestBars)
 	O.attachColorPicker(group, "Text shadow", db, "shadowColor", true, width, updateTestBars)
-	O.attachSpacer(tabGroup, _, "medium")
-	O.attachButton(tabGroup, "Reset", 90, resetSettings)
+	O.attachSpacer(tabgroup, _, "medium")
+	--local text = (barType == "auras") and "aura"
+	local tooltip = { lines = { "Reset settings for "..firstLower(db.label) } }
+	O.attachButton(tabgroup, "Reset", 90, resetSettings, tooltip)
 end
 
 function O:ShowBars(container)
@@ -121,28 +123,35 @@ function O:ShowBars(container)
 		O:ShowBars(container)
 	end
 	-- callback for dropdown
-	local function onSelect(tabGroup, barType)
-		tabGroup:ReleaseChildren() -- release all existing
-		attachBarOptions(tabGroup, barType) -- attach bar options
+	local function onSelect(tabgroup, barType)
+		tabgroup:ReleaseChildren() -- release all existing
+		attachBarOptions(tabgroup, barType) -- attach bar options
 	end
 	-- test bars
-	local testGroup = O.attachGroup(container, "inline", "Test bars", {fullWidth = true})
-	local group = O.attachGroup(testGroup, "simple", _, {fullWidth = true})
+	local testGroup, group, tooltip
 	local spacing = 10
+	testGroup = O.attachGroup(container, "inline", "Test bars", {fullWidth = true})
+	group = O.attachGroup(testGroup, "simple", _, {fullWidth = true})
 	O.attachButton(group, "Show", 90, showTestBars)
 	O.attachSpacer(group, spacing)
 	O.attachButton(group, "Hide", 90, hideTestBars)
 	O.attachSpacer(group, spacing)
-	O.attachButton(group, "Unlock", 90, unlockTestBars)
-	O.attachSpacer(group, spacing)
 	O.attachButton(group, "Lock", 90, lockTestBars)
 	O.attachSpacer(group, spacing)
-	O.attachButton(group, "Reset", 90, resetPositions)
-
+	O.attachButton(group, "Unlock", 90, unlockTestBars)
+	O.attachSpacer(group, spacing)
+	tooltip = { lines = { "Reset positions of all bars" } }
+	O.attachButton(group, "Reset", 90, resetPositions, tooltip)
 	-- create tabgroup
-	local tabs = { {value = "auras", text = "Aura bars"}, {value = "spells", text = "Cast bars"} }
+	local tabs = {}
+	for _barType, tbl in pairs(D.profile.bars) do
+		if _barType ~= "**" and type(tbl) == "table" then
+			tinsert(tabs, { value = _barType, text = tbl.label } )
+		end
+	end
+	--local tabs = { {value = "auras", text = "Aura bars"}, {value = "casts", text = "Casting bars"} }
 	local format = {fullWidth = true, fullHeight = true , layout = "none"}
-	local tabGroup = O.attachTabGroup(container, _, format, P.bars, "barType", tabs, onSelect)
+	local tabgroup = O.attachTabGroup(container, _, format, P.bars, "barType", tabs, onSelect)
 	-- attach bar options
-	attachBarOptions(tabGroup, P.bars.barType)
+	attachBarOptions(tabgroup, P.bars.barType)
 end

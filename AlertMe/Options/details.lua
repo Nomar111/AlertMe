@@ -118,20 +118,25 @@ local function unitSelection(container, handle, uid)
 end
 
 local function displaySettings(container, handle, uid)
-	if not A.menus[handle].displayOptions then return end
-	local db, tooltip, label = P.alerts[handle].alertDetails[uid]
-	local displayGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
+	local disp = A.menus[handle].displayOptions
+	if not disp then return end -- no display options
+	local db = P.alerts[handle].alertDetails[uid]
+	local tooltip, label
+	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	O.attachHeader(displayGroup, "Display settings")
 	-- show progress bar
-	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.bar then
-		label = (A.menus[handle].type == "aura") and "Show aura bars" or "Show cast bars"
-		O.attachCheckBox(displayGroup, label, db, "showBar", 150)
+	if disp.bar then
+		label = disp.barText or "progress bars"
+		label = "Show "..label
+		O.attachCheckBox(group, label, db, "showBar", 150)
+	end
+	if disp.bar and disp.glow then
+		O.attachSpacer(group, 9)
 	end
 	-- show glow
-	if A.menus[handle].displayOptions and A.menus[handle].displayOptions.glow then
-		O.attachSpacer(displayGroup, 9)
+	if disp.glow then
 		tooltip = { header = "Glow on uniframes", lines = { "Glow presets can bet edited in Options-Glow" } }
-		O.attachDropdown(displayGroup, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
+		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
 	end
 end
 

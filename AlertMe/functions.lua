@@ -1,6 +1,6 @@
 -- upvalues
 local _G, FCF_GetNumActiveChatFrames, AlertMe = _G, _G.FCF_GetNumActiveChatFrames, AlertMe
-local getmetatable, setmetatable, hooksecurefunc = getmetatable, setmetatable, hooksecurefunc
+local getmetatable, setmetatable, hooksecurefunc, string = getmetatable, setmetatable, hooksecurefunc, string
 
 -- set addon environment
 setfenv(1, _G.AlertMe)
@@ -41,9 +41,21 @@ function tcopy(t, deep, seen)
 	return nt
 end
 
+function firstUpper(str)
+	if str and type(str) == "string" then
+		return str:gsub("%a", string.upper)
+	end
+end
+
+function firstLower(str)
+	if str and type(str) == "string" then
+		return str:gsub("%a", string.lower)
+	end
+end
+
 function GetShortName(name)
 	if name and type(name) == "string" then
-		return gsub(name, "%-[^|]+", "")
+		return name:gsub("%-[^|]+", "")
 	end
 end
 

@@ -235,9 +235,9 @@ local function createMessage(cleu, evi, alert, plain)
 	end
 	-- replace patterns
 	for _, pattern in pairs(A.patterns) do
-		local replacement = r[sub(pattern,3)]
+		local replacement = r[string.sub(pattern, 3)]
 		if replacement then
-			msg = gsub(msg, pattern, replacement)
+			msg = string.gsub(msg, pattern, replacement)
 		end
 	end
 	-- get reaction color

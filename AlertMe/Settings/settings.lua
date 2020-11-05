@@ -30,13 +30,13 @@ A.events.SPELL_DISPEL = {
 }
 A.events.SPELL_CAST_START = {
 	handle = "start",
-	barType = "spells",
+	barType = "casts",
 	checkedSpell = "spellName",
 	actions = { "ChatAnnounce", "DisplayGlows", "PlaySound" },
 }
 A.events.SPELL_CAST_SUCCESS = {
 	handle = "success",
-	barType = "spells",
+	barType = "auras",
 	checkedSpell = "spellName",
 	actions = { "ChatAnnounce", "PlaySound" }, -- progress bar gets called by unit_cast A.events
 }
@@ -60,7 +60,7 @@ A.menus.gain = {
 	order = 1,
 	spellSelection = true,
 	unitSelection =	{ "src", "dst" },
-	displayOptions = { glow = true, bar = true },
+	displayOptions = { glow = true, bar = true, barText = "aura bars" },
 	dstWhisper = true,
 }
 A.menus.dispel = {
@@ -77,7 +77,7 @@ A.menus.start = {
 	order = 3,
 	spellSelection = true,
 	unitSelection =	{ "src" },
-	displayOptions = { bar = true },
+	displayOptions = { bar = true, barText = "casting bars" },
 }
 A.menus.success = {
 	type = "spell",

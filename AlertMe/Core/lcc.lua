@@ -2,7 +2,7 @@
 setfenv(1, _G.AlertMe)
 
 function A:InitLCC()
-	if not P.bars.spells.enabled or not P.general.enabled == true then
+	if not P.bars.casts.enabled or not P.general.enabled == true then
 		A.Libs.LCC.UnregisterAllCallbacks(A)
 		return
 	end
@@ -38,7 +38,7 @@ local function getAlerts(spellName)
 end
 
 function A:OnUnitCast(event, unit, unitGUID, unitName, unitFlags, spellName, spellId, icon, startTime, endTime)
-	local barType = "spells"
+	local barType = "casts"
 	-- events
 	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED"
 	or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then

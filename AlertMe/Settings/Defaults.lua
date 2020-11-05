@@ -48,13 +48,14 @@ D.profile = {
 			goodColor = {0, 1, 0, 0.75},
 			badColor = {1, 0, 0, 0.75},
 		},
-		spells = {
+		casts = {
 			point = "CENTER",
 			ofs_x = 220,
 			ofs_y = 145,
 			fill = true,
 			growUp = true,
 			texture = "Diagonal",
+			label = "Casting bars",
 		},
 		auras = {
 			point = "CENTER",
@@ -63,6 +64,7 @@ D.profile = {
 			fill = false,
 			growUp = false,
 			texture = "BantoBar",
+			label = "Aura bars"
 		},
 		barType = "auras",
 	},
