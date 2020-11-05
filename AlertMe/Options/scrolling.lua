@@ -6,12 +6,12 @@ function O:ShowScrollingText(container)
 	local sliderWidth = 190
 	-- local function
 	local function resetPosition()
-		A:SetScrollingPos(true)
+		A.SetScrollingPos(true)
 	end
 	local function centerX()
 		P.scrolling.ofs_x = 0
 		P.scrolling.point = "CENTER"
-		A:SetScrollingPos()
+		A.SetScrollingPos()
 	end
 	-- add dummy messages for setup
 	local function showScrollingTest()

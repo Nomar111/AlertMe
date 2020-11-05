@@ -65,6 +65,7 @@ function A.ShowScrolling()
 		A:UpdateScrolling()
 	end
 	A.ScrollingText:Show()
+	A.ScrollingText:ScrollDown()
 end
 
 function A:HideScrolling()
@@ -73,7 +74,7 @@ function A:HideScrolling()
 	end
 end
 
-function A:SetScrollingPos(reset)
+function A.SetScrollingPos(reset)
 	local db = P.scrolling
 	if not db.enabled then return end
 	-- abort if not exists
