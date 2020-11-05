@@ -43,7 +43,8 @@ local function attachBarOptions(tabgroup, barType)
 	end
 	-- enable...
 	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})
-	O.attachCheckBox(group, "Enable".." "..firstLower(db.label), db ,"enabled", 160, A.InitLCC)
+	local label = firstLower(db.label) or ""
+	O.attachCheckBox(group, "Enable".." "..label, db ,"enabled", 160, A.InitLCC)
 	O.attachCheckBox(group, "Unlock bars", db ,"unlocked", 120, containerLock)
 	O.attachSpacer(tabgroup, _, "small")
 	group = O.attachGroup(tabgroup, "simple", _, {fullWidth = true})

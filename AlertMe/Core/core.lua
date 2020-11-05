@@ -31,6 +31,9 @@ function A:Initialize()
 	A:InitLCC()
 	-- Debug
 	debug()
+	--
+	if P.bars.spells then P.bars.spells = nil end
+	if P.bars.barType == "spells" then P.bars.barType = "auras" end
 end
 
 function A:COMBAT_LOG_EVENT_UNFILTERED(eventName)

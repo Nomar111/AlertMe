@@ -63,7 +63,6 @@ end
 
 -- addon enabled
 function A:OnEnable()
-	if P.bars.spells then P.bars.spells = nil end
 	A:Initialize()
 end
 
