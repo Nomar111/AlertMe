@@ -17,6 +17,7 @@ function O:ShowScrollingText(container)
 	local function showScrollingTest()
 		if A.ScrollingText:GetNumMessages() > 20 then
 			A:ShowScrolling()
+			A.ScrollingText:ScrollDown()
 		else
 			local size = P.scrolling.fontSize - 2.5
 			size = size..":"..size

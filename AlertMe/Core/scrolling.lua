@@ -65,7 +65,6 @@ function A.ShowScrolling()
 		A:UpdateScrolling()
 	end
 	A.ScrollingText:Show()
-	A.ScrollingText:ScrollDown()
 end
 
 function A:HideScrolling()

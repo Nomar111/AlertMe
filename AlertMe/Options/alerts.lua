@@ -56,11 +56,11 @@ function O:ShowAlerts(container, handle)
 	-- alert dropdown
 	local text = A.menus[handle].text or ""
 	local label = "Alerts".." - "..text
-	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), _, 230, refresh)
+	local widget = O.attachDropdown(topGroup, label, db, "selectedAlert", createAlertList(handle), _, 200, refresh)
 	if uid then widget:SetValue(db.selectedAlert) end
 	O.attachSpacer(topGroup, 20)
 	-- editbox for alertname
-	local edit = O.attachEditBox(topGroup, "Name of the selected alert", path, "name", 210, refresh)
+	local edit = O.attachEditBox(topGroup, "Name of the selected alert", path, "name", 180, refresh)
 	edit:SetText(path.name)
 	-- disable if there is no aliert uid
 	if not path.created then edit:SetDisabled(true)	end
@@ -75,8 +75,9 @@ function O:ShowAlerts(container, handle)
 	O.attachSpacer(topGroup, 8)
 	-- active checkbox
 	if path.created then
-		local active = O.attachCheckBox(topGroup, "Active", path, "active", 65)
-		active:SetValue(path.active)
+		tooltip = { lines = {"active"} }
+		O.attachCheckBox(topGroup, _, path, "active", 40, _, tooltip)
+
 	end
 	-- show alert details
 	if uid and uid ~= "" then
