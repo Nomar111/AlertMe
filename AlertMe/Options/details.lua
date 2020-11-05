@@ -123,7 +123,7 @@ local function displaySettings(container, handle, uid)
 	local db = P.alerts[handle].alertDetails[uid]
 	local tooltip, label
 	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
-	O.attachHeader(displayGroup, "Display settings")
+	O.attachHeader(group, "Display settings")
 	-- show progress bar
 	if disp.bar then
 		label = disp.barText or "progress bars"

@@ -163,7 +163,9 @@ end
 
 function A:HideAllBars()
 	if not A.bars then return end
-	for barType,ids in pairs(A.bars) do
+	for barType, ids in pairs(A.bars) do
+			P.bars[barType].unlocked = false
+			A:ToggleContainerLock(barType)
 		for id, _ in pairs(ids) do
 			A.bars[barType][id]:Stop()
 		end
