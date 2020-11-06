@@ -204,15 +204,15 @@ A.lists.soundsel = {
 	getOrder = getOrder,
 }
 A.lists.dstwhisper = {
-	[1] = { label = "Don't whisper", order = 1 },
-	[2] = { label = "Whisper if cast by me", order = 2 },
-	[3] = { label = "Whisper", order = 3 },
+	[1] = { label = "Never", order = 1 },
+	[2] = { label = "if cast by me", order = 2 },
+	[3] = { label = "Always", order = 3 },
 	getList = getList,
 }
 A.lists.addonmsg = {
 	[1] = { label = "Always", order = 2 },
 	[2] = { label = "Never", order = 3 },
-	[3] = { label = "If chan not available", order = 1 },
+	[3] = { label = "If chan not avail.", order = 1 },
 	tooltip = { header = "Addon messages", lines = { "Only visible for you", "Set chat frames in Options-Messages" } },
 	getList = getList,
 	getOrder = getOrder,

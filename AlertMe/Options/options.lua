@@ -56,8 +56,10 @@ local function createNavTree(container)
 	tree.height = "fill"
 	tree:SetTree(treeStructure)
 	tree:SetCallback("OnGroupSelected", groupSelected)
-	tree:SelectByPath(strsplit("\001", P.options.lastMenu))			-- if initially called set the last selected menu
+	tree:SelectByPath(strsplit("\001", P.options.lastMenu))
+	tree:SetTreeWidth(150)		-- if initially called set the last selected menu
 	container:AddChild(tree)
+	vdt:data(tree,"tree")
 end
 
 -- *************************************************************************************
@@ -86,8 +88,8 @@ function O:OpenOptions()
 	f:EnableResize(true)
 	f:SetLayout("Flow")
 	f:SetCallback("OnClose", close)
-	f:SetWidth(840)
-	f:SetHeight(670)
+	f:SetWidth(705)
+	f:SetHeight(625)
 	O.Options = f
 	-- create navigation
 	createNavTree(f)

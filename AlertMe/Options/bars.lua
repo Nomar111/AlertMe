@@ -133,18 +133,19 @@ function O:ShowBars(container)
 	-- test bars
 	local testGroup, group, tooltip
 	local spacing = 10
+	local width = 85
 	testGroup = O.attachGroup(container, "inline", "Test bars", {fullWidth = true})
 	group = O.attachGroup(testGroup, "simple", _, {fullWidth = true})
-	O.attachButton(group, "Show", 90, showTestBars)
+	O.attachButton(group, "Show", width, showTestBars)
 	O.attachSpacer(group, spacing)
-	O.attachButton(group, "Hide", 90, hideTestBars)
+	O.attachButton(group, "Hide", width, hideTestBars)
 	O.attachSpacer(group, spacing)
-	O.attachButton(group, "Lock", 90, lockTestBars)
+	O.attachButton(group, "Lock", width, lockTestBars)
 	O.attachSpacer(group, spacing)
-	O.attachButton(group, "Unlock", 90, unlockTestBars)
+	O.attachButton(group, "Unlock", width, unlockTestBars)
 	O.attachSpacer(group, spacing)
 	tooltip = { lines = { "Reset positions of all bars" } }
-	O.attachButton(group, "Reset", 90, resetPositions, tooltip)
+	O.attachButton(group, "Reset", width, resetPositions, tooltip)
 	-- create tabgroup
 	local tabs = {}
 	for _barType, tbl in pairs(D.profile.bars) do

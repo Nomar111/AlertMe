@@ -64,20 +64,19 @@ function O:ShowAlerts(container, handle)
 	edit:SetText(path.name)
 	-- disable if there is no aliert uid
 	if not path.created then edit:SetDisabled(true)	end
-	O.attachSpacer(topGroup, 10)
+	O.attachSpacer(topGroup, 8)
 	-- icon for adding alert
 	local texture, tooltip = A.backgrounds["AlertMe_Add"], { lines = {"Add new alert"} }
 	O.attachIcon(topGroup, texture, 18, add, tooltip)
-	O.attachSpacer(topGroup, 10)
+	O.attachSpacer(topGroup, 8)
 	-- delete alert
 	texture, tooltip = A.backgrounds["AlertMe_Delete"], { lines = {"Delete selected alert"} }
 	O.attachIcon(topGroup, texture, 18, delete, tooltip)
-	O.attachSpacer(topGroup, 8)
+	O.attachSpacer(topGroup, 6)
 	-- active checkbox
 	if path.created then
 		tooltip = { lines = {"active"} }
-		O.attachCheckBox(topGroup, _, path, "active", 40, _, tooltip)
-
+		O.attachCheckBox(topGroup, _, path, "active", 16, _, tooltip)
 	end
 	-- show alert details
 	if uid and uid ~= "" then

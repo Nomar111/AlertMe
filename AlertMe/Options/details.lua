@@ -27,7 +27,7 @@ local function updateSpelltable(handle, uid)
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
 		local rowGroup = O.attachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
-		-- delete spell icon
+		-- delete icon
 		local del = {}
 		del.texture, del.tooltip = A.backgrounds["AlertMe_Delete"],  { lines = {"Delete item from spell table"} }
 		del.OnClick = function(widget)
@@ -37,11 +37,11 @@ local function updateSpelltable(handle, uid)
 		local iconDelSpell = O.attachIcon(rowGroup, del.texture, 18, del.OnClick, del.tooltip)
 		iconDelSpell:SetUserData("spellName", spellName)
 		O.attachSpacer(rowGroup, 10)
-		-- spell/aura icon & spellname
+		-- spell icon
 		O.attachIcon(rowGroup, tbl.icon, 18)
 		O.attachSpacer(rowGroup, 5)
-		-- spell/aura name
-		O.attachLabel(rowGroup, spellName, _, _, 190)
+		-- spell name
+		O.attachLabel(rowGroup, spellName, _, _, 162)
 		O.attachSpacer(rowGroup, 12)
 		-- add sound
 		local add = {}
@@ -70,7 +70,7 @@ local function spellSelection(container, handle, uid)
 	local editBox = A.Libs.AceGUI:Create("Spell_EditBox")
 	local text = A.menus[handle].type or ""
 	editBox:SetLabel("Add".." "..text)
-	editBox:SetWidth(232)
+	editBox:SetWidth(200+2)
 	editBox:SetCallback("OnEnterPressed", function(widget, event, input)
 		for i,v in pairs(editBox.predictFrame.buttons) do
 			local name, _, icon = GetSpellInfo(v.spellID)
@@ -83,7 +83,7 @@ local function spellSelection(container, handle, uid)
 	end)
 	spellGroup:AddChild(editBox)
 	O.attachSpacer(spellGroup,20)
-	local lsm = O.attachLSM(spellGroup, "sound", "Set sound alert per spell", db, "dummy", 207)
+	local lsm = O.attachLSM(spellGroup, "sound", "Set sound alert per spell", db, "dummy", 178)
 	lsm:SetCallback("OnValueChanged", function(widget, _, value)
 		local _spellName = widget:GetUserData("spellName")
 		P.alerts[handle].alertDetails[uid].spellNames[_spellName].soundFile = value
@@ -104,15 +104,15 @@ local function unitSelection(container, handle, uid)
 	if A.menus[handle].unitSelection then
 		O.attachHeader(container, "Unit selection")
 		units, order, excludes = A.lists.units:getList(), A.lists.units:getOrder(), A.lists.excludes:getList()
-		local unitsGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
+		local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 		if A.menus[handle].unitSelection[1] == "src" then
-			O.attachDropdown(unitsGroup, "Source units", db, "srcUnits", units, order, 140)
-			O.attachDropdown(unitsGroup, "excluding", db, "srcExclude", excludes, _, 100)
+			O.attachDropdown(group, "Source units", db, "srcUnits", units, order, 140)
+			O.attachDropdown(group, "excluding", db, "srcExclude", excludes, _, 90)
+			O.attachSpacer(group, 20)
 		end
 		if A.menus[handle].unitSelection[2] then
-			O.attachSpacer(unitsGroup, 20)
-			O.attachDropdown(unitsGroup, "Target units", db, "dstUnits", units, order, 140)
-			O.attachDropdown(unitsGroup, "excluding", db, "dstExclude", excludes, _, 100)
+			O.attachDropdown(group, "Target units", db, "dstUnits", units, order, 140)
+			O.attachDropdown(group, "excluding", db, "dstExclude", excludes, _, 90)
 		end
 	end
 end
@@ -136,32 +136,31 @@ local function displaySettings(container, handle, uid)
 	-- show glow
 	if disp.glow then
 		tooltip = { header = "Glow on uniframes", lines = { "Glow presets can bet edited in Options-Glow" } }
-		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
+		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 140, _, tooltip)
+		O.attachSpacer(group, 25)
 	end
+	-- scrolling text
+	O.attachCheckBox(group, "Post @Scrolling Text", db ,"scrollingText", 150)
 end
 
 local function announceSettings(container, handle, uid)
 	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
 	-- announce settings
 	O.attachHeader(container, "Text alerts")
-	local announceGroup = O.attachGroup(container, "simple", _ , { fullWidth = true } )
+	local group = O.attachGroup(container, "simple", _ , { fullWidth = true } )
 	-- chat channels
 	list = A.lists.channels:getList()
-	O.attachDropdown(announceGroup, "Announce in channel", db, "chatChannels", list, _, 140)
-	O.attachSpacer(announceGroup, 20)
+	O.attachDropdown(group, "Announce in channel", db, "chatChannels", list, _, 140)
+	O.attachSpacer(group, 20)
 	-- addon/system messages
 	list, order, tooltip = A.lists.addonmsg:getList(), A.lists.addonmsg:getOrder(), A.lists.addonmsg.tooltip
-	O.attachDropdown(announceGroup, "Post addon messages", db, "addonMessages", list, order, 150, _, tooltip)
+	O.attachDropdown(group, "Post addon messages", db, "addonMessages", list, order, 140, _, tooltip)
 	-- dstwhisper
 	if A.menus[handle].dstWhisper then
-		O.attachSpacer(announceGroup, 20)
+		O.attachSpacer(group, 20)
 		list = A.lists.dstwhisper:getList()
-		O.attachDropdown(announceGroup, "Whisper dest. unit", db, "dstWhisper", list, _, 160)
+		O.attachDropdown(group, "Whisper dest. unit", db, "dstWhisper", list, _, 160)
 	end
-	O.attachSpacer(container, _, "small")
-	-- scrolling text
-	O.attachCheckBox(container, "Post in Scrolling Text", db ,"scrollingText", 180)
-	O.attachSpacer(container, _, "small")
 	-- message override
 	tooltip = {	header = "Message override", lines = { "Override the standard text message" } }
 	O.attachEditBox(container, "Chat message override", db, "msgOverride", 1, _, tooltip)
@@ -180,9 +179,9 @@ local function soundSettings(container, handle, uid)
 	-- sound alerts
 	O.attachHeader(soundGroup, "Sound alerts")
 	list, order, tooltip = A.lists.soundsel:getList(), A.lists.soundsel:getOrder(), A.lists.soundsel.tooltip
-	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, order, 225, updateState, tooltip)
+	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, order, 200, updateState, tooltip)
 	O.attachSpacer(soundGroup, 20)
-	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", _, _)
+	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", 178, _)
 	updateState()
 end
 
