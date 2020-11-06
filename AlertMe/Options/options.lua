@@ -59,7 +59,6 @@ local function createNavTree(container)
 	tree:SelectByPath(strsplit("\001", P.options.lastMenu))
 	tree:SetTreeWidth(150)		-- if initially called set the last selected menu
 	container:AddChild(tree)
-	vdt:data(tree,"tree")
 end
 
 -- *************************************************************************************
@@ -75,7 +74,8 @@ function O:OpenOptions()
 		A:InitSpellOptions()
 		A.Libs.AceGUI:Release(O.Options)
 		O.Options = nil
-		A:HideAllGUIs()
+		A:HideAllGUIs()			-- hide all bars/glows
+		O.Popup:closeAll()		-- close all popups
 	end
 	-- check if already open
 	if O.Options then
@@ -88,7 +88,7 @@ function O:OpenOptions()
 	f:EnableResize(true)
 	f:SetLayout("Flow")
 	f:SetCallback("OnClose", close)
-	f:SetWidth(710)
+	f:SetWidth(715)
 	f:SetHeight(635)
 	O.Options = f
 	-- create navigation

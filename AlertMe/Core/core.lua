@@ -216,7 +216,7 @@ local function getIcon(spellName)
 	return icon
 end
 
-local function createMessage(cleu, evi, alert, plain)
+local function createMessage(cleu, evi, alert, plain, msgType)
 	local prefix, postfix = P.messages.prefix, P.messages.postfix
 	local r, icon, msg = {}
 	-- get current target and mouseover unit names
@@ -235,6 +235,10 @@ local function createMessage(cleu, evi, alert, plain)
 		msg = alert.msgOverride
 	else
 		msg = P.messages[evi.handle]
+	end
+	-- check if whisper message
+	if msgType == "w" and alert.msgWhisper and alert.msgWhisper ~= "" then
+			msg = alert.msgWhisper
 	end
 	-- replace patterns
 	for _, pattern in pairs(A.patterns) do
@@ -282,6 +286,7 @@ function A:ChatAnnounce(cleu, evi, alerts, ...)
 	for _, alert in pairs(alerts) do
 		local msg = createMessage(cleu, evi, alert, true)
 		local colmsg = createMessage(cleu, evi, alert)
+		local whispmsg = createMessage(cleu, evi, alert, true, "w")
 		-- chat messages to other people (only possible in instances)
 		if P.messages.chatEnabled and inInstance then				-- options setting
 			if alert.chatChannels == 2 and channel then				-- bg/raid/party
@@ -293,10 +298,10 @@ function A:ChatAnnounce(cleu, evi, alerts, ...)
 			end
 		end
 		-- whisper destination unit
-		if P.messages.chatEnabled and cleu.dstIsFriendly and not cleu.dstIsPlayer then
+		if P.messages.chatEnabled and cleu.dstIsFriendly and (not cleu.dstIsPlayer or P.general.debugLevel > 1) then		-- and not cleu.dstIsPlayer
 			if (alert.dstWhisper == 2 and cleu.srcIsPlayer) 		-- whisper if cast by me
 			or alert.dstWhisper == 3 then							-- whisper
-				msgQueue["WHISPER"][msg] = msg
+				msgQueue["WHISPER"][whispmsg] = whispmsg
 			end
 		end
 		-- addon/system messages

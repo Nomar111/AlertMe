@@ -7,21 +7,21 @@ function O:ShowMessages(container)
 	InitChatFrames()
 	-- set sv
 	local db = P.messages
-	local tooltip
+	local tooltip, group
 	-- header
 	O.attachHeader(container, "Message Settings")
-	local enableGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
+	group = O.attachGroup(container, "simple", _, {fullWidth = true})
 	tooltip = { lines = { "enable/disable addon messages", "which are only visible for you"}, wrap = false }
-	O.attachCheckBox(enableGroup, "Enable addon messages", db, "enabled", 220, _, tooltip)
-	O.attachSpacer(enableGroup, 20)
+	O.attachCheckBox(group, "Enable addon messages", db, "enabled", 180, _, tooltip)
+	O.attachSpacer(group, 20)
 	tooltip = { lines = { "enable/disable chat announcements in:", "/raid /bg /party /say"}, wrap = false }
-	O.attachCheckBox(enableGroup, "Enable chat announcements", db, "chatEnabled", 230, _, tooltip)
-	O.attachSpacer(enableGroup, _, "small")
+	O.attachCheckBox(group, "Enable chat announcements", db, "chatEnabled", 200, _, tooltip)
+	O.attachSpacer(group, _, "small")
 	-- chat frames
 	local label = "Post addon messages (only visible for you) in:"
-	local chatFramesGroup = O.attachGroup(container, "inline", label, {fullWidth = true})
+	group = O.attachGroup(container, "inline", label, {fullWidth = true})
 	for name, frame in pairs(chatFrames) do
-		O.attachCheckBox(chatFramesGroup, name, db.chatFrames, frame, 150)
+		O.attachCheckBox(group, name, db.chatFrames, frame, 110)
 	end
 	-- event specific messages
 	local function defaults()
@@ -47,10 +47,10 @@ function O:ShowMessages(container)
 	O.attachEditBox(container, "Message on spell missed", db, "missed", 1, _, tooltip)
 	tooltip = { header = "Useful replacements:", lines = { "%srcName, %dstName, %extraSpellName, %lockout (= lockout in s), %extraSchool (= locked spell school)" } }
 	O.attachEditBox(container, "Message on interrupt", db, "interrupt", 1, _, tooltip)
-	local prefixGroup = O.attachGroup(container, "simple", _, {fullWidth = true})
-	O.attachEditBox(prefixGroup, "Message prefix", db, "prefix", 200)
-	O.attachSpacer(prefixGroup, 20)
-	O.attachEditBox(prefixGroup, "Message postfix", db, "postfix", 200)
+	group = O.attachGroup(container, "simple", _, {fullWidth = true})
+	O.attachEditBox(group, "Message prefix", db, "prefix", 200)
+	O.attachSpacer(group, 20)
+	O.attachEditBox(group, "Message postfix", db, "postfix", 200)
 	-- label = "Usable replacements depending on event:\n%srcName, %dstName, %spellName, %extraSpellName, %extraSchool, %lockout, %targetName, %mouseoverName, %missType "
 	-- O.attachLabel(container, label, _, _, _, 1)
 end

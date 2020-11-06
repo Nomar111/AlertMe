@@ -5,15 +5,16 @@ setfenv(1, _G.AlertMe)
 function O:ShowGeneral(container)
 	-- header
 	O.attachHeader(container, "General Settings")
+	local width = 140
 	-- addon
 	local addonGroup = O.attachGroup(container, "inline", "Addon settings", {fullWidth = true})
-	O.attachCheckBox(addonGroup, "Enable addon", P.general, "enabled", 180, A.ToggleAddon)
-	O.attachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", 180, A.ToggleMinimap)
+	O.attachCheckBox(addonGroup, "Enable addon", P.general, "enabled", width, A.ToggleAddon)
+	O.attachCheckBox(addonGroup, "Hide minimap", P.general.minimap, "hide", width, A.ToggleMinimap)
 	-- zones
 	local zonesGroup = O.attachGroup(container, "inline", "Addon is enabled in", {fullWidth = true})
-	O.attachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", 180, A.RegisterCLEU)
-	O.attachCheckBox(zonesGroup, "World", P.general.zones, "world", 180, A.RegisterCLEU)
-	O.attachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", 180, A.RegisterCLEU)
+	O.attachCheckBox(zonesGroup, "Battlegrounds", P.general.zones, "bg", width, A.RegisterCLEU)
+	O.attachCheckBox(zonesGroup, "World", P.general.zones, "world", 100, A.RegisterCLEU)
+	O.attachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", width, A.RegisterCLEU)
 	-- debug level
 	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
 		O.attachSpacer(container, _, "small")

@@ -282,3 +282,40 @@ function O.attachTabGroup(container, title, format, path, key, tabs, onSelect)
 	container:AddChild(widget)
 	return widget
 end
+
+-- Popup object
+O.Popup = { Popups= {} }
+-- new popup
+function O.Popup:new(handle, title, width, height, resize, OnClose)
+	-- exists already? then return existing one
+	local popup = O.Popup.Popups[handle]
+	if popup then
+		dprint(1, "Popup:new", handle, "exists already. abort.")
+		return
+	end
+	-- default values
+	title = title or "AlertMe"
+	width = width or 500
+	height = height or 300
+	resize = resize or false
+	-- create widget
+	local f = A.Libs.AceGUI:Create("Frame")
+	f:SetTitle(title)
+	f:EnableResize(resize)
+	f:SetLayout("List")
+	f:SetCallback("OnClose", function(widget)
+		if OnClose then OnClose() end
+		A.Libs.AceGUI:Release(widget)
+		O.Popup.Popups[handle] = nil
+	end)
+	f:SetWidth(width)
+	f:SetHeight(height)
+	O.Popup.Popups[handle] = f
+	return O.Popup.Popups[handle]
+end
+
+function O.Popup:closeAll()
+	for _, popup in pairs(O.Popup.Popups) do
+		popup:Hide()
+	end
+end

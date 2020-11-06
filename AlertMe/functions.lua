@@ -11,6 +11,8 @@ function debug()
 	vdt:data(_G.AlertMe, "AlertMe")
 	vdt:data(A, "A")
 	vdt:data(P, "P")
+	vdt:data(O, "O")
+	vdt:data(O.Popup, "O.Popup")
 	--vdt:data(A.alertOptions, "A.alertOptions")
 	--vdt:data(A.spellOptions, "A.spellOptions")
 	-- **********************************************************

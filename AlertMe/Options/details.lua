@@ -14,7 +14,7 @@ local function getGlowList()
 end
 
 local function updateSpelltable(handle, uid)
-	O.Spelltable:ReleaseChildren()
+	O.Options.Spelltable:ReleaseChildren()
 	-- get saved vars
 	local db = P.alerts[handle].alertDetails[uid]
 	-- scroll frame
@@ -22,7 +22,7 @@ local function updateSpelltable(handle, uid)
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
-	O.Spelltable:AddChild(scrollGroup)
+	O.Options.Spelltable:AddChild(scrollGroup)
 	-- loop over all tracked spells/auras
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
@@ -51,7 +51,7 @@ local function updateSpelltable(handle, uid)
 			local _soundFile = db.spellNames[_spellName].soundFile
 			if _spellName  then O.Soundselection:SetUserData("spellName", _spellName) end
 			if _soundFile then O.Soundselection:SetValue(_soundFile) end
-			O.Soundselection:SetDisabled(false)
+			O.Options.Soundselection:SetDisabled(false)
 		end
 		local iconAddSound = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
 		iconAddSound:SetUserData("spellName", spellName)
@@ -92,10 +92,10 @@ local function spellSelection(container, handle, uid)
 		updateSpelltable(handle, uid)
 	end)
 	lsm:SetDisabled(true)
-	O.Soundselection = lsm
-	O.Soundselection:SetUserData("key", "None")
+	O.Options.Soundselection = lsm
+	O.Options.Soundselection:SetUserData("key", "None")
 	-- spell table
-	O.Spelltable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
+	O.Options.Spelltable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
 	updateSpelltable(handle, uid)
 end
 
@@ -136,17 +136,40 @@ local function displaySettings(container, handle, uid)
 	-- show glow
 	if disp.glow then
 		tooltip = { header = "Glow on uniframes", lines = { "Glow presets can bet edited in Options-Glow" } }
-		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 140, _, tooltip)
-		O.attachSpacer(group, 25)
+		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
+		O.attachSpacer(container, _, "small")
 	end
-	-- scrolling text
-	O.attachCheckBox(group, "Post @Scrolling Text", db ,"scrollingText", 150)
+
+end
+
+local function openMessages(handle, uid)
+	local db, tooltip = P.alerts[handle].alertDetails[uid]
+	local pop = O.Popup:new("messages", "Messages for this alert", 500, 250, true, _)
+	if pop then
+		O.attachSpacer(pop, _, "medium")
+		-- standard message
+		tooltip = {	header = "Standard message"}
+		tooltip.lines = { "This message will be displayed if you define nothing else", "You can edit the standard messages in Options-Messages" }
+		local edit = O.attachEditBox(pop, "Standard (event) message", P.messages, handle, 1, _, tooltip)
+		edit:DisableButton(true)
+		edit:SetCallback("OnEnterPressed", function()end)
+		O.attachSpacer(pop, _, "small")
+		-- message override
+		tooltip = {	header = "Message override", lines = { "Override the standard text message" } }
+		O.attachEditBox(pop, "Chat message override", db, "msgOverride", 1, _, tooltip)
+		-- whisper messages
+		if A.menus[handle].dstWhisper then
+			O.attachSpacer(pop, _, "small")
+			tooltip = {	header = "Whisper message", lines = { "The message you will whisper other players" } }
+			O.attachEditBox(pop, "Whisper message", db, "msgWhisper", 1, _, tooltip)
+		end
+	end
 end
 
 local function announceSettings(container, handle, uid)
 	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
-	-- announce settings
-	O.attachHeader(container, "Text alerts")
+	O.attachHeader(container, "Text & Chat")
+	-- ROW 1
 	local group = O.attachGroup(container, "simple", _ , { fullWidth = true } )
 	-- chat channels
 	list = A.lists.channels:getList()
@@ -154,34 +177,38 @@ local function announceSettings(container, handle, uid)
 	O.attachSpacer(group, 20)
 	-- addon/system messages
 	list, order, tooltip = A.lists.addonmsg:getList(), A.lists.addonmsg:getOrder(), A.lists.addonmsg.tooltip
-	O.attachDropdown(group, "Post addon messages", db, "addonMessages", list, order, 140, _, tooltip)
+	O.attachDropdown(group, "Post addon messages", db, "addonMessages", list, order, 150, _, tooltip)
 	-- dstwhisper
 	if A.menus[handle].dstWhisper then
 		O.attachSpacer(group, 20)
-		list = A.lists.dstwhisper:getList()
-		O.attachDropdown(group, "Whisper dest. unit", db, "dstWhisper", list, _, 160)
+		list, tooltip = A.lists.dstwhisper:getList(), A.lists.dstwhisper.tooltip
+		vdt:data(tooltip, "tooltip")
+		O.attachDropdown(group, "Whisper dest. unit", db, "dstWhisper", list, _, 140, tooltip)
 	end
-	-- message override
-	tooltip = {	header = "Message override", lines = { "Override the standard text message" } }
-	O.attachEditBox(container, "Chat message override", db, "msgOverride", 1, _, tooltip)
+	-- ROW 2
+	group = O.attachGroup(container, "simple", _ , { fullWidth = true } )
+	-- scrolling text
+	O.attachCheckBox(group, "Post @Scrolling Text", db ,"scrollingText", 150)
+	O.attachSpacer(group, 30)
+	O.attachButton(group, "Messages...", 115, function() openMessages(handle, uid) end)
 end
 
 local function soundSettings(container, handle, uid)
 	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
-	local soundGroup = O.attachGroup(container, "simple", _ , { fullWidth = true })
+	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
-		if O.SoundselectionDefault:GetValue() ~= 2 then
-			O.Soundfile:SetDisabled(true)
+		if db.soundSelection ~= 2 then
+			O.Options.Soundfile:SetDisabled(true)
 		else
-			O.Soundfile:SetDisabled(false)
+			O.Options.Soundfile:SetDisabled(false)
 		end
 	end
 	-- sound alerts
-	O.attachHeader(soundGroup, "Sound alerts")
+	O.attachHeader(group, "Sound alerts")
 	list, order, tooltip = A.lists.soundsel:getList(), A.lists.soundsel:getOrder(), A.lists.soundsel.tooltip
-	O.SoundselectionDefault = O.attachDropdown(soundGroup, "Sound alert", db, "soundSelection", list, order, 200, updateState, tooltip)
-	O.attachSpacer(soundGroup, 20)
-	O.Soundfile = O.attachLSM(soundGroup, "sound", _, db, "soundFile", 178, _)
+	O.attachDropdown(group, "Sound alert", db, "soundSelection", list, order, 200, updateState, tooltip)
+	O.attachSpacer(group, 20)
+	O.Options.Soundfile = O.attachLSM(group, "sound", _, db, "soundFile", 178, _)
 	updateState()
 end
 
