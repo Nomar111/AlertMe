@@ -361,7 +361,7 @@ function A:PlaySound(cleu, evi, alerts, ...)
 			sound = alert.spellNames[cleu.spellName].soundFile
 		end
 		-- add to soundqueue
-		if sound and sound ~= "None" and sound ~= "" then
+		if sound and sound ~= "None" and sound ~= "" and sound ~= " None" then
 			soundQueue[sound] = true
 		end
 	end

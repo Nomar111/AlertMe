@@ -207,7 +207,7 @@ A.lists.dstwhisper = {
 	[1] = { label = "Never", order = 1 },
 	[2] = { label = "if cast by me", order = 2 },
 	[3] = { label = "Always", order = 3 },
-	tooltip = { lines = { "To set an individual whisper text, click button below" } },
+	tooltip = { lines = { "To set an individual whisper message click button below" }, wrap = true },
 	getList = getList,
 }
 A.lists.addonmsg = {

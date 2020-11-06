@@ -49,8 +49,8 @@ local function updateSpelltable(handle, uid)
 		add.OnClick = function(widget)
 			local _spellName = widget:GetUserData("spellName")
 			local _soundFile = db.spellNames[_spellName].soundFile
-			if _spellName  then O.Soundselection:SetUserData("spellName", _spellName) end
-			if _soundFile then O.Soundselection:SetValue(_soundFile) end
+			if _spellName  then O.Options.Soundselection:SetUserData("spellName", _spellName) end
+			if _soundFile then O.Options.Soundselection:SetValue(_soundFile) end
 			O.Options.Soundselection:SetDisabled(false)
 		end
 		local iconAddSound = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
@@ -182,15 +182,14 @@ local function announceSettings(container, handle, uid)
 	if A.menus[handle].dstWhisper then
 		O.attachSpacer(group, 20)
 		list, tooltip = A.lists.dstwhisper:getList(), A.lists.dstwhisper.tooltip
-		vdt:data(tooltip, "tooltip")
-		O.attachDropdown(group, "Whisper dest. unit", db, "dstWhisper", list, _, 140, tooltip)
+		local m = O.attachDropdown(group, "Whisper dest. unit", db, "dstWhisper", list, _, 140, _, tooltip)
 	end
 	-- ROW 2
 	group = O.attachGroup(container, "simple", _ , { fullWidth = true } )
 	-- scrolling text
 	O.attachCheckBox(group, "Post @Scrolling Text", db ,"scrollingText", 150)
 	O.attachSpacer(group, 30)
-	O.attachButton(group, "Messages...", 115, function() openMessages(handle, uid) end)
+	O.attachButton(group, "Messages..", 120, function() openMessages(handle, uid) end)
 end
 
 local function soundSettings(container, handle, uid)

@@ -5,6 +5,7 @@ local lsm = A.Libs.LSM
 
 function A:InitLSM()
 	A.sounds = lsm:HashTable("sound")
+	A.sounds[" None"] = [[Interface\quiet.ogg]]
 	A.statusbars = lsm:HashTable("statusbar")
 	A.backgrounds = lsm:HashTable("background")
 	A.fonts = lsm:HashTable("font")

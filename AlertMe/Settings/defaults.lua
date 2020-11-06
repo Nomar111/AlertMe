@@ -115,7 +115,7 @@ D.profile = {
 					spellNames = {
 						['*'] = {
 							icon = "",
-							soundFile = "None",
+							soundFile = " None",
 						}
 					},
 					srcUnits = 5,
@@ -130,7 +130,7 @@ D.profile = {
 					dstWhisper = 1,
 					scrollingText = true,
 					soundSelection = 3,
-					soundFile = "None",
+					soundFile = " None",
 					msgOverride = "",
 					msgWhisper = "",
 				},
@@ -145,7 +145,7 @@ D.profile = {
 					spellNames = {
 						['*'] = {
 							icon = "",
-							soundFile = "None",
+							soundFile = " None",
 						}
 					},
 					srcUnits = 5,
@@ -160,7 +160,7 @@ D.profile = {
 					dstWhisper = 1,
 					scrollingText = true,
 					soundSelection = 3,
-					soundFile = "None",
+					soundFile = " None",
 					msgOverride = "",
 					msgWhisper = "",
 				},
