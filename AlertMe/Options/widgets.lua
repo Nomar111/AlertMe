@@ -304,9 +304,8 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	f:EnableResize(resize)
 	f:SetLayout("List")
 	f:SetCallback("OnClose", function(widget)
-		if OnClose then OnClose() end
-		A.Libs.AceGUI:Release(widget)
 		O.Popup.Popups[handle] = nil
+		A.Libs.AceGUI:Release(widget)
 	end)
 	f:SetWidth(width)
 	f:SetHeight(height)

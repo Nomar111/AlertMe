@@ -23,6 +23,8 @@ local function updateSpelltable(handle, uid)
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
 	O.Options.Spelltable:AddChild(scrollGroup)
+	-- container for rows
+	O.Options.Spelltable.rows = { icons = {}, labels = {} }
 	-- loop over all tracked spells/auras
 	for spellName, tbl in pairs(db.spellNames) do
 		-- rowGroup
@@ -42,22 +44,24 @@ local function updateSpelltable(handle, uid)
 		O.attachSpacer(rowGroup, 5)
 		-- spell name
 		O.attachLabel(rowGroup, spellName, _, _, 162)
-		O.attachSpacer(rowGroup, 12)
-		-- add sound
-		local add = {}
-		add.texture, add.tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
-		add.OnClick = function(widget)
-			local _spellName = widget:GetUserData("spellName")
-			local _soundFile = db.spellNames[_spellName].soundFile
-			if _spellName  then O.Options.Soundselection:SetUserData("spellName", _spellName) end
-			if _soundFile then O.Options.Soundselection:SetValue(_soundFile) end
-			O.Options.Soundselection:SetDisabled(false)
+		if db.soundSelection == 3 then
+			O.attachSpacer(rowGroup, 12)
+			-- add sound
+			local add = {}
+			add.texture, add.tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
+			add.OnClick = function(widget)
+				local _spellName = widget:GetUserData("spellName")
+				local _soundFile = db.spellNames[_spellName].soundFile
+				if _spellName  then O.Options.Soundselection:SetUserData("spellName", _spellName) end
+				if _soundFile then O.Options.Soundselection:SetValue(_soundFile) end
+				O.Options.Soundselection:SetDisabled(false)
+			end
+			local widget = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
+			widget:SetUserData("spellName", spellName)
+			O.attachSpacer(rowGroup, 10)
+			-- sound label
+			O.attachLabel(rowGroup, tbl.soundFile, _, _, 200)
 		end
-		local iconAddSound = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
-		iconAddSound:SetUserData("spellName", spellName)
-		O.attachSpacer(rowGroup, 10)
-		-- sound label
-		O.attachLabel(rowGroup, tbl.soundFile, _, _, 200)
 	end
 end
 
@@ -196,10 +200,15 @@ local function soundSettings(container, handle, uid)
 	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
 	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
-		if db.soundSelection ~= 2 then
+		if db.soundSelection == 1 then 		-- no sound
 			O.Options.Soundfile:SetDisabled(true)
-		else
+			updateSpelltable(handle, uid)
+		elseif db.soundSelection == 2 then	-- one sound
 			O.Options.Soundfile:SetDisabled(false)
+			updateSpelltable(handle, uid)
+		elseif db.soundSelection == 3 then	-- individual sounds
+			updateSpelltable(handle, uid)
+			O.Options.Soundfile:SetDisabled(true)
 		end
 	end
 	-- sound alerts

@@ -70,12 +70,12 @@ function O:OpenOptions()
 		return
 	end
 	-- callback for closing
-	local function close()
-		A:InitSpellOptions()
-		A.Libs.AceGUI:Release(O.Options)
-		O.Options = nil
-		A:HideAllGUIs()			-- hide all bars/glows
+	local function close(widget)
 		O.Popup:closeAll()		-- close all popups
+		O.Options = nil
+		A.Libs.AceGUI:Release(widget)
+		A:InitSpellOptions()
+		A:HideAllGUIs()			-- hide all bars/glows
 	end
 	-- check if already open
 	if O.Options then
