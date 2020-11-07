@@ -79,7 +79,7 @@ function A.SetScrollingPos(reset)
 	-- abort if not exists
 	if not A.ScrollingText then return end
 	-- reset position?
-	if reset then
+	if reset == true then
 		local def = D.profile.scrolling
 		db.point = def.point
 		db.ofs_x = def.ofs_x

@@ -17,50 +17,49 @@ local function updateSpelltable(handle, uid)
 	O.Options.Spelltable:ReleaseChildren()
 	-- get saved vars
 	local db = P.alerts[handle].alertDetails[uid]
+	local widget, group
 	-- scroll frame
 	local scrollGroup = A.Libs.AceGUI:Create("AlertMeScrollFrame")
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
 	O.Options.Spelltable:AddChild(scrollGroup)
-	-- container for rows
-	O.Options.Spelltable.rows = { icons = {}, labels = {} }
 	-- loop over all tracked spells/auras
-	for spellName, tbl in pairs(db.spellNames) do
+	for spellName, spell in pairs(db.spellNames) do
 		-- rowGroup
-		local rowGroup = O.attachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
+		group = O.attachGroup(scrollGroup, "simple", _, {fullWidth = true, layout = "Flow"})
 		-- delete icon
 		local del = {}
 		del.texture, del.tooltip = A.backgrounds["AlertMe_Delete"],  { lines = {"Delete item from spell table"} }
-		del.OnClick = function(widget)
-			db.spellNames[widget:GetUserData("spellName")] = nil
+		del.OnClick = function(_widget)
+			db.spellNames[_widget:GetUserData("spellName")] = nil
 			updateSpelltable(handle, uid)
 		end
-		local iconDelSpell = O.attachIcon(rowGroup, del.texture, 18, del.OnClick, del.tooltip)
-		iconDelSpell:SetUserData("spellName", spellName)
-		O.attachSpacer(rowGroup, 10)
+		widget = O.attachIcon(group, del.texture, 18, del.OnClick, del.tooltip)
+		widget:SetUserData("spellName", spellName)
+		O.attachSpacer(group, 10)
 		-- spell icon
-		O.attachIcon(rowGroup, tbl.icon, 18)
-		O.attachSpacer(rowGroup, 5)
+		O.attachIcon(group, spell.icon, 18)
+		O.attachSpacer(group, 5)
 		-- spell name
-		O.attachLabel(rowGroup, spellName, _, _, 162)
+		O.attachLabel(group, spellName, _, _, 162)
 		if db.soundSelection == 3 then
-			O.attachSpacer(rowGroup, 12)
+			O.attachSpacer(group, 12)
 			-- add sound
 			local add = {}
 			add.texture, add.tooltip = A.backgrounds["AlertMe_Add"],  { lines = {"Set an individual sound alert"} }
-			add.OnClick = function(widget)
-				local _spellName = widget:GetUserData("spellName")
+			add.OnClick = function(_widget)
+				local _spellName = _widget:GetUserData("spellName")
 				local _soundFile = db.spellNames[_spellName].soundFile
-				if _spellName  then O.Options.Soundselection:SetUserData("spellName", _spellName) end
+				if _spellName then O.Options.Soundselection:SetUserData("spellName", _spellName) end
 				if _soundFile then O.Options.Soundselection:SetValue(_soundFile) end
 				O.Options.Soundselection:SetDisabled(false)
 			end
-			local widget = O.attachIcon(rowGroup, add.texture, 16, add.OnClick, add.tooltip)
+			widget = O.attachIcon(group, add.texture, 16, add.OnClick, add.tooltip)
 			widget:SetUserData("spellName", spellName)
-			O.attachSpacer(rowGroup, 10)
+			O.attachSpacer(group, 10)
 			-- sound label
-			O.attachLabel(rowGroup, tbl.soundFile, _, _, 200)
+			O.attachLabel(group, spell.soundFile, _, _, 200)
 		end
 	end
 end

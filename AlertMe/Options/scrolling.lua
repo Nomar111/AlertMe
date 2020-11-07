@@ -9,8 +9,15 @@ function O:ShowScrollingText(container)
 		A.SetScrollingPos(true)
 	end
 	local function centerX()
+		local point = A.ScrollingText:GetPoint(i)
+		if point:find("BOTTOM") then
+			P.scrolling.point = "BOTTOM"
+		elseif point:find("TOP") then
+			P.scrolling.point = "TOP"
+		else
+			P.scrolling.point = "CENTER"
+		end
 		P.scrolling.ofs_x = 0
-		P.scrolling.point = "CENTER"
 		A.SetScrollingPos()
 	end
 	-- add dummy messages for setup
