@@ -70,7 +70,7 @@ function O:OpenOptions()
 		return
 	end
 	-- callback for closing
-	local function close(widget)
+	local function close(widget,...)
 		O.Popup:closeAll()		-- close all popups
 		O.Options = nil
 		A.Libs.AceGUI:Release(widget)
@@ -79,7 +79,7 @@ function O:OpenOptions()
 	end
 	-- check if already open
 	if O.Options then
-		close()
+		close(O.Options)
 		return
 	end
 	-- create main frame for options
@@ -97,8 +97,9 @@ end
 
 function O:ReOpenOptions()
 	if O.Options then
-		A.Libs.AceGUI:Release(O.Options)
+		local widget = O.Options
 		O.Options = nil
+		A.Libs.AceGUI:Release(widget)
 		O:OpenOptions()
 	end
 end

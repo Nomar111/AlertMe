@@ -57,14 +57,17 @@ function A:OnInitialize()
 	-- define addon global P for profile data
 	P = A.db.profile
 	-- register slash command
-	local open = O.OpenOptions
-	self:RegisterChatCommand("alertme", "open")
+	local function open()
+		O:OpenOptions()
+	end
+	self:RegisterChatCommand("alertme", open)
 end
 
 -- addon enabled
 function A:OnEnable()
 	A:Initialize()
 end
+
 
 -- automatically called on profile copy/delete/etc.
 function A:OnProfileEvent(event)
