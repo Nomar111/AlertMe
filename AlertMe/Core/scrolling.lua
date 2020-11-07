@@ -67,8 +67,11 @@ function A.ShowScrolling()
 	A.ScrollingText:Show()
 end
 
-function A:HideScrolling()
+function A:HideScrolling(wipe)
 	if A.ScrollingText then
+		if wipe == true then
+			A.ScrollingText:Clear()
+		end
 		A.ScrollingText:Hide()
 	end
 end

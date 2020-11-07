@@ -8,6 +8,9 @@ function O:ShowScrollingText(container)
 	local function resetPosition()
 		A.SetScrollingPos(true)
 	end
+	local function close()
+		A:HideScrolling(true)
+	end
 	local function centerX()
 		local point = A.ScrollingText:GetPoint(i)
 		if point:find("BOTTOM") then
@@ -52,7 +55,7 @@ function O:ShowScrollingText(container)
 	local buttonGroup1 = O.attachGroup(container, "simple", _, {fullWidth = true})
 	O.attachButton(buttonGroup1, "Show frame", width, showScrollingTest)
 	O.attachSpacer(buttonGroup1, 20)
-	O.attachButton(buttonGroup1, "Hide frame", width, A.HideScrolling)
+	O.attachButton(buttonGroup1, "Hide frame", width, close)
 	O.attachSpacer(container, _, "small")
 	-- button row 2
 	local buttonGroup2 = O.attachGroup(container, "simple", _, {fullWidth = true})
