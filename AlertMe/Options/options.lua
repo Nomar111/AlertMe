@@ -4,6 +4,7 @@ local InCombatLockdown, strsplit = InCombatLockdown, strsplit
 setfenv(1, _G.AlertMe)
 -- (re)set some variables
 O.config = {}
+O.Widgets = {}
 
 -- *************************************************************************************
 -- prepare the widgets & functions
@@ -72,6 +73,8 @@ function O:OpenOptions()
 	-- callback for closing
 	local function close(widget,...)
 		O.Popup:closeAll()		-- close all popups
+		O.Widgets = nil			-- delete pointers to widgets
+		O.Widgets = {}
 		O.Options = nil
 		A.Libs.AceGUI:Release(widget)
 		A:InitSpellOptions()
@@ -83,13 +86,13 @@ function O:OpenOptions()
 		return
 	end
 	-- create main frame for options
-	local f = A.Libs.AceGUI:Create("Frame")
+	local f = A.Libs.AceGUI:Create("Window")
 	f:SetTitle("AlertMe Options")
 	f:EnableResize(true)
 	f:SetLayout("Flow")
 	f:SetCallback("OnClose", close)
-	f:SetWidth(715)
-	f:SetHeight(635)
+	f:SetWidth(700)
+	f:SetHeight(600)
 	O.Options = f
 	-- create navigation
 	createNavTree(f)

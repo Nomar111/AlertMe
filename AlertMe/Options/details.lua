@@ -14,7 +14,7 @@ local function getGlowList()
 end
 
 local function updateSpelltable(handle, uid)
-	O.Options.Spelltable:ReleaseChildren()
+	O.Widgets.Spelltable:ReleaseChildren()
 	-- get saved vars
 	local db = P.alerts[handle].alertDetails[uid]
 	local widget, group
@@ -23,7 +23,7 @@ local function updateSpelltable(handle, uid)
 	scrollGroup:SetLayout("List")
 	scrollGroup:SetFullHeight(true)
 	scrollGroup:SetFullWidth(true)
-	O.Options.Spelltable:AddChild(scrollGroup)
+	O.Widgets.Spelltable:AddChild(scrollGroup)
 	-- loop over all tracked spells/auras
 	for spellName, spell in pairs(db.spellNames) do
 		-- rowGroup
@@ -51,9 +51,9 @@ local function updateSpelltable(handle, uid)
 			add.OnClick = function(_widget)
 				local _spellName = _widget:GetUserData("spellName")
 				local _soundFile = db.spellNames[_spellName].soundFile
-				if _spellName then O.Options.Soundselection:SetUserData("spellName", _spellName) end
-				if _soundFile then O.Options.Soundselection:SetValue(_soundFile) end
-				O.Options.Soundselection:SetDisabled(false)
+				if _spellName then O.Widgets.Soundselection:SetUserData("spellName", _spellName) end
+				if _soundFile then O.Widgets.Soundselection:SetValue(_soundFile) end
+				O.Widgets.Soundselection:SetDisabled(false)
 			end
 			widget = O.attachIcon(group, add.texture, 16, add.OnClick, add.tooltip)
 			widget:SetUserData("spellName", spellName)
@@ -95,10 +95,10 @@ local function spellSelection(container, handle, uid)
 		updateSpelltable(handle, uid)
 	end)
 	lsm:SetDisabled(true)
-	O.Options.Soundselection = lsm
-	O.Options.Soundselection:SetUserData("key", "None")
+	O.Widgets.Soundselection = lsm
+	O.Widgets.Soundselection:SetUserData("key", "None")
 	-- spell table
-	O.Options.Spelltable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
+	O.Widgets.Spelltable = O.attachGroup(container, "simple", _, {fullWidth = true, layout = "none", height = 105})
 	updateSpelltable(handle, uid)
 end
 
@@ -147,7 +147,7 @@ end
 
 local function openMessages(handle, uid)
 	local db, tooltip = P.alerts[handle].alertDetails[uid]
-	local pop = O.Popup:new("messages", "Messages for this alert", 500, 250, true, _)
+	local pop = O.Popup:new("messages", "Messages for this alert", 500, 260, true, _)
 	if pop then
 		O.attachSpacer(pop, _, "medium")
 		-- standard message
@@ -192,7 +192,7 @@ local function announceSettings(container, handle, uid)
 	-- scrolling text
 	O.attachCheckBox(group, "Post @Scrolling Text", db ,"scrollingText", 150)
 	O.attachSpacer(group, 30)
-	O.attachButton(group, "Messages..", 120, function() openMessages(handle, uid) end)
+	O.attachButton(group, "Messages...", 120, function() openMessages(handle, uid) end)
 end
 
 local function soundSettings(container, handle, uid)
@@ -200,14 +200,14 @@ local function soundSettings(container, handle, uid)
 	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
 		if db.soundSelection == 1 then 		-- no sound
-			O.Options.Soundfile:SetDisabled(true)
+			O.Widgets.Soundfile:SetDisabled(true)
 			updateSpelltable(handle, uid)
 		elseif db.soundSelection == 2 then	-- one sound
-			O.Options.Soundfile:SetDisabled(false)
+			O.Widgets.Soundfile:SetDisabled(false)
 			updateSpelltable(handle, uid)
 		elseif db.soundSelection == 3 then	-- individual sounds
 			updateSpelltable(handle, uid)
-			O.Options.Soundfile:SetDisabled(true)
+			O.Widgets.Soundfile:SetDisabled(true)
 		end
 	end
 	-- sound alerts
@@ -215,7 +215,7 @@ local function soundSettings(container, handle, uid)
 	list, order, tooltip = A.lists.soundsel:getList(), A.lists.soundsel:getOrder(), A.lists.soundsel.tooltip
 	O.attachDropdown(group, "Sound alert", db, "soundSelection", list, order, 200, updateState, tooltip)
 	O.attachSpacer(group, 20)
-	O.Options.Soundfile = O.attachLSM(group, "sound", _, db, "soundFile", 178, _)
+	O.Widgets.Soundfile = O.attachLSM(group, "sound", _, db, "soundFile", 178, _)
 	updateState()
 end
 

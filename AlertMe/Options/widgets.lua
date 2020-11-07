@@ -290,11 +290,10 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	-- exists already? then return existing one
 	local popup = O.Popup.Popups[handle]
 	if popup then
-		dprint(1, "Popup:new", handle, "exists already. abort.")
-		return
+		return popup
 	end
 	-- default values
-	title = title or "AlertMe"
+	title = title or ""
 	width = width or 500
 	height = height or 300
 	resize = resize or false
@@ -311,6 +310,7 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	f:SetHeight(height)
 	O.Popup.Popups[handle] = f
 	return O.Popup.Popups[handle]
+
 end
 
 function O.Popup:closeAll()

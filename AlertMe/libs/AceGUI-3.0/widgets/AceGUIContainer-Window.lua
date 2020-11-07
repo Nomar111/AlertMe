@@ -95,8 +95,8 @@ do
 		self.frame:SetParent(UIParent)
 		self.frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		self:ApplyStatus()
-		self:EnableResize(true)
 		self:Show()
+		self:EnableResize(true)
 	end
 
 	local function OnRelease(self)
