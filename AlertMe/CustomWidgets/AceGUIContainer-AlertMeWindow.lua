@@ -192,7 +192,7 @@ do
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
 		local textureLottery = {
 			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 85/255, 85/255, 85/255, 1 } },
-			[2] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 30/256, 30/256, 30/256, 1 } },
+			[2] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 50/256, 55/256, 55/256, 1 } },
 			[3] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 80/255, 13/255, 6/255, 0.95 } },
 			[4] = { [[Interface\Addons\AlertMe\Media\statusbar\Graphite]], { 140/255, 140/255, 140/255, 1 } },
 		}
