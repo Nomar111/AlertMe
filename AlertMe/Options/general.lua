@@ -30,27 +30,4 @@ function O:ShowGeneral(container)
 		O.attachSpacer(container, _, "small")
 		O.attachButton(container, "Delete log table", 200, deleteLog)
 	end
-	local function pop()
-		-- create main frame for options
-		local f = A.Libs.AceGUI:Create("Window")
-	end
-	O.attachButton(container, "Popup", 100, pop)
-
-	local function createWindow()
-
-		-- create main frame for options
-		local f = A.Libs.AceGUI:Create("AmeWindow")
-		f:SetTitle("AlertMe Options New design")
-		f:EnableResize(true)
-		f:SetLayout("Flow")
-		f:SetCallback("OnClose", function(widget)
-			O.Popup.Popups.amewindow = nil
-			A.Libs.AceGUI:Release(widget)
-		end)
-		f:SetWidth(400)
-		f:SetHeight(300)
-		O.Popup.Popups.amewindow = f
-	end
-
-	O.attachButton(container, "PWin", 100, createWindow)
 end

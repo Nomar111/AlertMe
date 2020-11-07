@@ -190,15 +190,24 @@ do
 		frame:SetToplevel(true)
 
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
+		local textureLottery = {
+			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 85/255, 85/255, 85/255, 1 } },
+			[2] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 40/256, 50/256, 50/256, 1 } },
+			[3] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 80/255, 13/255, 6/255, 0.95 } },
+			[4] = { [[Interface\Addons\AlertMe\Media\statusbar\Graphite]], { 140/255, 140/255, 140/255, 1 } },
+		}
 		--titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
-		titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]])
-		titlebg:SetVertexColor(99/256, 99/256, 99/256, 0.8)
-				titlebg:SetPoint("TOPLEFT", 9, -6)
+		local rnd = math.random(4)
+		local winner = textureLottery[rnd]
+		--winner = textureLottery[2]
+		titlebg:SetTexture(winner[1])
+		titlebg:SetVertexColor(unpack(winner[2]))
+		titlebg:SetPoint("TOPLEFT", 9, -6)
 		titlebg:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -28, -24)
 
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
 		dialogbg:SetTexture(130930)	-- ui-party-background
-		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
+		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.94)
 		-- 130937 chatframebackground, 130858 ui-sliderbar-background
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
@@ -267,7 +276,7 @@ do
 		close.obj = self
 
 		local titletext = frame:CreateFontString(nil, "ARTWORK")
-		titletext:SetFontObject(GameFontNormal)
+		titletext:SetFontObject(GameFontHighlight)
 		titletext:SetPoint("TOPLEFT", 12, -8)
 		titletext:SetPoint("TOPRIGHT", -32, -8)
 		self.titletext = titletext

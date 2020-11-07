@@ -36,3 +36,6 @@ local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
 dialogbg:SetTexture(130930)	-- ui-party-background
 dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
 -- 130937 chatframebackground, 130858 ui-sliderbar-background
+
+titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]])
+titlebg:SetVertexColor(86/256, 86/256, 86/256, 1)
