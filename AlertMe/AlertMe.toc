@@ -17,3 +17,4 @@ Options\options.xml
 Media\media.lua
 CustomWidgets\AceGUIWidget-WeakAurasIcon.lua
 CustomWidgets\AceGUIContainer-AlertMeScrollFrame.lua
+CustomWidgets\AceGUIContainer-AlertMeWindow.lua

@@ -20,8 +20,8 @@ local CreateFrame, UIParent = CreateFrame, UIParent
 
 ]]
 do
-	local Type = "Window"
-	local Version = 6
+	local Type = "AmeWindow"
+	local Version = 1
 
 	local function frameOnShow(this)
 		this.obj:Fire("OnShow")
@@ -157,7 +157,7 @@ do
 	local function Constructor()
 		local frame = CreateFrame("Frame",nil,UIParent)
 		local self = {}
-		self.type = "Window"
+		self.type = "AmeWindow"
 
 		self.Hide = Hide
 		self.Show = Show
@@ -190,15 +190,19 @@ do
 		frame:SetToplevel(true)
 
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
-		titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
-		titlebg:SetPoint("TOPLEFT", 9, -6)
+		--titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
+		titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]])
+		titlebg:SetVertexColor(99/256, 99/256, 99/256, 0.8)
+				titlebg:SetPoint("TOPLEFT", 9, -6)
 		titlebg:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -28, -24)
 
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
-		dialogbg:SetTexture(137056) -- Interface\\Tooltips\\UI-Tooltip-Background
+		dialogbg:SetTexture(130930)	-- ui-party-background
+		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
+		-- 130937 chatframebackground, 130858 ui-sliderbar-background
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
-		dialogbg:SetVertexColor(0, 0, 0, .75)
+		--dialogbg:SetVertexColor(1, 1, 1, 0.8)
 
 		local topleft = frame:CreateTexture(nil, "BORDER")
 		topleft:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
@@ -300,7 +304,7 @@ do
 		line2:SetHeight(8)
 		line2:SetPoint("BOTTOMRIGHT", -8, 8)
 		line2:SetTexture(137057) -- Interface\\Tooltips\\UI-Tooltip-Border
-		local x = 0.1 * 8/17
+		x = 0.1 * 8/17
 		line2:SetTexCoord(0.05 - x, 0.5, 0.05, 0.5 + x, 0.05, 0.5 - x, 0.5 + x, 0.5)
 
 		local sizer_s = CreateFrame("Frame",nil,frame)

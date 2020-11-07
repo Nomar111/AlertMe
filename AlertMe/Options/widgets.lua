@@ -284,13 +284,15 @@ function O.attachTabGroup(container, title, format, path, key, tabs, onSelect)
 end
 
 -- Popup object
-O.Popup = { Popups= {} }
+O.Popup = { Popups = {} }
 -- new popup
 function O.Popup:new(handle, title, width, height, resize, OnClose)
-	-- exists already? then return existing one
+	-- exists already? then close that one.
 	local popup = O.Popup.Popups[handle]
 	if popup then
-		return popup
+		popup:ReleaseChildren()
+		popup:Hide()
+		return
 	end
 	-- default values
 	title = title or ""
@@ -298,7 +300,7 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	height = height or 300
 	resize = resize or false
 	-- create widget
-	local f = A.Libs.AceGUI:Create("Frame")
+	local f = A.Libs.AceGUI:Create("AmeWindow")
 	f:SetTitle(title)
 	f:EnableResize(resize)
 	f:SetLayout("List")

@@ -86,13 +86,13 @@ function O:OpenOptions()
 		return
 	end
 	-- create main frame for options
-	local f = A.Libs.AceGUI:Create("Frame")
+	local f = A.Libs.AceGUI:Create("AmeWindow")
 	f:SetTitle("AlertMe Options")
 	f:EnableResize(true)
 	f:SetLayout("Flow")
 	f:SetCallback("OnClose", close)
-	f:SetWidth(720)
-	f:SetHeight(620)
+	f:SetWidth(700)
+	f:SetHeight(600)
 	O.Options = f
 	-- create navigation
 	createNavTree(f)

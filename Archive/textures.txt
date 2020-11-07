@@ -1,0 +1,38 @@
+-titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Cloud]]) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title
+--titlebg:SetVertexColor(130/256, 130/256, 130/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Glamour5]]) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title
+--titlebg:SetVertexColor(0.3, 0.3, 0.3, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Cloud]])
+--titlebg:SetVertexColor(100/256, 100/256, 100/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Glamour2]])
+--titlebg:SetVertexColor(50/256, 50/256, 50/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]])
+--titlebg:SetVertexColor(90/256, 90/256, 90/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Steel]])
+--titlebg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Graphite]])
+--titlebg:SetVertexColor(140/256, 140/256, 140/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Diagonal]]) candy
+--titlebg:SetVertexColor(255/256, 1/256, 1/256, 0.8))
+
+-titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Cloud]]) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title
+--titlebg:SetVertexColor(130/256, 130/256, 130/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Glamour5]]) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title
+--titlebg:SetVertexColor(0.3, 0.3, 0.3, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Cloud]])
+--titlebg:SetVertexColor(100/256, 100/256, 100/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Glamour2]])
+--titlebg:SetVertexColor(50/256, 50/256, 50/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]])
+--titlebg:SetVertexColor(90/256, 90/256, 90/256, 0.85)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Steel]])
+--titlebg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Graphite]])
+--titlebg:SetVertexColor(140/256, 140/256, 140/256, 0.8)
+--titlebg:SetTexture([[Interface\Addons\AlertMe\Media\statusbar\Diagonal]]) candy
+--titlebg:SetVertexColor(255/256, 1/256, 1/256, 0.8)
+
+local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
+dialogbg:SetTexture(130930)	-- ui-party-background
+dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.8)
+-- 130937 chatframebackground, 130858 ui-sliderbar-background
