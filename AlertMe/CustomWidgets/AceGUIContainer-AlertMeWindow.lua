@@ -187,7 +187,7 @@ do
 
 		frame:SetScript("OnShow",frameOnShow)
 		frame:SetScript("OnHide",frameOnClose)
-		frame:SetMinResize(240,240)
+		frame:SetMinResize(350,220)
 		frame:SetToplevel(true)
 
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
@@ -200,7 +200,8 @@ do
 		--titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
 		local rnd = math.random(4)
 		local winner = textureLottery[rnd]
-		--winner = textureLottery[2]
+		-- set fix
+		winner = textureLottery[2]
 		titlebg:SetTexture(winner[1])
 		titlebg:SetVertexColor(unpack(winner[2]))
 		titlebg:SetPoint("TOPLEFT", 9, -6)
@@ -208,7 +209,7 @@ do
 
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
 		dialogbg:SetTexture(130930)	-- ui-party-background
-		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.94)
+		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.88)
 		-- 130937 chatframebackground, 130858 ui-sliderbar-background
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)

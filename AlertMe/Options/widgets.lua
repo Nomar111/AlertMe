@@ -297,8 +297,8 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	end
 	-- default values
 	title = title or ""
-	width = width or 500
-	height = height or 300
+	width = width or 533
+	height = height or 281
 	resize = resize or false
 	-- create widget
 	local widget = A.Libs.AceGUI:Create("AmeWindow")
