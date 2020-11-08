@@ -1,3 +1,4 @@
+local GetMouseFocus, GetFrameStrata, GetFrameLevel = GetMouseFocus, GetFrameStrata, GetFrameLevel
 -- set addon environment to "O"
 setfenv(1, _G.AlertMe)
 
@@ -300,19 +301,19 @@ function O.Popup:new(handle, title, width, height, resize, OnClose)
 	height = height or 300
 	resize = resize or false
 	-- create widget
-	local f = A.Libs.AceGUI:Create("AmeWindow")
-	f:SetTitle(title)
-	f:EnableResize(resize)
-	f:SetLayout("List")
-	f:SetCallback("OnClose", function(widget)
+	local widget = A.Libs.AceGUI:Create("AmeWindow")
+	widget:SetTitle(title)
+	widget:EnableResize(resize)
+	widget:SetLayout("List")
+	widget:SetCallback("OnClose", function(widget)
 		O.Popup.Popups[handle] = nil
 		A.Libs.AceGUI:Release(widget)
 	end)
-	f:SetWidth(width)
-	f:SetHeight(height)
-	O.Popup.Popups[handle] = f
-	return O.Popup.Popups[handle]
-
+	widget:SetWidth(width)
+	widget:SetHeight(height)
+	widget.frame:Raise()
+	O.Popup.Popups[handle] = widget
+	return widget
 end
 
 function O.Popup:closeAll()

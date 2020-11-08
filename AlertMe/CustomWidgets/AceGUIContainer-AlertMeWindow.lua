@@ -97,6 +97,7 @@ do
 		self:ApplyStatus()
 		self:EnableResize(true)
 		self:Show()
+		--self.frame:Raise()
 	end
 
 	local function OnRelease(self)

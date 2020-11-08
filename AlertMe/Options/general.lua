@@ -16,7 +16,7 @@ function O:ShowGeneral(container)
 	O.attachCheckBox(zonesGroup, "World", P.general.zones, "world", 100, A.RegisterCLEU)
 	O.attachCheckBox(zonesGroup, "PvE Instances", P.general.zones, "instance", width, A.RegisterCLEU)
 	-- debug level
-	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" then
+	if PLAYER_NAME == "Nomar" or PLAYER_NAME == "Devmage" or PLAYER_NAME == "Einszweidrei" then
 		O.attachSpacer(container, _, "small")
 		local function deleteLog()
 			P.log = nil
