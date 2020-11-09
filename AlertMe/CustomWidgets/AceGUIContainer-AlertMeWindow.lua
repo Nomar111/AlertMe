@@ -188,14 +188,15 @@ do
 		frame:SetToplevel(true)
 
 		local textures = {
-			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 60/255, 60/255, 60/255, 0.95 } },
+			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 90/255, 90/255, 90/255, 1 } },
 			[2] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 50/256, 55/256, 55/256, 1 } },
 			[3] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 80/255, 13/255, 6/255, 0.95 } },
 			[4] = { [[Interface\Addons\AlertMe\Media\statusbar\Graphite]], { 140/255, 140/255, 140/255, 1 } },
 		}
+		local texture = textures[1]
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
 		titlebg:SetTexture(texture[1])
-		titlebg:SetVertexColor(unpack(winner[2]))
+		titlebg:SetVertexColor(unpack(texture[2]))
 		titlebg:SetPoint("TOPLEFT", 9, -6)
 		titlebg:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -28, -24)
 
