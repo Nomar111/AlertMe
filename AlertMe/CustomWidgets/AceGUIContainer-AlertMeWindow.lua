@@ -159,7 +159,6 @@ do
 		local frame = CreateFrame("Frame",nil,UIParent)
 		local self = {}
 		self.type = "AmeWindow"
-
 		self.Hide = Hide
 		self.Show = Show
 		self.SetTitle =  SetTitle
@@ -171,9 +170,7 @@ do
 		self.OnWidthSet = OnWidthSet
 		self.OnHeightSet = OnHeightSet
 		self.EnableResize = EnableResize
-
 		self.localstatus = {}
-
 		self.frame = frame
 		frame.obj = self
 		frame:SetWidth(700)
@@ -190,30 +187,23 @@ do
 		frame:SetMinResize(350,220)
 		frame:SetToplevel(true)
 
-		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
-		local textureLottery = {
-			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 85/255, 85/255, 85/255, 1 } },
+		local textures = {
+			[1] = { [[Interface\Addons\AlertMe\Media\statusbar\DarkBottom]] , { 60/255, 60/255, 60/255, 0.95 } },
 			[2] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 50/256, 55/256, 55/256, 1 } },
 			[3] = { [[Interface\Addons\AlertMe\Media\statusbar\Steel]], { 80/255, 13/255, 6/255, 0.95 } },
 			[4] = { [[Interface\Addons\AlertMe\Media\statusbar\Graphite]], { 140/255, 140/255, 140/255, 1 } },
 		}
-		--titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
-		local rnd = math.random(4)
-		local winner = textureLottery[rnd]
-		-- set fix
-		winner = textureLottery[2]
-		titlebg:SetTexture(winner[1])
+		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
+		titlebg:SetTexture(texture[1])
 		titlebg:SetVertexColor(unpack(winner[2]))
 		titlebg:SetPoint("TOPLEFT", 9, -6)
 		titlebg:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -28, -24)
 
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
-		dialogbg:SetTexture(130930)	-- ui-party-background
-		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.88)
-		-- 130937 chatframebackground, 130858 ui-sliderbar-background
+		dialogbg:SetTexture(130930)	-- ui-party-background 	-- 130937 chatframebackground, 130858 ui-sliderbar-background
+		dialogbg:SetVertexColor(40/256, 50/256, 50/256, 0.87)
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
-		--dialogbg:SetVertexColor(1, 1, 1, 0.8)
 
 		local topleft = frame:CreateTexture(nil, "BORDER")
 		topleft:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
