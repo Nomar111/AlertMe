@@ -25,7 +25,7 @@ function A:DisplayGlows(cleu, evi, alerts, snapShot)
 	if not P.glow.enabled or not evi.displayOptions or not evi.displayOptions.glow then return end
 	-- get target frame of destination unit
 	local targetFrame = A.Libs.LGF.GetUnitFrame(cleu.dstGUID)
-	if not targetFrame then dprint(2, "LCG: no targetframe found for ", A:GetShortName(cleu.dstName)) end
+	if not targetFrame then dprint(2, "LCG: no targetframe found for ", GetShortName(cleu.dstName)) end
 	if not targetFrame and cleu.dstIsHostile and P.glow.bgtEnabled then		-- get BGT enemy unitframe
 		targetFrame = getBattleGroundTargetsFrame(cleu)
 	end

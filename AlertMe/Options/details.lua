@@ -150,7 +150,7 @@ local function openMessages(handle, uid)
 	if pop then
 		O.attachSpacer(pop, _, "medium")
 		-- standard message
-		tooltip = {	header = "Standard message"}
+		tooltip = {	header = "Standard message" }
 		tooltip.lines = { "This message will be displayed if you define nothing else", "You can edit the standard messages in Options-Messages" }
 		local edit = O.attachEditBox(pop, "Standard (event) message", P.messages, handle, 1, _, tooltip)
 		edit:DisableButton(true)
