@@ -142,7 +142,6 @@ local function displaySettings(container, handle, uid)
 		O.attachDropdown(group, _, db, "showGlow", getGlowList(), _, 150, _, tooltip)
 		O.attachSpacer(container, _, "small")
 	end
-
 end
 
 local function openMessages(handle, uid)
@@ -196,21 +195,21 @@ local function announceSettings(container, handle, uid)
 end
 
 local function soundSettings(container, handle, uid)
+	-- sound alert bottom
 	local db, list, order, tooltip = P.alerts[handle].alertDetails[uid]
 	local group = O.attachGroup(container, "simple", _ , { fullWidth = true })
 	local updateState = function()
 		if db.soundSelection == 1 then 		-- no sound
 			O.Widgets.Soundfile:SetDisabled(true)
-			updateSpelltable(handle, uid)
 		elseif db.soundSelection == 2 then	-- one sound
 			O.Widgets.Soundfile:SetDisabled(false)
-			updateSpelltable(handle, uid)
 		elseif db.soundSelection == 3 then	-- individual sounds
-			updateSpelltable(handle, uid)
 			O.Widgets.Soundfile:SetDisabled(true)
 		end
+		if A.menus[handle].spellSelection then
+			updateSpelltable(handle, uid)
+		end
 	end
-	-- sound alerts
 	O.attachHeader(group, "Sound alerts")
 	list, order, tooltip = A.lists.soundsel:getList(), A.lists.soundsel:getOrder(), A.lists.soundsel.tooltip
 	O.attachDropdown(group, "Sound alert", db, "soundSelection", list, order, 200, updateState, tooltip)
