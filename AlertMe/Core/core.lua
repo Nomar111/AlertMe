@@ -30,7 +30,7 @@ function A:Initialize()
 	-- init LibClassicCasterino (AlertMe version)
 	A:InitLCC()
 	-- Debug
-	debug()
+	-- debug()
 	--
 	if P.bars.spells then P.bars.spells = nil end
 	if P.bars.barType == "spells" then P.bars.barType = "auras" end
