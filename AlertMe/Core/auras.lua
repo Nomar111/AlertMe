@@ -2,7 +2,7 @@
 setfenv(1, _G.AlertMe)
 -- create table for snapshots
 A.snapshots = {}
-
+--
 local function cleanSnapshots()
 	local now = GetTime()
 	for d, dstGUID in pairs(A.snapshots) do
